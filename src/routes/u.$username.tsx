@@ -26,6 +26,7 @@ import { EditableImage } from "@/components/EditableImage";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { CarLogo } from "@/components/CarLogo";
 import { MakeSelect } from "@/components/MakeSelect";
+import { ModelSelect } from "@/components/ModelSelect";
 import { carLabel, type Car } from "@/lib/cars";
 
 export const Route = createFileRoute("/u/$username")({
@@ -396,17 +397,18 @@ function AddCarForm({
         <Field label="Make">
           <div className="flex items-center gap-2">
             <CarLogo make={make} className="size-8" />
-            <MakeSelect value={make} onChange={setMake} required />
+            <MakeSelect
+              value={make}
+              onChange={(next) => {
+                setMake(next);
+                setModel("");
+              }}
+              required
+            />
           </div>
         </Field>
         <Field label="Model">
-          <input
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-            required
-            placeholder="e.g. Golf GTI"
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-          />
+          <ModelSelect make={make} value={model} onChange={setModel} required />
         </Field>
       </div>
 
