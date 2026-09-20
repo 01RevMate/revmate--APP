@@ -29,9 +29,6 @@ export function TopNav() {
         <Link to="/ask" className={navLink} activeProps={{ className: "text-sm text-foreground" }}>
           Ask
         </Link>
-        <Link to="/sell" className={navLink} activeProps={{ className: "text-sm text-foreground" }}>
-          Sell
-        </Link>
         <div className="ml-auto flex items-center gap-4">
           {user ? (
             <>

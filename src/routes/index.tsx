@@ -1,7 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { carLabel, carPath, fetchCars, yearRange } from "@/lib/cars";
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
+import { fetchFeed, fetchMyLikedPostIds } from "@/lib/posts";
+import { Sidebar } from "@/components/Sidebar";
+import { PostComposer } from "@/components/PostComposer";
+import { PostCard } from "@/components/PostCard";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,67 +27,42 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const [term, setTerm] = useState("");
-  const navigate = useNavigate();
-  const { data: featured } = useQuery({
-    queryKey: ["cars", "featured"],
-    queryFn: () => fetchCars(),
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: posts, isLoading } = useQuery({
+    queryKey: ["feed"],
+    queryFn: () => fetchFeed(),
   });
 
-  return (
-    <div className="mx-auto max-w-5xl px-4 py-12">
-      <section className="max-w-2xl">
-        <h1 className="text-3xl font-semibold tracking-tight">Find your car.</h1>
-        <p className="mt-3 text-muted-foreground">
-          RevMate is the UK's place to research, discuss and trade anything car-related. Every model
-          and generation gets one page: specs, common faults, MOT data, parts, a discussion group and
-          live listings.
-        </p>
-        <form
-          className="mt-6 flex gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate({ to: "/cars", search: term ? { q: term } : {} });
-          }}
-        >
-          <input
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-            placeholder="Search a make or model, e.g. Golf GTI"
-            className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
-          />
-          <button
-            type="submit"
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            Search
-          </button>
-        </form>
-      </section>
+  const { data: likedIds } = useQuery({
+    queryKey: ["feed", "liked", user?.id, posts?.map((p) => p.id)],
+    queryFn: () => fetchMyLikedPostIds(user!.id, posts!.map((p) => p.id)),
+    enabled: !!user && !!posts && posts.length > 0,
+  });
 
-      <section className="mt-12">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-lg font-semibold">Featured car pages</h2>
-          <Link to="/cars" className="text-sm text-muted-foreground hover:text-foreground">
-            Browse all
-          </Link>
-        </div>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-          {featured?.slice(0, 6).map((car) => (
-            <li key={car.id} className="rounded-lg border border-border p-4">
-              <Link {...carPath(car)} className="font-medium hover:underline">
-                {carLabel(car)}
-              </Link>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {yearRange(car)} · {car.body_type ?? "—"}
-              </p>
-              {car.summary && (
-                <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{car.summary}</p>
-              )}
-            </li>
-          ))}
-        </ul>
-      </section>
+  function refreshFeed() {
+    queryClient.invalidateQueries({ queryKey: ["feed"] });
+  }
+
+  return (
+    <div className="mx-auto flex max-w-5xl gap-6 px-4 py-6">
+      <Sidebar />
+      <main className="min-w-0 flex-1 space-y-4 pb-16">
+        <PostComposer onPosted={refreshFeed} />
+
+        {isLoading && <p className="text-sm text-muted-foreground">Loading feed…</p>}
+
+        {!isLoading && posts?.length === 0 && (
+          <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            No posts yet — be the first to share something.
+          </div>
+        )}
+
+        {posts?.map((post) => (
+          <PostCard key={post.id} post={post} liked={likedIds?.has(post.id) ?? false} />
+        ))}
+      </main>
     </div>
   );
 }
