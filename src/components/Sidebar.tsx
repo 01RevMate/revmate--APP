@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import {
   Home,
   Car,
-  User,
+  Warehouse,
   Users,
   PanelLeftClose,
   PanelLeft,
@@ -121,7 +121,7 @@ export function Sidebar() {
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
         <GroupsItem collapsed={collapsed} />
-        {user && <NavLink to="/garage" icon={User} label="My Garage" collapsed={collapsed} />}
+        {user && <NavLink to="/garage" icon={Warehouse} label="My Garage" collapsed={collapsed} />}
         {user && <NavLink to="/settings" icon={Settings} label="Settings" collapsed={collapsed} />}
         {isAdmin && <NavLink to="/admin" icon={ShieldCheck} label="Admin" collapsed={collapsed} />}
       </nav>
