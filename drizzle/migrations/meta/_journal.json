@@ -85,6 +85,13 @@
       "when": 1789934000000,
       "tag": "0011_garage_car_ownership_status",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1789942802000,
+      "tag": "0012_revmate_vehicle_catalog",
+      "breakpoints": true
     }
   ]
 }
