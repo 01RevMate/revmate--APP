@@ -21,3 +21,10 @@ export function getCarLogoUrl(make: string | null | undefined): string | null {
   const bySlug = slugify(make);
   return VALID_SLUGS.has(bySlug) ? `/car-logos/${bySlug}.png` : null;
 }
+
+// The full list a user picks a make from — never free text, so every make
+// in the app is guaranteed to match a known brand (consistent lookups,
+// grouping by brand in the feed, and a logo that's guaranteed to exist).
+export const CAR_MAKES: string[] = (carLogoMap as { name: string }[])
+  .map((l) => l.name)
+  .sort((a, b) => a.localeCompare(b));
