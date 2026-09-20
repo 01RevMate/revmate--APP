@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Trash2, Zap, Cog, Fuel, Palette, Plus } from "lucide-react";
 import {
+  addCarPhoto,
   addMod,
+  fetchCarPhotos,
   fetchMods,
+  removeCarPhoto,
   removeGarageCar,
   removeMod,
+  FUEL_TYPE_LABELS,
   MOD_CATEGORY_LABELS,
+  TRANSMISSION_LABELS,
   type GarageCar,
   type GarageMod,
 } from "@/lib/garage";
@@ -31,11 +36,44 @@ export function GarageCarCard({
   const [modDescription, setModDescription] = useState("");
   const [modCategory, setModCategory] = useState<NonNullable<GarageMod["category"]>>("other");
   const [shareToFeed, setShareToFeed] = useState(false);
+  const [addingPhoto, setAddingPhoto] = useState(false);
+  const [photoUrlInput, setPhotoUrlInput] = useState("");
 
   const { data: mods } = useQuery({
     queryKey: ["garage-mods", car.id],
     queryFn: () => fetchMods(car.id),
   });
+
+  const { data: photos } = useQuery({
+    queryKey: ["garage-car-photos", car.id],
+    queryFn: () => fetchCarPhotos(car.id),
+  });
+
+  function refreshPhotos() {
+    queryClient.invalidateQueries({ queryKey: ["garage-car-photos", car.id] });
+  }
+
+  async function handleAddPhoto(e: React.FormEvent) {
+    e.preventDefault();
+    if (!photoUrlInput.trim()) return;
+    try {
+      await addCarPhoto(car.id, photoUrlInput.trim());
+      setPhotoUrlInput("");
+      setAddingPhoto(false);
+      refreshPhotos();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't add photo");
+    }
+  }
+
+  async function handleRemovePhoto(id: string) {
+    try {
+      await removeCarPhoto(id);
+      refreshPhotos();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't remove photo");
+    }
+  }
 
   function refreshMods() {
     queryClient.invalidateQueries({ queryKey: ["garage-mods", car.id] });
@@ -112,6 +150,77 @@ export function GarageCarCard({
           >
             <Trash2 className="size-4" />
           </button>
+        )}
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <SpecTile icon={Zap} label="Power" value={car.horsepower ? `${car.horsepower} hp` : "—"} />
+        <SpecTile icon={Cog} label="Engine" value={car.engine ?? "—"} />
+        <SpecTile icon={Fuel} label="Fuel" value={car.fuel_type ? FUEL_TYPE_LABELS[car.fuel_type] : "—"} />
+        <SpecTile icon={Palette} label="Color" value={car.color ?? "—"} />
+      </div>
+      {(car.trim || car.transmission || car.mileage != null) && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {[car.trim, car.transmission ? TRANSMISSION_LABELS[car.transmission] : null, car.mileage != null ? `${car.mileage.toLocaleString()} miles` : null]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+      )}
+
+      {car.bio && (
+        <div className="mt-4 border-t border-border pt-3">
+          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">About</h3>
+          <p className="text-sm">{car.bio}</p>
+        </div>
+      )}
+
+      <div className="mt-4 border-t border-border pt-3">
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Photos</h3>
+          {isOwner && (
+            <button
+              onClick={() => setAddingPhoto((v) => !v)}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Plus className="size-4" />
+            </button>
+          )}
+        </div>
+        {isOwner && addingPhoto && (
+          <form onSubmit={handleAddPhoto} className="mb-2 flex gap-2">
+            <input
+              value={photoUrlInput}
+              onChange={(e) => setPhotoUrlInput(e.target.value)}
+              placeholder="https://…"
+              className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+              autoFocus
+            />
+            <button
+              type="submit"
+              className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Add
+            </button>
+          </form>
+        )}
+        {photos && photos.length > 0 ? (
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {photos.map((photo) => (
+              <div key={photo.id} className="group relative aspect-video overflow-hidden rounded-md bg-muted">
+                <img src={photo.photo_url} alt="" className="size-full object-cover" />
+                {isOwner && (
+                  <button
+                    onClick={() => handleRemovePhoto(photo.id)}
+                    className="absolute right-1 top-1 rounded bg-black/60 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                  >
+                    <Trash2 className="size-3" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No photos yet.</p>
         )}
       </div>
 
@@ -205,6 +314,24 @@ export function GarageCarCard({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function SpecTile({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof Zap;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-lg border border-border p-2.5">
+      <Icon className="size-4 text-primary" />
+      <p className="mt-1 text-xs text-muted-foreground">{label}</p>
+      <p className="text-sm font-medium">{value}</p>
     </div>
   );
 }

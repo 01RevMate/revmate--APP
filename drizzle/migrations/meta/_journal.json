@@ -50,6 +50,13 @@
       "when": 1789929000000,
       "tag": "0006_post_and_mod_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789930000000,
+      "tag": "0007_garage_car_specs_and_photos",
+      "breakpoints": true
     }
   ]
 }

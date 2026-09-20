@@ -5,7 +5,13 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { PERSONA_LABELS } from "@/hooks/useProfile";
 import { fetchProfileByUsername, updateProfile, type Profile } from "@/lib/profiles";
-import { addGarageCar, fetchGarage } from "@/lib/garage";
+import {
+  addGarageCar,
+  fetchGarage,
+  FUEL_TYPE_LABELS,
+  TRANSMISSION_LABELS,
+  type GarageCar,
+} from "@/lib/garage";
 import { fetchPostsByUser } from "@/lib/posts";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
@@ -273,6 +279,14 @@ function AddCarForm({
   const [generation, setGeneration] = useState("");
   const [year, setYear] = useState("");
   const [spec, setSpec] = useState("");
+  const [trim, setTrim] = useState("");
+  const [engine, setEngine] = useState("");
+  const [horsepower, setHorsepower] = useState("");
+  const [mileage, setMileage] = useState("");
+  const [color, setColor] = useState("");
+  const [fuelType, setFuelType] = useState<GarageCar["fuel_type"]>(null);
+  const [transmission, setTransmission] = useState<GarageCar["transmission"]>(null);
+  const [bio, setBio] = useState("");
   const [saving, setSaving] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -289,6 +303,14 @@ function AddCarForm({
         generation: generation.trim() || undefined,
         year: year ? Number(year) : undefined,
         spec: spec.trim() || undefined,
+        trim: trim.trim() || undefined,
+        engine: engine.trim() || undefined,
+        horsepower: horsepower ? Number(horsepower) : undefined,
+        mileage: mileage ? Number(mileage) : undefined,
+        color: color.trim() || undefined,
+        fuelType: fuelType || undefined,
+        transmission: transmission || undefined,
+        bio: bio.trim() || undefined,
       });
       onAdded();
     } catch (err) {
@@ -357,7 +379,77 @@ function AddCarForm({
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             />
           </Field>
-          <Field label="Spec / trim">
+          <Field label="Trim">
+            <input
+              value={trim}
+              onChange={(e) => setTrim(e.target.value)}
+              placeholder="e.g. Competition"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
+          </Field>
+          <Field label="Engine">
+            <input
+              value={engine}
+              onChange={(e) => setEngine(e.target.value)}
+              placeholder="e.g. 2.0 TSI"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
+          </Field>
+          <Field label="Horsepower">
+            <input
+              value={horsepower}
+              onChange={(e) => setHorsepower(e.target.value)}
+              type="number"
+              placeholder="e.g. 245"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
+          </Field>
+          <Field label="Mileage">
+            <input
+              value={mileage}
+              onChange={(e) => setMileage(e.target.value)}
+              type="number"
+              placeholder="e.g. 45000"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
+          </Field>
+          <Field label="Color">
+            <input
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              placeholder="e.g. Frozen Black"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
+          </Field>
+          <Field label="Fuel">
+            <select
+              value={fuelType ?? ""}
+              onChange={(e) => setFuelType((e.target.value || null) as GarageCar["fuel_type"])}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="">—</option>
+              {Object.entries(FUEL_TYPE_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Transmission">
+            <select
+              value={transmission ?? ""}
+              onChange={(e) => setTransmission((e.target.value || null) as GarageCar["transmission"])}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="">—</option>
+              {Object.entries(TRANSMISSION_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Spec notes">
             <input
               value={spec}
               onChange={(e) => setSpec(e.target.value)}
@@ -365,6 +457,17 @@ function AddCarForm({
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             />
           </Field>
+          <div className="col-span-2">
+            <Field label="Bio">
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                rows={3}
+                placeholder="Tell us about this car…"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+            </Field>
+          </div>
         </div>
       )}
 

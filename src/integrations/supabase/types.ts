@@ -329,41 +329,65 @@ export type Database = {
       }
       garage_cars: {
         Row: {
+          bio: string | null
           car_id: string | null
+          color: string | null
           created_at: string
+          engine: string | null
+          fuel_type: Database["public"]["Enums"]["fuel_type"] | null
           generation: string | null
+          horsepower: number | null
           id: string
           make: string
+          mileage: number | null
           model: string
           nickname: string
           photo_url: string | null
           spec: string | null
+          transmission: Database["public"]["Enums"]["transmission_type"] | null
+          trim: string | null
           user_id: string
           year: number | null
         }
         Insert: {
+          bio?: string | null
           car_id?: string | null
+          color?: string | null
           created_at?: string
+          engine?: string | null
+          fuel_type?: Database["public"]["Enums"]["fuel_type"] | null
           generation?: string | null
+          horsepower?: number | null
           id?: string
           make: string
+          mileage?: number | null
           model: string
           nickname: string
           photo_url?: string | null
           spec?: string | null
+          transmission?: Database["public"]["Enums"]["transmission_type"] | null
+          trim?: string | null
           user_id: string
           year?: number | null
         }
         Update: {
+          bio?: string | null
           car_id?: string | null
+          color?: string | null
           created_at?: string
+          engine?: string | null
+          fuel_type?: Database["public"]["Enums"]["fuel_type"] | null
           generation?: string | null
+          horsepower?: number | null
           id?: string
           make?: string
+          mileage?: number | null
           model?: string
           nickname?: string
           photo_url?: string | null
           spec?: string | null
+          transmission?: Database["public"]["Enums"]["transmission_type"] | null
+          trim?: string | null
           user_id?: string
           year?: number | null
         }
@@ -381,6 +405,35 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      garage_car_photos: {
+        Row: {
+          created_at: string
+          garage_car_id: string
+          id: string
+          photo_url: string
+        }
+        Insert: {
+          created_at?: string
+          garage_car_id: string
+          id?: string
+          photo_url: string
+        }
+        Update: {
+          created_at?: string
+          garage_car_id?: string
+          id?: string
+          photo_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garage_car_photos_garage_car_id_fkey"
+            columns: ["garage_car_id"]
+            isOneToOne: false
+            referencedRelation: "garage_cars"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -529,6 +582,7 @@ export type Database = {
     Enums: {
       car_status: "verified" | "unverified"
       fault_source: "ai" | "owner"
+      fuel_type: "petrol" | "diesel" | "electric" | "hybrid" | "lpg" | "other"
       listing_type: "car" | "part"
       mod_category:
         | "wheels"
@@ -545,6 +599,7 @@ export type Database = {
       post_category: "discussion" | "diagnostics" | "modifications" | "bodywork" | "maintenance" | "showcase"
       profile_persona: "owner" | "modifier" | "enthusiast" | "diy_mechanic" | "trader"
       profile_role: "user" | "admin"
+      transmission_type: "manual" | "automatic" | "cvt" | "dct" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -674,6 +729,7 @@ export const Constants = {
     Enums: {
       car_status: ["verified", "unverified"],
       fault_source: ["ai", "owner"],
+      fuel_type: ["petrol", "diesel", "electric", "hybrid", "lpg", "other"],
       listing_type: ["car", "part"],
       mod_category: [
         "wheels",
@@ -691,6 +747,7 @@ export const Constants = {
       post_category: ["discussion", "diagnostics", "modifications", "bodywork", "maintenance", "showcase"],
       profile_persona: ["owner", "modifier", "enthusiast", "diy_mechanic", "trader"],
       profile_role: ["user", "admin"],
+      transmission_type: ["manual", "automatic", "cvt", "dct", "other"],
     },
   },
 } as const
