@@ -308,11 +308,99 @@ export type Database = {
           },
         ]
       }
+      garage_cars: {
+        Row: {
+          car_id: string | null
+          created_at: string
+          generation: string | null
+          id: string
+          make: string
+          model: string
+          nickname: string | null
+          spec: string | null
+          user_id: string
+          year: number | null
+        }
+        Insert: {
+          car_id?: string | null
+          created_at?: string
+          generation?: string | null
+          id?: string
+          make: string
+          model: string
+          nickname?: string | null
+          spec?: string | null
+          user_id: string
+          year?: number | null
+        }
+        Update: {
+          car_id?: string | null
+          created_at?: string
+          generation?: string | null
+          id?: string
+          make?: string
+          model?: string
+          nickname?: string | null
+          spec?: string | null
+          user_id?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garage_cars_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garage_cars_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      garage_mods: {
+        Row: {
+          created_at: string
+          description: string | null
+          garage_car_id: string
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          garage_car_id: string
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          garage_car_id?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garage_mods_garage_car_id_fkey"
+            columns: ["garage_car_id"]
+            isOneToOne: false
+            referencedRelation: "garage_cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
           id: string
+          persona: Database["public"]["Enums"]["profile_persona"]
+          role: Database["public"]["Enums"]["profile_role"]
           user_id: string
           username: string
         }
@@ -320,6 +408,8 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          persona?: Database["public"]["Enums"]["profile_persona"]
+          role?: Database["public"]["Enums"]["profile_role"]
           user_id: string
           username: string
         }
@@ -327,6 +417,8 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          persona?: Database["public"]["Enums"]["profile_persona"]
+          role?: Database["public"]["Enums"]["profile_role"]
           user_id?: string
           username?: string
         }
@@ -401,12 +493,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: { check_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       car_status: "verified" | "unverified"
       fault_source: "ai" | "owner"
       listing_type: "car" | "part"
+      profile_persona: "owner" | "modifier" | "enthusiast" | "diy_mechanic" | "trader"
+      profile_role: "user" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -537,6 +634,8 @@ export const Constants = {
       car_status: ["verified", "unverified"],
       fault_source: ["ai", "owner"],
       listing_type: ["car", "part"],
+      profile_persona: ["owner", "modifier", "enthusiast", "diy_mechanic", "trader"],
+      profile_role: ["user", "admin"],
     },
   },
 } as const

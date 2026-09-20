@@ -64,3 +64,8 @@ export async function fetchCarBySlug(make: string, model: string, generation: st
   if (error) throw error;
   return data;
 }
+
+export async function setCarStatus(carId: string, status: Car["status"]) {
+  const { error } = await supabase.from("cars").update({ status }).eq("id", carId);
+  if (error) throw error;
+}

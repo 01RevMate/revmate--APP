@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Home, Car, MessageCircleQuestion, User, Users, PanelLeftClose, PanelLeft } from "lucide-react";
+import { Home, Car, MessageCircleQuestion, User, Users, PanelLeftClose, PanelLeft, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 const STORAGE_KEY = "revmate:sidebarCollapsed";
@@ -76,6 +77,7 @@ function GroupsItem({ collapsed }: { collapsed: boolean }) {
 
 export function Sidebar() {
   const { user } = useAuth();
+  const { isAdmin } = useProfile();
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -109,7 +111,8 @@ export function Sidebar() {
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/ask" icon={MessageCircleQuestion} label="Ask a Question" collapsed={collapsed} />
         <GroupsItem collapsed={collapsed} />
-        {user && <NavLink to="/profile" icon={User} label="My Garage" collapsed={collapsed} />}
+        {user && <NavLink to="/garage" icon={User} label="My Garage" collapsed={collapsed} />}
+        {isAdmin && <NavLink to="/admin" icon={ShieldCheck} label="Admin" collapsed={collapsed} />}
       </nav>
 
       <Tooltip>
