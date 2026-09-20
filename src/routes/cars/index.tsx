@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { carLabel, carPath, fetchCars, yearRange } from "@/lib/cars";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CarLogo } from "@/components/CarLogo";
 
 type CarsSearch = { q?: string | undefined };
 
@@ -67,13 +68,16 @@ function BrowseCars() {
         <ul className="mt-6 divide-y divide-border rounded-lg border border-border">
           {cars.map((car) => (
             <li key={car.id} className="flex items-center justify-between gap-4 p-4">
-              <div>
-                <Link {...carPath(car)} className="font-medium hover:underline">
-                  {carLabel(car)}
-                </Link>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {yearRange(car)} · {car.body_type ?? "—"}
-                </p>
+              <div className="flex items-center gap-3">
+                <CarLogo make={car.make} className="size-8" />
+                <div>
+                  <Link {...carPath(car)} className="font-medium hover:underline">
+                    {carLabel(car)}
+                  </Link>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {yearRange(car)} · {car.body_type ?? "—"}
+                  </p>
+                </div>
               </div>
               {car.status === "unverified" && (
                 <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">

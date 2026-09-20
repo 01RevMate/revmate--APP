@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { carLabel, engineOptions, fetchCarBySlug, yearRange } from "@/lib/cars";
 import { fetchMyLikedPostIds, fetchPostsByCar } from "@/lib/posts";
 import { PostCard } from "@/components/PostCard";
+import { CarLogo } from "@/components/CarLogo";
 
 export const Route = createFileRoute("/cars/$make/$model/$generation")({
   head: ({ params }) => {
@@ -108,6 +109,7 @@ function CarPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
       <div className="flex flex-wrap items-center gap-3">
+        <CarLogo make={car.make} className="size-10" />
         <h1 className="text-2xl font-semibold tracking-tight">{carLabel(car)}</h1>
         {car.status === "unverified" && (
           <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">

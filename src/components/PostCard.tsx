@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { Avatar } from "@/components/Avatar";
+import { CarLogo } from "@/components/CarLogo";
 import { carLabel, carPath } from "@/lib/cars";
 import {
   addComment,
@@ -168,8 +169,9 @@ export function PostCard({
       {post.cars && (
         <Link
           {...carPath(post.cars)}
-          className="mt-3 inline-block rounded-full bg-accent px-2.5 py-1 text-xs font-medium text-accent-foreground hover:underline"
+          className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-xs font-medium text-accent-foreground hover:underline"
         >
+          <CarLogo make={post.cars.make} className="size-3.5" />
           {carLabel(post.cars)}
         </Link>
       )}

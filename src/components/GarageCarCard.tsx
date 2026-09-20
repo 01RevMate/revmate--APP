@@ -25,6 +25,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { Avatar } from "@/components/Avatar";
+import { CarLogo } from "@/components/CarLogo";
 
 export function GarageCarCard({
   car,
@@ -178,7 +179,13 @@ export function GarageCarCard({
     <div className="rounded-lg border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <Avatar photoUrl={car.photo_url} fallback={car.nickname} className="size-14" />
+          <div className="relative">
+            <Avatar photoUrl={car.photo_url} fallback={car.nickname} className="size-14" />
+            <CarLogo
+              make={car.make}
+              className="absolute -bottom-1 -right-1 size-5 rounded-full border border-background bg-background"
+            />
+          </div>
           <div>
             <p className="font-medium">
               {car.nickname} — {car.year ? `${car.year} ` : ""}
