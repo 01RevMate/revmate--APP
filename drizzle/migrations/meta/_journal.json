@@ -78,6 +78,13 @@
       "when": 1789933000000,
       "tag": "0010_user_media_bucket",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789934000000,
+      "tag": "0011_garage_car_ownership_status",
+      "breakpoints": true
     }
   ]
 }

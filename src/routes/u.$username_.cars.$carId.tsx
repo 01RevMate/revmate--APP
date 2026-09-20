@@ -6,7 +6,7 @@ import { fetchPostsByGarageCar } from "@/lib/posts";
 import { GarageCarCard } from "@/components/GarageCarCard";
 import { PostCard } from "@/components/PostCard";
 
-export const Route = createFileRoute("/u/$username/cars/$carId")({
+export const Route = createFileRoute("/u/$username_/cars/$carId")({
   head: ({ params }) => ({
     meta: [{ title: `${params.username}'s car — RevMate` }],
   }),

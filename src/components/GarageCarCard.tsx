@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Trash2, Zap, Cog, Fuel, Palette, Plus, Heart, Trophy, Loader2 } from "lucide-react";
+import { Trash2, Zap, Cog, Fuel, Palette, Plus, Heart, Trophy, Loader2, KeyRound, Undo2 } from "lucide-react";
 import {
   addCarPhoto,
   addMod,
@@ -12,6 +12,7 @@ import {
   removeCarPhoto,
   removeGarageCar,
   removeMod,
+  setGarageCarOwnershipStatus,
   unlikeGarageCar,
   FUEL_TYPE_LABELS,
   MOD_CATEGORY_LABELS,
@@ -46,7 +47,9 @@ export function GarageCarCard({
   const [modCategory, setModCategory] = useState<NonNullable<GarageMod["category"]>>("other");
   const [shareToFeed, setShareToFeed] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [statusBusy, setStatusBusy] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const isPrevious = car.ownership_status === "previous";
 
   const { data: mods } = useQuery({
     queryKey: ["garage-mods", car.id],
@@ -166,6 +169,9 @@ export function GarageCarCard({
   }
 
   async function handleRemoveCar() {
+    if (!confirm("Remove this car for good? This can't be undone — if you just sold it, mark it as previously owned instead.")) {
+      return;
+    }
     try {
       await removeGarageCar(car.id);
       queryClient.invalidateQueries({ queryKey: ["garage"] });
@@ -175,12 +181,30 @@ export function GarageCarCard({
     }
   }
 
+  async function handleToggleOwnershipStatus() {
+    setStatusBusy(true);
+    try {
+      const nextStatus = isPrevious ? "current" : "previous";
+      await setGarageCarOwnershipStatus(car.id, nextStatus);
+      queryClient.invalidateQueries({ queryKey: ["garage"] });
+      queryClient.invalidateQueries({ queryKey: ["garage-car", car.id] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't update car");
+    } finally {
+      setStatusBusy(false);
+    }
+  }
+
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className={`rounded-lg border border-border bg-card p-4 ${isPrevious ? "opacity-75" : ""}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <div className="relative">
-            <Avatar photoUrl={car.photo_url} fallback={car.nickname} className="size-14" />
+            <Avatar
+              photoUrl={car.photo_url}
+              fallback={car.nickname}
+              className={`size-14 ${isPrevious ? "grayscale" : ""}`}
+            />
             <CarLogo
               make={car.make}
               className="absolute -bottom-1 -right-1 size-5 rounded-full border border-background bg-background"
@@ -192,6 +216,11 @@ export function GarageCarCard({
               {car.make} {car.model}
               {car.generation ? ` (${car.generation})` : ""}
             </p>
+            {isPrevious && (
+              <span className="mt-1 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Previously owned
+              </span>
+            )}
             {car.spec && <p className="mt-1 text-sm text-muted-foreground">{car.spec}</p>}
           </div>
         </div>
@@ -210,13 +239,23 @@ export function GarageCarCard({
             </span>
           )}
           {isOwner && (
-            <button
-              onClick={handleRemoveCar}
-              className="text-muted-foreground hover:text-destructive"
-              title="Remove from garage"
-            >
-              <Trash2 className="size-4" />
-            </button>
+            <>
+              <button
+                onClick={handleToggleOwnershipStatus}
+                disabled={statusBusy}
+                className="text-muted-foreground hover:text-foreground disabled:opacity-50"
+                title={isPrevious ? "Mark as currently owned" : "Mark as sold / previously owned"}
+              >
+                {isPrevious ? <Undo2 className="size-4" /> : <KeyRound className="size-4" />}
+              </button>
+              <button
+                onClick={handleRemoveCar}
+                className="text-muted-foreground hover:text-destructive"
+                title="Remove from garage permanently"
+              >
+                <Trash2 className="size-4" />
+              </button>
+            </>
           )}
         </div>
       </div>

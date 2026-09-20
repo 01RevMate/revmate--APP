@@ -180,12 +180,26 @@ function GarageProfilePage() {
 
         <Section title="Garage">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {garage?.map((car) => (
+            {garage?.filter((car) => car.ownership_status !== "previous").map((car) => (
               <GarageCarTile key={car.id} username={username} car={car} />
             ))}
           </div>
           {garage?.length === 0 && !adding && (
             <p className="mt-2 text-sm text-muted-foreground">No cars in the garage yet.</p>
+          )}
+          {garage?.some((car) => car.ownership_status === "previous") && (
+            <div className="mt-6 border-t border-border pt-4">
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Previously owned
+              </h3>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {garage
+                  ?.filter((car) => car.ownership_status === "previous")
+                  .map((car) => (
+                    <GarageCarTile key={car.id} username={username} car={car} />
+                  ))}
+              </div>
+            </div>
           )}
           {isOwner && (
             <div className="mt-3">

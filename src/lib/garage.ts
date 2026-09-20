@@ -36,6 +36,11 @@ export const TRANSMISSION_LABELS: Record<NonNullable<GarageCar["transmission"]>,
   other: "Other",
 };
 
+export const OWNERSHIP_STATUS_LABELS: Record<GarageCar["ownership_status"], string> = {
+  current: "Current",
+  previous: "Previously owned",
+};
+
 export async function fetchGarage(userId: string): Promise<GarageCar[]> {
   const { data, error } = await supabase
     .from("garage_cars")
@@ -118,6 +123,11 @@ export async function updateGarageCar(
 
 export async function removeGarageCar(id: string) {
   const { error } = await supabase.from("garage_cars").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function setGarageCarOwnershipStatus(id: string, status: GarageCar["ownership_status"]) {
+  const { error } = await supabase.from("garage_cars").update({ ownership_status: status }).eq("id", id);
   if (error) throw error;
 }
 

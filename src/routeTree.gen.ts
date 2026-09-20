@@ -23,7 +23,7 @@ import { Route as CarsIndexRouteImport } from './routes/cars/index'
 import { Route as MessagesUsernameRouteImport } from './routes/messages.$username'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as CarsMakeModelGenerationRouteImport } from './routes/cars/$make.$model.$generation'
-import { Route as UUsernameCarsCarIdRouteImport } from './routes/u.$username.cars.$carId'
+import { Route as UUsernameCarsCarIdRouteImport } from './routes/u.$username_.cars.$carId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -96,9 +96,9 @@ const CarsMakeModelGenerationRoute = CarsMakeModelGenerationRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const UUsernameCarsCarIdRoute = UUsernameCarsCarIdRouteImport.update({
-  id: '/cars/$carId',
-  path: '/cars/$carId',
-  getParentRoute: () => UUsernameRoute,
+  id: '/u/$username_/cars/$carId',
+  path: '/u/$username/cars/$carId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -113,7 +113,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/messages/$username': typeof MessagesUsernameRoute
-  '/u/$username': typeof UUsernameRouteWithChildren
+  '/u/$username': typeof UUsernameRoute
   '/cars/': typeof CarsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
@@ -130,7 +130,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/messages/$username': typeof MessagesUsernameRoute
-  '/u/$username': typeof UUsernameRouteWithChildren
+  '/u/$username': typeof UUsernameRoute
   '/cars': typeof CarsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
@@ -148,10 +148,10 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/messages/$username': typeof MessagesUsernameRoute
-  '/u/$username': typeof UUsernameRouteWithChildren
+  '/u/$username': typeof UUsernameRoute
   '/cars/': typeof CarsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
-  '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
+  '/u/$username_/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -204,7 +204,7 @@ export interface FileRouteTypes {
     | '/u/$username'
     | '/cars/'
     | '/cars/$make/$model/$generation'
-    | '/u/$username/cars/$carId'
+    | '/u/$username_/cars/$carId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -218,9 +218,10 @@ export interface RootRouteChildren {
   SellRoute: typeof SellRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
-  UUsernameRoute: typeof UUsernameRouteWithChildren
+  UUsernameRoute: typeof UUsernameRoute
   CarsIndexRoute: typeof CarsIndexRoute
   CarsMakeModelGenerationRoute: typeof CarsMakeModelGenerationRoute
+  UUsernameCarsCarIdRoute: typeof UUsernameCarsCarIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -323,12 +324,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CarsMakeModelGenerationRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/u/$username/cars/$carId': {
-      id: '/u/$username/cars/$carId'
-      path: '/cars/$carId'
+    '/u/$username_/cars/$carId': {
+      id: '/u/$username_/cars/$carId'
+      path: '/u/$username/cars/$carId'
       fullPath: '/u/$username/cars/$carId'
       preLoaderRoute: typeof UUsernameCarsCarIdRouteImport
-      parentRoute: typeof UUsernameRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -345,18 +346,6 @@ const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
   MessagesRouteChildren,
 )
 
-interface UUsernameRouteChildren {
-  UUsernameCarsCarIdRoute: typeof UUsernameCarsCarIdRoute
-}
-
-const UUsernameRouteChildren: UUsernameRouteChildren = {
-  UUsernameCarsCarIdRoute: UUsernameCarsCarIdRoute,
-}
-
-const UUsernameRouteWithChildren = UUsernameRoute._addFileChildren(
-  UUsernameRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
@@ -368,9 +357,10 @@ const rootRouteChildren: RootRouteChildren = {
   SellRoute: SellRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
-  UUsernameRoute: UUsernameRouteWithChildren,
+  UUsernameRoute: UUsernameRoute,
   CarsIndexRoute: CarsIndexRoute,
   CarsMakeModelGenerationRoute: CarsMakeModelGenerationRoute,
+  UUsernameCarsCarIdRoute: UUsernameCarsCarIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -375,6 +375,7 @@ export type Database = {
           mileage: number | null
           model: string
           nickname: string
+          ownership_status: Database["public"]["Enums"]["garage_car_ownership_status"]
           photo_url: string | null
           spec: string | null
           transmission: Database["public"]["Enums"]["transmission_type"] | null
@@ -397,6 +398,7 @@ export type Database = {
           mileage?: number | null
           model: string
           nickname: string
+          ownership_status?: Database["public"]["Enums"]["garage_car_ownership_status"]
           photo_url?: string | null
           spec?: string | null
           transmission?: Database["public"]["Enums"]["transmission_type"] | null
@@ -419,6 +421,7 @@ export type Database = {
           mileage?: number | null
           model?: string
           nickname?: string
+          ownership_status?: Database["public"]["Enums"]["garage_car_ownership_status"]
           photo_url?: string | null
           spec?: string | null
           transmission?: Database["public"]["Enums"]["transmission_type"] | null
@@ -781,6 +784,7 @@ export type Database = {
       fault_source: "ai" | "owner"
       friendship_status: "pending" | "accepted"
       fuel_type: "petrol" | "diesel" | "electric" | "hybrid" | "lpg" | "other"
+      garage_car_ownership_status: "current" | "previous"
       listing_type: "car" | "part"
       mod_category:
         | "wheels"
