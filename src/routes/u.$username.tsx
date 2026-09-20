@@ -22,6 +22,7 @@ import { SocialLinksDisplay, SocialLinksEditor } from "@/components/SocialLinks"
 import { AchievementBadges } from "@/components/AchievementBadges";
 import { FriendButton } from "@/components/FriendButton";
 import { FriendsSection } from "@/components/FriendsSection";
+import { EditableImage } from "@/components/EditableImage";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { carLabel, type Car } from "@/lib/cars";
 
@@ -93,17 +94,43 @@ function GarageProfilePage() {
     );
   }
 
+  async function handleCoverUploaded(url: string) {
+    try {
+      await updateProfile(profile!.user_id, { cover_photo_url: url });
+      refreshProfile();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't save cover photo");
+    }
+  }
+
+  async function handleAvatarUploaded(url: string) {
+    try {
+      await updateProfile(profile!.user_id, { avatar_url: url });
+      refreshProfile();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't save profile picture");
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl pb-16">
-      <div className="h-40 w-full bg-muted sm:h-56">
+      <EditableImage
+        userId={profile.user_id}
+        editable={isOwner}
+        onUploaded={handleCoverUploaded}
+        className="h-40 w-full bg-muted sm:h-56"
+        rounded="rounded-none"
+      >
         {profile.cover_photo_url && (
           <img src={profile.cover_photo_url} alt="" className="size-full object-cover" />
         )}
-      </div>
+      </EditableImage>
 
       <div className="px-4">
         <div className="-mt-10 flex items-end justify-between gap-3">
-          <Avatar photoUrl={profile.avatar_url} fallback={profile.username} className="size-20 border-4 border-background" />
+          <EditableImage userId={profile.user_id} editable={isOwner} onUploaded={handleAvatarUploaded}>
+            <Avatar photoUrl={profile.avatar_url} fallback={profile.username} className="size-20 border-4 border-background" />
+          </EditableImage>
           {isOwner ? (
             <button
               onClick={() => setEditing((v) => !v)}
@@ -225,8 +252,6 @@ function EditProfileForm({
   onSaved: () => void;
   onDone: () => void;
 }) {
-  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
-  const [coverPhotoUrl, setCoverPhotoUrl] = useState(profile.cover_photo_url ?? "");
   const [persona, setPersona] = useState<Profile["persona"]>(profile.persona);
   const [socialLinks, setSocialLinks] = useState({
     social_instagram: profile.social_instagram ?? "",
@@ -247,8 +272,6 @@ function EditProfileForm({
     setSaving(true);
     try {
       await updateProfile(profile.user_id, {
-        avatar_url: avatarUrl || null,
-        cover_photo_url: coverPhotoUrl || null,
         persona,
         social_instagram: socialLinks.social_instagram.trim() || null,
         social_facebook: socialLinks.social_facebook.trim() || null,
@@ -265,14 +288,6 @@ function EditProfileForm({
 
   return (
     <form onSubmit={handleSave} className="mt-4 space-y-3 rounded-lg border border-border bg-card p-4">
-      <ImageUploadField label="Profile picture" userId={profile.user_id} value={avatarUrl} onChange={setAvatarUrl} />
-      <ImageUploadField
-        label="Cover photo"
-        userId={profile.user_id}
-        value={coverPhotoUrl}
-        onChange={setCoverPhotoUrl}
-        shape="wide"
-      />
       <Field label="I'm a…">
         <select
           value={persona}
