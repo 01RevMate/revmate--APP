@@ -37,6 +37,16 @@ export async function fetchPostsByUser(userId: string): Promise<PostWithAuthor[]
   return data as unknown as PostWithAuthor[];
 }
 
+export async function fetchPostsByCar(carId: string): Promise<PostWithAuthor[]> {
+  const { data, error } = await supabase
+    .from("posts")
+    .select(POST_SELECT)
+    .eq("car_id", carId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data as unknown as PostWithAuthor[];
+}
+
 export async function fetchPostsByGarageCar(garageCarId: string): Promise<PostWithAuthor[]> {
   const { data, error } = await supabase
     .from("posts")

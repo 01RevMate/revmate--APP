@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { carLabel, engineOptions, fetchCarBySlug, yearRange } from "@/lib/cars";
+import { fetchMyLikedPostIds, fetchPostsByCar } from "@/lib/posts";
+import { PostCard } from "@/components/PostCard";
 
 export const Route = createFileRoute("/cars/$make/$model/$generation")({
   head: ({ params }) => {
@@ -24,12 +27,25 @@ export const Route = createFileRoute("/cars/$make/$model/$generation")({
 
 function CarPage() {
   const { make, model, generation } = Route.useParams();
+  const { user } = useAuth();
 
   const carQuery = useQuery({
     queryKey: ["car", make, model, generation],
     queryFn: () => fetchCarBySlug(make, model, generation),
   });
   const car = carQuery.data;
+
+  const posts = useQuery({
+    queryKey: ["posts-by-car", car?.id],
+    enabled: !!car,
+    queryFn: () => fetchPostsByCar(car!.id),
+  });
+
+  const { data: likedIds } = useQuery({
+    queryKey: ["posts-by-car", "liked", car?.id, user?.id],
+    queryFn: () => fetchMyLikedPostIds(user!.id, posts.data!.map((p) => p.id)),
+    enabled: !!user && !!posts.data && posts.data.length > 0,
+  });
 
   const faults = useQuery({
     queryKey: ["faults", car?.id],
@@ -139,6 +155,19 @@ function CarPage() {
             <li className="text-sm text-muted-foreground">No faults logged yet.</li>
           )}
         </ul>
+      </Section>
+
+      <Section title="Community posts">
+        <div className="space-y-4">
+          {posts.data?.map((post) => (
+            <PostCard key={post.id} post={post} liked={likedIds?.has(post.id) ?? false} />
+          ))}
+          {posts.data?.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No posts tagged with this car yet — tag it next time you post to the feed.
+            </p>
+          )}
+        </div>
       </Section>
 
       <Section title="MOT data">
