@@ -108,7 +108,10 @@ export async function fetchVehiclePowertrains(derivativeId: string) {
 }
 
 function loadBundledCatalog() {
-  bundledCatalogPromise ??= buildBundledCatalog();
+  bundledCatalogPromise ??= buildBundledCatalog().catch((error: unknown) => {
+    bundledCatalogPromise = undefined;
+    throw error;
+  });
   return bundledCatalogPromise;
 }
 
@@ -118,8 +121,11 @@ async function buildBundledCatalog(): Promise<BundledCatalog> {
     throw new Error("The RevMate vehicle catalogue could not be loaded.");
   }
 
-  const decompressed = response.body.pipeThrough(new DecompressionStream("gzip"));
-  const content = await new Response(decompressed).text();
+  // Nitro/Cloudflare may transparently decode `.gz` responses while Vite may
+  // return the raw gzip bytes. Inspect the body so both environments work.
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  const isRawGzip = bytes[0] === 0x1f && bytes[1] === 0x8b;
+  const content = isRawGzip ? await decompressGzipBytes(bytes) : new TextDecoder().decode(bytes);
   const makeMap = new Map<string, VehicleMake>();
   const modelMap = new Map<string, VehicleModel>();
   const derivativeMap = new Map<string, VehicleDerivative>();
@@ -184,6 +190,14 @@ async function buildBundledCatalog(): Promise<BundledCatalog> {
       (powertrain) => powertrain.derivative_id,
     ),
   };
+}
+
+async function decompressGzipBytes(bytes: Uint8Array<ArrayBuffer>) {
+  if (typeof DecompressionStream === "undefined") {
+    throw new Error("This browser cannot open the RevMate vehicle catalogue.");
+  }
+  const decompressed = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+  return new Response(decompressed).text();
 }
 
 function groupBy<T>(rows: T[], getKey: (row: T) => string) {
