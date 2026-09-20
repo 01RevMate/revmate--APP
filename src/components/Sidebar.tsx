@@ -25,10 +25,9 @@ function NavLink({
   exact?: boolean;
 }) {
   const linkProps = exact ? { activeOptions: { exact: true } } : {};
-  return (
+  const link = (
     <Link
       to={to}
-      title={collapsed ? label : undefined}
       className={`${item} ${collapsed ? itemCollapsed : ""}`}
       activeProps={{ className: `${item} ${collapsed ? itemCollapsed : ""} ${activeItem}` }}
       {...linkProps}
@@ -36,6 +35,42 @@ function NavLink({
       <Icon className="size-5 shrink-0" />
       {!collapsed && label}
     </Link>
+  );
+
+  if (!collapsed) return link;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{link}</TooltipTrigger>
+      <TooltipContent side="right">{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+function GroupsItem({ collapsed }: { collapsed: boolean }) {
+  const span = (
+    <span
+      className={`${item} ${collapsed ? itemCollapsed : ""} cursor-not-allowed opacity-50 hover:bg-transparent`}
+    >
+      <Users className="size-5 shrink-0" />
+      {!collapsed && (
+        <>
+          Groups
+          <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            Soon
+          </span>
+        </>
+      )}
+    </span>
+  );
+
+  if (!collapsed) return span;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{span}</TooltipTrigger>
+      <TooltipContent side="right">Groups — coming soon</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -73,20 +108,7 @@ export function Sidebar() {
         <NavLink to="/" icon={Home} label="Home" collapsed={collapsed} exact />
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/ask" icon={MessageCircleQuestion} label="Ask a Question" collapsed={collapsed} />
-        <span
-          title={collapsed ? "Groups — coming soon" : undefined}
-          className={`${item} ${collapsed ? itemCollapsed : ""} cursor-not-allowed opacity-50 hover:bg-transparent`}
-        >
-          <Users className="size-5 shrink-0" />
-          {!collapsed && (
-            <>
-              Groups
-              <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                Soon
-              </span>
-            </>
-          )}
-        </span>
+        <GroupsItem collapsed={collapsed} />
         {user && <NavLink to="/profile" icon={User} label="My Garage" collapsed={collapsed} />}
       </nav>
 
