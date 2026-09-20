@@ -370,6 +370,7 @@ export type Database = {
           generation: string | null
           horsepower: number | null
           id: string
+          likes_count: number
           make: string
           mileage: number | null
           model: string
@@ -391,6 +392,7 @@ export type Database = {
           generation?: string | null
           horsepower?: number | null
           id?: string
+          likes_count?: number
           make: string
           mileage?: number | null
           model: string
@@ -412,6 +414,7 @@ export type Database = {
           generation?: string | null
           horsepower?: number | null
           id?: string
+          likes_count?: number
           make?: string
           mileage?: number | null
           model?: string
@@ -512,6 +515,9 @@ export type Database = {
           id: string
           persona: Database["public"]["Enums"]["profile_persona"]
           role: Database["public"]["Enums"]["profile_role"]
+          social_facebook: string | null
+          social_instagram: string | null
+          social_tiktok: string | null
           user_id: string
           username: string
         }
@@ -522,6 +528,9 @@ export type Database = {
           id?: string
           persona?: Database["public"]["Enums"]["profile_persona"]
           role?: Database["public"]["Enums"]["profile_role"]
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_tiktok?: string | null
           user_id: string
           username: string
         }
@@ -532,10 +541,166 @@ export type Database = {
           id?: string
           persona?: Database["public"]["Enums"]["profile_persona"]
           role?: Database["public"]["Enums"]["profile_role"]
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_tiktok?: string | null
           user_id?: string
           username?: string
         }
         Relationships: []
+      }
+      friendships: {
+        Row: {
+          created_at: string
+          id: string
+          recipient_id: string
+          requester_id: string
+          status: Database["public"]["Enums"]["friendship_status"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recipient_id: string
+          requester_id: string
+          status?: Database["public"]["Enums"]["friendship_status"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recipient_id?: string
+          requester_id?: string
+          status?: Database["public"]["Enums"]["friendship_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friendships_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "friendships_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      garage_car_likes: {
+        Row: {
+          created_at: string
+          garage_car_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          garage_car_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          garage_car_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garage_car_likes_garage_car_id_fkey"
+            columns: ["garage_car_id"]
+            isOneToOne: false
+            referencedRelation: "garage_cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garage_car_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          user_a: string
+          user_b: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_a: string
+          user_b: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_a?: string
+          user_b?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_user_a_fkey"
+            columns: ["user_a"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "conversations_user_b_fkey"
+            columns: ["user_b"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       questions: {
         Row: {
@@ -614,6 +779,7 @@ export type Database = {
     Enums: {
       car_status: "verified" | "unverified"
       fault_source: "ai" | "owner"
+      friendship_status: "pending" | "accepted"
       fuel_type: "petrol" | "diesel" | "electric" | "hybrid" | "lpg" | "other"
       listing_type: "car" | "part"
       mod_category:
@@ -761,6 +927,7 @@ export const Constants = {
     Enums: {
       car_status: ["verified", "unverified"],
       fault_source: ["ai", "owner"],
+      friendship_status: ["pending", "accepted"],
       fuel_type: ["petrol", "diesel", "electric", "hybrid", "lpg", "other"],
       listing_type: ["car", "part"],
       mod_category: [

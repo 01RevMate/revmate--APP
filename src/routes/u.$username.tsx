@@ -2,9 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { PERSONA_LABELS } from "@/hooks/useProfile";
-import { fetchProfileByUsername, updateProfile, type Profile } from "@/lib/profiles";
+import { fetchProfileByUsername, updateProfile, SOCIAL_PLATFORMS, type Profile } from "@/lib/profiles";
 import {
   addGarageCar,
   fetchGarage,
@@ -17,6 +18,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { GarageCarTile } from "@/components/GarageCarTile";
 import { PostCard } from "@/components/PostCard";
+import { SocialLinksDisplay, SocialLinksEditor } from "@/components/SocialLinks";
+import { AchievementBadges } from "@/components/AchievementBadges";
+import { FriendButton } from "@/components/FriendButton";
+import { FriendsSection } from "@/components/FriendsSection";
 import { carLabel, type Car } from "@/lib/cars";
 
 export const Route = createFileRoute("/u/$username")({
@@ -98,21 +103,48 @@ function GarageProfilePage() {
       <div className="px-4">
         <div className="-mt-10 flex items-end justify-between gap-3">
           <Avatar photoUrl={profile.avatar_url} fallback={profile.username} className="size-20 border-4 border-background" />
-          {isOwner && (
+          {isOwner ? (
             <button
               onClick={() => setEditing((v) => !v)}
               className="mb-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent"
             >
               {editing ? "Close" : "Edit profile"}
             </button>
+          ) : (
+            user && (
+              <div className="mb-2 flex gap-2">
+                <Link
+                  to="/messages/$username"
+                  params={{ username: profile.username }}
+                  className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  <MessageCircle className="size-3.5" />
+                  Message
+                </Link>
+                <FriendButton myId={user.id} otherId={profile.user_id} />
+              </div>
+            )
           )}
         </div>
 
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">{profile.username}</h1>
         <p className="text-sm text-muted-foreground">{PERSONA_LABELS[profile.persona]}</p>
 
+        <div className="mt-3">
+          <SocialLinksDisplay profile={profile} />
+        </div>
+        <div className="mt-3">
+          <AchievementBadges userId={profile.user_id} />
+        </div>
+
         {isOwner && editing && (
           <EditProfileForm profile={profile} onSaved={refreshProfile} onDone={() => setEditing(false)} />
+        )}
+
+        {isOwner && (
+          <Section title="Friends">
+            <FriendsSection userId={profile.user_id} />
+          </Section>
         )}
 
         <Section title="Garage">
@@ -195,16 +227,31 @@ function EditProfileForm({
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
   const [coverPhotoUrl, setCoverPhotoUrl] = useState(profile.cover_photo_url ?? "");
   const [persona, setPersona] = useState<Profile["persona"]>(profile.persona);
+  const [socialLinks, setSocialLinks] = useState({
+    social_instagram: profile.social_instagram ?? "",
+    social_facebook: profile.social_facebook ?? "",
+    social_tiktok: profile.social_tiktok ?? "",
+  });
   const [saving, setSaving] = useState(false);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    for (const platform of SOCIAL_PLATFORMS) {
+      const value = socialLinks[platform.key].trim();
+      if (value && !platform.validate(value)) {
+        toast.error(`${platform.label} link doesn't look like a valid ${platform.label} URL.`);
+        return;
+      }
+    }
     setSaving(true);
     try {
       await updateProfile(profile.user_id, {
         avatar_url: avatarUrl || null,
         cover_photo_url: coverPhotoUrl || null,
         persona,
+        social_instagram: socialLinks.social_instagram.trim() || null,
+        social_facebook: socialLinks.social_facebook.trim() || null,
+        social_tiktok: socialLinks.social_tiktok.trim() || null,
       });
       onSaved();
       onDone();
@@ -246,6 +293,10 @@ function EditProfileForm({
           ))}
         </select>
       </Field>
+      <SocialLinksEditor
+        values={socialLinks}
+        onChange={(key, value) => setSocialLinks((prev) => ({ ...prev, [key]: value }))}
+      />
       <div className="flex gap-2">
         <button
           type="submit"

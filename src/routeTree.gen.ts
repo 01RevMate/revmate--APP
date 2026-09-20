@@ -15,10 +15,12 @@ import { Route as AskRouteImport } from './routes/ask'
 import { Route as GarageRouteImport } from './routes/garage'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
+import { Route as MessagesUsernameRouteImport } from './routes/messages.$username'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as CarsMakeModelGenerationRouteImport } from './routes/cars/$make.$model.$generation'
 import { Route as UUsernameCarsCarIdRouteImport } from './routes/u.$username.cars.$carId'
@@ -53,6 +55,11 @@ const MarketplaceRoute = MarketplaceRouteImport.update({
   path: '/marketplace',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
@@ -72,6 +79,11 @@ const CarsIndexRoute = CarsIndexRouteImport.update({
   id: '/cars/',
   path: '/cars/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesUsernameRoute = MessagesUsernameRouteImport.update({
+  id: '/$username',
+  path: '/$username',
+  getParentRoute: () => MessagesRoute,
 } as any)
 const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
@@ -96,9 +108,11 @@ export interface FileRoutesByFullPath {
   '/garage': typeof GarageRoute
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/messages/$username': typeof MessagesUsernameRoute
   '/u/$username': typeof UUsernameRouteWithChildren
   '/cars/': typeof CarsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
@@ -111,9 +125,11 @@ export interface FileRoutesByTo {
   '/garage': typeof GarageRoute
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/messages/$username': typeof MessagesUsernameRoute
   '/u/$username': typeof UUsernameRouteWithChildren
   '/cars': typeof CarsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
@@ -127,9 +143,11 @@ export interface FileRoutesById {
   '/garage': typeof GarageRoute
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/messages/$username': typeof MessagesUsernameRoute
   '/u/$username': typeof UUsernameRouteWithChildren
   '/cars/': typeof CarsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
@@ -144,9 +162,11 @@ export interface FileRouteTypes {
     | '/garage'
     | '/login'
     | '/marketplace'
+    | '/messages'
     | '/sell'
     | '/settings'
     | '/signup'
+    | '/messages/$username'
     | '/u/$username'
     | '/cars/'
     | '/cars/$make/$model/$generation'
@@ -159,9 +179,11 @@ export interface FileRouteTypes {
     | '/garage'
     | '/login'
     | '/marketplace'
+    | '/messages'
     | '/sell'
     | '/settings'
     | '/signup'
+    | '/messages/$username'
     | '/u/$username'
     | '/cars'
     | '/cars/$make/$model/$generation'
@@ -174,9 +196,11 @@ export interface FileRouteTypes {
     | '/garage'
     | '/login'
     | '/marketplace'
+    | '/messages'
     | '/sell'
     | '/settings'
     | '/signup'
+    | '/messages/$username'
     | '/u/$username'
     | '/cars/'
     | '/cars/$make/$model/$generation'
@@ -190,6 +214,7 @@ export interface RootRouteChildren {
   GarageRoute: typeof GarageRoute
   LoginRoute: typeof LoginRoute
   MarketplaceRoute: typeof MarketplaceRoute
+  MessagesRoute: typeof MessagesRouteWithChildren
   SellRoute: typeof SellRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
@@ -242,6 +267,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sell': {
       id: '/sell'
       path: '/sell'
@@ -270,6 +302,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CarsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messages/$username': {
+      id: '/messages/$username'
+      path: '/$username'
+      fullPath: '/messages/$username'
+      preLoaderRoute: typeof MessagesUsernameRouteImport
+      parentRoute: typeof MessagesRoute
+    }
     '/u/$username': {
       id: '/u/$username'
       path: '/u/$username'
@@ -294,6 +333,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface MessagesRouteChildren {
+  MessagesUsernameRoute: typeof MessagesUsernameRoute
+}
+
+const MessagesRouteChildren: MessagesRouteChildren = {
+  MessagesUsernameRoute: MessagesUsernameRoute,
+}
+
+const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
+  MessagesRouteChildren,
+)
+
 interface UUsernameRouteChildren {
   UUsernameCarsCarIdRoute: typeof UUsernameCarsCarIdRoute
 }
@@ -313,6 +364,7 @@ const rootRouteChildren: RootRouteChildren = {
   GarageRoute: GarageRoute,
   LoginRoute: LoginRoute,
   MarketplaceRoute: MarketplaceRoute,
+  MessagesRoute: MessagesRouteWithChildren,
   SellRoute: SellRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,

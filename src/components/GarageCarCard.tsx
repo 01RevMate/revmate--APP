@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Trash2, Zap, Cog, Fuel, Palette, Plus } from "lucide-react";
+import { Trash2, Zap, Cog, Fuel, Palette, Plus, Heart, Trophy } from "lucide-react";
 import {
   addCarPhoto,
   addMod,
   fetchCarPhotos,
+  fetchGarageCarRank,
   fetchMods,
+  hasLikedGarageCar,
+  likeGarageCar,
   removeCarPhoto,
   removeGarageCar,
   removeMod,
+  unlikeGarageCar,
   FUEL_TYPE_LABELS,
   MOD_CATEGORY_LABELS,
   TRANSMISSION_LABELS,
@@ -18,6 +22,7 @@ import {
 import { createPost } from "@/lib/posts";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthModal } from "@/hooks/useAuthModal";
 import { Avatar } from "@/components/Avatar";
 
 export function GarageCarCard({
@@ -30,7 +35,9 @@ export function GarageCarCard({
   onRemoved?: () => void;
 }) {
   const { user } = useAuth();
+  const { open: openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();
+  const [likeBusy, setLikeBusy] = useState(false);
   const [addingMod, setAddingMod] = useState(false);
   const [modTitle, setModTitle] = useState("");
   const [modDescription, setModDescription] = useState("");
@@ -43,6 +50,36 @@ export function GarageCarCard({
     queryKey: ["garage-mods", car.id],
     queryFn: () => fetchMods(car.id),
   });
+
+  const { data: liked, refetch: refetchLiked } = useQuery({
+    queryKey: ["garage-car-liked", car.id, user?.id],
+    enabled: !!user,
+    queryFn: () => hasLikedGarageCar(car.id, user!.id),
+  });
+
+  const { data: rank } = useQuery({
+    queryKey: ["garage-car-rank", car.id],
+    queryFn: () => fetchGarageCarRank(car.id),
+  });
+
+  async function toggleLike() {
+    if (!user) {
+      openAuthModal("Create a free account to like a build.");
+      return;
+    }
+    setLikeBusy(true);
+    try {
+      if (liked) await unlikeGarageCar(car.id, user.id);
+      else await likeGarageCar(car.id, user.id);
+      refetchLiked();
+      queryClient.invalidateQueries({ queryKey: ["garage-car-rank", car.id] });
+      queryClient.invalidateQueries({ queryKey: ["garage-car", car.id] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't update like");
+    } finally {
+      setLikeBusy(false);
+    }
+  }
 
   const { data: photos } = useQuery({
     queryKey: ["garage-car-photos", car.id],
@@ -142,15 +179,30 @@ export function GarageCarCard({
             {car.spec && <p className="mt-1 text-sm text-muted-foreground">{car.spec}</p>}
           </div>
         </div>
-        {isOwner && (
+        <div className="flex shrink-0 items-center gap-3">
           <button
-            onClick={handleRemoveCar}
-            className="shrink-0 text-muted-foreground hover:text-destructive"
-            title="Remove from garage"
+            onClick={toggleLike}
+            disabled={likeBusy}
+            className={`flex items-center gap-1.5 text-sm ${liked ? "text-red-500" : "text-muted-foreground hover:text-foreground"}`}
           >
-            <Trash2 className="size-4" />
+            <Heart className="size-4" fill={liked ? "currentColor" : "none"} />
+            {car.likes_count}
           </button>
-        )}
+          {rank && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Trophy className="size-3.5 text-yellow-500" />#{rank}
+            </span>
+          )}
+          {isOwner && (
+            <button
+              onClick={handleRemoveCar}
+              className="text-muted-foreground hover:text-destructive"
+              title="Remove from garage"
+            >
+              <Trash2 className="size-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">

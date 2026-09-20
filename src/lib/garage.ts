@@ -169,3 +169,44 @@ export async function removeCarPhoto(id: string) {
   const { error } = await supabase.from("garage_car_photos").delete().eq("id", id);
   if (error) throw error;
 }
+
+export async function likeGarageCar(garageCarId: string, userId: string) {
+  const { error } = await supabase
+    .from("garage_car_likes")
+    .insert({ garage_car_id: garageCarId, user_id: userId });
+  if (error) throw error;
+}
+
+export async function unlikeGarageCar(garageCarId: string, userId: string) {
+  const { error } = await supabase
+    .from("garage_car_likes")
+    .delete()
+    .eq("garage_car_id", garageCarId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
+export async function hasLikedGarageCar(garageCarId: string, userId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("garage_car_likes")
+    .select("id")
+    .eq("garage_car_id", garageCarId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  return !!data;
+}
+
+// Rank a car by likes among all garage cars — fetches a large batch and finds
+// the index client-side, same approach as the old app rather than a
+// window-function RPC, since supabase-js has no raw-SQL escape hatch here.
+export async function fetchGarageCarRank(garageCarId: string): Promise<number | null> {
+  const { data, error } = await supabase
+    .from("garage_cars")
+    .select("id, likes_count")
+    .order("likes_count", { ascending: false })
+    .limit(500);
+  if (error) throw error;
+  const idx = data.findIndex((c) => c.id === garageCarId);
+  return idx >= 0 ? idx + 1 : null;
+}
