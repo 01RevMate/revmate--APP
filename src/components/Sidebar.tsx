@@ -1,41 +1,100 @@
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Home, Car, MessageCircleQuestion, User, Users } from "lucide-react";
+import { Home, Car, MessageCircleQuestion, User, Users, PanelLeftClose, PanelLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+
+const STORAGE_KEY = "revmate:sidebarCollapsed";
 
 const item =
   "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-foreground";
+const itemCollapsed = "justify-center px-2";
 const activeItem = "bg-accent text-foreground";
+
+function NavLink({
+  to,
+  icon: Icon,
+  label,
+  collapsed,
+  exact,
+}: {
+  to: string;
+  icon: typeof Home;
+  label: string;
+  collapsed: boolean;
+  exact?: boolean;
+}) {
+  return (
+    <Link
+      to={to}
+      title={collapsed ? label : undefined}
+      activeOptions={exact ? { exact: true } : undefined}
+      className={`${item} ${collapsed ? itemCollapsed : ""}`}
+      activeProps={{ className: `${item} ${collapsed ? itemCollapsed : ""} ${activeItem}` }}
+    >
+      <Icon className="size-5 shrink-0" />
+      {!collapsed && label}
+    </Link>
+  );
+}
 
 export function Sidebar() {
   const { user } = useAuth();
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      setCollapsed(localStorage.getItem(STORAGE_KEY) === "1");
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  function toggle() {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }
 
   return (
-    <aside className="hidden w-60 shrink-0 space-y-1 md:block">
-      <Link to="/" className={item} activeOptions={{ exact: true }} activeProps={{ className: `${item} ${activeItem}` }}>
-        <Home className="size-5" />
-        Home
-      </Link>
-      <Link to="/cars" className={item} activeProps={{ className: `${item} ${activeItem}` }}>
-        <Car className="size-5" />
-        Browse Cars
-      </Link>
-      <Link to="/ask" className={item} activeProps={{ className: `${item} ${activeItem}` }}>
-        <MessageCircleQuestion className="size-5" />
-        Ask a Question
-      </Link>
-      <span className={`${item} cursor-not-allowed opacity-50 hover:bg-transparent`}>
-        <Users className="size-5" />
-        Groups
-        <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-          Soon
+    <aside
+      className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-card/50 py-4 md:flex ${
+        collapsed ? "w-16 px-2" : "w-60 px-3"
+      }`}
+    >
+      <nav className="space-y-1">
+        <NavLink to="/" icon={Home} label="Home" collapsed={collapsed} exact />
+        <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
+        <NavLink to="/ask" icon={MessageCircleQuestion} label="Ask a Question" collapsed={collapsed} />
+        <span
+          title={collapsed ? "Groups — coming soon" : undefined}
+          className={`${item} ${collapsed ? itemCollapsed : ""} cursor-not-allowed opacity-50 hover:bg-transparent`}
+        >
+          <Users className="size-5 shrink-0" />
+          {!collapsed && (
+            <>
+              Groups
+              <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Soon
+              </span>
+            </>
+          )}
         </span>
-      </span>
-      {user && (
-        <Link to="/profile" className={item} activeProps={{ className: `${item} ${activeItem}` }}>
-          <User className="size-5" />
-          My Garage
-        </Link>
-      )}
+        {user && <NavLink to="/profile" icon={User} label="My Garage" collapsed={collapsed} />}
+      </nav>
+
+      <button
+        onClick={toggle}
+        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        className="mt-2 flex items-center gap-3 self-start rounded-md border-t border-border px-3 pt-3 pb-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+      >
+        {collapsed ? <PanelLeft className="size-5 shrink-0" /> : <PanelLeftClose className="size-5 shrink-0" />}
+      </button>
     </aside>
   );
 }
