@@ -116,6 +116,16 @@ function CarPage() {
         )}
       </div>
       {car.summary && <p className="mt-2 max-w-2xl text-muted-foreground">{car.summary}</p>}
+      {car.source_url && (
+        <a
+          href={car.source_url}
+          target="_blank"
+          rel="noopener noreferrer nofollow"
+          className="mt-1 inline-block text-xs text-muted-foreground underline"
+        >
+          Source
+        </a>
+      )}
 
       <Section title="Specs">
         <dl className="grid gap-2 text-sm sm:grid-cols-2">
@@ -144,6 +154,20 @@ function CarPage() {
                     ? `£${fault.typical_cost_low}–£${fault.typical_cost_high}`
                     : "Cost unknown"}{" "}
                   · {fault.source === "ai" ? "AI-sourced" : "Owner-reported"}
+                  {fault.source_url && (
+                    <>
+                      {" "}
+                      ·{" "}
+                      <a
+                        href={fault.source_url}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="underline"
+                      >
+                        Source
+                      </a>
+                    </>
+                  )}
                 </span>
               </div>
               {fault.description && (

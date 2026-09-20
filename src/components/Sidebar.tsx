@@ -3,7 +3,6 @@ import { Link } from "@tanstack/react-router";
 import {
   Home,
   Car,
-  MessageCircleQuestion,
   User,
   Users,
   PanelLeftClose,
@@ -120,7 +119,6 @@ export function Sidebar() {
       <nav className="space-y-1">
         <NavLink to="/" icon={Home} label="Home" collapsed={collapsed} exact />
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
-        <NavLink to="/ask" icon={MessageCircleQuestion} label="Ask a Question" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
         <GroupsItem collapsed={collapsed} />
         {user && <NavLink to="/garage" icon={User} label="My Garage" collapsed={collapsed} />}

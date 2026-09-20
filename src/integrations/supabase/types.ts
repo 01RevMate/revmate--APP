@@ -53,6 +53,7 @@ export type Database = {
           description: string | null
           id: string
           source: Database["public"]["Enums"]["fault_source"]
+          source_url: string | null
           title: string
           typical_cost_high: number | null
           typical_cost_low: number | null
@@ -64,6 +65,7 @@ export type Database = {
           description?: string | null
           id?: string
           source?: Database["public"]["Enums"]["fault_source"]
+          source_url?: string | null
           title: string
           typical_cost_high?: number | null
           typical_cost_low?: number | null
@@ -75,6 +77,7 @@ export type Database = {
           description?: string | null
           id?: string
           source?: Database["public"]["Enums"]["fault_source"]
+          source_url?: string | null
           title?: string
           typical_cost_high?: number | null
           typical_cost_low?: number | null
@@ -102,6 +105,7 @@ export type Database = {
           make_slug: string | null
           model: string
           model_slug: string | null
+          source_url: string | null
           status: Database["public"]["Enums"]["car_status"]
           summary: string | null
           year_end: number | null
@@ -118,6 +122,7 @@ export type Database = {
           make_slug?: string | null
           model: string
           model_slug?: string | null
+          source_url?: string | null
           status?: Database["public"]["Enums"]["car_status"]
           summary?: string | null
           year_end?: number | null
@@ -134,6 +139,7 @@ export type Database = {
           make_slug?: string | null
           model?: string
           model_slug?: string | null
+          source_url?: string | null
           status?: Database["public"]["Enums"]["car_status"]
           summary?: string | null
           year_end?: number | null
