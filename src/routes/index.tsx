@@ -5,6 +5,7 @@ import { fetchFeed, fetchMyLikedPostIds } from "@/lib/posts";
 import { Sidebar } from "@/components/Sidebar";
 import { PostComposer } from "@/components/PostComposer";
 import { PostCard } from "@/components/PostCard";
+import { PostCardSkeleton } from "@/components/PostCardSkeleton";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -46,22 +47,25 @@ function Home() {
   }
 
   return (
-    <div className="mx-auto flex max-w-5xl gap-6 px-4 py-6">
+    <div className="flex">
       <Sidebar />
-      <main className="min-w-0 flex-1 space-y-4 pb-16">
-        <PostComposer onPosted={refreshFeed} />
+      <main className="min-w-0 flex-1">
+        <div className="mx-auto max-w-2xl space-y-4 px-4 py-6 pb-16">
+          <PostComposer onPosted={refreshFeed} />
 
-        {isLoading && <p className="text-sm text-muted-foreground">Loading feed…</p>}
+          {isLoading &&
+            Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} />)}
 
-        {!isLoading && posts?.length === 0 && (
-          <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            No posts yet — be the first to share something.
-          </div>
-        )}
+          {!isLoading && posts?.length === 0 && (
+            <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              No posts yet — be the first to share something.
+            </div>
+          )}
 
-        {posts?.map((post) => (
-          <PostCard key={post.id} post={post} liked={likedIds?.has(post.id) ?? false} />
-        ))}
+          {posts?.map((post) => (
+            <PostCard key={post.id} post={post} liked={likedIds?.has(post.id) ?? false} />
+          ))}
+        </div>
       </main>
     </div>
   );

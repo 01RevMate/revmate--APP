@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Home, Car, MessageCircleQuestion, User, Users, PanelLeftClose, PanelLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 const STORAGE_KEY = "revmate:sidebarCollapsed";
 
@@ -23,13 +24,14 @@ function NavLink({
   collapsed: boolean;
   exact?: boolean;
 }) {
+  const linkProps = exact ? { activeOptions: { exact: true } } : {};
   return (
     <Link
       to={to}
       title={collapsed ? label : undefined}
-      activeOptions={exact ? { exact: true } : undefined}
       className={`${item} ${collapsed ? itemCollapsed : ""}`}
       activeProps={{ className: `${item} ${collapsed ? itemCollapsed : ""} ${activeItem}` }}
+      {...linkProps}
     >
       <Icon className="size-5 shrink-0" />
       {!collapsed && label}
@@ -63,7 +65,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-card/50 py-4 md:flex ${
+      className={`sticky top-0 hidden h-screen shrink-0 flex-col justify-between border-r border-border bg-card/50 py-4 md:flex ${
         collapsed ? "w-16 px-2" : "w-60 px-3"
       }`}
     >
@@ -88,13 +90,17 @@ export function Sidebar() {
         {user && <NavLink to="/profile" icon={User} label="My Garage" collapsed={collapsed} />}
       </nav>
 
-      <button
-        onClick={toggle}
-        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className="mt-2 flex items-center gap-3 self-start rounded-md border-t border-border px-3 pt-3 pb-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-      >
-        {collapsed ? <PanelLeft className="size-5 shrink-0" /> : <PanelLeftClose className="size-5 shrink-0" />}
-      </button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={toggle}
+            className="flex items-center justify-center self-end rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            {collapsed ? <PanelLeft className="size-5 shrink-0" /> : <PanelLeftClose className="size-5 shrink-0" />}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="right">{collapsed ? "Expand sidebar" : "Collapse sidebar"}</TooltipContent>
+      </Tooltip>
     </aside>
   );
 }

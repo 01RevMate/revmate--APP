@@ -12,8 +12,11 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { TopNav } from "@/components/TopNav";
 import { AuthProvider } from "@/hooks/useAuth";
+import { AuthModalProvider } from "@/hooks/useAuthModal";
+import { AuthPromptModal } from "@/components/AuthPromptModal";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -140,12 +143,17 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <div className="min-h-screen bg-background">
-          <TopNav />
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </div>
-        <Toaster />
+        <AuthModalProvider>
+          <TooltipProvider>
+            <div className="min-h-screen bg-background">
+              <TopNav />
+              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+              <Outlet />
+            </div>
+            <Toaster />
+            <AuthPromptModal />
+          </TooltipProvider>
+        </AuthModalProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

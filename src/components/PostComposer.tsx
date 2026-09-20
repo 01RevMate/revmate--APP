@@ -1,31 +1,25 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthModal } from "@/hooks/useAuthModal";
 import { createPost } from "@/lib/posts";
 import { CarPicker } from "@/components/CarPicker";
 
 export function PostComposer({ onPosted }: { onPosted: () => void }) {
   const { user } = useAuth();
+  const { open: openAuthModal } = useAuthModal();
   const [body, setBody] = useState("");
   const [carId, setCarId] = useState("");
   const [tagging, setTagging] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  if (!user) {
-    return (
-      <div className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
-        <Link to="/login" className="underline">
-          Log in
-        </Link>{" "}
-        to post to the feed.
-      </div>
-    );
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !body.trim()) return;
+    if (!body.trim()) return;
+    if (!user) {
+      openAuthModal("Create a free account to post to the feed.");
+      return;
+    }
     setSaving(true);
     try {
       await createPost({ userId: user.id, body: body.trim(), carId: carId || undefined });
@@ -45,17 +39,16 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
+        onFocus={() => !user && openAuthModal("Create a free account to post to the feed.")}
         placeholder="What are you working on?"
         rows={3}
         className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
       />
-      {tagging && (
-        <CarPicker value={carId} onChange={setCarId} id="composer-car" />
-      )}
+      {tagging && <CarPicker value={carId} onChange={setCarId} id="composer-car" />}
       <div className="flex items-center justify-between">
         <button
           type="button"
-          onClick={() => setTagging((v) => !v)}
+          onClick={() => (user ? setTagging((v) => !v) : openAuthModal("Create a free account to post to the feed."))}
           className="text-xs font-medium text-muted-foreground hover:text-foreground"
         >
           {tagging ? "Remove car tag" : "+ Tag a car"}

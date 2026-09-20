@@ -19,44 +19,20 @@ export function TopNav() {
 
   return (
     <header className="border-b border-border">
-      <nav className="mx-auto flex max-w-5xl flex-wrap items-center gap-4 px-4 py-4">
-        <Link to="/" className="mr-2 text-base font-semibold tracking-tight">
+      <nav className="flex flex-wrap items-center gap-4 px-4 py-4">
+        <Link to="/" className="text-base font-semibold tracking-tight">
           RevMate
         </Link>
-        <Link to="/cars" className={navLink} activeProps={{ className: "text-sm text-foreground" }}>
-          Browse Cars
-        </Link>
-        <Link to="/ask" className={navLink} activeProps={{ className: "text-sm text-foreground" }}>
-          Ask
-        </Link>
-        <div className="ml-auto flex items-center gap-4">
-          {user ? (
-            <>
-              <Link
-                to="/profile"
-                className={navLink}
-                activeProps={{ className: "text-sm text-foreground" }}
-              >
-                Profile
-              </Link>
-              <button onClick={handleSignOut} className={navLink}>
-                Sign out
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className={navLink}>
-                Log in
-              </Link>
-              <Link
-                to="/signup"
-                className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                Sign up
-              </Link>
-            </>
-          )}
-        </div>
+        {user && (
+          <div className="ml-auto flex items-center gap-4">
+            <Link to="/profile" className={navLink} activeProps={{ className: "text-sm text-foreground" }}>
+              Profile
+            </Link>
+            <button onClick={handleSignOut} className={navLink}>
+              Sign out
+            </button>
+          </div>
+        )}
       </nav>
     </header>
   );

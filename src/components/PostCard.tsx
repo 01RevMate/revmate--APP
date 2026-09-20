@@ -4,6 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Heart, MessageCircle, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthModal } from "@/hooks/useAuthModal";
 import { carLabel, carPath } from "@/lib/cars";
 import {
   addComment,
@@ -22,6 +23,7 @@ export function PostCard({
   liked: boolean;
 }) {
   const { user } = useAuth();
+  const { open: openAuthModal } = useAuthModal();
   const [liked, setLiked] = useState(initiallyLiked);
   const [likesCount, setLikesCount] = useState(post.likes_count);
   const [commentsOpen, setCommentsOpen] = useState(false);
@@ -32,7 +34,7 @@ export function PostCard({
 
   async function toggleLike() {
     if (!user) {
-      toast.error("Log in to like posts");
+      openAuthModal("Create a free account to like posts.");
       return;
     }
     const next = !liked;
@@ -65,7 +67,11 @@ export function PostCard({
 
   async function handleAddComment(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !commentBody.trim()) return;
+    if (!commentBody.trim()) return;
+    if (!user) {
+      openAuthModal("Create a free account to comment.");
+      return;
+    }
     const body = commentBody.trim();
     setCommentBody("");
     try {
@@ -144,30 +150,22 @@ export function PostCard({
               </div>
             </div>
           ))}
-          {user ? (
-            <form onSubmit={handleAddComment} className="flex gap-2">
-              <input
-                value={commentBody}
-                onChange={(e) => setCommentBody(e.target.value)}
-                placeholder="Write a comment…"
-                className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-              />
-              <button
-                type="submit"
-                disabled={!commentBody.trim()}
-                className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-              >
-                Post
-              </button>
-            </form>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              <Link to="/login" className="underline">
-                Log in
-              </Link>{" "}
-              to comment.
-            </p>
-          )}
+          <form onSubmit={handleAddComment} className="flex gap-2">
+            <input
+              value={commentBody}
+              onChange={(e) => setCommentBody(e.target.value)}
+              onFocus={() => !user && openAuthModal("Create a free account to comment.")}
+              placeholder="Write a comment…"
+              className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+            />
+            <button
+              type="submit"
+              disabled={!commentBody.trim()}
+              className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            >
+              Post
+            </button>
+          </form>
         </div>
       )}
     </article>
