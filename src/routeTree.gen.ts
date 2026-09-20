@@ -14,11 +14,14 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AskRouteImport } from './routes/ask'
 import { Route as GarageRouteImport } from './routes/garage'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as SellRouteImport } from './routes/sell'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
+import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as CarsMakeModelGenerationRouteImport } from './routes/cars/$make.$model.$generation'
+import { Route as UUsernameCarsCarIdRouteImport } from './routes/u.$username.cars.$carId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -45,14 +48,19 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
+const MarketplaceRoute = MarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -65,10 +73,20 @@ const CarsIndexRoute = CarsIndexRouteImport.update({
   path: '/cars/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UUsernameRoute = UUsernameRouteImport.update({
+  id: '/u/$username',
+  path: '/u/$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CarsMakeModelGenerationRoute = CarsMakeModelGenerationRouteImport.update({
   id: '/cars/$make/$model/$generation',
   path: '/cars/$make/$model/$generation',
   getParentRoute: () => rootRouteImport,
+} as any)
+const UUsernameCarsCarIdRoute = UUsernameCarsCarIdRouteImport.update({
+  id: '/cars/$carId',
+  path: '/cars/$carId',
+  getParentRoute: () => UUsernameRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -77,11 +95,14 @@ export interface FileRoutesByFullPath {
   '/ask': typeof AskRoute
   '/garage': typeof GarageRoute
   '/login': typeof LoginRoute
-  '/profile': typeof ProfileRoute
+  '/marketplace': typeof MarketplaceRoute
   '/sell': typeof SellRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/u/$username': typeof UUsernameRouteWithChildren
   '/cars/': typeof CarsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
+  '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -89,11 +110,14 @@ export interface FileRoutesByTo {
   '/ask': typeof AskRoute
   '/garage': typeof GarageRoute
   '/login': typeof LoginRoute
-  '/profile': typeof ProfileRoute
+  '/marketplace': typeof MarketplaceRoute
   '/sell': typeof SellRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/u/$username': typeof UUsernameRouteWithChildren
   '/cars': typeof CarsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
+  '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -102,11 +126,14 @@ export interface FileRoutesById {
   '/ask': typeof AskRoute
   '/garage': typeof GarageRoute
   '/login': typeof LoginRoute
-  '/profile': typeof ProfileRoute
+  '/marketplace': typeof MarketplaceRoute
   '/sell': typeof SellRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/u/$username': typeof UUsernameRouteWithChildren
   '/cars/': typeof CarsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
+  '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -116,11 +143,14 @@ export interface FileRouteTypes {
     | '/ask'
     | '/garage'
     | '/login'
-    | '/profile'
+    | '/marketplace'
     | '/sell'
+    | '/settings'
     | '/signup'
+    | '/u/$username'
     | '/cars/'
     | '/cars/$make/$model/$generation'
+    | '/u/$username/cars/$carId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -128,11 +158,14 @@ export interface FileRouteTypes {
     | '/ask'
     | '/garage'
     | '/login'
-    | '/profile'
+    | '/marketplace'
     | '/sell'
+    | '/settings'
     | '/signup'
+    | '/u/$username'
     | '/cars'
     | '/cars/$make/$model/$generation'
+    | '/u/$username/cars/$carId'
   id:
     | '__root__'
     | '/'
@@ -140,11 +173,14 @@ export interface FileRouteTypes {
     | '/ask'
     | '/garage'
     | '/login'
-    | '/profile'
+    | '/marketplace'
     | '/sell'
+    | '/settings'
     | '/signup'
+    | '/u/$username'
     | '/cars/'
     | '/cars/$make/$model/$generation'
+    | '/u/$username/cars/$carId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -153,9 +189,11 @@ export interface RootRouteChildren {
   AskRoute: typeof AskRoute
   GarageRoute: typeof GarageRoute
   LoginRoute: typeof LoginRoute
-  ProfileRoute: typeof ProfileRoute
+  MarketplaceRoute: typeof MarketplaceRoute
   SellRoute: typeof SellRoute
+  SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
+  UUsernameRoute: typeof UUsernameRouteWithChildren
   CarsIndexRoute: typeof CarsIndexRoute
   CarsMakeModelGenerationRoute: typeof CarsMakeModelGenerationRoute
 }
@@ -197,11 +235,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
+    '/marketplace': {
+      id: '/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof MarketplaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sell': {
@@ -209,6 +247,13 @@ declare module '@tanstack/react-router' {
       path: '/sell'
       fullPath: '/sell'
       preLoaderRoute: typeof SellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -225,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CarsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$username': {
+      id: '/u/$username'
+      path: '/u/$username'
+      fullPath: '/u/$username'
+      preLoaderRoute: typeof UUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cars/$make/$model/$generation': {
       id: '/cars/$make/$model/$generation'
       path: '/cars/$make/$model/$generation'
@@ -232,8 +284,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CarsMakeModelGenerationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$username/cars/$carId': {
+      id: '/u/$username/cars/$carId'
+      path: '/cars/$carId'
+      fullPath: '/u/$username/cars/$carId'
+      preLoaderRoute: typeof UUsernameCarsCarIdRouteImport
+      parentRoute: typeof UUsernameRoute
+    }
   }
 }
+
+interface UUsernameRouteChildren {
+  UUsernameCarsCarIdRoute: typeof UUsernameCarsCarIdRoute
+}
+
+const UUsernameRouteChildren: UUsernameRouteChildren = {
+  UUsernameCarsCarIdRoute: UUsernameCarsCarIdRoute,
+}
+
+const UUsernameRouteWithChildren = UUsernameRoute._addFileChildren(
+  UUsernameRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -241,9 +312,11 @@ const rootRouteChildren: RootRouteChildren = {
   AskRoute: AskRoute,
   GarageRoute: GarageRoute,
   LoginRoute: LoginRoute,
-  ProfileRoute: ProfileRoute,
+  MarketplaceRoute: MarketplaceRoute,
   SellRoute: SellRoute,
+  SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
+  UUsernameRoute: UUsernameRouteWithChildren,
   CarsIndexRoute: CarsIndexRoute,
   CarsMakeModelGenerationRoute: CarsMakeModelGenerationRoute,
 }

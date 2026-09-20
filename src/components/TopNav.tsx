@@ -25,9 +25,6 @@ export function TopNav() {
         </Link>
         {user && (
           <div className="ml-auto flex items-center gap-4">
-            <Link to="/profile" className={navLink} activeProps={{ className: "text-sm text-foreground" }}>
-              Profile
-            </Link>
             <button onClick={handleSignOut} className={navLink}>
               Sign out
             </button>

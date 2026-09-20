@@ -14,24 +14,32 @@ export async function fetchGarage(userId: string): Promise<GarageCar[]> {
   return data;
 }
 
+export async function fetchGarageCar(id: string): Promise<GarageCar | null> {
+  const { data, error } = await supabase.from("garage_cars").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export async function addGarageCar(input: {
   userId: string;
   make: string;
   model: string;
+  nickname: string;
   generation?: string | undefined;
   year?: number | undefined;
-  nickname?: string | undefined;
   spec?: string | undefined;
+  photoUrl?: string | undefined;
   carId?: string | undefined;
 }) {
   const { error } = await supabase.from("garage_cars").insert({
     user_id: input.userId,
     make: input.make,
     model: input.model,
+    nickname: input.nickname,
     generation: input.generation || null,
     year: input.year ?? null,
-    nickname: input.nickname || null,
     spec: input.spec || null,
+    photo_url: input.photoUrl || null,
     car_id: input.carId || null,
   });
   if (error) throw error;

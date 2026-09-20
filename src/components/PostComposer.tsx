@@ -1,17 +1,28 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
+import { useProfile } from "@/hooks/useProfile";
 import { createPost } from "@/lib/posts";
+import { fetchGarage } from "@/lib/garage";
 import { CarPicker } from "@/components/CarPicker";
 
 export function PostComposer({ onPosted }: { onPosted: () => void }) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
+  const { data: profile } = useProfile();
   const [body, setBody] = useState("");
   const [carId, setCarId] = useState("");
   const [tagging, setTagging] = useState(false);
+  const [postingAs, setPostingAs] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const { data: garage } = useQuery({
+    queryKey: ["garage", user?.id],
+    enabled: !!user,
+    queryFn: () => fetchGarage(user!.id),
+  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -22,7 +33,12 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
     }
     setSaving(true);
     try {
-      await createPost({ userId: user.id, body: body.trim(), carId: carId || undefined });
+      await createPost({
+        userId: user.id,
+        body: body.trim(),
+        carId: carId || undefined,
+        postedAsGarageCarId: postingAs || undefined,
+      });
       setBody("");
       setCarId("");
       setTagging(false);
@@ -45,14 +61,30 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
         className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
       />
       {tagging && <CarPicker value={carId} onChange={setCarId} id="composer-car" />}
-      <div className="flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => (user ? setTagging((v) => !v) : openAuthModal("Create a free account to post to the feed."))}
-          className="text-xs font-medium text-muted-foreground hover:text-foreground"
-        >
-          {tagging ? "Remove car tag" : "+ Tag a car"}
-        </button>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => (user ? setTagging((v) => !v) : openAuthModal("Create a free account to post to the feed."))}
+            className="text-xs font-medium text-muted-foreground hover:text-foreground"
+          >
+            {tagging ? "Remove car tag" : "+ Tag a car"}
+          </button>
+          {garage && garage.length > 0 && (
+            <select
+              value={postingAs}
+              onChange={(e) => setPostingAs(e.target.value)}
+              className="rounded-md border border-input bg-background px-2 py-1 text-xs"
+            >
+              <option value="">Posting as {profile?.username ?? "you"}</option>
+              {garage.map((car) => (
+                <option key={car.id} value={car.id}>
+                  Posting as {car.nickname}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
         <button
           type="submit"
           disabled={saving || !body.trim()}

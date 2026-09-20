@@ -30,7 +30,7 @@ function LoginPage() {
       toast.error(error.message);
       return;
     }
-    navigate({ to: "/profile" });
+    navigate({ to: "/garage" });
   }
 
   return (

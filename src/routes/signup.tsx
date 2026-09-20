@@ -40,7 +40,7 @@ function SignupPage() {
       return;
     }
     if (data.session) {
-      navigate({ to: "/profile" });
+      navigate({ to: "/garage" });
       return;
     }
     setSent(true);

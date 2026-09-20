@@ -5,6 +5,7 @@ import { Heart, MessageCircle, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
+import { Avatar } from "@/components/Avatar";
 import { carLabel, carPath } from "@/lib/cars";
 import {
   addComment,
@@ -96,15 +97,38 @@ export function PostCard({
   return (
     <article className="rounded-lg border border-border bg-card p-4">
       <header className="flex items-center gap-3">
-        <div className="flex size-9 items-center justify-center rounded-full bg-muted text-sm font-semibold uppercase text-muted-foreground">
-          {post.profiles?.username?.slice(0, 2) ?? "?"}
-        </div>
-        <div>
-          <p className="text-sm font-medium">{post.profiles?.username ?? "Unknown"}</p>
-          <p className="text-xs text-muted-foreground">
-            {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-          </p>
-        </div>
+        {post.posted_as_garage_car ? (
+          <Link
+            to="/u/$username/cars/$carId"
+            params={{ username: post.profiles?.username ?? "", carId: post.posted_as_garage_car.id }}
+            className="flex items-center gap-3 hover:opacity-80"
+          >
+            <Avatar
+              photoUrl={post.posted_as_garage_car.photo_url}
+              fallback={post.posted_as_garage_car.nickname}
+            />
+            <div>
+              <p className="text-sm font-medium">{post.posted_as_garage_car.nickname}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+              </p>
+            </div>
+          </Link>
+        ) : (
+          <Link
+            to="/u/$username"
+            params={{ username: post.profiles?.username ?? "" }}
+            className="flex items-center gap-3 hover:opacity-80"
+          >
+            <Avatar photoUrl={post.profiles?.avatar_url} fallback={post.profiles?.username} />
+            <div>
+              <p className="text-sm font-medium">{post.profiles?.username ?? "Unknown"}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+              </p>
+            </div>
+          </Link>
+        )}
       </header>
 
       {post.cars && (
@@ -141,9 +165,7 @@ export function PostCard({
           {commentsLoading && <p className="text-xs text-muted-foreground">Loading comments…</p>}
           {comments?.map((comment) => (
             <div key={comment.id} className="flex gap-2 text-sm">
-              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold uppercase text-muted-foreground">
-                {comment.profiles?.username?.slice(0, 2) ?? "?"}
-              </div>
+              <Avatar photoUrl={comment.profiles?.avatar_url} fallback={comment.profiles?.username} className="size-7" />
               <div className="rounded-md bg-muted px-3 py-1.5">
                 <p className="text-xs font-medium">{comment.profiles?.username ?? "Unknown"}</p>
                 <p>{comment.body}</p>

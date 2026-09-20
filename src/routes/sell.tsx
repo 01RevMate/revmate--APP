@@ -1,8 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthModal } from "@/hooks/useAuthModal";
 import { CarPicker } from "@/components/CarPicker";
 
 export const Route = createFileRoute("/sell")({
@@ -24,7 +25,8 @@ export const Route = createFileRoute("/sell")({
 });
 
 function SellPage() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
+  const { open: openAuthModal } = useAuthModal();
   const navigate = useNavigate();
   const [carId, setCarId] = useState("");
   const [type, setType] = useState<"car" | "part">("car");
@@ -35,7 +37,10 @@ function SellPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      openAuthModal("Create a free account to list a car or part.");
+      return;
+    }
     setSaving(true);
     const { error } = await supabase.from("listings").insert({
       car_id: carId,
@@ -51,68 +56,60 @@ function SellPage() {
       return;
     }
     toast.success("Listing created");
-    navigate({ to: "/profile" });
+    navigate({ to: "/marketplace" });
   }
 
   return (
     <div className="mx-auto max-w-xl px-4 py-10">
       <h1 className="text-2xl font-semibold tracking-tight">Create a listing</h1>
-      {!loading && !user ? (
-        <p className="mt-4 text-sm text-muted-foreground">
-          <Link to="/login" className="underline">
-            Log in
-          </Link>{" "}
-          to create a listing.
-        </p>
-      ) : (
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <Field label="Car">
-            <CarPicker value={carId} onChange={setCarId} />
-          </Field>
-          <Field label="Listing type">
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value as "car" | "part")}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            >
-              <option value="car">Whole car</option>
-              <option value="part">Part</option>
-            </select>
-          </Field>
-          <Field label="Title">
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            />
-          </Field>
-          <Field label="Price (£)">
-            <input
-              type="number"
-              min="0"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            />
-          </Field>
-          <Field label="Description">
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={6}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            />
-          </Field>
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <Field label="Car">
+          <CarPicker value={carId} onChange={setCarId} />
+        </Field>
+        <Field label="Listing type">
+          <select
+            value={type}
+            onChange={(e) => setType(e.target.value as "car" | "part")}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
-            {saving ? "Publishing…" : "Publish listing"}
-          </button>
-        </form>
-      )}
+            <option value="car">Whole car</option>
+            <option value="part">Part</option>
+          </select>
+        </Field>
+        <Field label="Title">
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onFocus={() => !user && openAuthModal("Create a free account to list a car or part.")}
+            required
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+        </Field>
+        <Field label="Price (£)">
+          <input
+            type="number"
+            min="0"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+        </Field>
+        <Field label="Description">
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={6}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+        </Field>
+        <button
+          type="submit"
+          disabled={saving}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+        >
+          {saving ? "Publishing…" : "Publish listing"}
+        </button>
+      </form>
     </div>
   );
 }

@@ -3,8 +3,17 @@ import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { addMod, fetchMods, removeGarageCar, removeMod, type GarageCar, type GarageMod } from "@/lib/garage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Avatar } from "@/components/Avatar";
 
-export function GarageCarCard({ car, isOwner }: { car: GarageCar; isOwner: boolean }) {
+export function GarageCarCard({
+  car,
+  isOwner,
+  onRemoved,
+}: {
+  car: GarageCar;
+  isOwner: boolean;
+  onRemoved?: () => void;
+}) {
   const queryClient = useQueryClient();
   const [addingMod, setAddingMod] = useState(false);
   const [modTitle, setModTitle] = useState("");
@@ -46,6 +55,7 @@ export function GarageCarCard({ car, isOwner }: { car: GarageCar; isOwner: boole
     try {
       await removeGarageCar(car.id);
       queryClient.invalidateQueries({ queryKey: ["garage"] });
+      onRemoved?.();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't remove car");
     }
@@ -53,15 +63,17 @@ export function GarageCarCard({ car, isOwner }: { car: GarageCar; isOwner: boole
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="font-medium">
-            {car.nickname ? `${car.nickname} — ` : ""}
-            {car.year ? `${car.year} ` : ""}
-            {car.make} {car.model}
-            {car.generation ? ` (${car.generation})` : ""}
-          </p>
-          {car.spec && <p className="mt-1 text-sm text-muted-foreground">{car.spec}</p>}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <Avatar photoUrl={car.photo_url} fallback={car.nickname} className="size-14" />
+          <div>
+            <p className="font-medium">
+              {car.nickname} — {car.year ? `${car.year} ` : ""}
+              {car.make} {car.model}
+              {car.generation ? ` (${car.generation})` : ""}
+            </p>
+            {car.spec && <p className="mt-1 text-sm text-muted-foreground">{car.spec}</p>}
+          </div>
         </div>
         {isOwner && (
           <button

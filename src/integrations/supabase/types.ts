@@ -269,6 +269,7 @@ export type Database = {
           id: string
           image_url: string | null
           likes_count: number
+          posted_as_garage_car_id: string | null
           user_id: string
         }
         Insert: {
@@ -279,6 +280,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           likes_count?: number
+          posted_as_garage_car_id?: string | null
           user_id: string
         }
         Update: {
@@ -289,6 +291,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           likes_count?: number
+          posted_as_garage_car_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -297,6 +300,13 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_posted_as_garage_car_id_fkey"
+            columns: ["posted_as_garage_car_id"]
+            isOneToOne: false
+            referencedRelation: "garage_cars"
             referencedColumns: ["id"]
           },
           {
@@ -316,7 +326,8 @@ export type Database = {
           id: string
           make: string
           model: string
-          nickname: string | null
+          nickname: string
+          photo_url: string | null
           spec: string | null
           user_id: string
           year: number | null
@@ -328,7 +339,8 @@ export type Database = {
           id?: string
           make: string
           model: string
-          nickname?: string | null
+          nickname: string
+          photo_url?: string | null
           spec?: string | null
           user_id: string
           year?: number | null
@@ -340,7 +352,8 @@ export type Database = {
           id?: string
           make?: string
           model?: string
-          nickname?: string | null
+          nickname?: string
+          photo_url?: string | null
           spec?: string | null
           user_id?: string
           year?: number | null
@@ -397,6 +410,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          cover_photo_url: string | null
           created_at: string
           id: string
           persona: Database["public"]["Enums"]["profile_persona"]
@@ -406,6 +420,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          cover_photo_url?: string | null
           created_at?: string
           id?: string
           persona?: Database["public"]["Enums"]["profile_persona"]
@@ -415,6 +430,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          cover_photo_url?: string | null
           created_at?: string
           id?: string
           persona?: Database["public"]["Enums"]["profile_persona"]

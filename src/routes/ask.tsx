@@ -49,7 +49,7 @@ function AskPage() {
       return;
     }
     toast.success("Question posted");
-    navigate({ to: "/profile" });
+    navigate({ to: "/garage" });
   }
 
   return (
