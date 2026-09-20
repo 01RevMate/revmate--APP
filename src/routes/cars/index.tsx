@@ -3,12 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { carLabel, carPath, fetchCars, yearRange } from "@/lib/cars";
 
-type CarsSearch = { q?: string };
+type CarsSearch = { q?: string | undefined };
 
 export const Route = createFileRoute("/cars/")({
-  validateSearch: (search: Record<string, unknown>): CarsSearch => ({
-    q: typeof search.q === "string" && search.q ? search.q : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): CarsSearch => {
+    const raw = search["q"];
+    return typeof raw === "string" && raw ? { q: raw } : {};
+  },
   head: () => ({
     meta: [
       { title: "Browse cars — RevMate" },

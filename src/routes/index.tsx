@@ -44,7 +44,7 @@ function Home() {
           className="mt-6 flex gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            navigate({ to: "/cars", search: { q: term || undefined } });
+            navigate({ to: "/cars", search: term ? { q: term } : {} });
           }}
         >
           <input

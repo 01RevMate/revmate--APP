@@ -10,33 +10,80 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AskRouteImport } from './routes/ask'
+import { Route as SellRouteImport } from './routes/sell'
+import { Route as CarsIndexRouteImport } from './routes/cars/index'
+import { Route as CarsMakeModelGenerationRouteImport } from './routes/cars/$make.$model.$generation'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AskRoute = AskRouteImport.update({
+  id: '/ask',
+  path: '/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellRoute = SellRouteImport.update({
+  id: '/sell',
+  path: '/sell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CarsIndexRoute = CarsIndexRouteImport.update({
+  id: '/cars/',
+  path: '/cars/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CarsMakeModelGenerationRoute = CarsMakeModelGenerationRouteImport.update({
+  id: '/cars/$make/$model/$generation',
+  path: '/cars/$make/$model/$generation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ask': typeof AskRoute
+  '/sell': typeof SellRoute
+  '/cars/': typeof CarsIndexRoute
+  '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ask': typeof AskRoute
+  '/sell': typeof SellRoute
+  '/cars': typeof CarsIndexRoute
+  '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ask': typeof AskRoute
+  '/sell': typeof SellRoute
+  '/cars/': typeof CarsIndexRoute
+  '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/ask' | '/sell' | '/cars/' | '/cars/$make/$model/$generation'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/ask' | '/sell' | '/cars' | '/cars/$make/$model/$generation'
+  id:
+    | '__root__'
+    | '/'
+    | '/ask'
+    | '/sell'
+    | '/cars/'
+    | '/cars/$make/$model/$generation'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AskRoute: typeof AskRoute
+  SellRoute: typeof SellRoute
+  CarsIndexRoute: typeof CarsIndexRoute
+  CarsMakeModelGenerationRoute: typeof CarsMakeModelGenerationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +95,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ask': {
+      id: '/ask'
+      path: '/ask'
+      fullPath: '/ask'
+      preLoaderRoute: typeof AskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sell': {
+      id: '/sell'
+      path: '/sell'
+      fullPath: '/sell'
+      preLoaderRoute: typeof SellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cars/': {
+      id: '/cars/'
+      path: '/cars'
+      fullPath: '/cars/'
+      preLoaderRoute: typeof CarsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cars/$make/$model/$generation': {
+      id: '/cars/$make/$model/$generation'
+      path: '/cars/$make/$model/$generation'
+      fullPath: '/cars/$make/$model/$generation'
+      preLoaderRoute: typeof CarsMakeModelGenerationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AskRoute: AskRoute,
+  SellRoute: SellRoute,
+  CarsIndexRoute: CarsIndexRoute,
+  CarsMakeModelGenerationRoute: CarsMakeModelGenerationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
