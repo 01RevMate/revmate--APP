@@ -67,6 +67,10 @@ export async function addGarageCar(input: {
   spec?: string | undefined;
   photoUrl?: string | undefined;
   carId?: string | undefined;
+  catalogMakeId?: string | undefined;
+  catalogModelId?: string | undefined;
+  catalogDerivativeId?: string | undefined;
+  catalogPowertrainId?: string | undefined;
   trim?: string | undefined;
   engine?: string | undefined;
   horsepower?: number | undefined;
@@ -86,6 +90,10 @@ export async function addGarageCar(input: {
     spec: input.spec || null,
     photo_url: input.photoUrl || null,
     car_id: input.carId || null,
+    catalog_make_id: input.catalogMakeId || null,
+    catalog_model_id: input.catalogModelId || null,
+    catalog_derivative_id: input.catalogDerivativeId || null,
+    catalog_powertrain_id: input.catalogPowertrainId || null,
     trim: input.trim || null,
     engine: input.engine || null,
     horsepower: input.horsepower ?? null,

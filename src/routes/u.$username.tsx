@@ -24,10 +24,13 @@ import { FriendButton } from "@/components/FriendButton";
 import { FriendsSection } from "@/components/FriendsSection";
 import { EditableImage } from "@/components/EditableImage";
 import { ImageUploadField } from "@/components/ImageUploadField";
-import { CarLogo } from "@/components/CarLogo";
-import { MakeSelect } from "@/components/MakeSelect";
-import { ModelSelect } from "@/components/ModelSelect";
+import { VehicleCatalogPicker } from "@/components/VehicleCatalogPicker";
 import { carLabel, type Car } from "@/lib/cars";
+import {
+  EMPTY_VEHICLE_CATALOG_SELECTION,
+  garageFuelTypeForCatalogFuel,
+  type VehicleCatalogSelection,
+} from "@/lib/vehicleCatalog";
 
 export const Route = createFileRoute("/u/$username")({
   head: ({ params }) => ({
@@ -348,8 +351,9 @@ function AddCarForm({
   onCancel: () => void;
 }) {
   const [advanced, setAdvanced] = useState(false);
-  const [make, setMake] = useState("");
-  const [model, setModel] = useState("");
+  const [catalogSelection, setCatalogSelection] = useState<VehicleCatalogSelection>(
+    EMPTY_VEHICLE_CATALOG_SELECTION,
+  );
   const [nickname, setNickname] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
   const [generation, setGeneration] = useState("");
@@ -367,6 +371,8 @@ function AddCarForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const make = catalogSelection.make;
+    const model = catalogSelection.model;
     if (!make.trim() || !model.trim() || !nickname.trim()) return;
     setSaving(true);
     try {
@@ -376,6 +382,10 @@ function AddCarForm({
         model: model.trim(),
         nickname: nickname.trim(),
         photoUrl: photoUrl.trim() || undefined,
+        catalogMakeId: catalogSelection.makeId || undefined,
+        catalogModelId: catalogSelection.modelId || undefined,
+        catalogDerivativeId: catalogSelection.derivativeId || undefined,
+        catalogPowertrainId: catalogSelection.powertrainId || undefined,
         generation: generation.trim() || undefined,
         year: year ? Number(year) : undefined,
         spec: spec.trim() || undefined,
@@ -407,24 +417,14 @@ function AddCarForm({
           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
         />
       </Field>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Make">
-          <div className="flex items-center gap-2">
-            <CarLogo make={make} className="size-8" />
-            <MakeSelect
-              value={make}
-              onChange={(next) => {
-                setMake(next);
-                setModel("");
-              }}
-              required
-            />
-          </div>
-        </Field>
-        <Field label="Model">
-          <ModelSelect make={make} value={model} onChange={setModel} required />
-        </Field>
-      </div>
+      <VehicleCatalogPicker
+        value={catalogSelection}
+        onChange={(next) => {
+          setCatalogSelection(next);
+          setTrim(next.derivative);
+          setFuelType(next.fuelTypeCode ? garageFuelTypeForCatalogFuel(next.fuelTypeCode) : null);
+        }}
+      />
 
       {advanced && (
         <div className="grid grid-cols-2 gap-3">

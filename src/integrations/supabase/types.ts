@@ -363,6 +363,10 @@ export type Database = {
         Row: {
           bio: string | null
           car_id: string | null
+          catalog_derivative_id: string | null
+          catalog_make_id: string | null
+          catalog_model_id: string | null
+          catalog_powertrain_id: string | null
           color: string | null
           created_at: string
           engine: string | null
@@ -386,6 +390,10 @@ export type Database = {
         Insert: {
           bio?: string | null
           car_id?: string | null
+          catalog_derivative_id?: string | null
+          catalog_make_id?: string | null
+          catalog_model_id?: string | null
+          catalog_powertrain_id?: string | null
           color?: string | null
           created_at?: string
           engine?: string | null
@@ -409,6 +417,10 @@ export type Database = {
         Update: {
           bio?: string | null
           car_id?: string | null
+          catalog_derivative_id?: string | null
+          catalog_make_id?: string | null
+          catalog_model_id?: string | null
+          catalog_powertrain_id?: string | null
           color?: string | null
           created_at?: string
           engine?: string | null
@@ -435,6 +447,34 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garage_cars_catalog_derivative_id_fkey"
+            columns: ["catalog_derivative_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_derivatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garage_cars_catalog_make_id_fkey"
+            columns: ["catalog_make_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_makes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garage_cars_catalog_model_id_fkey"
+            columns: ["catalog_model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garage_cars_catalog_powertrain_id_fkey"
+            columns: ["catalog_powertrain_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_powertrains"
             referencedColumns: ["id"]
           },
           {
@@ -740,6 +780,52 @@ export type Database = {
           },
         ]
       }
+      car_catalog_links: {
+        Row: {
+          car_id: string
+          created_at: string
+          derivative_id: string | null
+          id: string
+          model_id: string
+        }
+        Insert: {
+          car_id: string
+          created_at?: string
+          derivative_id?: string | null
+          id?: string
+          model_id: string
+        }
+        Update: {
+          car_id?: string
+          created_at?: string
+          derivative_id?: string | null
+          id?: string
+          model_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_catalog_links_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "car_catalog_links_derivative_id_fkey"
+            columns: ["derivative_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_derivatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "car_catalog_links_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_cars: {
         Row: {
           car_id: string
@@ -765,6 +851,147 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_derivatives: {
+        Row: {
+          created_at: string
+          id: string
+          model_id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          model_id: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          model_id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_derivatives_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_makes: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      vehicle_models: {
+        Row: {
+          created_at: string
+          id: string
+          make_id: string
+          name: string
+          slug: string
+          source_generic_model: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          make_id: string
+          name: string
+          slug: string
+          source_generic_model: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          make_id?: string
+          name?: string
+          slug?: string
+          source_generic_model?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_models_make_id_fkey"
+            columns: ["make_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_makes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_powertrains: {
+        Row: {
+          created_at: string
+          current_vehicle_count: number
+          derivative_id: string
+          engine_size_bands: string[]
+          engine_sizes_cc: number[]
+          fuel_type: string
+          fuel_type_code: string
+          id: string
+          licensed_count: number
+          sorn_count: number
+          source_period: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_vehicle_count?: number
+          derivative_id: string
+          engine_size_bands?: string[]
+          engine_sizes_cc?: number[]
+          fuel_type: string
+          fuel_type_code: string
+          id: string
+          licensed_count?: number
+          sorn_count?: number
+          source_period: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_vehicle_count?: number
+          derivative_id?: string
+          engine_size_bands?: string[]
+          engine_sizes_cc?: number[]
+          fuel_type?: string
+          fuel_type_code?: string
+          id?: string
+          licensed_count?: number
+          sorn_count?: number
+          source_period?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_powertrains_derivative_id_fkey"
+            columns: ["derivative_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_derivatives"
             referencedColumns: ["id"]
           },
         ]

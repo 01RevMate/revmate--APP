@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-09-20T22:03:40.516510+00:00",
+  "source_period": "2026 Q1",
+  "source_car_rows_examined": 124796,
+  "catalog_entries": 60342,
+  "makes": 197,
+  "models": 2429,
+  "derivatives": 50164,
+  "fuel_types": 11,
+  "rejected": {
+    "missing_generic_model": 1198,
+    "zero_current_count": 20992
+  },
+  "catalog_sha256": "30a69c37a38b84941a724516a2e112442b87e507db03638689441cfbcf83946b",
+  "sources": [
+    "https://assets.publishing.service.gov.uk/media/6a54d2e0c3d64d94cacab854/df_VEH0120_UK.csv",
+    "https://assets.publishing.service.gov.uk/media/69ef3ea808ecdb5c6f34afad/df_VEH0220.csv"
+  ]
+}
