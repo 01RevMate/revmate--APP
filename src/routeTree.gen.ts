@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AskRouteImport } from './routes/ask'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SellRouteImport } from './routes/sell'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
 import { Route as CarsMakeModelGenerationRouteImport } from './routes/cars/$make.$model.$generation'
 
@@ -25,9 +28,24 @@ const AskRoute = AskRouteImport.update({
   path: '/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CarsIndexRoute = CarsIndexRouteImport.update({
@@ -44,14 +62,20 @@ const CarsMakeModelGenerationRoute = CarsMakeModelGenerationRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ask': typeof AskRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/sell': typeof SellRoute
+  '/signup': typeof SignupRoute
   '/cars/': typeof CarsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ask': typeof AskRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/sell': typeof SellRoute
+  '/signup': typeof SignupRoute
   '/cars': typeof CarsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
 }
@@ -59,21 +83,42 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ask': typeof AskRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/sell': typeof SellRoute
+  '/signup': typeof SignupRoute
   '/cars/': typeof CarsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/ask' | '/sell' | '/cars/' | '/cars/$make/$model/$generation'
+    | '/'
+    | '/ask'
+    | '/login'
+    | '/profile'
+    | '/sell'
+    | '/signup'
+    | '/cars/'
+    | '/cars/$make/$model/$generation'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ask' | '/sell' | '/cars' | '/cars/$make/$model/$generation'
+  to:
+    | '/'
+    | '/ask'
+    | '/login'
+    | '/profile'
+    | '/sell'
+    | '/signup'
+    | '/cars'
+    | '/cars/$make/$model/$generation'
   id:
     | '__root__'
     | '/'
     | '/ask'
+    | '/login'
+    | '/profile'
     | '/sell'
+    | '/signup'
     | '/cars/'
     | '/cars/$make/$model/$generation'
   fileRoutesById: FileRoutesById
@@ -81,7 +126,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AskRoute: typeof AskRoute
+  LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
   SellRoute: typeof SellRoute
+  SignupRoute: typeof SignupRoute
   CarsIndexRoute: typeof CarsIndexRoute
   CarsMakeModelGenerationRoute: typeof CarsMakeModelGenerationRoute
 }
@@ -102,11 +150,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AskRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sell': {
       id: '/sell'
       path: '/sell'
       fullPath: '/sell'
       preLoaderRoute: typeof SellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cars/': {
@@ -129,7 +198,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AskRoute: AskRoute,
+  LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
   SellRoute: SellRoute,
+  SignupRoute: SignupRoute,
   CarsIndexRoute: CarsIndexRoute,
   CarsMakeModelGenerationRoute: CarsMakeModelGenerationRoute,
 }
