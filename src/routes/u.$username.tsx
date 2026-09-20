@@ -22,6 +22,7 @@ import { SocialLinksDisplay, SocialLinksEditor } from "@/components/SocialLinks"
 import { AchievementBadges } from "@/components/AchievementBadges";
 import { FriendButton } from "@/components/FriendButton";
 import { FriendsSection } from "@/components/FriendsSection";
+import { ImageUploadField } from "@/components/ImageUploadField";
 import { carLabel, type Car } from "@/lib/cars";
 
 export const Route = createFileRoute("/u/$username")({
@@ -264,22 +265,14 @@ function EditProfileForm({
 
   return (
     <form onSubmit={handleSave} className="mt-4 space-y-3 rounded-lg border border-border bg-card p-4">
-      <Field label="Profile picture URL">
-        <input
-          value={avatarUrl}
-          onChange={(e) => setAvatarUrl(e.target.value)}
-          placeholder="https://…"
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-        />
-      </Field>
-      <Field label="Cover photo URL">
-        <input
-          value={coverPhotoUrl}
-          onChange={(e) => setCoverPhotoUrl(e.target.value)}
-          placeholder="https://…"
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-        />
-      </Field>
+      <ImageUploadField label="Profile picture" userId={profile.user_id} value={avatarUrl} onChange={setAvatarUrl} />
+      <ImageUploadField
+        label="Cover photo"
+        userId={profile.user_id}
+        value={coverPhotoUrl}
+        onChange={setCoverPhotoUrl}
+        shape="wide"
+      />
       <Field label="I'm a…">
         <select
           value={persona}
@@ -405,14 +398,7 @@ function AddCarForm({
 
       {advanced && (
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Car photo URL">
-            <input
-              value={photoUrl}
-              onChange={(e) => setPhotoUrl(e.target.value)}
-              placeholder="https://…"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            />
-          </Field>
+          <ImageUploadField label="Car photo" userId={userId} value={photoUrl} onChange={setPhotoUrl} />
           <Field label="Year">
             <input
               value={year}

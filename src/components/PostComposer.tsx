@@ -9,11 +9,11 @@ import {
   attachImagesToPost,
   createPost,
   uploadPostImage,
-  validateImageFile,
   MAX_IMAGES_PER_POST,
   POST_CATEGORY_LABELS,
   type Post,
 } from "@/lib/posts";
+import { validateImageFile } from "@/lib/uploads";
 import { fetchGarage } from "@/lib/garage";
 import { CarPicker } from "@/components/CarPicker";
 

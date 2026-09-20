@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { uploadImage } from "@/lib/uploads";
 
 export type Post = Tables<"posts">;
 export type PostComment = Tables<"post_comments">;
@@ -13,12 +14,7 @@ export type PostWithAuthor = Post & {
   post_images: Pick<PostImage, "id" | "image_url" | "position">[];
 };
 
-// Client-side guardrails matching the storage bucket's server-side
-// file_size_limit / allowed_mime_types (drizzle/migrations/0008) — this just
-// gives instant feedback; the server enforces the real limit regardless.
 export const MAX_IMAGES_PER_POST = 4;
-export const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
-export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 export type CommentWithAuthor = PostComment & {
   profiles: Pick<Tables<"profiles">, "username" | "avatar_url"> | null;
@@ -109,23 +105,8 @@ export async function createPost(input: {
   return data.id;
 }
 
-export function validateImageFile(file: File): string | null {
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-    return `${file.name} isn't a supported image type.`;
-  }
-  if (file.size > MAX_IMAGE_BYTES) {
-    return `${file.name} is over ${MAX_IMAGE_BYTES / (1024 * 1024)}MB.`;
-  }
-  return null;
-}
-
 export async function uploadPostImage(userId: string, file: File): Promise<string> {
-  const ext = file.name.split(".").pop() || "jpg";
-  const path = `${userId}/${crypto.randomUUID()}.${ext}`;
-  const { error: uploadError } = await supabase.storage.from("post-images").upload(path, file);
-  if (uploadError) throw uploadError;
-  const { data } = supabase.storage.from("post-images").getPublicUrl(path);
-  return data.publicUrl;
+  return uploadImage("post-images", userId, file);
 }
 
 export async function attachImagesToPost(postId: string, imageUrls: string[]) {

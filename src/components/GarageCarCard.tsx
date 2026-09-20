@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Trash2, Zap, Cog, Fuel, Palette, Plus, Heart, Trophy } from "lucide-react";
+import { Trash2, Zap, Cog, Fuel, Palette, Plus, Heart, Trophy, Loader2 } from "lucide-react";
 import {
   addCarPhoto,
   addMod,
@@ -20,6 +20,7 @@ import {
   type GarageMod,
 } from "@/lib/garage";
 import { createPost } from "@/lib/posts";
+import { uploadImage, validateImageFile } from "@/lib/uploads";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -43,8 +44,8 @@ export function GarageCarCard({
   const [modDescription, setModDescription] = useState("");
   const [modCategory, setModCategory] = useState<NonNullable<GarageMod["category"]>>("other");
   const [shareToFeed, setShareToFeed] = useState(false);
-  const [addingPhoto, setAddingPhoto] = useState(false);
-  const [photoUrlInput, setPhotoUrlInput] = useState("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const { data: mods } = useQuery({
     queryKey: ["garage-mods", car.id],
@@ -90,16 +91,24 @@ export function GarageCarCard({
     queryClient.invalidateQueries({ queryKey: ["garage-car-photos", car.id] });
   }
 
-  async function handleAddPhoto(e: React.FormEvent) {
-    e.preventDefault();
-    if (!photoUrlInput.trim()) return;
+  async function handlePhotoFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !user) return;
+    const problem = validateImageFile(file);
+    if (problem) {
+      toast.error(problem);
+      return;
+    }
+    setUploadingPhoto(true);
     try {
-      await addCarPhoto(car.id, photoUrlInput.trim());
-      setPhotoUrlInput("");
-      setAddingPhoto(false);
+      const url = await uploadImage("user-media", user.id, file);
+      await addCarPhoto(car.id, url);
       refreshPhotos();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't add photo");
+    } finally {
+      setUploadingPhoto(false);
     }
   }
 
@@ -230,31 +239,25 @@ export function GarageCarCard({
         <div className="mb-2 flex items-center justify-between">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Photos</h3>
           {isOwner && (
-            <button
-              onClick={() => setAddingPhoto((v) => !v)}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <Plus className="size-4" />
-            </button>
+            <>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={handlePhotoFileSelected}
+              />
+              <button
+                onClick={() => photoInputRef.current?.click()}
+                disabled={uploadingPhoto}
+                className="text-muted-foreground hover:text-foreground disabled:opacity-50"
+                title="Add photo"
+              >
+                {uploadingPhoto ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+              </button>
+            </>
           )}
         </div>
-        {isOwner && addingPhoto && (
-          <form onSubmit={handleAddPhoto} className="mb-2 flex gap-2">
-            <input
-              value={photoUrlInput}
-              onChange={(e) => setPhotoUrlInput(e.target.value)}
-              placeholder="https://…"
-              className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-              autoFocus
-            />
-            <button
-              type="submit"
-              className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              Add
-            </button>
-          </form>
-        )}
         {photos && photos.length > 0 ? (
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {photos.map((photo) => (
