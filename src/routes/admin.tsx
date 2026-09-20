@@ -1,11 +1,25 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
-import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 import { carLabel, carPath, fetchCars, setCarStatus, yearRange } from "@/lib/cars";
 
 export const Route = createFileRoute("/admin")({
+  // Runs before the route renders, so a non-admin never sees any admin
+  // content — not even a "you don't have access" message.
+  beforeLoad: async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session?.user) throw redirect({ to: "/" });
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+    if (profile?.role !== "admin") throw redirect({ to: "/" });
+  },
   head: () => ({
     meta: [{ title: "Admin — RevMate" }],
   }),
@@ -13,14 +27,11 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminPage() {
-  const { user, loading: authLoading } = useAuth();
-  const { data: profile, isLoading: profileLoading, isAdmin } = useProfile();
   const queryClient = useQueryClient();
 
   const { data: cars, isLoading: carsLoading } = useQuery({
     queryKey: ["cars", ""],
     queryFn: () => fetchCars(),
-    enabled: isAdmin,
   });
 
   async function toggleStatus(carId: string, current: "verified" | "unverified") {
@@ -31,35 +42,6 @@ function AdminPage() {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't update car");
     }
-  }
-
-  if (authLoading || profileLoading) {
-    return <p className="mx-auto max-w-5xl px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
-  }
-
-  if (!user) {
-    return (
-      <div className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold tracking-tight">Admin</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          <Link to="/login" className="underline">
-            Log in
-          </Link>{" "}
-          with an admin account to continue.
-        </p>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold tracking-tight">Admin</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          {profile?.username ?? user.email} doesn't have admin access.
-        </p>
-      </div>
-    );
   }
 
   return (
