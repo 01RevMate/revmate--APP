@@ -80,7 +80,7 @@ export async function addGarageCar(input: {
   transmission?: GarageCar["transmission"] | undefined;
   bio?: string | undefined;
 }) {
-  const { error } = await supabase.from("garage_cars").insert({
+  const garageCar = {
     user_id: input.userId,
     make: input.make,
     model: input.model,
@@ -102,8 +102,28 @@ export async function addGarageCar(input: {
     fuel_type: input.fuelType || null,
     transmission: input.transmission || null,
     bio: input.bio || null,
-  });
-  if (error) throw error;
+  };
+  const { error } = await supabase.from("garage_cars").insert(garageCar);
+  if (!error) return;
+
+  // The bundled catalogue works before its optional link columns are migrated.
+  // Keep saving the readable vehicle details on older RevMate databases.
+  if (error.message.includes("catalog_") || error.code === "PGRST204") {
+    const {
+      catalog_make_id: _catalogMakeId,
+      catalog_model_id: _catalogModelId,
+      catalog_derivative_id: _catalogDerivativeId,
+      catalog_powertrain_id: _catalogPowertrainId,
+      ...compatibleGarageCar
+    } = garageCar;
+    const { error: compatibleError } = await supabase
+      .from("garage_cars")
+      .insert(compatibleGarageCar);
+    if (!compatibleError) return;
+    throw compatibleError;
+  }
+
+  throw error;
 }
 
 export async function updateGarageCar(
@@ -134,8 +154,14 @@ export async function removeGarageCar(id: string) {
   if (error) throw error;
 }
 
-export async function setGarageCarOwnershipStatus(id: string, status: GarageCar["ownership_status"]) {
-  const { error } = await supabase.from("garage_cars").update({ ownership_status: status }).eq("id", id);
+export async function setGarageCarOwnershipStatus(
+  id: string,
+  status: GarageCar["ownership_status"],
+) {
+  const { error } = await supabase
+    .from("garage_cars")
+    .update({ ownership_status: status })
+    .eq("id", id);
   if (error) throw error;
 }
 
@@ -157,7 +183,12 @@ export async function addMod(
 ) {
   const { error } = await supabase
     .from("garage_mods")
-    .insert({ garage_car_id: garageCarId, title, description: description || null, category: category || null });
+    .insert({
+      garage_car_id: garageCarId,
+      title,
+      description: description || null,
+      category: category || null,
+    });
   if (error) throw error;
 }
 
