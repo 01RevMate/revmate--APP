@@ -1,10 +1,19 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { ImagePlus, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
-import { createPost, POST_CATEGORY_LABELS, type Post } from "@/lib/posts";
+import {
+  attachImagesToPost,
+  createPost,
+  uploadPostImage,
+  validateImageFile,
+  MAX_IMAGES_PER_POST,
+  POST_CATEGORY_LABELS,
+  type Post,
+} from "@/lib/posts";
 import { fetchGarage } from "@/lib/garage";
 import { CarPicker } from "@/components/CarPicker";
 
@@ -17,13 +26,59 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
   const [tagging, setTagging] = useState(false);
   const [postingAs, setPostingAs] = useState("");
   const [category, setCategory] = useState<Post["category"]>("discussion");
+  const [images, setImages] = useState<{ file: File; previewUrl: string }[]>([]);
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: garage } = useQuery({
     queryKey: ["garage", user?.id],
     enabled: !!user,
     queryFn: () => fetchGarage(user!.id),
   });
+
+  function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    if (files.length === 0) return;
+
+    const room = MAX_IMAGES_PER_POST - images.length;
+    if (room <= 0) {
+      toast.error(`You can attach up to ${MAX_IMAGES_PER_POST} images.`);
+      return;
+    }
+
+    const accepted: { file: File; previewUrl: string }[] = [];
+    for (const file of files.slice(0, room)) {
+      const problem = validateImageFile(file);
+      if (problem) {
+        toast.error(problem);
+        continue;
+      }
+      accepted.push({ file, previewUrl: URL.createObjectURL(file) });
+    }
+    if (files.length > room) {
+      toast.error(`Only added ${room} more — ${MAX_IMAGES_PER_POST} images max per post.`);
+    }
+    setImages((prev) => [...prev, ...accepted]);
+  }
+
+  function removeImage(index: number) {
+    setImages((prev) => {
+      const next = [...prev];
+      URL.revokeObjectURL(next[index]!.previewUrl);
+      next.splice(index, 1);
+      return next;
+    });
+  }
+
+  function resetForm() {
+    images.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+    setBody("");
+    setCarId("");
+    setTagging(false);
+    setCategory("discussion");
+    setImages([]);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,17 +89,18 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
     }
     setSaving(true);
     try {
-      await createPost({
+      const postId = await createPost({
         userId: user.id,
         body: body.trim(),
         carId: carId || undefined,
         postedAsGarageCarId: postingAs || undefined,
         category,
       });
-      setBody("");
-      setCarId("");
-      setTagging(false);
-      setCategory("discussion");
+      if (images.length > 0) {
+        const urls = await Promise.all(images.map((img) => uploadPostImage(user.id, img.file)));
+        await attachImagesToPost(postId, urls);
+      }
+      resetForm();
       onPosted();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't post");
@@ -64,6 +120,24 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
         className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
       />
       {tagging && <CarPicker value={carId} onChange={setCarId} id="composer-car" />}
+
+      {images.length > 0 && (
+        <div className="grid grid-cols-4 gap-2">
+          {images.map((img, i) => (
+            <div key={img.previewUrl} className="group relative aspect-square overflow-hidden rounded-md bg-muted">
+              <img src={img.previewUrl} alt="" className="size-full object-cover" />
+              <button
+                type="button"
+                onClick={() => removeImage(i)}
+                className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+              >
+                <X className="size-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-2">
         <select
           value={category}
@@ -82,6 +156,25 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
           className="text-xs font-medium text-muted-foreground hover:text-foreground"
         >
           {tagging ? "Remove car tag" : "+ Tag a car"}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          multiple
+          className="hidden"
+          onChange={handleFilesSelected}
+        />
+        <button
+          type="button"
+          onClick={() =>
+            user ? fileInputRef.current?.click() : openAuthModal("Create a free account to post to the feed.")
+          }
+          disabled={images.length >= MAX_IMAGES_PER_POST}
+          title="Add photos"
+          className="text-muted-foreground hover:text-foreground disabled:opacity-40"
+        >
+          <ImagePlus className="size-4" />
         </button>
         {garage && garage.length > 0 && (
           <select

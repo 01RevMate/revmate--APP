@@ -4,11 +4,21 @@ import type { Tables } from "@/integrations/supabase/types";
 export type Post = Tables<"posts">;
 export type PostComment = Tables<"post_comments">;
 
+export type PostImage = Tables<"post_images">;
+
 export type PostWithAuthor = Post & {
   profiles: Pick<Tables<"profiles">, "username" | "avatar_url"> | null;
   cars: Pick<Tables<"cars">, "make" | "model" | "generation"> | null;
   posted_as_garage_car: Pick<Tables<"garage_cars">, "id" | "nickname" | "photo_url"> | null;
+  post_images: Pick<PostImage, "id" | "image_url" | "position">[];
 };
+
+// Client-side guardrails matching the storage bucket's server-side
+// file_size_limit / allowed_mime_types (drizzle/migrations/0008) — this just
+// gives instant feedback; the server enforces the real limit regardless.
+export const MAX_IMAGES_PER_POST = 4;
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
+export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 export type CommentWithAuthor = PostComment & {
   profiles: Pick<Tables<"profiles">, "username" | "avatar_url"> | null;
@@ -24,7 +34,7 @@ export const POST_CATEGORY_LABELS: Record<Post["category"], string> = {
 };
 
 const POST_SELECT =
-  "*, profiles!posts_user_id_fkey(username, avatar_url), cars(make, model, generation), posted_as_garage_car:garage_cars!posts_posted_as_garage_car_id_fkey(id, nickname, photo_url)";
+  "*, profiles!posts_user_id_fkey(username, avatar_url), cars(make, model, generation), posted_as_garage_car:garage_cars!posts_posted_as_garage_car_id_fkey(id, nickname, photo_url), post_images(id, image_url, position)";
 
 export async function fetchFeed(limit = 20): Promise<PostWithAuthor[]> {
   const { data, error } = await supabase
@@ -84,13 +94,45 @@ export async function createPost(input: {
   postedAsGarageCarId?: string | undefined;
   category?: Post["category"] | undefined;
 }) {
-  const { error } = await supabase.from("posts").insert({
-    user_id: input.userId,
-    body: input.body,
-    car_id: input.carId || null,
-    posted_as_garage_car_id: input.postedAsGarageCarId || null,
-    category: input.category || "discussion",
-  });
+  const { data, error } = await supabase
+    .from("posts")
+    .insert({
+      user_id: input.userId,
+      body: input.body,
+      car_id: input.carId || null,
+      posted_as_garage_car_id: input.postedAsGarageCarId || null,
+      category: input.category || "discussion",
+    })
+    .select("id")
+    .single();
+  if (error) throw error;
+  return data.id;
+}
+
+export function validateImageFile(file: File): string | null {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return `${file.name} isn't a supported image type.`;
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    return `${file.name} is over ${MAX_IMAGE_BYTES / (1024 * 1024)}MB.`;
+  }
+  return null;
+}
+
+export async function uploadPostImage(userId: string, file: File): Promise<string> {
+  const ext = file.name.split(".").pop() || "jpg";
+  const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+  const { error: uploadError } = await supabase.storage.from("post-images").upload(path, file);
+  if (uploadError) throw uploadError;
+  const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+  return data.publicUrl;
+}
+
+export async function attachImagesToPost(postId: string, imageUrls: string[]) {
+  if (imageUrls.length === 0) return;
+  const { error } = await supabase
+    .from("post_images")
+    .insert(imageUrls.map((image_url, position) => ({ post_id: postId, image_url, position })));
   if (error) throw error;
 }
 

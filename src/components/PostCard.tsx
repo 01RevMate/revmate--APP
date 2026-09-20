@@ -176,6 +176,26 @@ export function PostCard({
 
       <p className="mt-3 whitespace-pre-wrap text-sm">{post.body}</p>
 
+      {post.post_images.length > 0 && (
+        <div
+          className={`mt-3 grid gap-1 overflow-hidden rounded-md ${
+            post.post_images.length === 1 ? "grid-cols-1" : "grid-cols-2"
+          }`}
+        >
+          {post.post_images
+            .slice()
+            .sort((a, b) => a.position - b.position)
+            .map((image) => (
+              <img
+                key={image.id}
+                src={image.image_url}
+                alt=""
+                className="max-h-96 w-full bg-muted object-cover"
+              />
+            ))}
+        </div>
+      )}
+
       <div className="mt-4 flex items-center gap-5 border-t border-border pt-3 text-sm text-muted-foreground">
         <button
           onClick={toggleLike}
