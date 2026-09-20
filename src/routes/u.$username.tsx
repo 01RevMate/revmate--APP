@@ -116,7 +116,7 @@ function GarageProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl pb-16">
+    <div className="mx-auto max-w-3xl">
       <EditableImage
         userId={profile.user_id}
         editable={isOwner}

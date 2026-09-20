@@ -103,7 +103,7 @@ function Home() {
     <div className="flex">
       <Sidebar />
       <main className="min-w-0 flex-1">
-        <div className="mx-auto max-w-2xl space-y-4 px-4 py-6 pb-16">
+        <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
           <div>
             <h1 className="text-lg font-semibold">Feed</h1>
             <p className="text-xs text-muted-foreground">{scopeLabel}</p>

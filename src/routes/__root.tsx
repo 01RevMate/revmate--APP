@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TopNav } from "@/components/TopNav";
+import { BottomNav } from "@/components/BottomNav";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AuthModalProvider } from "@/hooks/useAuthModal";
 import { AuthPromptModal } from "@/components/AuthPromptModal";
@@ -145,11 +146,12 @@ function RootComponent() {
       <AuthProvider>
         <AuthModalProvider>
           <TooltipProvider>
-            <div className="min-h-screen bg-background">
+            <div className="min-h-screen bg-background pb-16 md:pb-0">
               <TopNav />
               {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
               <Outlet />
             </div>
+            <BottomNav />
             <Toaster />
             <AuthPromptModal />
           </TooltipProvider>
