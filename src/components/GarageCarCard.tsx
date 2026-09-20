@@ -1,8 +1,18 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
-import { addMod, fetchMods, removeGarageCar, removeMod, type GarageCar, type GarageMod } from "@/lib/garage";
+import {
+  addMod,
+  fetchMods,
+  removeGarageCar,
+  removeMod,
+  MOD_CATEGORY_LABELS,
+  type GarageCar,
+  type GarageMod,
+} from "@/lib/garage";
+import { createPost } from "@/lib/posts";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 import { Avatar } from "@/components/Avatar";
 
 export function GarageCarCard({
@@ -14,10 +24,13 @@ export function GarageCarCard({
   isOwner: boolean;
   onRemoved?: () => void;
 }) {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [addingMod, setAddingMod] = useState(false);
   const [modTitle, setModTitle] = useState("");
   const [modDescription, setModDescription] = useState("");
+  const [modCategory, setModCategory] = useState<NonNullable<GarageMod["category"]>>("other");
+  const [shareToFeed, setShareToFeed] = useState(false);
 
   const { data: mods } = useQuery({
     queryKey: ["garage-mods", car.id],
@@ -31,10 +44,26 @@ export function GarageCarCard({
   async function handleAddMod(e: React.FormEvent) {
     e.preventDefault();
     if (!modTitle.trim()) return;
+    if (shareToFeed && !modDescription.trim()) {
+      toast.error("Add a description before sharing this mod to the feed.");
+      return;
+    }
     try {
-      await addMod(car.id, modTitle.trim(), modDescription.trim() || undefined);
+      await addMod(car.id, modTitle.trim(), modDescription.trim() || undefined, modCategory);
+      if (shareToFeed && user) {
+        await createPost({
+          userId: user.id,
+          body: `New mod on ${car.nickname}: ${modTitle.trim()} (${MOD_CATEGORY_LABELS[modCategory]})\n\n${modDescription.trim()}`,
+          carId: car.car_id || undefined,
+          postedAsGarageCarId: car.id,
+          category: "modifications",
+        });
+        queryClient.invalidateQueries({ queryKey: ["feed"] });
+      }
       setModTitle("");
       setModDescription("");
+      setModCategory("other");
+      setShareToFeed(false);
       setAddingMod(false);
       refreshMods();
     } catch (err) {
@@ -92,6 +121,11 @@ export function GarageCarCard({
             <li key={mod.id} className="flex items-start justify-between gap-2 text-sm">
               <div>
                 <span className="font-medium">{mod.title}</span>
+                {mod.category && (
+                  <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {MOD_CATEGORY_LABELS[mod.category]}
+                  </span>
+                )}
                 {mod.description && (
                   <span className="text-muted-foreground"> — {mod.description}</span>
                 )}
@@ -120,12 +154,31 @@ export function GarageCarCard({
                 className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
                 autoFocus
               />
+              <select
+                value={modCategory}
+                onChange={(e) => setModCategory(e.target.value as NonNullable<GarageMod["category"]>)}
+                className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+              >
+                {Object.entries(MOD_CATEGORY_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
               <input
                 value={modDescription}
                 onChange={(e) => setModDescription(e.target.value)}
-                placeholder="Details (optional)"
+                placeholder="Details (required to share to the feed)"
                 className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
               />
+              <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={shareToFeed}
+                  onChange={(e) => setShareToFeed(e.target.checked)}
+                />
+                Share this mod to the feed
+              </label>
               <div className="flex gap-2">
                 <button
                   type="submit"

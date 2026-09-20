@@ -270,6 +270,7 @@ export type Database = {
         Row: {
           body: string
           car_id: string | null
+          category: Database["public"]["Enums"]["post_category"]
           comments_count: number
           created_at: string
           id: string
@@ -281,6 +282,7 @@ export type Database = {
         Insert: {
           body: string
           car_id?: string | null
+          category?: Database["public"]["Enums"]["post_category"]
           comments_count?: number
           created_at?: string
           id?: string
@@ -292,6 +294,7 @@ export type Database = {
         Update: {
           body?: string
           car_id?: string | null
+          category?: Database["public"]["Enums"]["post_category"]
           comments_count?: number
           created_at?: string
           id?: string
@@ -383,6 +386,7 @@ export type Database = {
       }
       garage_mods: {
         Row: {
+          category: Database["public"]["Enums"]["mod_category"] | null
           created_at: string
           description: string | null
           garage_car_id: string
@@ -390,6 +394,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          category?: Database["public"]["Enums"]["mod_category"] | null
           created_at?: string
           description?: string | null
           garage_car_id: string
@@ -397,6 +402,7 @@ export type Database = {
           title: string
         }
         Update: {
+          category?: Database["public"]["Enums"]["mod_category"] | null
           created_at?: string
           description?: string | null
           garage_car_id?: string
@@ -524,6 +530,19 @@ export type Database = {
       car_status: "verified" | "unverified"
       fault_source: "ai" | "owner"
       listing_type: "car" | "part"
+      mod_category:
+        | "wheels"
+        | "suspension"
+        | "exhaust"
+        | "intake"
+        | "engine"
+        | "exterior"
+        | "interior"
+        | "lighting"
+        | "audio"
+        | "brakes"
+        | "other"
+      post_category: "discussion" | "diagnostics" | "modifications" | "bodywork" | "maintenance" | "showcase"
       profile_persona: "owner" | "modifier" | "enthusiast" | "diy_mechanic" | "trader"
       profile_role: "user" | "admin"
     }
@@ -656,6 +675,20 @@ export const Constants = {
       car_status: ["verified", "unverified"],
       fault_source: ["ai", "owner"],
       listing_type: ["car", "part"],
+      mod_category: [
+        "wheels",
+        "suspension",
+        "exhaust",
+        "intake",
+        "engine",
+        "exterior",
+        "interior",
+        "lighting",
+        "audio",
+        "brakes",
+        "other",
+      ],
+      post_category: ["discussion", "diagnostics", "modifications", "bodywork", "maintenance", "showcase"],
       profile_persona: ["owner", "modifier", "enthusiast", "diy_mechanic", "trader"],
       profile_role: ["user", "admin"],
     },

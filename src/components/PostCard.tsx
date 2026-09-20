@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
-import { Heart, MessageCircle, Share2 } from "lucide-react";
+import { Heart, MessageCircle, Share2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -9,9 +9,11 @@ import { Avatar } from "@/components/Avatar";
 import { carLabel, carPath } from "@/lib/cars";
 import {
   addComment,
+  deletePost,
   fetchComments,
   likePost,
   unlikePost,
+  POST_CATEGORY_LABELS,
   type CommentWithAuthor,
   type PostWithAuthor,
 } from "@/lib/posts";
@@ -19,9 +21,11 @@ import {
 export function PostCard({
   post,
   liked: initiallyLiked,
+  onDeleted,
 }: {
   post: PostWithAuthor;
   liked: boolean;
+  onDeleted?: () => void;
 }) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
@@ -32,6 +36,7 @@ export function PostCard({
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [commentBody, setCommentBody] = useState("");
   const [commentsCount, setCommentsCount] = useState(post.comments_count);
+  const [deleted, setDeleted] = useState(false);
 
   async function toggleLike() {
     if (!user) {
@@ -94,41 +99,70 @@ export function PostCard({
     }
   }
 
+  async function handleDelete() {
+    if (!window.confirm("Delete this post?")) return;
+    try {
+      await deletePost(post.id);
+      setDeleted(true);
+      onDeleted?.();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't delete post");
+    }
+  }
+
+  if (deleted) return null;
+
   return (
     <article className="rounded-lg border border-border bg-card p-4">
-      <header className="flex items-center gap-3">
-        {post.posted_as_garage_car ? (
-          <Link
-            to="/u/$username/cars/$carId"
-            params={{ username: post.profiles?.username ?? "", carId: post.posted_as_garage_car.id }}
-            className="flex items-center gap-3 hover:opacity-80"
-          >
-            <Avatar
-              photoUrl={post.posted_as_garage_car.photo_url}
-              fallback={post.posted_as_garage_car.nickname}
-            />
-            <div>
-              <p className="text-sm font-medium">{post.posted_as_garage_car.nickname}</p>
-              <p className="text-xs text-muted-foreground">
-                {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-              </p>
-            </div>
-          </Link>
-        ) : (
-          <Link
-            to="/u/$username"
-            params={{ username: post.profiles?.username ?? "" }}
-            className="flex items-center gap-3 hover:opacity-80"
-          >
-            <Avatar photoUrl={post.profiles?.avatar_url} fallback={post.profiles?.username} />
-            <div>
-              <p className="text-sm font-medium">{post.profiles?.username ?? "Unknown"}</p>
-              <p className="text-xs text-muted-foreground">
-                {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-              </p>
-            </div>
-          </Link>
-        )}
+      <header className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-3">
+          {post.posted_as_garage_car ? (
+            <Link
+              to="/u/$username/cars/$carId"
+              params={{ username: post.profiles?.username ?? "", carId: post.posted_as_garage_car.id }}
+              className="flex items-center gap-3 hover:opacity-80"
+            >
+              <Avatar
+                photoUrl={post.posted_as_garage_car.photo_url}
+                fallback={post.posted_as_garage_car.nickname}
+              />
+              <div>
+                <p className="text-sm font-medium">{post.posted_as_garage_car.nickname}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                </p>
+              </div>
+            </Link>
+          ) : (
+            <Link
+              to="/u/$username"
+              params={{ username: post.profiles?.username ?? "" }}
+              className="flex items-center gap-3 hover:opacity-80"
+            >
+              <Avatar photoUrl={post.profiles?.avatar_url} fallback={post.profiles?.username} />
+              <div>
+                <p className="text-sm font-medium">{post.profiles?.username ?? "Unknown"}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                </p>
+              </div>
+            </Link>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent-foreground">
+            {POST_CATEGORY_LABELS[post.category]}
+          </span>
+          {user?.id === post.user_id && (
+            <button
+              onClick={handleDelete}
+              className="text-muted-foreground hover:text-destructive"
+              title="Delete post"
+            >
+              <Trash2 className="size-4" />
+            </button>
+          )}
+        </div>
       </header>
 
       {post.cars && (

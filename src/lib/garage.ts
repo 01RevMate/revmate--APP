@@ -4,6 +4,20 @@ import type { Tables } from "@/integrations/supabase/types";
 export type GarageCar = Tables<"garage_cars">;
 export type GarageMod = Tables<"garage_mods">;
 
+export const MOD_CATEGORY_LABELS: Record<NonNullable<GarageMod["category"]>, string> = {
+  wheels: "Wheels",
+  suspension: "Suspension",
+  exhaust: "Exhaust",
+  intake: "Intake",
+  engine: "Engine",
+  exterior: "Exterior",
+  interior: "Interior",
+  lighting: "Lighting",
+  audio: "Audio",
+  brakes: "Brakes",
+  other: "Other",
+};
+
 export async function fetchGarage(userId: string): Promise<GarageCar[]> {
   const { data, error } = await supabase
     .from("garage_cars")
@@ -60,10 +74,15 @@ export async function fetchMods(garageCarId: string): Promise<GarageMod[]> {
   return data;
 }
 
-export async function addMod(garageCarId: string, title: string, description?: string) {
+export async function addMod(
+  garageCarId: string,
+  title: string,
+  description?: string,
+  category?: GarageMod["category"],
+) {
   const { error } = await supabase
     .from("garage_mods")
-    .insert({ garage_car_id: garageCarId, title, description: description || null });
+    .insert({ garage_car_id: garageCarId, title, description: description || null, category: category || null });
   if (error) throw error;
 }
 

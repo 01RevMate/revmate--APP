@@ -14,6 +14,15 @@ export type CommentWithAuthor = PostComment & {
   profiles: Pick<Tables<"profiles">, "username" | "avatar_url"> | null;
 };
 
+export const POST_CATEGORY_LABELS: Record<Post["category"], string> = {
+  discussion: "General Discussion",
+  diagnostics: "Diagnostics / Problems",
+  modifications: "Modifications",
+  bodywork: "Bodywork",
+  maintenance: "Maintenance",
+  showcase: "Build Showcase",
+};
+
 const POST_SELECT =
   "*, profiles!posts_user_id_fkey(username, avatar_url), cars(make, model, generation), posted_as_garage_car:garage_cars!posts_posted_as_garage_car_id_fkey(id, nickname, photo_url)";
 
@@ -73,13 +82,20 @@ export async function createPost(input: {
   body: string;
   carId?: string | undefined;
   postedAsGarageCarId?: string | undefined;
+  category?: Post["category"] | undefined;
 }) {
   const { error } = await supabase.from("posts").insert({
     user_id: input.userId,
     body: input.body,
     car_id: input.carId || null,
     posted_as_garage_car_id: input.postedAsGarageCarId || null,
+    category: input.category || "discussion",
   });
+  if (error) throw error;
+}
+
+export async function deletePost(postId: string) {
+  const { error } = await supabase.from("posts").delete().eq("id", postId);
   if (error) throw error;
 }
 
