@@ -688,6 +688,67 @@ export type Database = {
           },
         ]
       }
+      post_reports: {
+        Row: {
+          created_at: string
+          details: string
+          id: string
+          post_id: string | null
+          reason: Database["public"]["Enums"]["post_report_reason"]
+          reported_user_id: string
+          reporter_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["post_report_status"]
+        }
+        Insert: {
+          created_at?: string
+          details?: string
+          id?: string
+          post_id: string
+          reason: Database["public"]["Enums"]["post_report_reason"]
+          reported_user_id?: string
+          reporter_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["post_report_status"]
+        }
+        Update: {
+          created_at?: string
+          details?: string
+          id?: string
+          post_id?: string | null
+          reason?: Database["public"]["Enums"]["post_report_reason"]
+          reported_user_id?: string
+          reporter_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["post_report_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_reports_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_reports_reported_user_id_fkey"
+            columns: ["reported_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "post_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           body: string
@@ -751,11 +812,15 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: Database["public"]["Enums"]["account_status"]
           active_garage_car_id: string | null
           avatar_url: string | null
           cover_photo_url: string | null
           created_at: string
           id: string
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_note: string | null
           persona: Database["public"]["Enums"]["profile_persona"]
           role: Database["public"]["Enums"]["profile_role"]
           social_facebook: string | null
@@ -765,11 +830,15 @@ export type Database = {
           username: string
         }
         Insert: {
+          account_status?: Database["public"]["Enums"]["account_status"]
           active_garage_car_id?: string | null
           avatar_url?: string | null
           cover_photo_url?: string | null
           created_at?: string
           id?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_note?: string | null
           persona?: Database["public"]["Enums"]["profile_persona"]
           role?: Database["public"]["Enums"]["profile_role"]
           social_facebook?: string | null
@@ -779,11 +848,15 @@ export type Database = {
           username: string
         }
         Update: {
+          account_status?: Database["public"]["Enums"]["account_status"]
           active_garage_car_id?: string | null
           avatar_url?: string | null
           cover_photo_url?: string | null
           created_at?: string
           id?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_note?: string | null
           persona?: Database["public"]["Enums"]["profile_persona"]
           role?: Database["public"]["Enums"]["profile_role"]
           social_facebook?: string | null
@@ -799,6 +872,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "garage_cars"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      protected_post_terms: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string
+          id: string
+          match_type: Database["public"]["Enums"]["protected_term_match"]
+          term: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by: string
+          id?: string
+          match_type?: Database["public"]["Enums"]["protected_term_match"]
+          term: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          id?: string
+          match_type?: Database["public"]["Enums"]["protected_term_match"]
+          term?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protected_post_terms_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -863,6 +971,42 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "cars"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_blocks_blocked_id_fkey"
+            columns: ["blocked_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "user_blocks_blocker_id_fkey"
+            columns: ["blocker_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1015,6 +1159,7 @@ export type Database = {
       is_admin: { Args: { check_user_id: string }; Returns: boolean }
     }
     Enums: {
+      account_status: "active" | "banned" | "removed"
       car_status: "verified" | "unverified"
       fault_source: "ai" | "owner"
       friendship_status: "pending" | "accepted"
@@ -1040,6 +1185,17 @@ export type Database = {
         | "bodywork"
         | "maintenance"
         | "showcase"
+      post_report_reason:
+        | "spam"
+        | "scam"
+        | "sexual_spam"
+        | "harassment"
+        | "hate"
+        | "dangerous"
+        | "off_topic"
+        | "other"
+      post_report_status: "open" | "dismissed" | "actioned"
+      protected_term_match: "word" | "phrase"
       profile_persona:
         | "owner"
         | "modifier"
@@ -1175,6 +1331,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      account_status: ["active", "banned", "removed"],
       car_status: ["verified", "unverified"],
       fault_source: ["ai", "owner"],
       friendship_status: ["pending", "accepted"],
@@ -1202,6 +1359,18 @@ export const Constants = {
         "maintenance",
         "showcase",
       ],
+      post_report_reason: [
+        "spam",
+        "scam",
+        "sexual_spam",
+        "harassment",
+        "hate",
+        "dangerous",
+        "off_topic",
+        "other",
+      ],
+      post_report_status: ["open", "dismissed", "actioned"],
+      protected_term_match: ["word", "phrase"],
       profile_persona: [
         "owner",
         "modifier",

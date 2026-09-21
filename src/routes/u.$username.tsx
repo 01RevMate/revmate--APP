@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CheckCircle2, Loader2, MessageCircle, UserPlus } from "lucide-react";
+import { CheckCircle2, Loader2, MessageCircle, UserPlus, UserX } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { PERSONA_LABELS } from "@/hooks/useProfile";
@@ -34,6 +34,7 @@ import { CarLogo } from "@/components/CarLogo";
 import { PostingIdentitySwitcher } from "@/components/PostingIdentitySwitcher";
 import { VehicleCatalogPicker } from "@/components/VehicleCatalogPicker";
 import { carLabel, type Car } from "@/lib/cars";
+import { blockProfile, fetchBlock, unblockProfile } from "@/lib/moderation";
 import {
   EMPTY_VEHICLE_CATALOG_SELECTION,
   garageFuelTypeForCatalogFuel,
@@ -61,6 +62,12 @@ function GarageProfilePage() {
   });
 
   const isOwner = !!user && !!profile && user.id === profile.user_id;
+
+  const { data: block } = useQuery({
+    queryKey: ["user-block", user?.id, profile?.user_id],
+    enabled: !!user && !!profile && !isOwner,
+    queryFn: () => fetchBlock(user!.id, profile!.user_id),
+  });
 
   const { data: garage } = useQuery({
     queryKey: ["garage", profile?.user_id],
@@ -94,6 +101,30 @@ function GarageProfilePage() {
 
   function refreshGarage() {
     queryClient.invalidateQueries({ queryKey: ["garage", profile?.user_id] });
+  }
+
+  async function toggleBlock() {
+    if (!user || !profile) return openAuthModal("Create a free account to block profiles.");
+    try {
+      if (block) {
+        await unblockProfile(user.id, profile.user_id);
+        toast.success("Profile unblocked.");
+      } else {
+        if (
+          !window.confirm(
+            `Block @${profile.username}? Their posts will disappear and they won't be able to message you.`,
+          )
+        )
+          return;
+        await blockProfile(user.id, profile.user_id);
+        toast.success("Profile blocked.");
+      }
+      queryClient.invalidateQueries({ queryKey: ["user-block", user.id, profile.user_id] });
+      queryClient.invalidateQueries({ queryKey: ["posts-by-user", profile.user_id] });
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't update this block");
+    }
   }
 
   if (isLoading) {
@@ -164,32 +195,41 @@ function GarageProfilePage() {
               {editing ? "Close" : "Edit profile"}
             </button>
           ) : (
-            <div className="mb-2 flex gap-2">
-              <Link
-                to="/messages/$username"
-                params={{ username: profile.username }}
-                onClick={(e) => {
-                  if (!user) {
-                    e.preventDefault();
-                    openAuthModal(`Create a free account to message ${profile.username}.`);
-                  }
-                }}
-                className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                <MessageCircle className="size-3.5" />
-                Message
-              </Link>
-              {user ? (
-                <FriendButton myId={user.id} otherId={profile.user_id} />
-              ) : (
-                <button
-                  onClick={() => openAuthModal("Create a free account to add friends.")}
-                  className="flex items-center gap-1.5 rounded-md border border-input px-3 py-1.5 text-sm font-medium hover:bg-accent"
+            <div className="mb-2 flex flex-wrap gap-2">
+              {!block && (
+                <Link
+                  to="/messages/$username"
+                  params={{ username: profile.username }}
+                  onClick={(e) => {
+                    if (!user) {
+                      e.preventDefault();
+                      openAuthModal(`Create a free account to message ${profile.username}.`);
+                    }
+                  }}
+                  className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
-                  <UserPlus className="size-3.5" />
-                  Add Friend
-                </button>
+                  <MessageCircle className="size-3.5" />
+                  Message
+                </Link>
               )}
+              {!block &&
+                (user ? (
+                  <FriendButton myId={user.id} otherId={profile.user_id} />
+                ) : (
+                  <button
+                    onClick={() => openAuthModal("Create a free account to add friends.")}
+                    className="flex items-center gap-1.5 rounded-md border border-input px-3 py-1.5 text-sm font-medium hover:bg-accent"
+                  >
+                    <UserPlus className="size-3.5" />
+                    Add Friend
+                  </button>
+                ))}
+              <button
+                onClick={toggleBlock}
+                className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-accent ${block ? "border-destructive/40 text-destructive" : "border-input"}`}
+              >
+                <UserX className="size-3.5" /> {block ? "Unblock" : "Block"}
+              </button>
             </div>
           )}
         </div>

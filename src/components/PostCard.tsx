@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
-import { Heart, MessageCircle, Share2, Trash2 } from "lucide-react";
+import { Flag, Heart, MessageCircle, Share2, Trash2, UserX } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -18,6 +18,7 @@ import {
   type CommentWithAuthor,
   type PostWithAuthor,
 } from "@/lib/posts";
+import { blockProfile, reportPost, type ReportReason } from "@/lib/moderation";
 
 export function PostCard({
   post,
@@ -38,6 +39,10 @@ export function PostCard({
   const [commentBody, setCommentBody] = useState("");
   const [commentsCount, setCommentsCount] = useState(post.comments_count);
   const [deleted, setDeleted] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState<ReportReason>("spam");
+  const [reportDetails, setReportDetails] = useState("");
+  const [safetySaving, setSafetySaving] = useState(false);
 
   async function toggleLike() {
     if (!user) {
@@ -111,6 +116,43 @@ export function PostCard({
     }
   }
 
+  async function handleReport(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user) return openAuthModal("Create a free account to report posts.");
+    setSafetySaving(true);
+    try {
+      await reportPost(post.id, user.id, reportReason, reportDetails);
+      setReportOpen(false);
+      setReportDetails("");
+      toast.success("Report sent to the RevMate moderation team.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't send the report");
+    } finally {
+      setSafetySaving(false);
+    }
+  }
+
+  async function handleBlock() {
+    if (!user) return openAuthModal("Create a free account to block profiles.");
+    if (
+      !window.confirm(
+        `Block @${post.profiles?.username ?? "this profile"}? Their posts will disappear and they won't be able to message you.`,
+      )
+    )
+      return;
+    setSafetySaving(true);
+    try {
+      await blockProfile(user.id, post.user_id);
+      setDeleted(true);
+      onDeleted?.();
+      toast.success("Profile blocked.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't block this profile");
+    } finally {
+      setSafetySaving(false);
+    }
+  }
+
   if (deleted) return null;
 
   return (
@@ -120,7 +162,10 @@ export function PostCard({
           {post.posted_as_garage_car ? (
             <Link
               to="/u/$username/cars/$carId"
-              params={{ username: post.profiles?.username ?? "", carId: post.posted_as_garage_car.id }}
+              params={{
+                username: post.profiles?.username ?? "",
+                carId: post.posted_as_garage_car.id,
+              }}
               className="flex items-center gap-3 hover:opacity-80"
             >
               <div className="relative">
@@ -215,7 +260,10 @@ export function PostCard({
           />
           {likesCount > 0 ? likesCount : "Like"}
         </button>
-        <button onClick={toggleComments} className="flex items-center gap-1.5 hover:text-foreground">
+        <button
+          onClick={toggleComments}
+          className="flex items-center gap-1.5 hover:text-foreground"
+        >
           <MessageCircle className="size-4" />
           {commentsCount > 0 ? commentsCount : "Comment"}
         </button>
@@ -223,14 +271,85 @@ export function PostCard({
           <Share2 className="size-4" />
           Share
         </button>
+        {user?.id !== post.user_id && (
+          <div className="ml-auto flex items-center gap-4">
+            <button
+              onClick={() =>
+                user
+                  ? setReportOpen((open) => !open)
+                  : openAuthModal("Create a free account to report posts.")
+              }
+              className="flex items-center gap-1.5 hover:text-foreground"
+            >
+              <Flag className="size-4" /> Report
+            </button>
+            <button
+              onClick={handleBlock}
+              disabled={safetySaving}
+              className="flex items-center gap-1.5 hover:text-destructive disabled:opacity-50"
+            >
+              <UserX className="size-4" /> Block
+            </button>
+          </div>
+        )}
       </div>
+
+      {reportOpen && (
+        <form
+          onSubmit={handleReport}
+          className="mt-3 space-y-2 rounded-md border border-border bg-muted/30 p-3"
+        >
+          <p className="text-sm font-semibold">Why are you reporting this post?</p>
+          <select
+            value={reportReason}
+            onChange={(e) => setReportReason(e.target.value as ReportReason)}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="spam">Spam</option>
+            <option value="scam">Scam or suspicious offer</option>
+            <option value="sexual_spam">Sexual spam or adult promotion</option>
+            <option value="harassment">Harassment or bullying</option>
+            <option value="hate">Hate speech</option>
+            <option value="dangerous">Dangerous advice</option>
+            <option value="off_topic">Posted in the wrong place</option>
+            <option value="other">Something else</option>
+          </select>
+          <textarea
+            value={reportDetails}
+            onChange={(e) => setReportDetails(e.target.value)}
+            maxLength={1000}
+            rows={2}
+            placeholder="Give the admins any useful context (optional)"
+            className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setReportOpen(false)}
+              className="rounded-md px-3 py-1.5 text-xs hover:bg-accent"
+            >
+              Cancel
+            </button>
+            <button
+              disabled={safetySaving}
+              className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+            >
+              {safetySaving ? "Sending…" : "Send report"}
+            </button>
+          </div>
+        </form>
+      )}
 
       {commentsOpen && (
         <div className="mt-3 space-y-3 border-t border-border pt-3">
           {commentsLoading && <p className="text-xs text-muted-foreground">Loading comments…</p>}
           {comments?.map((comment) => (
             <div key={comment.id} className="flex gap-2 text-sm">
-              <Avatar photoUrl={comment.profiles?.avatar_url} fallback={comment.profiles?.username} className="size-7" />
+              <Avatar
+                photoUrl={comment.profiles?.avatar_url}
+                fallback={comment.profiles?.username}
+                className="size-7"
+              />
               <div className="rounded-md bg-muted px-3 py-1.5">
                 <p className="text-xs font-medium">{comment.profiles?.username ?? "Unknown"}</p>
                 <p>{comment.body}</p>
