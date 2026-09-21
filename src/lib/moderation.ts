@@ -39,12 +39,14 @@ export async function reportPost(
   reason: ReportReason,
   details: string,
 ) {
+  // reported_user_id is filled in by a database trigger from the reported
+  // post, so it is deliberately omitted here.
   const { error } = await supabase.from("post_reports").insert({
     post_id: postId,
     reporter_id: reporterId,
     reason,
     details: details.trim(),
-  });
+  } as never);
   if (error) throw error;
 }
 
