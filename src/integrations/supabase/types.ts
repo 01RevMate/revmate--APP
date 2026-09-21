@@ -815,6 +815,7 @@ export type Database = {
           account_status: Database["public"]["Enums"]["account_status"]
           active_garage_car_id: string | null
           avatar_url: string | null
+          bio: string | null
           cover_photo_url: string | null
           created_at: string
           id: string
@@ -833,6 +834,7 @@ export type Database = {
           account_status?: Database["public"]["Enums"]["account_status"]
           active_garage_car_id?: string | null
           avatar_url?: string | null
+          bio?: string | null
           cover_photo_url?: string | null
           created_at?: string
           id?: string
@@ -851,6 +853,7 @@ export type Database = {
           account_status?: Database["public"]["Enums"]["account_status"]
           active_garage_car_id?: string | null
           avatar_url?: string | null
+          bio?: string | null
           cover_photo_url?: string | null
           created_at?: string
           id?: string

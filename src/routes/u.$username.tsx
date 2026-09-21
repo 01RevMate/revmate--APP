@@ -236,6 +236,9 @@ function GarageProfilePage() {
 
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">{profile.username}</h1>
         <p className="text-sm text-muted-foreground">{PERSONA_LABELS[profile.persona]}</p>
+        {profile.bio && (
+          <p className="mt-2 max-w-2xl whitespace-pre-wrap break-words text-sm">{profile.bio}</p>
+        )}
 
         <div className="mt-3">
           <SocialLinksDisplay profile={profile} />
@@ -366,6 +369,7 @@ function EditProfileForm({
   onDone: () => void;
 }) {
   const [persona, setPersona] = useState<Profile["persona"]>(profile.persona);
+  const [bio, setBio] = useState(profile.bio ?? "");
   const [socialLinks, setSocialLinks] = useState({
     social_instagram: profile.social_instagram ?? "",
     social_facebook: profile.social_facebook ?? "",
@@ -386,6 +390,7 @@ function EditProfileForm({
     try {
       await updateProfile(profile.user_id, {
         persona,
+        bio: bio.trim() || null,
         social_instagram: socialLinks.social_instagram.trim() || null,
         social_facebook: socialLinks.social_facebook.trim() || null,
         social_tiktok: socialLinks.social_tiktok.trim() || null,
@@ -416,6 +421,17 @@ function EditProfileForm({
             </option>
           ))}
         </select>
+      </Field>
+      <Field label="Bio">
+        <textarea
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          maxLength={160}
+          rows={3}
+          placeholder="Tell people a little about you"
+          className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
+        />
+        <p className="mt-1 text-right text-xs text-muted-foreground">{bio.length}/160</p>
       </Field>
       <SocialLinksEditor
         values={socialLinks}

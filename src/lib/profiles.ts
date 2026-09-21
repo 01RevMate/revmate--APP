@@ -20,6 +20,7 @@ export async function updateProfile(
       Profile,
       | "username"
       | "avatar_url"
+      | "bio"
       | "cover_photo_url"
       | "persona"
       | "social_instagram"

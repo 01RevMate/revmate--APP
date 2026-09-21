@@ -8,6 +8,7 @@ CREATE TYPE public.post_report_status AS ENUM ('open', 'dismissed', 'actioned');
 CREATE TYPE public.protected_term_match AS ENUM ('word', 'phrase');
 
 ALTER TABLE public.profiles
+  ADD COLUMN bio text CHECK (bio IS NULL OR char_length(bio) <= 160),
   ADD COLUMN account_status public.account_status NOT NULL DEFAULT 'active',
   ADD COLUMN moderation_note text,
   ADD COLUMN moderated_at timestamptz,
