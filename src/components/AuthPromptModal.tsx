@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAuthModal } from "@/hooks/useAuthModal";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export function AuthPromptModal() {
   const { isOpen, reason, close } = useAuthModal();
@@ -9,6 +10,7 @@ export function AuthPromptModal() {
     <Dialog open={isOpen} onOpenChange={(open) => !open && close()}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
+          <BrandLogo className="mx-auto h-20 w-40" />
           <DialogTitle>Join RevMate</DialogTitle>
           <DialogDescription>
             {reason ?? "Create a free account to continue."}

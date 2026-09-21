@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { BrandLogo } from "@/components/BrandLogo";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -48,8 +50,11 @@ function SignupPage() {
 
   if (sent) {
     return (
-      <div className="mx-auto max-w-sm px-4 py-12">
-        <h1 className="text-2xl font-semibold tracking-tight">Check your email</h1>
+      <div className="mx-auto max-w-sm px-4 py-10">
+        <Link to="/" aria-label="RevMate home" className="mx-auto block w-fit">
+          <BrandLogo className="h-24 w-48" />
+        </Link>
+        <h1 className="mt-6 text-2xl font-semibold tracking-tight">Check your email</h1>
         <p className="mt-3 text-sm text-muted-foreground">
           We've sent a confirmation link to {email}. Click it to finish creating your account.
         </p>
@@ -58,8 +63,11 @@ function SignupPage() {
   }
 
   return (
-    <div className="mx-auto max-w-sm px-4 py-12">
-      <h1 className="text-2xl font-semibold tracking-tight">Sign up</h1>
+    <div className="mx-auto max-w-sm px-4 py-10">
+      <Link to="/" aria-label="RevMate home" className="mx-auto block w-fit">
+        <BrandLogo className="h-24 w-48" />
+      </Link>
+      <h1 className="mt-6 text-2xl font-semibold tracking-tight">Sign up</h1>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <label className="block space-y-1.5">
           <span className="text-sm font-medium">Username</span>
@@ -74,6 +82,7 @@ function SignupPage() {
           <span className="text-sm font-medium">Email</span>
           <input
             type="email"
+            autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -84,6 +93,7 @@ function SignupPage() {
           <span className="text-sm font-medium">Password</span>
           <input
             type="password"
+            autoComplete="new-password"
             required
             minLength={6}
             value={password}
@@ -91,13 +101,13 @@ function SignupPage() {
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </label>
-        <button
+        <Button
           type="submit"
           disabled={saving}
-          className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          className="w-full"
         >
           {saving ? "Creating account…" : "Create account"}
-        </button>
+        </Button>
       </form>
       <p className="mt-4 text-sm text-muted-foreground">
         Already have an account?{" "}

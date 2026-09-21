@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AskRouteImport } from './routes/ask'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as GarageRouteImport } from './routes/garage'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
@@ -40,6 +42,11 @@ const AskRoute = AskRouteImport.update({
   path: '/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GarageRoute = GarageRouteImport.update({
   id: '/garage',
   path: '/garage',
@@ -58,6 +65,11 @@ const MarketplaceRoute = MarketplaceRouteImport.update({
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellRoute = SellRouteImport.update({
@@ -105,10 +117,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ask': typeof AskRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
@@ -122,10 +136,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ask': typeof AskRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
@@ -140,10 +156,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ask': typeof AskRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
@@ -159,10 +177,12 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ask'
+    | '/forgot-password'
     | '/garage'
     | '/login'
     | '/marketplace'
     | '/messages'
+    | '/reset-password'
     | '/sell'
     | '/settings'
     | '/signup'
@@ -176,10 +196,12 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ask'
+    | '/forgot-password'
     | '/garage'
     | '/login'
     | '/marketplace'
     | '/messages'
+    | '/reset-password'
     | '/sell'
     | '/settings'
     | '/signup'
@@ -193,10 +215,12 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ask'
+    | '/forgot-password'
     | '/garage'
     | '/login'
     | '/marketplace'
     | '/messages'
+    | '/reset-password'
     | '/sell'
     | '/settings'
     | '/signup'
@@ -211,10 +235,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AskRoute: typeof AskRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   GarageRoute: typeof GarageRoute
   LoginRoute: typeof LoginRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MessagesRoute: typeof MessagesRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SellRoute: typeof SellRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
@@ -247,6 +273,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AskRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/garage': {
       id: '/garage'
       path: '/garage'
@@ -273,6 +306,13 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sell': {
@@ -350,10 +390,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AskRoute: AskRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   GarageRoute: GarageRoute,
   LoginRoute: LoginRoute,
   MarketplaceRoute: MarketplaceRoute,
   MessagesRoute: MessagesRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
   SellRoute: SellRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
