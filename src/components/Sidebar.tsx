@@ -12,6 +12,8 @@ import {
   Settings,
   MessageCircle,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
@@ -28,17 +30,28 @@ function NavLink({
   label,
   collapsed,
   exact,
+  requireAuth,
 }: {
   to: string;
   icon: typeof Home;
   label: string;
   collapsed: boolean;
   exact?: boolean;
+  requireAuth?: boolean;
 }) {
+  const { user } = useAuth();
+  const { open: openAuthModal } = useAuthModal();
   const linkProps = exact ? { activeOptions: { exact: true } } : {};
+  const blocked = requireAuth && !user;
   const link = (
     <Link
       to={to}
+      onClick={(e) => {
+        if (blocked) {
+          e.preventDefault();
+          openAuthModal(`Create a free account to use ${label}.`);
+        }
+      }}
       className={`${item} ${collapsed ? itemCollapsed : ""}`}
       activeProps={{ className: `${item} ${collapsed ? itemCollapsed : ""} ${activeItem}` }}
       {...linkProps}
@@ -120,9 +133,9 @@ export function Sidebar() {
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
         <GroupsItem collapsed={collapsed} />
-        <NavLink to="/garage" icon={Warehouse} label="My Garage" collapsed={collapsed} />
-        <NavLink to="/messages" icon={MessageCircle} label="Messages" collapsed={collapsed} />
-        <NavLink to="/settings" icon={Settings} label="Settings" collapsed={collapsed} />
+        <NavLink to="/garage" icon={Warehouse} label="My Garage" collapsed={collapsed} requireAuth />
+        <NavLink to="/messages" icon={MessageCircle} label="Messages" collapsed={collapsed} requireAuth />
+        <NavLink to="/settings" icon={Settings} label="Settings" collapsed={collapsed} requireAuth />
         {isAdmin && <NavLink to="/admin" icon={ShieldCheck} label="Admin" collapsed={collapsed} />}
       </nav>
 

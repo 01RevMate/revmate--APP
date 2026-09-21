@@ -168,6 +168,12 @@ function GarageProfilePage() {
               <Link
                 to="/messages/$username"
                 params={{ username: profile.username }}
+                onClick={(e) => {
+                  if (!user) {
+                    e.preventDefault();
+                    openAuthModal(`Create a free account to message ${profile.username}.`);
+                  }
+                }}
                 className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 <MessageCircle className="size-3.5" />

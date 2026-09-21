@@ -14,15 +14,31 @@ function NavItem({
   icon: Icon,
   label,
   exact,
+  requireAuth,
 }: {
   to: string;
   icon: typeof Home;
   label: string;
   exact?: boolean;
+  requireAuth?: boolean;
 }) {
+  const { user } = useAuth();
+  const { open: openAuthModal } = useAuthModal();
   const linkProps = exact ? { activeOptions: { exact: true } } : {};
+  const blocked = requireAuth && !user;
   return (
-    <Link to={to} className={item} activeProps={{ className: `${item} ${activeItem}` }} {...linkProps}>
+    <Link
+      to={to}
+      onClick={(e) => {
+        if (blocked) {
+          e.preventDefault();
+          openAuthModal(`Create a free account to use ${label}.`);
+        }
+      }}
+      className={item}
+      activeProps={{ className: `${item} ${activeItem}` }}
+      {...linkProps}
+    >
       <Icon className="size-5 shrink-0" />
       {label}
     </Link>
@@ -55,8 +71,8 @@ function ComposeButton() {
 
 // Same destinations as the desktop Sidebar, trimmed to what fits a thumb-width
 // row and shown on every page (the sidebar itself only appears on the feed).
-// All destinations show regardless of login — Garage/Messages degrade to a
-// sign-in prompt on their own page rather than needing to be hidden here.
+// All destinations show regardless of login; Garage/Messages intercept the
+// click and open the sign-in prompt instead of navigating when logged out.
 export function BottomNav() {
   return (
     <nav
@@ -67,8 +83,8 @@ export function BottomNav() {
       <NavItem to="/cars" icon={Car} label="Cars" />
       <NavItem to="/marketplace" icon={ShoppingBag} label="Marketplace" />
       <ComposeButton />
-      <NavItem to="/garage" icon={Warehouse} label="Garage" />
-      <NavItem to="/messages" icon={MessageCircle} label="Messages" />
+      <NavItem to="/garage" icon={Warehouse} label="Garage" requireAuth />
+      <NavItem to="/messages" icon={MessageCircle} label="Messages" requireAuth />
     </nav>
   );
 }
