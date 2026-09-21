@@ -20,10 +20,10 @@ export function TopNav() {
   }
 
   return (
-    <header className="border-b border-border">
-      <nav className="flex flex-wrap items-center gap-4 px-4 py-4">
-        <Link to="/" aria-label="RevMate home" className="block">
-          <BrandLogo className="h-10 w-28" />
+    <header className="border-b border-border md:border-b-0">
+      <nav className="flex flex-wrap items-center gap-4 px-4 py-3 md:px-6 md:py-4">
+        <Link to="/" aria-label="RevMate home" className="block md:hidden">
+          <BrandLogo className="h-10 w-auto" />
         </Link>
         {user && (
           <div className="ml-auto flex items-center gap-4">
