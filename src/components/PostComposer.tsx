@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ImagePlus, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,7 +13,6 @@ import {
   type Post,
 } from "@/lib/posts";
 import { validateImageFile } from "@/lib/uploads";
-import { fetchGarage } from "@/lib/garage";
 import { CarPicker } from "@/components/CarPicker";
 
 export function PostComposer({ onPosted }: { onPosted: () => void }) {
@@ -30,14 +28,8 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: garage } = useQuery({
-    queryKey: ["garage", user?.id],
-    enabled: !!user,
-    queryFn: () => fetchGarage(user!.id),
-  });
-
-  // Default new posts to whatever identity the person picked in their garage
-  // ("Posting as ..."), but only once we know it — don't stomp a mid-post pick.
+  // New posts default to whatever identity was picked via the header's
+  // switcher — no per-post picker anymore, that's a global quick-switch now.
   useEffect(() => {
     if (postingAs === "" && profile?.active_garage_car_id) {
       setPostingAs(profile.active_garage_car_id);
@@ -185,20 +177,6 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
         >
           <ImagePlus className="size-4" />
         </button>
-        {garage && garage.length > 0 && (
-          <select
-            value={postingAs}
-            onChange={(e) => setPostingAs(e.target.value)}
-            className="rounded-md border border-input bg-background px-2 py-1 text-xs"
-          >
-            <option value="">Posting as {profile?.username ?? "you"}</option>
-            {garage.map((car) => (
-              <option key={car.id} value={car.id}>
-                Posting as {car.nickname}
-              </option>
-            ))}
-          </select>
-        )}
         <button
           type="submit"
           disabled={saving || !body.trim()}

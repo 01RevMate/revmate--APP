@@ -123,10 +123,16 @@ export function PostCard({
               params={{ username: post.profiles?.username ?? "", carId: post.posted_as_garage_car.id }}
               className="flex items-center gap-3 hover:opacity-80"
             >
-              <Avatar
-                photoUrl={post.posted_as_garage_car.photo_url}
-                fallback={post.posted_as_garage_car.nickname}
-              />
+              <div className="relative">
+                <Avatar
+                  photoUrl={post.posted_as_garage_car.photo_url}
+                  fallback={post.posted_as_garage_car.nickname}
+                />
+                <CarLogo
+                  make={post.posted_as_garage_car.make}
+                  className="absolute -bottom-1 -right-1 size-4 rounded-full border border-background bg-background"
+                />
+              </div>
               <div>
                 <p className="text-sm font-medium">{post.posted_as_garage_car.nickname}</p>
                 <p className="text-xs text-muted-foreground">

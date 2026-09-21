@@ -10,7 +10,7 @@ export type PostImage = Tables<"post_images">;
 export type PostWithAuthor = Post & {
   profiles: Pick<Tables<"profiles">, "username" | "avatar_url"> | null;
   cars: Pick<Tables<"cars">, "make" | "model" | "generation"> | null;
-  posted_as_garage_car: Pick<Tables<"garage_cars">, "id" | "nickname" | "photo_url"> | null;
+  posted_as_garage_car: Pick<Tables<"garage_cars">, "id" | "nickname" | "photo_url" | "make"> | null;
   post_images: Pick<PostImage, "id" | "image_url" | "position">[];
 };
 
@@ -30,7 +30,7 @@ export const POST_CATEGORY_LABELS: Record<Post["category"], string> = {
 };
 
 const POST_SELECT =
-  "*, profiles!posts_user_id_fkey(username, avatar_url), cars(make, model, generation), posted_as_garage_car:garage_cars!posts_posted_as_garage_car_id_fkey(id, nickname, photo_url), post_images(id, image_url, position)";
+  "*, profiles!posts_user_id_fkey(username, avatar_url), cars(make, model, generation), posted_as_garage_car:garage_cars!posts_posted_as_garage_car_id_fkey(id, nickname, photo_url, make), post_images(id, image_url, position)";
 
 export async function fetchFeed(limit = 20): Promise<PostWithAuthor[]> {
   const { data, error } = await supabase
