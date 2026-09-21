@@ -85,20 +85,34 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "RevMate" },
+      { title: "RevMate — UK Car Community, Research & Marketplace" },
       {
         name: "description",
-        content: "Research, discuss and trade anything car-related in the UK.",
+        content:
+          "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
       },
       { name: "author", content: "RevMate" },
-      { property: "og:title", content: "RevMate" },
+      {
+        property: "og:title",
+        content: "RevMate — UK Car Community, Research & Marketplace",
+      },
       {
         property: "og:description",
-        content: "Research, discuss and trade anything car-related in the UK.",
+        content:
+          "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      {
+        name: "twitter:title",
+        content: "RevMate — UK Car Community, Research & Marketplace",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
+      },
     ],
     links: [
       {
