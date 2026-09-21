@@ -18,23 +18,32 @@ import { CategoryFilterBar, type CategoryFilter } from "@/components/CategoryFil
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "UK Car Research, Common Faults, Specs & Marketplace | RevMate" },
+      { title: "RevMate — UK Car Community, Research & Marketplace" },
       {
         name: "description",
         content:
-          "Research UK cars by model and generation. Compare specs, common faults, MOT insights, owner advice, parts and cars for sale on RevMate.",
+          "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
       },
       {
         property: "og:title",
-        content: "UK Car Research, Common Faults, Specs & Marketplace | RevMate",
+        content: "RevMate — UK Car Community, Research & Marketplace",
       },
       {
         property: "og:description",
         content:
-          "Research UK cars by model and generation. Compare specs, common faults, MOT insights, owner advice, parts and cars for sale on RevMate.",
+          "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      {
+        name: "twitter:title",
+        content: "RevMate — UK Car Community, Research & Marketplace",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
+      },
     ],
   }),
   component: Home,
