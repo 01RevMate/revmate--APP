@@ -4,6 +4,7 @@ import { Check, ChevronDown, UserRound } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { setActivePostingIdentity } from "@/lib/profiles";
 import type { GarageCar } from "@/lib/garage";
+import { Avatar } from "@/components/Avatar";
 import { CarLogo } from "@/components/CarLogo";
 import {
   DropdownMenu,
@@ -14,16 +15,25 @@ import {
 
 // Picks which identity new posts default to, and which car's make/model the
 // My Car / Same Brand feed scopes use when the person has more than one car.
+//
+// "button" (Garage section) spells it out: "Posting as <name>". "avatar" (top
+// bar, every page) is the Untitled UI avatar-with-badge pattern instead —
+// https://untitledui.com/components/avatars — your photo/initials with the
+// car's logo overlaid bottom-right when you're posting as one.
 export function PostingIdentitySwitcher({
   userId,
   username,
+  avatarUrl,
   activeGarageCarId,
   cars,
+  variant = "button",
 }: {
   userId: string;
   username: string;
+  avatarUrl?: string | null;
   activeGarageCarId: string | null;
   cars: GarageCar[];
+  variant?: "button" | "avatar";
 }) {
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
@@ -44,23 +54,44 @@ export function PostingIdentitySwitcher({
     }
   }
 
+  const trigger =
+    variant === "avatar" ? (
+      <button
+        disabled={saving}
+        title={`Posting as ${activeCar ? activeCar.nickname : username}`}
+        className="relative shrink-0 rounded-full disabled:opacity-50"
+      >
+        <Avatar
+          photoUrl={activeCar ? activeCar.photo_url : avatarUrl}
+          fallback={activeCar ? activeCar.nickname : username}
+          className="size-8"
+        />
+        {activeCar && (
+          <CarLogo
+            make={activeCar.make}
+            className="absolute -bottom-1 -right-1 size-4 rounded-full border border-background bg-background"
+          />
+        )}
+      </button>
+    ) : (
+      <button
+        disabled={saving}
+        className="flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent disabled:opacity-50"
+      >
+        {activeCar ? (
+          <CarLogo make={activeCar.make} className="size-4 shrink-0 rounded-full" />
+        ) : (
+          <UserRound className="size-4 shrink-0" />
+        )}
+        Posting as {activeCar ? activeCar.nickname : username}
+        <ChevronDown className="size-3.5 text-muted-foreground" />
+      </button>
+    );
+
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          disabled={saving}
-          className="flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent disabled:opacity-50"
-        >
-          {activeCar ? (
-            <CarLogo make={activeCar.make} className="size-4 shrink-0 rounded-full" />
-          ) : (
-            <UserRound className="size-4 shrink-0" />
-          )}
-          Posting as {activeCar ? activeCar.nickname : username}
-          <ChevronDown className="size-3.5 text-muted-foreground" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
+      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+      <DropdownMenuContent align={variant === "avatar" ? "end" : "start"}>
         <DropdownMenuItem onClick={() => choose(null)} className="flex items-center gap-2">
           <UserRound className="size-4 shrink-0" />
           {username}

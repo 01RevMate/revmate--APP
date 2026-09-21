@@ -1,16 +1,26 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import { fetchGarage } from "@/lib/garage";
 import { BrandLogo } from "@/components/BrandLogo";
 import { Button } from "@/components/ui/button";
+import { PostingIdentitySwitcher } from "@/components/PostingIdentitySwitcher";
 
 const navLink = "text-sm text-muted-foreground transition-colors hover:text-foreground";
 
 export function TopNav() {
   const { user } = useAuth();
+  const { data: profile } = useProfile();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const { data: garage } = useQuery({
+    queryKey: ["garage", user?.id],
+    enabled: !!user,
+    queryFn: () => fetchGarage(user!.id),
+  });
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -25,8 +35,16 @@ export function TopNav() {
         <Link to="/" aria-label="RevMate home" className="block md:hidden">
           <BrandLogo className="h-8 w-auto" />
         </Link>
-        {user && (
-          <div className="ml-auto flex items-center gap-4">
+        {user && profile && (
+          <div className="ml-auto flex items-center gap-3">
+            <PostingIdentitySwitcher
+              userId={user.id}
+              username={profile.username}
+              avatarUrl={profile.avatar_url}
+              activeGarageCarId={profile.active_garage_car_id}
+              cars={(garage ?? []).filter((car) => car.ownership_status !== "previous")}
+              variant="avatar"
+            />
             <Button onClick={handleSignOut} variant="ghost" size="sm" className={navLink}>
               Sign out
             </Button>
