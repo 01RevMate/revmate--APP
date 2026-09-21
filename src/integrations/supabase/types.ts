@@ -46,6 +46,52 @@ export type Database = {
           },
         ]
       }
+      car_catalog_links: {
+        Row: {
+          car_id: string
+          created_at: string
+          derivative_id: string | null
+          id: string
+          model_id: string
+        }
+        Insert: {
+          car_id: string
+          created_at?: string
+          derivative_id?: string | null
+          id?: string
+          model_id: string
+        }
+        Update: {
+          car_id?: string
+          created_at?: string
+          derivative_id?: string | null
+          id?: string
+          model_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_catalog_links_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "car_catalog_links_derivative_id_fkey"
+            columns: ["derivative_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_derivatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "car_catalog_links_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       car_faults: {
         Row: {
           car_id: string
@@ -147,6 +193,308 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          user_a: string
+          user_b: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_a: string
+          user_b: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_a?: string
+          user_b?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_user_a_fkey"
+            columns: ["user_a"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "conversations_user_b_fkey"
+            columns: ["user_b"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      friendships: {
+        Row: {
+          created_at: string
+          id: string
+          recipient_id: string
+          requester_id: string
+          status: Database["public"]["Enums"]["friendship_status"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recipient_id: string
+          requester_id: string
+          status?: Database["public"]["Enums"]["friendship_status"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recipient_id?: string
+          requester_id?: string
+          status?: Database["public"]["Enums"]["friendship_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friendships_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "friendships_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      garage_car_likes: {
+        Row: {
+          created_at: string
+          garage_car_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          garage_car_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          garage_car_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garage_car_likes_garage_car_id_fkey"
+            columns: ["garage_car_id"]
+            isOneToOne: false
+            referencedRelation: "garage_cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garage_car_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      garage_car_photos: {
+        Row: {
+          created_at: string
+          garage_car_id: string
+          id: string
+          photo_url: string
+        }
+        Insert: {
+          created_at?: string
+          garage_car_id: string
+          id?: string
+          photo_url: string
+        }
+        Update: {
+          created_at?: string
+          garage_car_id?: string
+          id?: string
+          photo_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garage_car_photos_garage_car_id_fkey"
+            columns: ["garage_car_id"]
+            isOneToOne: false
+            referencedRelation: "garage_cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      garage_cars: {
+        Row: {
+          bio: string | null
+          car_id: string | null
+          catalog_derivative_id: string | null
+          catalog_make_id: string | null
+          catalog_model_id: string | null
+          catalog_powertrain_id: string | null
+          color: string | null
+          created_at: string
+          engine: string | null
+          fuel_type: Database["public"]["Enums"]["fuel_type"] | null
+          generation: string | null
+          horsepower: number | null
+          id: string
+          likes_count: number
+          make: string
+          mileage: number | null
+          model: string
+          nickname: string
+          ownership_status: Database["public"]["Enums"]["garage_car_ownership_status"]
+          photo_url: string | null
+          spec: string | null
+          transmission: Database["public"]["Enums"]["transmission_type"] | null
+          trim: string | null
+          user_id: string
+          year: number | null
+        }
+        Insert: {
+          bio?: string | null
+          car_id?: string | null
+          catalog_derivative_id?: string | null
+          catalog_make_id?: string | null
+          catalog_model_id?: string | null
+          catalog_powertrain_id?: string | null
+          color?: string | null
+          created_at?: string
+          engine?: string | null
+          fuel_type?: Database["public"]["Enums"]["fuel_type"] | null
+          generation?: string | null
+          horsepower?: number | null
+          id?: string
+          likes_count?: number
+          make: string
+          mileage?: number | null
+          model: string
+          nickname: string
+          ownership_status?: Database["public"]["Enums"]["garage_car_ownership_status"]
+          photo_url?: string | null
+          spec?: string | null
+          transmission?: Database["public"]["Enums"]["transmission_type"] | null
+          trim?: string | null
+          user_id: string
+          year?: number | null
+        }
+        Update: {
+          bio?: string | null
+          car_id?: string | null
+          catalog_derivative_id?: string | null
+          catalog_make_id?: string | null
+          catalog_model_id?: string | null
+          catalog_powertrain_id?: string | null
+          color?: string | null
+          created_at?: string
+          engine?: string | null
+          fuel_type?: Database["public"]["Enums"]["fuel_type"] | null
+          generation?: string | null
+          horsepower?: number | null
+          id?: string
+          likes_count?: number
+          make?: string
+          mileage?: number | null
+          model?: string
+          nickname?: string
+          ownership_status?: Database["public"]["Enums"]["garage_car_ownership_status"]
+          photo_url?: string | null
+          spec?: string | null
+          transmission?: Database["public"]["Enums"]["transmission_type"] | null
+          trim?: string | null
+          user_id?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garage_cars_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garage_cars_catalog_derivative_id_fkey"
+            columns: ["catalog_derivative_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_derivatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garage_cars_catalog_make_id_fkey"
+            columns: ["catalog_make_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_makes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garage_cars_catalog_model_id_fkey"
+            columns: ["catalog_model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garage_cars_catalog_powertrain_id_fkey"
+            columns: ["catalog_powertrain_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_powertrains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garage_cars_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      garage_mods: {
+        Row: {
+          category: Database["public"]["Enums"]["mod_category"] | null
+          created_at: string
+          description: string | null
+          garage_car_id: string
+          id: string
+          title: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["mod_category"] | null
+          created_at?: string
+          description?: string | null
+          garage_car_id: string
+          id?: string
+          title: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["mod_category"] | null
+          created_at?: string
+          description?: string | null
+          garage_car_id?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garage_mods_garage_car_id_fkey"
+            columns: ["garage_car_id"]
+            isOneToOne: false
+            referencedRelation: "garage_cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listings: {
         Row: {
           car_id: string
@@ -188,6 +536,48 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "cars"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -359,197 +749,6 @@ export type Database = {
           },
         ]
       }
-      garage_cars: {
-        Row: {
-          bio: string | null
-          car_id: string | null
-          catalog_derivative_id: string | null
-          catalog_make_id: string | null
-          catalog_model_id: string | null
-          catalog_powertrain_id: string | null
-          color: string | null
-          created_at: string
-          engine: string | null
-          fuel_type: Database["public"]["Enums"]["fuel_type"] | null
-          generation: string | null
-          horsepower: number | null
-          id: string
-          likes_count: number
-          make: string
-          mileage: number | null
-          model: string
-          nickname: string
-          ownership_status: Database["public"]["Enums"]["garage_car_ownership_status"]
-          photo_url: string | null
-          spec: string | null
-          transmission: Database["public"]["Enums"]["transmission_type"] | null
-          trim: string | null
-          user_id: string
-          year: number | null
-        }
-        Insert: {
-          bio?: string | null
-          car_id?: string | null
-          catalog_derivative_id?: string | null
-          catalog_make_id?: string | null
-          catalog_model_id?: string | null
-          catalog_powertrain_id?: string | null
-          color?: string | null
-          created_at?: string
-          engine?: string | null
-          fuel_type?: Database["public"]["Enums"]["fuel_type"] | null
-          generation?: string | null
-          horsepower?: number | null
-          id?: string
-          likes_count?: number
-          make: string
-          mileage?: number | null
-          model: string
-          nickname: string
-          ownership_status?: Database["public"]["Enums"]["garage_car_ownership_status"]
-          photo_url?: string | null
-          spec?: string | null
-          transmission?: Database["public"]["Enums"]["transmission_type"] | null
-          trim?: string | null
-          user_id: string
-          year?: number | null
-        }
-        Update: {
-          bio?: string | null
-          car_id?: string | null
-          catalog_derivative_id?: string | null
-          catalog_make_id?: string | null
-          catalog_model_id?: string | null
-          catalog_powertrain_id?: string | null
-          color?: string | null
-          created_at?: string
-          engine?: string | null
-          fuel_type?: Database["public"]["Enums"]["fuel_type"] | null
-          generation?: string | null
-          horsepower?: number | null
-          id?: string
-          likes_count?: number
-          make?: string
-          mileage?: number | null
-          model?: string
-          nickname?: string
-          ownership_status?: Database["public"]["Enums"]["garage_car_ownership_status"]
-          photo_url?: string | null
-          spec?: string | null
-          transmission?: Database["public"]["Enums"]["transmission_type"] | null
-          trim?: string | null
-          user_id?: string
-          year?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "garage_cars_car_id_fkey"
-            columns: ["car_id"]
-            isOneToOne: false
-            referencedRelation: "cars"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "garage_cars_catalog_derivative_id_fkey"
-            columns: ["catalog_derivative_id"]
-            isOneToOne: false
-            referencedRelation: "vehicle_derivatives"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "garage_cars_catalog_make_id_fkey"
-            columns: ["catalog_make_id"]
-            isOneToOne: false
-            referencedRelation: "vehicle_makes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "garage_cars_catalog_model_id_fkey"
-            columns: ["catalog_model_id"]
-            isOneToOne: false
-            referencedRelation: "vehicle_models"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "garage_cars_catalog_powertrain_id_fkey"
-            columns: ["catalog_powertrain_id"]
-            isOneToOne: false
-            referencedRelation: "vehicle_powertrains"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "garage_cars_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      garage_car_photos: {
-        Row: {
-          created_at: string
-          garage_car_id: string
-          id: string
-          photo_url: string
-        }
-        Insert: {
-          created_at?: string
-          garage_car_id: string
-          id?: string
-          photo_url: string
-        }
-        Update: {
-          created_at?: string
-          garage_car_id?: string
-          id?: string
-          photo_url?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "garage_car_photos_garage_car_id_fkey"
-            columns: ["garage_car_id"]
-            isOneToOne: false
-            referencedRelation: "garage_cars"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      garage_mods: {
-        Row: {
-          category: Database["public"]["Enums"]["mod_category"] | null
-          created_at: string
-          description: string | null
-          garage_car_id: string
-          id: string
-          title: string
-        }
-        Insert: {
-          category?: Database["public"]["Enums"]["mod_category"] | null
-          created_at?: string
-          description?: string | null
-          garage_car_id: string
-          id?: string
-          title: string
-        }
-        Update: {
-          category?: Database["public"]["Enums"]["mod_category"] | null
-          created_at?: string
-          description?: string | null
-          garage_car_id?: string
-          id?: string
-          title?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "garage_mods_garage_car_id_fkey"
-            columns: ["garage_car_id"]
-            isOneToOne: false
-            referencedRelation: "garage_cars"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           active_garage_car_id: string | null
@@ -603,159 +802,6 @@ export type Database = {
           },
         ]
       }
-      friendships: {
-        Row: {
-          created_at: string
-          id: string
-          recipient_id: string
-          requester_id: string
-          status: Database["public"]["Enums"]["friendship_status"]
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          recipient_id: string
-          requester_id: string
-          status?: Database["public"]["Enums"]["friendship_status"]
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          recipient_id?: string
-          requester_id?: string
-          status?: Database["public"]["Enums"]["friendship_status"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "friendships_recipient_id_fkey"
-            columns: ["recipient_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "friendships_requester_id_fkey"
-            columns: ["requester_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      garage_car_likes: {
-        Row: {
-          created_at: string
-          garage_car_id: string
-          id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          garage_car_id: string
-          id?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          garage_car_id?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "garage_car_likes_garage_car_id_fkey"
-            columns: ["garage_car_id"]
-            isOneToOne: false
-            referencedRelation: "garage_cars"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "garage_car_likes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      conversations: {
-        Row: {
-          created_at: string
-          id: string
-          user_a: string
-          user_b: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          user_a: string
-          user_b: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          user_a?: string
-          user_b?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conversations_user_a_fkey"
-            columns: ["user_a"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "conversations_user_b_fkey"
-            columns: ["user_b"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      messages: {
-        Row: {
-          body: string
-          conversation_id: string
-          created_at: string
-          id: string
-          read_at: string | null
-          sender_id: string
-        }
-        Insert: {
-          body: string
-          conversation_id: string
-          created_at?: string
-          id?: string
-          read_at?: string | null
-          sender_id: string
-        }
-        Update: {
-          body?: string
-          conversation_id?: string
-          created_at?: string
-          id?: string
-          read_at?: string | null
-          sender_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "messages_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
       questions: {
         Row: {
           body: string | null
@@ -787,52 +833,6 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      car_catalog_links: {
-        Row: {
-          car_id: string
-          created_at: string
-          derivative_id: string | null
-          id: string
-          model_id: string
-        }
-        Insert: {
-          car_id: string
-          created_at?: string
-          derivative_id?: string | null
-          id?: string
-          model_id: string
-        }
-        Update: {
-          car_id?: string
-          created_at?: string
-          derivative_id?: string | null
-          id?: string
-          model_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "car_catalog_links_car_id_fkey"
-            columns: ["car_id"]
-            isOneToOne: false
-            referencedRelation: "cars"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "car_catalog_links_derivative_id_fkey"
-            columns: ["derivative_id"]
-            isOneToOne: false
-            referencedRelation: "vehicle_derivatives"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "car_catalog_links_model_id_fkey"
-            columns: ["model_id"]
-            isOneToOne: false
-            referencedRelation: "vehicle_models"
             referencedColumns: ["id"]
           },
         ]
@@ -1012,10 +1012,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      is_admin: {
-        Args: { check_user_id: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { check_user_id: string }; Returns: boolean }
     }
     Enums: {
       car_status: "verified" | "unverified"
@@ -1036,8 +1033,19 @@ export type Database = {
         | "audio"
         | "brakes"
         | "other"
-      post_category: "discussion" | "diagnostics" | "modifications" | "bodywork" | "maintenance" | "showcase"
-      profile_persona: "owner" | "modifier" | "enthusiast" | "diy_mechanic" | "trader"
+      post_category:
+        | "discussion"
+        | "diagnostics"
+        | "modifications"
+        | "bodywork"
+        | "maintenance"
+        | "showcase"
+      profile_persona:
+        | "owner"
+        | "modifier"
+        | "enthusiast"
+        | "diy_mechanic"
+        | "trader"
       profile_role: "user" | "admin"
       transmission_type: "manual" | "automatic" | "cvt" | "dct" | "other"
     }
@@ -1171,6 +1179,7 @@ export const Constants = {
       fault_source: ["ai", "owner"],
       friendship_status: ["pending", "accepted"],
       fuel_type: ["petrol", "diesel", "electric", "hybrid", "lpg", "other"],
+      garage_car_ownership_status: ["current", "previous"],
       listing_type: ["car", "part"],
       mod_category: [
         "wheels",
@@ -1185,8 +1194,21 @@ export const Constants = {
         "brakes",
         "other",
       ],
-      post_category: ["discussion", "diagnostics", "modifications", "bodywork", "maintenance", "showcase"],
-      profile_persona: ["owner", "modifier", "enthusiast", "diy_mechanic", "trader"],
+      post_category: [
+        "discussion",
+        "diagnostics",
+        "modifications",
+        "bodywork",
+        "maintenance",
+        "showcase",
+      ],
+      profile_persona: [
+        "owner",
+        "modifier",
+        "enthusiast",
+        "diy_mechanic",
+        "trader",
+      ],
       profile_role: ["user", "admin"],
       transmission_type: ["manual", "automatic", "cvt", "dct", "other"],
     },
