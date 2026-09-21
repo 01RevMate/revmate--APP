@@ -26,6 +26,13 @@ export type ModeratedProfile = Pick<
   | "created_at"
 >;
 
+export type BlockedProfile = {
+  id: string;
+  created_at: string;
+  blocked_id: string;
+  blocked_profile: Pick<Tables<"profiles">, "user_id" | "username" | "avatar_url"> | null;
+};
+
 export async function reportPost(
   postId: string,
   reporterId: string,
@@ -66,6 +73,18 @@ export async function unblockProfile(blockerId: string, blockedId: string) {
     .eq("blocker_id", blockerId)
     .eq("blocked_id", blockedId);
   if (error) throw error;
+}
+
+export async function fetchBlockedProfiles(blockerId: string): Promise<BlockedProfile[]> {
+  const { data, error } = await supabase
+    .from("user_blocks")
+    .select(
+      "id, created_at, blocked_id, blocked_profile:profiles!user_blocks_blocked_id_fkey(user_id, username, avatar_url)",
+    )
+    .eq("blocker_id", blockerId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data as unknown as BlockedProfile[];
 }
 
 export async function fetchAdminReports(): Promise<ReportWithContext[]> {
