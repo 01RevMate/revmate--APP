@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Bell, UserRound } from "lucide-react";
+import { ArrowLeft, Bell, Search, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -41,7 +41,11 @@ export function TopNav() {
     return (
       <header className="border-b border-border">
         <nav className="flex items-center px-4 py-2 md:px-6 md:py-4">
-          <Link to="/" aria-label="Back to RevMate" className={`flex items-center gap-1.5 ${navLink}`}>
+          <Link
+            to="/"
+            aria-label="Back to RevMate"
+            className={`flex items-center gap-1.5 ${navLink}`}
+          >
             <ArrowLeft className="size-4" />
             Back
           </Link>
@@ -70,6 +74,15 @@ export function TopNav() {
               className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
             >
               <Bell className="size-5" />
+            </button>
+            {/* Visual placeholder only — search will be connected later. */}
+            <button
+              type="button"
+              aria-label="Search — coming soon"
+              title="Search — coming soon"
+              className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+            >
+              <Search className="size-5" />
             </button>
             <PostingIdentitySwitcher
               userId={user.id}
