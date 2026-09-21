@@ -17,18 +17,23 @@ import { CategoryFilterBar, type CategoryFilter } from "@/components/CategoryFil
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RevMate — Research, discuss and trade UK cars" },
+      { title: "UK Car Research, Common Faults, Specs & Marketplace | RevMate" },
       {
         name: "description",
         content:
-          "RevMate gives every UK car model and generation one page: specs, common faults, MOT data, parts, discussion and listings.",
+          "Research UK cars by model and generation. Compare specs, common faults, MOT insights, owner advice, parts and cars for sale on RevMate.",
       },
-      { property: "og:title", content: "RevMate — Research, discuss and trade UK cars" },
+      {
+        property: "og:title",
+        content: "UK Car Research, Common Faults, Specs & Marketplace | RevMate",
+      },
       {
         property: "og:description",
         content:
-          "Specs, common faults, MOT data, discussion and listings for every UK car generation.",
+          "Research UK cars by model and generation. Compare specs, common faults, MOT insights, owner advice, parts and cars for sale on RevMate.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Home,
