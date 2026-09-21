@@ -32,6 +32,17 @@ export async function updateProfile(
   if (error) throw error;
 }
 
+// null means "post and browse as yourself"; a garage_cars id means posts
+// default to that car and the My Car/Same Brand feed scopes use its make/model
+// without asking, since the user has told us which car they mean.
+export async function setActivePostingIdentity(userId: string, garageCarId: string | null) {
+  const { error } = await supabase
+    .from("profiles")
+    .update({ active_garage_car_id: garageCarId })
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
 export type SocialPlatformKey = "social_instagram" | "social_facebook" | "social_tiktok";
 
 export const SOCIAL_PLATFORMS: {

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ImagePlus, X } from "lucide-react";
@@ -35,6 +35,15 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
     enabled: !!user,
     queryFn: () => fetchGarage(user!.id),
   });
+
+  // Default new posts to whatever identity the person picked in their garage
+  // ("Posting as ..."), but only once we know it — don't stomp a mid-post pick.
+  useEffect(() => {
+    if (postingAs === "" && profile?.active_garage_car_id) {
+      setPostingAs(profile.active_garage_car_id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.active_garage_car_id]);
 
   function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);

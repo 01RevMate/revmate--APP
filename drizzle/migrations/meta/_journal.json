@@ -92,6 +92,13 @@
       "when": 1789942802000,
       "tag": "0012_revmate_vehicle_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1789943000000,
+      "tag": "0013_active_posting_identity",
+      "breakpoints": true
     }
   ]
 }

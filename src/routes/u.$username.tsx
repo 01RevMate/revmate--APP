@@ -30,6 +30,7 @@ import { FriendsSection } from "@/components/FriendsSection";
 import { EditableImage } from "@/components/EditableImage";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { CarLogo } from "@/components/CarLogo";
+import { PostingIdentitySwitcher } from "@/components/PostingIdentitySwitcher";
 import { VehicleCatalogPicker } from "@/components/VehicleCatalogPicker";
 import { carLabel, type Car } from "@/lib/cars";
 import {
@@ -202,6 +203,16 @@ function GarageProfilePage() {
         )}
 
         <Section title="Garage">
+          {isOwner && (garage?.some((car) => car.ownership_status !== "previous") ?? false) && (
+            <div className="mb-3">
+              <PostingIdentitySwitcher
+                userId={user!.id}
+                username={profile.username}
+                activeGarageCarId={profile.active_garage_car_id}
+                cars={garage!.filter((car) => car.ownership_status !== "previous")}
+              />
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {garage
               ?.filter((car) => car.ownership_status !== "previous")

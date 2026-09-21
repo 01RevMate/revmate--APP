@@ -552,6 +552,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          active_garage_car_id: string | null
           avatar_url: string | null
           cover_photo_url: string | null
           created_at: string
@@ -565,6 +566,7 @@ export type Database = {
           username: string
         }
         Insert: {
+          active_garage_car_id?: string | null
           avatar_url?: string | null
           cover_photo_url?: string | null
           created_at?: string
@@ -578,6 +580,7 @@ export type Database = {
           username: string
         }
         Update: {
+          active_garage_car_id?: string | null
           avatar_url?: string | null
           cover_photo_url?: string | null
           created_at?: string
@@ -590,7 +593,15 @@ export type Database = {
           user_id?: string
           username?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_active_garage_car_id_fkey"
+            columns: ["active_garage_car_id"]
+            isOneToOne: false
+            referencedRelation: "garage_cars"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       friendships: {
         Row: {

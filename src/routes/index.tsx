@@ -3,8 +3,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Car } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { fetchFeed, fetchMyLikedPostIds, type PostWithAuthor } from "@/lib/posts";
 import { fetchGarage } from "@/lib/garage";
+import { CarLogo } from "@/components/CarLogo";
 import { Sidebar } from "@/components/Sidebar";
 import { PostComposer } from "@/components/PostComposer";
 import { PostCard } from "@/components/PostCard";
@@ -36,9 +38,14 @@ const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 function Home() {
   const { user } = useAuth();
+  const { data: profile } = useProfile();
   const queryClient = useQueryClient();
   const [scope, setScope] = useState<FeedScope>("all");
   const [category, setCategory] = useState<CategoryFilter>("all");
+  // Which car's make/model to use for My Car/Same Brand when posting as
+  // yourself with more than one car — null until the person picks one (or
+  // "all" to mix every car together, the old behavior).
+  const [sessionFilterCarId, setSessionFilterCarId] = useState<string | "all" | null>(null);
 
   const { data: garage } = useQuery({
     queryKey: ["garage", user?.id],
@@ -58,13 +65,32 @@ function Home() {
   });
 
   const hasGarageCars = !!garage && garage.length > 0;
-  const myMakes = useMemo(() => new Set((garage ?? []).map((c) => c.make.toLowerCase())), [garage]);
+  const currentCars = useMemo(() => (garage ?? []).filter((c) => c.ownership_status !== "previous"), [garage]);
+  // Posting as a specific car pins My Car/Same Brand to that car — no need to ask.
+  const activeCar = useMemo(
+    () => currentCars.find((c) => c.id === profile?.active_garage_car_id) ?? null,
+    [currentCars, profile?.active_garage_car_id],
+  );
+  const needsCarPrompt =
+    !activeCar && currentCars.length > 1 && sessionFilterCarId === null && (scope === "my_car" || scope === "same_brand");
+
+  const filterCars = useMemo(() => {
+    if (activeCar) return [activeCar];
+    if (currentCars.length <= 1) return currentCars;
+    if (sessionFilterCarId && sessionFilterCarId !== "all") {
+      return currentCars.filter((c) => c.id === sessionFilterCarId);
+    }
+    return currentCars; // "all", or still unpicked (prompt is shown instead of results)
+  }, [activeCar, currentCars, sessionFilterCarId]);
+
+  const myMakes = useMemo(() => new Set(filterCars.map((c) => c.make.toLowerCase())), [filterCars]);
   const myMakeModels = useMemo(
-    () => new Set((garage ?? []).map((c) => `${c.make.toLowerCase()}::${c.model.toLowerCase()}`)),
-    [garage],
+    () => new Set(filterCars.map((c) => `${c.make.toLowerCase()}::${c.model.toLowerCase()}`)),
+    [filterCars],
   );
 
   const filteredPosts = useMemo(() => {
+    if (needsCarPrompt) return [];
     let result = posts ?? [];
 
     if (scope === "my_car" && hasGarageCars) {
@@ -87,13 +113,17 @@ function Home() {
     }
 
     return result;
-  }, [posts, scope, category, hasGarageCars, myMakes, myMakeModels]);
+  }, [posts, scope, category, hasGarageCars, needsCarPrompt, myMakes, myMakeModels]);
 
   const scopeLabel = useMemo(() => {
     if (scope === "popular") return "Popular this week";
-    if (scope === "my_car" || scope === "same_brand") return "Filtered by your garage";
+    if (scope === "my_car" || scope === "same_brand") {
+      if (activeCar) return `Filtered by ${activeCar.nickname}`;
+      if (filterCars.length === 1) return `Filtered by ${filterCars[0]!.nickname}`;
+      return "Filtered by your garage";
+    }
     return "Global feed";
-  }, [scope]);
+  }, [scope, activeCar, filterCars]);
 
   function refreshFeed() {
     queryClient.invalidateQueries({ queryKey: ["feed"] });
@@ -114,6 +144,33 @@ function Home() {
 
           <PostComposer onPosted={refreshFeed} />
 
+          {needsCarPrompt && (
+            <div className="rounded-lg border border-dashed border-border p-4">
+              <p className="text-sm font-medium">Which car do you mean?</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                You've got more than one car in the garage — pick one, or look at posts for all of them.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {currentCars.map((car) => (
+                  <button
+                    key={car.id}
+                    onClick={() => setSessionFilterCarId(car.id)}
+                    className="flex items-center gap-1.5 rounded-full border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
+                  >
+                    <CarLogo make={car.make} className="size-4 shrink-0 rounded-full" />
+                    {car.nickname}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setSessionFilterCarId("all")}
+                  className="rounded-full border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
+                >
+                  Look at both
+                </button>
+              </div>
+            </div>
+          )}
+
           {user && !hasGarageCars && (
             <Link
               to="/garage"
@@ -130,7 +187,7 @@ function Home() {
           {isLoading &&
             Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} />)}
 
-          {!isLoading && filteredPosts.length === 0 && (
+          {!isLoading && !needsCarPrompt && filteredPosts.length === 0 && (
             <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
               {scope === "my_car"
                 ? "No posts about your car yet — be the first."
