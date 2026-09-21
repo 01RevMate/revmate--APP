@@ -47,7 +47,9 @@ function NavItem({
 
 // A raised circular compose button breaking the row, inset above the bar —
 // the same mechanic as the Wooble reference app's center FAB: elevated,
-// distinct from the plain icon tabs either side of it.
+// distinct from the plain icon tabs either side of it. Positioned as an
+// absolute overlay (not a flex column) so it sits dead-center of the bar
+// regardless of how many nav links are either side of it.
 function ComposeButton() {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
@@ -55,15 +57,13 @@ function ComposeButton() {
 
   return (
     <>
-      <div className="flex flex-1 items-center justify-center">
-        <button
-          onClick={() => (user ? setModalOpen(true) : openAuthModal("Create a free account to post to the feed."))}
-          aria-label="New post"
-          className="-mt-4 flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105"
-        >
-          <Plus className="size-6" />
-        </button>
-      </div>
+      <button
+        onClick={() => (user ? setModalOpen(true) : openAuthModal("Create a free account to post to the feed."))}
+        aria-label="New post"
+        className="absolute left-1/2 top-0 flex size-11 shrink-0 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105"
+      >
+        <Plus className="size-6" />
+      </button>
       {user && <CreatePostModal open={modalOpen} onOpenChange={setModalOpen} />}
     </>
   );
@@ -82,9 +82,9 @@ export function BottomNav() {
       <NavItem to="/" icon={Home} label="Home" exact />
       <NavItem to="/cars" icon={Car} label="Cars" />
       <NavItem to="/marketplace" icon={ShoppingBag} label="Marketplace" />
-      <ComposeButton />
       <NavItem to="/garage" icon={Warehouse} label="Garage" requireAuth />
       <NavItem to="/messages" icon={MessageCircle} label="Messages" requireAuth />
+      <ComposeButton />
     </nav>
   );
 }
