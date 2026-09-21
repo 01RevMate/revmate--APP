@@ -114,11 +114,11 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`sticky top-0 hidden h-screen shrink-0 flex-col justify-between border-r border-border bg-card/50 py-4 md:flex ${
+      className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-card/50 py-4 md:flex ${
         collapsed ? "w-16 px-2" : "w-60 px-3"
       }`}
     >
-      <div className={collapsed ? "mb-0 flex justify-center px-1" : "mb-0 px-3"}>
+      <div className={collapsed ? "mb-2 flex justify-center px-1" : "mb-2 px-3"}>
         <Link to="/" aria-label="RevMate home">
           <BrandLogo className={collapsed ? "h-10 w-10" : "h-16 w-auto"} />
         </Link>
@@ -138,7 +138,7 @@ export function Sidebar() {
         <TooltipTrigger asChild>
           <button
             onClick={toggle}
-            className="flex items-center justify-center self-end rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="mt-auto flex items-center justify-center self-end rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             {collapsed ? <PanelLeft className="size-5 shrink-0" /> : <PanelLeftClose className="size-5 shrink-0" />}
           </button>
