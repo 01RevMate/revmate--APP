@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { BrandLogo } from "@/components/BrandLogo";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -34,13 +36,17 @@ function LoginPage() {
   }
 
   return (
-    <div className="mx-auto max-w-sm px-4 py-12">
-      <h1 className="text-2xl font-semibold tracking-tight">Log in</h1>
+    <div className="mx-auto max-w-sm px-4 py-10">
+      <Link to="/" aria-label="RevMate home" className="mx-auto block w-fit">
+        <BrandLogo className="h-24 w-48" />
+      </Link>
+      <h1 className="mt-6 text-2xl font-semibold tracking-tight">Log in</h1>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <label className="block space-y-1.5">
           <span className="text-sm font-medium">Email</span>
           <input
             type="email"
+            autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -48,22 +54,28 @@ function LoginPage() {
           />
         </label>
         <label className="block space-y-1.5">
-          <span className="text-sm font-medium">Password</span>
+          <span className="flex items-center justify-between gap-3 text-sm font-medium">
+            Password
+            <Link to="/forgot-password" className="font-normal text-muted-foreground underline underline-offset-4">
+              Forgot password?
+            </Link>
+          </span>
           <input
             type="password"
+            autoComplete="current-password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </label>
-        <button
+        <Button
           type="submit"
           disabled={saving}
-          className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          className="w-full"
         >
           {saving ? "Logging in…" : "Log in"}
-        </button>
+        </Button>
       </form>
       <p className="mt-4 text-sm text-muted-foreground">
         No account?{" "}
