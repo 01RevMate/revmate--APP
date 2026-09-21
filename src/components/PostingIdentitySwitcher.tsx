@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Check, ChevronDown, UserRound } from "lucide-react";
+import { Check, ChevronDown, LogOut, UserRound } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { setActivePostingIdentity } from "@/lib/profiles";
 import type { GarageCar } from "@/lib/garage";
@@ -10,6 +10,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -27,6 +28,7 @@ export function PostingIdentitySwitcher({
   activeGarageCarId,
   cars,
   variant = "button",
+  onSignOut,
 }: {
   userId: string;
   username: string;
@@ -34,6 +36,7 @@ export function PostingIdentitySwitcher({
   activeGarageCarId: string | null;
   cars: GarageCar[];
   variant?: "button" | "avatar";
+  onSignOut?: () => void;
 }) {
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
@@ -104,6 +107,15 @@ export function PostingIdentitySwitcher({
             {activeGarageCarId === car.id && <Check className="ml-auto size-3.5" />}
           </DropdownMenuItem>
         ))}
+        {onSignOut && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onSignOut} className="flex items-center gap-2 text-muted-foreground">
+              <LogOut className="size-4 shrink-0" />
+              Sign out
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

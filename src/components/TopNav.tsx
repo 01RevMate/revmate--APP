@@ -7,7 +7,6 @@ import { useProfile } from "@/hooks/useProfile";
 import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 import { fetchGarage } from "@/lib/garage";
 import { BrandLogo } from "@/components/BrandLogo";
-import { Button } from "@/components/ui/button";
 import { PostingIdentitySwitcher } from "@/components/PostingIdentitySwitcher";
 import { MobileMenu } from "@/components/MobileMenu";
 
@@ -71,10 +70,8 @@ export function TopNav() {
               activeGarageCarId={profile.active_garage_car_id}
               cars={(garage ?? []).filter((car) => car.ownership_status !== "previous")}
               variant="avatar"
+              onSignOut={handleSignOut}
             />
-            <Button onClick={handleSignOut} variant="ghost" size="sm" className={navLink}>
-              Sign out
-            </Button>
           </div>
         )}
         {!user && !loading && (
