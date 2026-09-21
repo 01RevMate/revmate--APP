@@ -219,16 +219,6 @@ function GarageProfilePage() {
         )}
 
         <Section title="Garage">
-          {isOwner && (garage?.some((car) => car.ownership_status !== "previous") ?? false) && (
-            <div className="mb-3">
-              <PostingIdentitySwitcher
-                userId={user!.id}
-                username={profile.username}
-                activeGarageCarId={profile.active_garage_car_id}
-                cars={garage!.filter((car) => car.ownership_status !== "previous")}
-              />
-            </div>
-          )}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {garage
               ?.filter((car) => car.ownership_status !== "previous")
@@ -265,12 +255,22 @@ function GarageProfilePage() {
                   onCancel={() => setAdding(false)}
                 />
               ) : (
-                <button
-                  onClick={() => setAdding(true)}
-                  className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                >
-                  + Add a car
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => setAdding(true)}
+                    className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                  >
+                    + Add a car
+                  </button>
+                  {(garage?.some((car) => car.ownership_status !== "previous") ?? false) && (
+                    <PostingIdentitySwitcher
+                      userId={user!.id}
+                      username={profile.username}
+                      activeGarageCarId={profile.active_garage_car_id}
+                      cars={garage!.filter((car) => car.ownership_status !== "previous")}
+                    />
+                  )}
+                </div>
               )}
             </div>
           )}
