@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
-import { BrandLogo } from "@/components/BrandLogo";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 const STORAGE_KEY = "revmate:sidebarCollapsed";
@@ -118,11 +117,6 @@ export function Sidebar() {
         collapsed ? "w-16 px-2" : "w-60 px-3"
       }`}
     >
-      <div className={collapsed ? "mb-2 flex justify-center px-1" : "mb-2 px-3"}>
-        <Link to="/" aria-label="RevMate home">
-          <BrandLogo className={collapsed ? "h-10 w-10" : "h-16 w-auto"} />
-        </Link>
-      </div>
       <nav className="space-y-1">
         <NavLink to="/" icon={Home} label="Home" collapsed={collapsed} exact />
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />

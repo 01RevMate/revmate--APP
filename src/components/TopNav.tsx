@@ -11,7 +11,7 @@ import { PostingIdentitySwitcher } from "@/components/PostingIdentitySwitcher";
 const navLink = "text-sm text-muted-foreground transition-colors hover:text-foreground";
 
 export function TopNav() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { data: profile } = useProfile();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -30,9 +30,9 @@ export function TopNav() {
   }
 
   return (
-    <header className="border-b border-border md:border-b-0">
+    <header className="border-b border-border">
       <nav className="flex flex-wrap items-center gap-4 px-4 py-2 md:px-6 md:py-4">
-        <Link to="/" aria-label="RevMate home" className="block md:hidden">
+        <Link to="/" aria-label="RevMate home" className="block">
           <BrandLogo className="h-8 w-auto" />
         </Link>
         {user && profile && (
@@ -48,6 +48,16 @@ export function TopNav() {
             <Button onClick={handleSignOut} variant="ghost" size="sm" className={navLink}>
               Sign out
             </Button>
+          </div>
+        )}
+        {!user && !loading && (
+          <div className="ml-auto flex items-center gap-3">
+            <Link
+              to="/login"
+              className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Sign in
+            </Link>
           </div>
         )}
       </nav>
