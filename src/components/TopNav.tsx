@@ -3,14 +3,17 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 import { fetchGarage } from "@/lib/garage";
 import { BrandLogo } from "@/components/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { PostingIdentitySwitcher } from "@/components/PostingIdentitySwitcher";
+import { MobileMenu } from "@/components/MobileMenu";
 
 const navLink = "text-sm text-muted-foreground transition-colors hover:text-foreground";
 
 export function TopNav() {
+  const hidden = useHideOnScroll();
   const { user, loading } = useAuth();
   const { data: profile } = useProfile();
   const navigate = useNavigate();
@@ -30,11 +33,16 @@ export function TopNav() {
   }
 
   return (
-    <header className="border-b border-border">
-      <nav className="flex flex-wrap items-center gap-4 px-4 py-2 md:px-6 md:py-4">
+    <header
+      className={`sticky top-0 z-30 border-b border-border bg-background transition-transform duration-300 ease-out md:static md:translate-y-0 ${
+        hidden ? "-translate-y-full" : "translate-y-0"
+      }`}
+    >
+      <nav className="flex flex-wrap items-center gap-3 px-4 py-2 md:px-6 md:py-4">
         <Link to="/" aria-label="RevMate home" className="block">
           <BrandLogo className="h-8 w-auto" />
         </Link>
+        <MobileMenu />
         {user && profile && (
           <div className="ml-auto flex items-center gap-3">
             <PostingIdentitySwitcher

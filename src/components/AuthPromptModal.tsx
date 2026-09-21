@@ -10,7 +10,7 @@ export function AuthPromptModal() {
     <Dialog open={isOpen} onOpenChange={(open) => !open && close()}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <BrandLogo className="mx-auto h-20 w-40" />
+          <BrandLogo className="mx-auto mb-2 h-14 w-28" />
           <DialogTitle>Join RevMate</DialogTitle>
           <DialogDescription>
             {reason ?? "Create a free account to continue."}

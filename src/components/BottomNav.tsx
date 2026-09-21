@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Home, Car, Warehouse, ShoppingBag, MessageCircle, Plus } from "lucide-react";
+import { Home, Warehouse, MessageCircle, Plus, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
+import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 import { CreatePostModal } from "@/components/CreatePostModal";
 
 const item =
@@ -46,45 +47,53 @@ function NavItem({
 }
 
 // A raised circular compose button breaking the row, inset above the bar —
-// the same mechanic as the Wooble reference app's center FAB: elevated,
-// distinct from the plain icon tabs either side of it. Positioned as an
-// absolute overlay (not a flex column) so it sits dead-center of the bar
-// regardless of how many nav links are either side of it.
+// the same mechanic as the Wooble reference app's center FAB. It lives in
+// its own fixed-width grid column (not a flex-1 column shared with a label)
+// so it never overlaps a nav item's text regardless of how the other
+// columns are split.
 function ComposeButton() {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <>
+    <div className="relative flex w-[62px] shrink-0 items-center justify-center">
       <button
         onClick={() => (user ? setModalOpen(true) : openAuthModal("Create a free account to post to the feed."))}
         aria-label="New post"
-        className="absolute left-1/2 top-0 flex size-11 shrink-0 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105"
+        className="absolute -top-2 flex size-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105"
       >
-        <Plus className="size-6" />
+        <Plus className="size-7" />
       </button>
       {user && <CreatePostModal open={modalOpen} onOpenChange={setModalOpen} />}
-    </>
+    </div>
   );
 }
 
-// Same destinations as the desktop Sidebar, trimmed to what fits a thumb-width
-// row and shown on every page (the sidebar itself only appears on the feed).
-// All destinations show regardless of login; Garage/Messages intercept the
+// Trimmed to the 4 destinations that matter most on a thumb-width screen,
+// split evenly (2 + 2) around the compose button so it lands in the gap
+// between them — everything else (Cars, Settings, Groups) lives behind the
+// hamburger menu next to the logo instead. Garage/Messages intercept the
 // click and open the sign-in prompt instead of navigating when logged out.
 export function BottomNav() {
+  const hidden = useHideOnScroll();
+
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:hidden"
+      className={`fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-card/95 backdrop-blur transition-transform duration-300 ease-out supports-[backdrop-filter]:bg-card/80 md:hidden md:translate-y-0 ${
+        hidden ? "translate-y-full" : "translate-y-0"
+      }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <NavItem to="/" icon={Home} label="Home" exact />
-      <NavItem to="/cars" icon={Car} label="Cars" />
-      <NavItem to="/marketplace" icon={ShoppingBag} label="Marketplace" />
-      <NavItem to="/garage" icon={Warehouse} label="Garage" requireAuth />
-      <NavItem to="/messages" icon={MessageCircle} label="Messages" requireAuth />
+      <div className="flex flex-1">
+        <NavItem to="/" icon={Home} label="Home" exact />
+        <NavItem to="/marketplace" icon={ShoppingBag} label="Buy & Sell" />
+      </div>
       <ComposeButton />
+      <div className="flex flex-1">
+        <NavItem to="/garage" icon={Warehouse} label="Garage" requireAuth />
+        <NavItem to="/messages" icon={MessageCircle} label="Messages" requireAuth />
+      </div>
     </nav>
   );
 }

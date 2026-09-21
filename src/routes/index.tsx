@@ -7,6 +7,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { fetchFeed, fetchMyLikedPostIds, type PostWithAuthor } from "@/lib/posts";
 import { fetchGarage } from "@/lib/garage";
 import { CarLogo } from "@/components/CarLogo";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { Sidebar } from "@/components/Sidebar";
 import { PostComposer } from "@/components/PostComposer";
 import { PostCard } from "@/components/PostCard";
@@ -120,30 +121,16 @@ function Home() {
     return result;
   }, [posts, scope, category, hasGarageCars, needsCarPrompt, myMakes, myMakeModels]);
 
-  const scopeLabel = useMemo(() => {
-    if (scope === "popular") return "Popular this week";
-    if (scope === "my_car" || scope === "same_brand") {
-      if (activeCar) return `Filtered by ${activeCar.nickname}`;
-      if (filterCars.length === 1) return `Filtered by ${filterCars[0]!.nickname}`;
-      return "Filtered by your garage";
-    }
-    return "Global feed";
-  }, [scope, activeCar, filterCars]);
-
   function refreshFeed() {
-    queryClient.invalidateQueries({ queryKey: ["feed"] });
+    return queryClient.invalidateQueries({ queryKey: ["feed"] });
   }
 
   return (
     <div className="flex">
       <Sidebar />
       <main className="min-w-0 flex-1">
-        <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
-          <div>
-            <h1 className="text-lg font-semibold">Feed</h1>
-            <p className="text-xs text-muted-foreground">{scopeLabel}</p>
-          </div>
-
+        <PullToRefresh onRefresh={refreshFeed}>
+          <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
           <FeedScopeBar scope={scope} onScopeChange={setScope} hasGarageCars={hasGarageCars} />
           <CategoryFilterBar category={category} onCategoryChange={setCategory} />
 
@@ -203,7 +190,8 @@ function Home() {
           {filteredPosts.map((post: PostWithAuthor) => (
             <PostCard key={post.id} post={post} liked={likedIds?.has(post.id) ?? false} />
           ))}
-        </div>
+          </div>
+        </PullToRefresh>
       </main>
     </div>
   );
