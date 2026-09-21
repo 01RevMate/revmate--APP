@@ -118,7 +118,7 @@ export function Sidebar() {
         collapsed ? "w-16 px-2" : "w-60 px-3"
       }`}
     >
-      <div className={collapsed ? "mb-4 flex justify-center px-1" : "mb-6 px-3"}>
+      <div className={collapsed ? "mb-0 flex justify-center px-1" : "mb-0 px-3"}>
         <Link to="/" aria-label="RevMate home">
           <BrandLogo className={collapsed ? "h-10 w-10" : "h-16 w-auto"} />
         </Link>
