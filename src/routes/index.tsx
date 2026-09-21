@@ -151,7 +151,16 @@ function Home() {
           <FeedScopeBar scope={scope} onScopeChange={setScope} hasGarageCars={hasGarageCars} />
           <CategoryFilterBar category={category} onCategoryChange={setCategory} />
 
-          <PostComposer onPosted={refreshFeed} />
+          <PostComposer
+            onPosted={refreshFeed}
+            requiredCarIdentity={scope === "my_car" || scope === "same_brand"}
+            garageCars={currentCars}
+            preferredGarageCarId={
+              activeCar?.id ??
+              (sessionFilterCarId && sessionFilterCarId !== "all" ? sessionFilterCarId : null)
+            }
+            onGarageCarSelected={setSessionFilterCarId}
+          />
 
           {needsCarPrompt && (
             <div className="rounded-lg border border-dashed border-border p-4">

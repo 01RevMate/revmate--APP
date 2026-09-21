@@ -217,6 +217,17 @@ DECLARE
     OR NEW.moderated_by IS DISTINCT FROM OLD.moderated_by
   );
 BEGIN
+  IF NEW.active_garage_car_id IS NOT NULL
+    AND NEW.active_garage_car_id IS DISTINCT FROM OLD.active_garage_car_id
+    AND NOT EXISTS (
+      SELECT 1 FROM public.garage_cars
+      WHERE id = NEW.active_garage_car_id
+        AND user_id = NEW.user_id
+        AND ownership_status = 'current'
+    ) THEN
+    RAISE EXCEPTION 'You can only post as a current car in your own garage';
+  END IF;
+
   IF changes_access AND actor IS NOT NULL AND NOT private.is_revmate_admin(actor) THEN
     RAISE EXCEPTION 'Only an admin can change account access';
   END IF;
@@ -246,6 +257,52 @@ BEGIN
     NEW.moderated_at := now();
     NEW.moderated_by := actor;
     IF NEW.account_status <> 'active' THEN NEW.active_garage_car_id := NULL; END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE FUNCTION private.enforce_owned_posting_identity()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  owned_catalog_car_id uuid;
+BEGIN
+  IF NEW.posted_as_garage_car_id IS NULL THEN
+    RETURN NEW;
+  END IF;
+
+  SELECT car_id INTO owned_catalog_car_id
+  FROM public.garage_cars
+  WHERE id = NEW.posted_as_garage_car_id
+    AND user_id = NEW.user_id
+    AND ownership_status = 'current';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Choose a current car from your own garage to post here';
+  END IF;
+
+  -- An owned-car identity determines the car section. A free-text car tag
+  -- cannot route an owners-only post into a different make or model.
+  NEW.car_id := owned_catalog_car_id;
+  RETURN NEW;
+END;
+$$;
+
+CREATE FUNCTION private.clear_inactive_posting_identity()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  IF NEW.ownership_status = 'previous' AND OLD.ownership_status <> 'previous' THEN
+    UPDATE public.profiles
+    SET active_garage_car_id = NULL
+    WHERE user_id = NEW.user_id AND active_garage_car_id = NEW.id;
   END IF;
   RETURN NEW;
 END;
@@ -374,6 +431,8 @@ $$;
 REVOKE ALL ON FUNCTION private.prepare_post_report() FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION private.protect_report_review() FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION private.protect_profile_moderation() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION private.enforce_owned_posting_identity() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION private.clear_inactive_posting_identity() FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION private.enforce_safe_post() FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION private.clean_up_blocked_connection() FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION private.enforce_active_social_actor() FROM PUBLIC, anon, authenticated;
@@ -384,6 +443,12 @@ REVOKE ALL ON FUNCTION private.prevent_blocked_conversation() FROM PUBLIC, anon,
 DROP TRIGGER IF EXISTS protect_profile_role_change ON public.profiles;
 CREATE TRIGGER protect_profile_moderation
 BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION private.protect_profile_moderation();
+CREATE TRIGGER enforce_owned_posting_identity
+BEFORE INSERT OR UPDATE OF posted_as_garage_car_id, user_id, car_id ON public.posts
+FOR EACH ROW EXECUTE FUNCTION private.enforce_owned_posting_identity();
+CREATE TRIGGER clear_inactive_posting_identity
+AFTER UPDATE OF ownership_status ON public.garage_cars
+FOR EACH ROW EXECUTE FUNCTION private.clear_inactive_posting_identity();
 CREATE TRIGGER prepare_post_report
 BEFORE INSERT ON public.post_reports FOR EACH ROW EXECUTE FUNCTION private.prepare_post_report();
 CREATE TRIGGER protect_report_review

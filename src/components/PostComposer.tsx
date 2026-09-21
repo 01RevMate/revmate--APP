@@ -14,28 +14,55 @@ import {
 } from "@/lib/posts";
 import { validateImageFile } from "@/lib/uploads";
 import { CarPicker } from "@/components/CarPicker";
+import { CarLogo } from "@/components/CarLogo";
+import type { GarageCar } from "@/lib/garage";
 
-export function PostComposer({ onPosted }: { onPosted: () => void }) {
+export function PostComposer({
+  onPosted,
+  requiredCarIdentity = false,
+  garageCars = [],
+  preferredGarageCarId = null,
+  onGarageCarSelected,
+}: {
+  onPosted: () => void;
+  requiredCarIdentity?: boolean;
+  garageCars?: GarageCar[];
+  preferredGarageCarId?: string | null;
+  onGarageCarSelected?: (garageCarId: string) => void;
+}) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
   const { data: profile } = useProfile();
   const [body, setBody] = useState("");
   const [carId, setCarId] = useState("");
   const [tagging, setTagging] = useState(false);
-  const [postingAs, setPostingAs] = useState("");
+  const [selectedGarageCarId, setSelectedGarageCarId] = useState("");
   const [category, setCategory] = useState<Post["category"]>("discussion");
   const [images, setImages] = useState<{ file: File; previewUrl: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // New posts default to whatever identity was picked via the header's
-  // switcher — no per-post picker anymore, that's a global quick-switch now.
   useEffect(() => {
-    if (postingAs === "" && profile?.active_garage_car_id) {
-      setPostingAs(profile.active_garage_car_id);
+    if (!requiredCarIdentity) return;
+    const preferred = garageCars.find((car) => car.id === preferredGarageCarId)?.id;
+    const active = garageCars.find((car) => car.id === profile?.active_garage_car_id)?.id;
+    const currentIsValid = garageCars.some((car) => car.id === selectedGarageCarId);
+    if (!currentIsValid) {
+      setSelectedGarageCarId(
+        preferred ?? active ?? (garageCars.length === 1 ? garageCars[0]!.id : ""),
+      );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.active_garage_car_id]);
+  }, [
+    garageCars,
+    preferredGarageCarId,
+    profile?.active_garage_car_id,
+    requiredCarIdentity,
+    selectedGarageCarId,
+  ]);
+
+  const postingAs = requiredCarIdentity
+    ? selectedGarageCarId
+    : (profile?.active_garage_car_id ?? "");
 
   function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -88,6 +115,10 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
       openAuthModal("Create a free account to post to the feed.");
       return;
     }
+    if (requiredCarIdentity && !postingAs) {
+      toast.error("Choose one of your cars before posting here.");
+      return;
+    }
     setSaving(true);
     try {
       const postId = await createPost({
@@ -120,12 +151,50 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
         rows={3}
         className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
       />
-      {tagging && <CarPicker value={carId} onChange={setCarId} id="composer-car" />}
+      {requiredCarIdentity && (
+        <div className="rounded-md border border-primary/25 bg-primary/5 p-3">
+          <label htmlFor="posting-car" className="text-xs font-semibold">
+            Choose which car you’re posting as
+          </label>
+          <select
+            id="posting-car"
+            value={selectedGarageCarId}
+            onChange={(e) => {
+              setSelectedGarageCarId(e.target.value);
+              if (e.target.value) onGarageCarSelected?.(e.target.value);
+            }}
+            required
+            className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="">Select one of your cars</option>
+            {garageCars.map((car) => (
+              <option key={car.id} value={car.id}>
+                {car.nickname} — {car.make} {car.model}
+              </option>
+            ))}
+          </select>
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+            {postingAs && (
+              <CarLogo
+                make={garageCars.find((car) => car.id === postingAs)?.make ?? ""}
+                className="size-4 rounded-full"
+              />
+            )}
+            Personal-profile posts can only appear in All Cars.
+          </p>
+        </div>
+      )}
+      {tagging && !requiredCarIdentity && (
+        <CarPicker value={carId} onChange={setCarId} id="composer-car" />
+      )}
 
       {images.length > 0 && (
         <div className="grid grid-cols-4 gap-2">
           {images.map((img, i) => (
-            <div key={img.previewUrl} className="group relative aspect-square overflow-hidden rounded-md bg-muted">
+            <div
+              key={img.previewUrl}
+              className="group relative aspect-square overflow-hidden rounded-md bg-muted"
+            >
               <img src={img.previewUrl} alt="" className="size-full object-cover" />
               <button
                 type="button"
@@ -151,13 +220,19 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
             </option>
           ))}
         </select>
-        <button
-          type="button"
-          onClick={() => (user ? setTagging((v) => !v) : openAuthModal("Create a free account to post to the feed."))}
-          className="text-xs font-medium text-muted-foreground hover:text-foreground"
-        >
-          {tagging ? "Remove car tag" : "+ Tag a car"}
-        </button>
+        {!requiredCarIdentity && (
+          <button
+            type="button"
+            onClick={() =>
+              user
+                ? setTagging((v) => !v)
+                : openAuthModal("Create a free account to post to the feed.")
+            }
+            className="text-xs font-medium text-muted-foreground hover:text-foreground"
+          >
+            {tagging ? "Remove car tag" : "+ Tag a car"}
+          </button>
+        )}
         <input
           ref={fileInputRef}
           type="file"
@@ -169,7 +244,9 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
         <button
           type="button"
           onClick={() =>
-            user ? fileInputRef.current?.click() : openAuthModal("Create a free account to post to the feed.")
+            user
+              ? fileInputRef.current?.click()
+              : openAuthModal("Create a free account to post to the feed.")
           }
           disabled={images.length >= MAX_IMAGES_PER_POST}
           title="Add photos"
@@ -179,7 +256,7 @@ export function PostComposer({ onPosted }: { onPosted: () => void }) {
         </button>
         <button
           type="submit"
-          disabled={saving || !body.trim()}
+          disabled={saving || !body.trim() || (requiredCarIdentity && !postingAs)}
           className="ml-auto rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {saving ? "Posting…" : "Post"}
