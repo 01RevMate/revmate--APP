@@ -203,7 +203,10 @@ export function PostCard({
           onClick={toggleLike}
           className={`flex items-center gap-1.5 hover:text-foreground ${liked ? "text-red-500 hover:text-red-500" : ""}`}
         >
-          <Heart className="size-4" fill={liked ? "currentColor" : "none"} />
+          <Heart
+            className={`size-4 transition-transform duration-200 ${liked ? "scale-110" : "scale-100"}`}
+            fill={liked ? "currentColor" : "none"}
+          />
           {likesCount > 0 ? likesCount : "Like"}
         </button>
         <button onClick={toggleComments} className="flex items-center gap-1.5 hover:text-foreground">
