@@ -55,9 +55,9 @@ function ComposeButton() {
 
 // Same destinations as the desktop Sidebar, trimmed to what fits a thumb-width
 // row and shown on every page (the sidebar itself only appears on the feed).
+// All destinations show regardless of login — Garage/Messages degrade to a
+// sign-in prompt on their own page rather than needing to be hidden here.
 export function BottomNav() {
-  const { user } = useAuth();
-
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:hidden"
@@ -65,11 +65,10 @@ export function BottomNav() {
     >
       <NavItem to="/" icon={Home} label="Home" exact />
       <NavItem to="/cars" icon={Car} label="Cars" />
-      {!user && <NavItem to="/marketplace" icon={ShoppingBag} label="Marketplace" />}
+      <NavItem to="/marketplace" icon={ShoppingBag} label="Marketplace" />
       <ComposeButton />
-      {user && <NavItem to="/marketplace" icon={ShoppingBag} label="Marketplace" />}
-      {user && <NavItem to="/garage" icon={Warehouse} label="Garage" />}
-      {user && <NavItem to="/messages" icon={MessageCircle} label="Messages" />}
+      <NavItem to="/garage" icon={Warehouse} label="Garage" />
+      <NavItem to="/messages" icon={MessageCircle} label="Messages" />
     </nav>
   );
 }

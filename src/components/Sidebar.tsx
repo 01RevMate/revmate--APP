@@ -12,7 +12,6 @@ import {
   Settings,
   MessageCircle,
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
@@ -87,7 +86,6 @@ function GroupsItem({ collapsed }: { collapsed: boolean }) {
 }
 
 export function Sidebar() {
-  const { user } = useAuth();
   const { isAdmin } = useProfile();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -122,9 +120,9 @@ export function Sidebar() {
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
         <GroupsItem collapsed={collapsed} />
-        {user && <NavLink to="/garage" icon={Warehouse} label="My Garage" collapsed={collapsed} />}
-        {user && <NavLink to="/messages" icon={MessageCircle} label="Messages" collapsed={collapsed} />}
-        {user && <NavLink to="/settings" icon={Settings} label="Settings" collapsed={collapsed} />}
+        <NavLink to="/garage" icon={Warehouse} label="My Garage" collapsed={collapsed} />
+        <NavLink to="/messages" icon={MessageCircle} label="Messages" collapsed={collapsed} />
+        <NavLink to="/settings" icon={Settings} label="Settings" collapsed={collapsed} />
         {isAdmin && <NavLink to="/admin" icon={ShieldCheck} label="Admin" collapsed={collapsed} />}
       </nav>
 

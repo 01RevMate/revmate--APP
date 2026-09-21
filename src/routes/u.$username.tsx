@@ -2,8 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CheckCircle2, Loader2, MessageCircle } from "lucide-react";
+import { CheckCircle2, Loader2, MessageCircle, UserPlus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthModal } from "@/hooks/useAuthModal";
 import { PERSONA_LABELS } from "@/hooks/useProfile";
 import {
   fetchProfileByUsername,
@@ -49,6 +50,7 @@ export const Route = createFileRoute("/u/$username")({
 function GarageProfilePage() {
   const { username } = Route.useParams();
   const { user } = useAuth();
+  const { open: openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -162,19 +164,27 @@ function GarageProfilePage() {
               {editing ? "Close" : "Edit profile"}
             </button>
           ) : (
-            user && (
-              <div className="mb-2 flex gap-2">
-                <Link
-                  to="/messages/$username"
-                  params={{ username: profile.username }}
-                  className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                >
-                  <MessageCircle className="size-3.5" />
-                  Message
-                </Link>
+            <div className="mb-2 flex gap-2">
+              <Link
+                to="/messages/$username"
+                params={{ username: profile.username }}
+                className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                <MessageCircle className="size-3.5" />
+                Message
+              </Link>
+              {user ? (
                 <FriendButton myId={user.id} otherId={profile.user_id} />
-              </div>
-            )
+              ) : (
+                <button
+                  onClick={() => openAuthModal("Create a free account to add friends.")}
+                  className="flex items-center gap-1.5 rounded-md border border-input px-3 py-1.5 text-sm font-medium hover:bg-accent"
+                >
+                  <UserPlus className="size-3.5" />
+                  Add Friend
+                </button>
+              )}
+            </div>
           )}
         </div>
 
