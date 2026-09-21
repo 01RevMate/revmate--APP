@@ -99,12 +99,20 @@ function Home() {
     if (needsCarPrompt) return [];
     let result = posts ?? [];
 
+    // My Car / Same Brand are a verified-owners space: whether a post counts
+    // is based on the car the poster actually posted *as* (proof they own
+    // one), not the free-text "Tag a car" field anyone can set. Otherwise
+    // anyone could tag their post to any brand and flood an owners-only feed.
     if (scope === "my_car" && hasGarageCars) {
       result = result.filter(
-        (p) => p.cars && myMakeModels.has(`${p.cars.make.toLowerCase()}::${p.cars.model.toLowerCase()}`),
+        (p) =>
+          p.posted_as_garage_car &&
+          myMakeModels.has(`${p.posted_as_garage_car.make.toLowerCase()}::${p.posted_as_garage_car.model.toLowerCase()}`),
       );
     } else if (scope === "same_brand" && hasGarageCars) {
-      result = result.filter((p) => p.cars && myMakes.has(p.cars.make.toLowerCase()));
+      result = result.filter(
+        (p) => p.posted_as_garage_car && myMakes.has(p.posted_as_garage_car.make.toLowerCase()),
+      );
     } else if (scope === "popular") {
       const cutoff = Date.now() - ONE_WEEK_MS;
       result = result
