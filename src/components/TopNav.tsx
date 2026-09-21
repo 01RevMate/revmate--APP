@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, UserRound } from "lucide-react";
+import { ArrowLeft, Bell, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -63,6 +63,14 @@ export function TopNav() {
         <MobileMenu />
         {user && profile && (
           <div className="ml-auto flex items-center gap-3">
+            {/* Not wired up yet — placeholder for notifications. */}
+            <button
+              aria-label="Notifications"
+              title="Notifications"
+              className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+            >
+              <Bell className="size-5" />
+            </button>
             <PostingIdentitySwitcher
               userId={user.id}
               username={profile.username}
