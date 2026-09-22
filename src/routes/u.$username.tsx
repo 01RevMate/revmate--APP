@@ -625,22 +625,6 @@ function AddCarForm({
                     className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm"
                   />
                 </Field>
-                <Field label="Trim">
-                  <input
-                    value={trim}
-                    onChange={(e) => setTrim(e.target.value)}
-                    placeholder="e.g. Competition"
-                    className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm"
-                  />
-                </Field>
-                <Field label="Engine">
-                  <input
-                    value={engine}
-                    onChange={(e) => setEngine(e.target.value)}
-                    placeholder="e.g. 2.0 TSI"
-                    className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm"
-                  />
-                </Field>
                 <Field label="Horsepower">
                   <input
                     value={horsepower}
@@ -668,22 +652,6 @@ function AddCarForm({
                     placeholder="e.g. Frozen Black"
                     className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm"
                   />
-                </Field>
-                <Field label="Fuel">
-                  <select
-                    value={fuelType ?? ""}
-                    onChange={(e) =>
-                      setFuelType((e.target.value || null) as GarageCar["fuel_type"])
-                    }
-                    className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm"
-                  >
-                    <option value="">—</option>
-                    {Object.entries(FUEL_TYPE_LABELS).map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
                 </Field>
                 <Field label="Transmission">
                   <select

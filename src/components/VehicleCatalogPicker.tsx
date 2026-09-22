@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Check } from "lucide-react";
 import { CarLogo } from "@/components/CarLogo";
@@ -37,6 +38,33 @@ export function VehicleCatalogPicker({ value, onChange }: Props) {
     queryFn: () => fetchVehiclePowertrains(value.derivativeId),
     enabled: !!value.derivativeId,
   });
+  const selectedPowertrain = powertrains.data?.find((item) => item.id === value.powertrainId);
+  const engineOptions = selectedPowertrain ? engineOptionsForPowertrain(selectedPowertrain) : [];
+  const needsFuelChoice = powertrains.isSuccess && powertrains.data.length > 1;
+
+  useEffect(() => {
+    if (!value.derivativeId || !powertrains.isSuccess || powertrains.data.length !== 1) return;
+
+    const powertrain = powertrains.data[0];
+    if (!powertrain) return;
+    const options = engineOptionsForPowertrain(powertrain);
+    const engine = options.length === 1 ? (options[0]?.value ?? "") : value.engine;
+    if (
+      value.powertrainId === powertrain.id &&
+      value.fuelTypeCode === powertrain.fuel_type_code &&
+      value.fuelType === powertrain.fuel_type &&
+      value.engine === engine
+    )
+      return;
+
+    onChange({
+      ...value,
+      powertrainId: powertrain.id,
+      fuelTypeCode: powertrain.fuel_type_code,
+      fuelType: powertrain.fuel_type,
+      engine,
+    });
+  }, [onChange, powertrains.data, powertrains.isSuccess, value]);
 
   const catalogueUnavailable =
     makes.isError ||
@@ -61,9 +89,6 @@ export function VehicleCatalogPicker({ value, onChange }: Props) {
       />
     );
   }
-
-  const selectedPowertrain = powertrains.data?.find((item) => item.id === value.powertrainId);
-  const engineOptions = selectedPowertrain ? engineOptionsForPowertrain(selectedPowertrain) : [];
 
   return (
     <div className="space-y-4">
@@ -99,7 +124,6 @@ export function VehicleCatalogPicker({ value, onChange }: Props) {
                 </option>
               ))}
             </select>
-            {value.make && <p className="mt-2 text-sm font-semibold">{value.make}</p>}
           </div>
         </div>
       </PickerStep>
@@ -140,9 +164,9 @@ export function VehicleCatalogPicker({ value, onChange }: Props) {
       )}
 
       {value.modelId && (
-        <PickerStep number={3} title="Choose the trim" complete={!!value.derivativeId}>
+        <PickerStep number={3} title="Choose the version" complete={!!value.derivativeId}>
           {derivatives.isLoading ? (
-            <InlineLoader label="Loading trims and detailed models…" />
+            <InlineLoader label="Loading available versions…" />
           ) : (
             <select
               value={value.derivativeId}
@@ -161,10 +185,10 @@ export function VehicleCatalogPicker({ value, onChange }: Props) {
               required
               className={selectClass}
             >
-              <option value="">Select a trim or detailed model</option>
+              <option value="">Select a version</option>
               {derivatives.data?.map((derivative) => (
                 <option key={derivative.id} value={derivative.id}>
-                  {derivative.name}
+                  {derivativeLabel(derivative.name, value.model)}
                 </option>
               ))}
             </select>
@@ -172,7 +196,7 @@ export function VehicleCatalogPicker({ value, onChange }: Props) {
         </PickerStep>
       )}
 
-      {value.derivativeId && (
+      {value.derivativeId && (powertrains.isLoading || needsFuelChoice) && (
         <PickerStep number={4} title="Choose fuel type" complete={!!value.powertrainId}>
           {powertrains.isLoading ? (
             <InlineLoader label="Loading available fuel types…" />
@@ -204,8 +228,12 @@ export function VehicleCatalogPicker({ value, onChange }: Props) {
         </PickerStep>
       )}
 
-      {value.powertrainId && selectedPowertrain && (
-        <PickerStep number={5} title="Choose the engine" complete={!!value.engine}>
+      {value.powertrainId && selectedPowertrain && engineOptions.length > 1 && (
+        <PickerStep
+          number={needsFuelChoice ? 5 : 4}
+          title="Choose the engine"
+          complete={!!value.engine}
+        >
           <select
             value={value.engine}
             onChange={(event) => onChange({ ...value, engine: event.target.value })}
@@ -230,6 +258,15 @@ export function VehicleCatalogPicker({ value, onChange }: Props) {
       )}
     </div>
   );
+}
+
+function derivativeLabel(derivative: string, model: string) {
+  const modelPrefix = new RegExp(`^${escapeRegExp(model)}(?:\\s+|$)`, "i");
+  return derivative.replace(modelPrefix, "").trim() || derivative;
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function PickerStep({
