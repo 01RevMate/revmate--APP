@@ -334,7 +334,7 @@ function GarageProfilePage() {
         <Section title="Activity">
           <div className="space-y-4">
             {posts?.map((post) => (
-              <PostCard key={post.id} post={post} liked={false} />
+              <PostCard key={post.id} post={post} liked={likedPostIds?.has(post.id) ?? false} />
             ))}
             {posts?.length === 0 && <p className="text-sm text-muted-foreground">No posts yet.</p>}
           </div>
