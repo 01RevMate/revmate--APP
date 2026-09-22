@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ImagePlus, X } from "lucide-react";
+import { ImagePlus, UserRoundCheck, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
@@ -8,7 +8,7 @@ import {
   attachImagesToPost,
   createPost,
   uploadPostImage,
-  uploadGroupPostImage,
+  uploadProtectedPostImage,
   deletePost,
   MAX_IMAGES_PER_POST,
   POST_CATEGORY_LABELS,
@@ -26,6 +26,7 @@ export function PostComposer({
   garageCars = [],
   preferredGarageCarId = null,
   onGarageCarSelected,
+  audience = "public",
 }: {
   onPosted: () => void;
   lockedGroup?: { id: string; name: string; postPolicy: "member" | "moderated" };
@@ -33,6 +34,7 @@ export function PostComposer({
   garageCars?: GarageCar[];
   preferredGarageCarId?: string | null;
   onGarageCarSelected?: (garageCarId: string) => void;
+  audience?: Post["audience"];
 }) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
@@ -132,13 +134,14 @@ export function PostComposer({
         postedAsGarageCarId: postingAs || undefined,
         category,
         groupId: lockedGroup?.id,
+        audience,
       });
       if (images.length > 0) {
         try {
           const urls = await Promise.all(
             images.map((img) =>
-              lockedGroup
-                ? uploadGroupPostImage(user.id, postId, img.file)
+              lockedGroup || audience === "friends"
+                ? uploadProtectedPostImage(user.id, postId, img.file)
                 : uploadPostImage(user.id, img.file),
             ),
           );
@@ -152,7 +155,9 @@ export function PostComposer({
       toast.success(
         lockedGroup?.postPolicy === "moderated"
           ? "Post submitted. Group moderators may need to approve it."
-          : "Post published.",
+          : audience === "friends"
+            ? "Friends-only post published."
+            : "Post published.",
       );
       resetForm();
       onPosted();
@@ -170,6 +175,12 @@ export function PostComposer({
           Posting in {lockedGroup.name} ·{" "}
           {lockedGroup.postPolicy === "moderated" ? "Posts may need approval" : "Group members"}
         </p>
+      )}
+      {!lockedGroup && audience === "friends" && (
+        <div className="flex items-center gap-2 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-900">
+          <UserRoundCheck className="size-4 shrink-0" />
+          Friends only — only your accepted friends can see this post.
+        </div>
       )}
       <textarea
         value={body}

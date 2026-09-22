@@ -226,6 +226,76 @@ const scopedPost = (
   )
 ).rows[0].id;
 await as(owner, `INSERT INTO posts(user_id,body) VALUES($1,'General person discussion')`, [owner]);
+await as(mod, `INSERT INTO friendships(requester_id,recipient_id) VALUES($1,$2)`, [mod, owner]);
+await as(
+  owner,
+  `UPDATE friendships SET status='accepted' WHERE requester_id=$1 AND recipient_id=$2`,
+  [mod, owner],
+);
+const friendPost = (
+  await as(
+    mod,
+    `INSERT INTO posts(user_id,body,posted_as_garage_car_id,category,audience)
+     VALUES($1,'Friends-only BMW advice',$2,'maintenance','friends') RETURNING id`,
+    [mod, modCar],
+  )
+).rows[0].id;
+const ownFriendPost = (
+  await as(
+    owner,
+    `INSERT INTO posts(user_id,body,audience) VALUES($1,'My friends-only update','friends') RETURNING id`,
+    [owner],
+  )
+).rows[0].id;
+for (const u of [null, outsider, pending]) await count(u, "posts", "id=$1", [friendPost], 0);
+await count(owner, "posts", "id=$1", [friendPost], 1);
+await count(admin, "posts", "id=$1", [friendPost], 1);
+await denied(owner, `UPDATE posts SET audience='public' WHERE id=$1`, [ownFriendPost]);
+await denied(
+  owner,
+  `INSERT INTO posts(user_id,body,group_id,audience) VALUES($1,'Wrong privacy',$2,'friends')`,
+  [owner, g],
+);
+assert.equal(
+  (await as(owner, `SELECT count(*)::int n FROM community_feed('friends')`)).rows[0].n,
+  2,
+);
+checks++;
+assert.equal(
+  (await as(owner, `SELECT count(*)::int n FROM community_feed('friends',NULL,'maintenance')`))
+    .rows[0].n,
+  1,
+);
+checks++;
+assert.equal(
+  (await as(outsider, `SELECT count(*)::int n FROM community_feed('friends')`)).rows[0].n,
+  0,
+);
+checks++;
+await denied(
+  mod,
+  `INSERT INTO post_images(post_id,image_url) VALUES($1,'https://public.example/friends-leak')`,
+  [friendPost],
+);
+await as(mod, `INSERT INTO storage.objects(bucket_id,name) VALUES('group-images',$1)`, [
+  `${mod}/${friendPost}/friends-photo`,
+]);
+await as(mod, `INSERT INTO post_images(post_id,image_url) VALUES($1,$2)`, [
+  friendPost,
+  `group-images:${mod}/${friendPost}/friends-photo`,
+]);
+await count(owner, "storage.objects", "name=$1", [`${mod}/${friendPost}/friends-photo`], 1);
+await count(outsider, "storage.objects", "name=$1", [`${mod}/${friendPost}/friends-photo`], 0);
+await as(
+  owner,
+  `INSERT INTO post_comments(post_id,user_id,body) VALUES($1,$2,'Visible to friends')`,
+  [friendPost, owner],
+);
+await denied(
+  outsider,
+  `INSERT INTO post_comments(post_id,user_id,body) VALUES($1,$2,'Not a friend')`,
+  [friendPost, outsider],
+);
 assert.equal(
   (await as(owner, `SELECT count(*)::int n FROM community_feed('my_car',$1)`, [ownCar])).rows[0].n,
   1,
@@ -240,6 +310,22 @@ checks++;
 assert.equal(
   (await as(owner, `SELECT count(*)::int n FROM community_feed('all') WHERE group_id IS NOT NULL`))
     .rows[0].n,
+  0,
+);
+checks++;
+assert.equal(
+  (await as(owner, `SELECT count(*)::int n FROM community_feed('all') WHERE id=$1`, [friendPost]))
+    .rows[0].n,
+  0,
+);
+checks++;
+assert.equal(
+  (
+    await as(owner, `SELECT count(*)::int n FROM community_feed('my_car',$1) WHERE id=$2`, [
+      ownCar,
+      friendPost,
+    ])
+  ).rows[0].n,
   0,
 );
 checks++;
@@ -271,9 +357,24 @@ await denied(
   `INSERT INTO posts(user_id,body,posted_as_garage_car_id) VALUES($1,'Fake BMW identity',$2)`,
   [pending, ownCar],
 );
+await as(owner, `DELETE FROM friendships WHERE requester_id=$1 AND recipient_id=$2`, [mod, owner]);
+await count(owner, "posts", "id=$1", [friendPost], 0);
+assert.equal(
+  (await as(owner, `SELECT count(*)::int n FROM community_feed('friends')`)).rows[0].n,
+  1,
+);
+checks++;
+await as(mod, `INSERT INTO friendships(requester_id,recipient_id) VALUES($1,$2)`, [mod, owner]);
+await as(
+  owner,
+  `UPDATE friendships SET status='accepted' WHERE requester_id=$1 AND recipient_id=$2`,
+  [mod, owner],
+);
 // Blocked users' public posts and their notifications are hidden.
 await as(owner, `INSERT INTO user_blocks(blocker_id,blocked_id) VALUES($1,$2)`, [owner, mod]);
 await count(owner, "posts", "id=$1", [scopedPost], 0);
+await count(owner, "posts", "id=$1", [friendPost], 0);
+await count(owner, "storage.objects", "name=$1", [`${mod}/${friendPost}/friends-photo`], 0);
 // Five image limit is enforced at the database, including multi-row attempts.
 const photoPost = (
   await as(owner, `INSERT INTO posts(user_id,body) VALUES($1,'Photo limit test') RETURNING id`, [

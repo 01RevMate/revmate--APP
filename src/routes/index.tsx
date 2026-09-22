@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Car } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { fetchFeed, fetchMyLikedPostIds, type PostWithAuthor } from "@/lib/posts";
 import { fetchGarage } from "@/lib/garage";
+import { fetchFriends } from "@/lib/friends";
 import { CarLogo } from "@/components/CarLogo";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { Sidebar } from "@/components/Sidebar";
@@ -65,6 +66,15 @@ function Home() {
     enabled: !!user,
     queryFn: () => fetchGarage(user!.id),
   });
+  const { data: friends } = useQuery({
+    queryKey: ["friends", user?.id],
+    enabled: !!user && scope === "friends",
+    queryFn: () => fetchFriends(user!.id),
+  });
+
+  useEffect(() => {
+    if (!user && scope === "friends") setScope("all");
+  }, [scope, user]);
 
   const currentCars = useMemo(
     () => (garage ?? []).filter((c) => c.ownership_status !== "previous"),
@@ -125,7 +135,12 @@ function Home() {
       <main className="min-w-0 flex-1">
         <PullToRefresh onRefresh={refreshFeed}>
           <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
-            <FeedScopeBar scope={scope} onScopeChange={setScope} hasGarageCars={hasGarageCars} />
+            <FeedScopeBar
+              scope={scope}
+              onScopeChange={setScope}
+              hasGarageCars={hasGarageCars}
+              isAuthenticated={!!user}
+            />
             <CategoryFilterBar category={category} onCategoryChange={setCategory} />
 
             {scope === "my_groups" ? (
@@ -145,6 +160,7 @@ function Home() {
                   (sessionFilterCarId && sessionFilterCarId !== "all" ? sessionFilterCarId : null)
                 }
                 onGarageCarSelected={setSessionFilterCarId}
+                audience={scope === "friends" ? "friends" : "public"}
               />
             )}
 
@@ -211,7 +227,11 @@ function Home() {
               <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
                 {scope === "my_car"
                   ? "No posts about your car yet — be the first."
-                  : "No posts here yet — try a different filter."}
+                  : scope === "friends" && friends?.length === 0
+                    ? "No friends yet — visit another profile to add one."
+                    : scope === "friends"
+                      ? "No friends-only posts in this category yet."
+                      : "No posts here yet — try a different filter."}
               </div>
             )}
 

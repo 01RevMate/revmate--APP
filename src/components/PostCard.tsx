@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
-import { Flag, Heart, MessageCircle, Share2, Trash2, UserX } from "lucide-react";
+import { Flag, Heart, MessageCircle, Share2, Trash2, UserRoundCheck, UserX } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -230,7 +230,9 @@ export function PostCard({
             >
               <Avatar photoUrl={post.profiles?.avatar_url} fallback={post.profiles?.username} />
               <div>
-                <p className="text-sm font-medium">{displayUsernameWithoutAt(post.profiles?.username)}</p>
+                <p className="text-sm font-medium">
+                  {displayUsernameWithoutAt(post.profiles?.username)}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
                 </p>
@@ -253,6 +255,13 @@ export function PostCard({
           )}
         </div>
       </header>
+
+      {post.audience === "friends" && (
+        <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-white">
+          <UserRoundCheck className="size-3" />
+          Friends only
+        </span>
+      )}
 
       {post.community_groups && (
         <Link
@@ -425,7 +434,9 @@ export function PostCard({
                 className="size-7"
               />
               <div className="rounded-md bg-muted px-3 py-1.5">
-                <p className="text-xs font-medium">{displayUsernameWithoutAt(comment.profiles?.username)}</p>
+                <p className="text-xs font-medium">
+                  {displayUsernameWithoutAt(comment.profiles?.username)}
+                </p>
                 <p>{comment.body}</p>
               </div>
             </div>

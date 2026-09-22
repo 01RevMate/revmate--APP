@@ -956,6 +956,7 @@ export type Database = {
       }
       posts: {
         Row: {
+          audience: Database["public"]["Enums"]["post_audience"]
           body: string
           car_id: string | null
           category: Database["public"]["Enums"]["post_category"]
@@ -970,6 +971,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          audience?: Database["public"]["Enums"]["post_audience"]
           body: string
           car_id?: string | null
           category?: Database["public"]["Enums"]["post_category"]
@@ -984,6 +986,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          audience?: Database["public"]["Enums"]["post_audience"]
           body?: string
           car_id?: string | null
           category?: Database["public"]["Enums"]["post_category"]
@@ -1392,6 +1395,7 @@ export type Database = {
           page_offset?: number
         }
         Returns: {
+          audience: Database["public"]["Enums"]["post_audience"]
           body: string
           car_id: string | null
           category: Database["public"]["Enums"]["post_category"]
@@ -1449,6 +1453,7 @@ export type Database = {
         | "bodywork"
         | "maintenance"
         | "showcase"
+      post_audience: "public" | "friends"
       post_report_reason:
         | "spam"
         | "scam"
@@ -1623,6 +1628,7 @@ export const Constants = {
         "maintenance",
         "showcase",
       ],
+      post_audience: ["public", "friends"],
       post_report_reason: [
         "spam",
         "scam",

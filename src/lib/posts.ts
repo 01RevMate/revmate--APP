@@ -105,6 +105,7 @@ export async function createPost(input: {
   postedAsGarageCarId?: string | undefined;
   category?: Post["category"] | undefined;
   groupId?: string | undefined;
+  audience?: Post["audience"] | undefined;
 }) {
   const { data, error } = await supabase
     .from("posts")
@@ -115,6 +116,7 @@ export async function createPost(input: {
       car_id: input.carId || null,
       posted_as_garage_car_id: input.postedAsGarageCarId || null,
       category: input.category || "discussion",
+      audience: input.groupId ? "public" : (input.audience ?? "public"),
     })
     .select("id")
     .single();
@@ -203,7 +205,7 @@ export async function resolvePostPhotos(posts: PostWithAuthor[]): Promise<PostWi
   );
 }
 
-export async function uploadGroupPostImage(
+export async function uploadProtectedPostImage(
   userId: string,
   postId: string,
   file: File,
