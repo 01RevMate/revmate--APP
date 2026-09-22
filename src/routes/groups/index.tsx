@@ -11,7 +11,16 @@ import { MakeSelect } from "@/components/MakeSelect";
 import { ModelSelect } from "@/components/ModelSelect";
 
 export const Route = createFileRoute("/groups/")({
-  head: () => ({ meta: [{ title: "Groups — RevMate" }] }),
+  head: () => ({
+    meta: [
+      { title: "Groups — RevMate" },
+      { name: "description", content: "Find and create RevMate groups for makes, models and car communities." },
+      { property: "og:title", content: "Groups — RevMate" },
+      { property: "og:description", content: "Find and create RevMate groups for makes, models and car communities." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: GroupsPage,
 });
 

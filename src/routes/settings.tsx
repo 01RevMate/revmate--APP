@@ -14,7 +14,14 @@ import { displayUsername, normalizeUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
-    meta: [{ title: "Settings — RevMate" }],
+    meta: [
+      { title: "Settings — RevMate" },
+      { name: "description", content: "Manage your RevMate profile, password, blocked people and saved cars." },
+      { property: "og:title", content: "Settings — RevMate" },
+      { property: "og:description", content: "Manage your RevMate profile, password, blocked people and saved cars." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
   }),
   component: SettingsPage,
 });

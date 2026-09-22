@@ -7,7 +7,16 @@ import { PostCardSkeleton } from "@/components/PostCardSkeleton";
 
 export const Route = createFileRoute("/posts/$postId")({
   component: PostPage,
-  head: () => ({ meta: [{ title: "Discussion — RevMate" }] }),
+  head: () => ({
+    meta: [
+      { title: "Discussion — RevMate" },
+      { name: "description", content: "Read a RevMate community discussion, comments and photos." },
+      { property: "og:title", content: "Discussion — RevMate" },
+      { property: "og:description", content: "Read a RevMate community discussion, comments and photos." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
 });
 function PostPage() {
   const { postId } = Route.useParams();

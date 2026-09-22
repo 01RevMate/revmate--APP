@@ -9,7 +9,14 @@ import { displayUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/messages")({
   head: () => ({
-    meta: [{ title: "Messages — RevMate" }],
+    meta: [
+      { title: "Messages — RevMate" },
+      { name: "description", content: "Read and reply to private RevMate conversations with other members." },
+      { property: "og:title", content: "Messages — RevMate" },
+      { property: "og:description", content: "Read and reply to private RevMate conversations with other members." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
   }),
   component: MessagesPage,
 });

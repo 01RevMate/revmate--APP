@@ -43,7 +43,16 @@ export const Route = createFileRoute("/admin")({
     if (profile?.role !== "admin" || profile.account_status !== "active")
       throw redirect({ to: "/" });
   },
-  head: () => ({ meta: [{ title: "Safety & Admin — RevMate" }] }),
+  head: () => ({
+    meta: [
+      { title: "Safety & Admin — RevMate" },
+      { name: "description", content: "Moderate RevMate reports, accounts, protected terms and car pages." },
+      { property: "og:title", content: "Safety & Admin — RevMate" },
+      { property: "og:description", content: "Moderate RevMate reports, accounts, protected terms and car pages." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AdminPage,
 });
 
