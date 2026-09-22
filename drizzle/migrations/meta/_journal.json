@@ -120,6 +120,13 @@
       "when": 1790101800000,
       "tag": "0016_approved_vehicle_makes",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790099487266,
+      "tag": "0017_approved_vehicle_makes",
+      "breakpoints": true
     }
   ]
 }
