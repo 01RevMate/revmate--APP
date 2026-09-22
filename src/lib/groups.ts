@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { canonicalApprovedVehicleMake, isApprovedVehicleMake } from "@/lib/approvedVehicleMakes";
 import { resolvePostPhotos, POST_SELECT, type PostWithAuthor } from "@/lib/posts";
 
 export type CommunityGroup = Tables<"community_groups">;
@@ -19,7 +20,7 @@ export async function fetchGroups(): Promise<CommunityGroup[]> {
     .order("member_count", { ascending: false })
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return data;
+  return data.filter((group) => !group.make_name || isApprovedVehicleMake(group.make_name));
 }
 
 export async function fetchGroupBySlug(slug: string): Promise<CommunityGroup | null> {
@@ -29,6 +30,7 @@ export async function fetchGroupBySlug(slug: string): Promise<CommunityGroup | n
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw error;
+  if (data?.make_name && !isApprovedVehicleMake(data.make_name)) return null;
   return data;
 }
 
@@ -54,7 +56,11 @@ export async function fetchMyGroups(userId: string): Promise<MyGroupMembership[]
     .eq("status", "approved")
     .order("requested_at", { ascending: false });
   if (error) throw error;
-  return data as unknown as MyGroupMembership[];
+  return (data as unknown as MyGroupMembership[]).filter(
+    (membership) =>
+      !membership.community_groups?.make_name ||
+      isApprovedVehicleMake(membership.community_groups.make_name),
+  );
 }
 
 export async function createGroup(
@@ -67,6 +73,10 @@ export async function createGroup(
     model_name?: string | undefined;
   },
 ): Promise<CommunityGroup> {
+  const requestedMake = input.make_name?.trim() || null;
+  const approvedMake = canonicalApprovedVehicleMake(requestedMake);
+  if (requestedMake && !approvedMake) throw new Error("Choose an approved vehicle make.");
+
   const baseSlug = input.name
     .toLowerCase()
     .trim()
@@ -83,7 +93,7 @@ export async function createGroup(
       visibility: input.visibility,
       join_policy: input.join_policy,
       post_policy: input.post_policy,
-      make_name: input.make_name?.trim() || null,
+      make_name: approvedMake,
       model_name: input.model_name?.trim() || null,
     })
     .select("*")

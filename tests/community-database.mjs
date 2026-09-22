@@ -37,9 +37,6 @@ for (const file of (await readdir("drizzle/migrations")).filter((f) => f.endsWit
 await db.exec(
   "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon,authenticated;",
 );
-await db.exec(
-  await readFile("supabase/migrations/20260922120000_community_foundation.sql", "utf8"),
-);
 const ids = Array.from({ length: 7 }, (_, i) => `00000000-0000-0000-0000-00000000000${i + 1}`);
 const [owner, member, outsider, mod, admin, peer, pending] = ids;
 for (const [i, id] of ids.entries())
@@ -69,13 +66,20 @@ async function count(user, table, where, params, expected) {
   assert.equal(r.rows[0].n, expected, `${table} ${where} for ${user}`);
   checks++;
 }
+await count(null, "approved_vehicle_makes", "true", [], 64);
 const g = (
   await as(
     owner,
-    `INSERT INTO community_groups(owner_id,name,slug,visibility,join_policy,post_policy) VALUES($1,'Private BMW','private-bmw','private','approval','moderated') RETURNING id`,
+    `INSERT INTO community_groups(owner_id,name,slug,visibility,join_policy,post_policy,make_name) VALUES($1,'Private BMW','private-bmw','private','approval','moderated','bmw') RETURNING id`,
     [owner],
   )
 ).rows[0].id;
+await count(owner, "community_groups", "id=$1 AND make_name='BMW'", [g], 1);
+await denied(
+  owner,
+  `INSERT INTO community_groups(owner_id,name,slug,make_name) VALUES($1,'Unsupported','unsupported','Ferrari')`,
+  [owner],
+);
 await count(owner, "group_members", "group_id=$1 AND role='owner' AND status='approved'", [g], 1);
 await denied(
   outsider,
@@ -208,6 +212,12 @@ const modCar = (
     [mod],
   )
 ).rows[0].id;
+await count(mod, "garage_cars", "id=$1 AND make='BMW'", [modCar], 1);
+await denied(
+  owner,
+  `INSERT INTO garage_cars(user_id,make,model,nickname) VALUES($1,'Ferrari','Roma','Nope')`,
+  [owner],
+);
 const scopedPost = (
   await as(
     mod,

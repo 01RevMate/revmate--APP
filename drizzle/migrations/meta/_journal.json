@@ -113,6 +113,13 @@
       "when": 1790097822662,
       "tag": "0015_community_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1790101800000,
+      "tag": "0016_approved_vehicle_makes",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,5 @@
 import carLogoMap from "./car-logo-map.json";
+import { APPROVED_VEHICLE_MAKES } from "./approvedVehicleMakes";
 
 // 387 manufacturer logos from https://github.com/filippofilip95/car-logos-dataset
 // (MIT-licensed dataset; logos remain property of their respective owners),
@@ -22,9 +23,5 @@ export function getCarLogoUrl(make: string | null | undefined): string | null {
   return VALID_SLUGS.has(bySlug) ? `/car-logos/${bySlug}.png` : null;
 }
 
-// The full list a user picks a make from — never free text, so every make
-// in the app is guaranteed to match a known brand (consistent lookups,
-// grouping by brand in the feed, and a logo that's guaranteed to exist).
-export const CAR_MAKES: string[] = (carLogoMap as { name: string }[])
-  .map((l) => l.name)
-  .sort((a, b) => a.localeCompare(b));
+// The single product-approved list used anywhere a user chooses a make.
+export const CAR_MAKES: readonly string[] = APPROVED_VEHICLE_MAKES;

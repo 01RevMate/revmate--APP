@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { canonicalApprovedVehicleMake } from "@/lib/approvedVehicleMakes";
 
 export type Car = Tables<"cars">;
 export type CarFault = Tables<"car_faults">;
@@ -50,7 +51,12 @@ export async function fetchCars(search?: string) {
   }
   const { data, error } = await query;
   if (error) throw error;
-  return data;
+  return data
+    .map((car) => {
+      const make = canonicalApprovedVehicleMake(car.make);
+      return make ? { ...car, make } : null;
+    })
+    .filter((car): car is Car => car !== null);
 }
 
 export async function fetchCarBySlug(make: string, model: string, generation: string) {
@@ -62,7 +68,9 @@ export async function fetchCarBySlug(make: string, model: string, generation: st
     .eq("generation_slug", generation)
     .maybeSingle();
   if (error) throw error;
-  return data;
+  if (!data) return null;
+  const approvedMake = canonicalApprovedVehicleMake(data.make);
+  return approvedMake ? { ...data, make: approvedMake } : null;
 }
 
 export async function setCarStatus(carId: string, status: Car["status"]) {

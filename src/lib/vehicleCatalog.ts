@@ -1,5 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import {
+  canonicalApprovedVehicleMake,
+  filterApprovedVehicleMakes,
+} from "@/lib/approvedVehicleMakes";
 import type { GarageCar } from "@/lib/garage";
 
 export type VehicleMake = Tables<"vehicle_makes">;
@@ -71,7 +75,8 @@ export const EMPTY_VEHICLE_CATALOG_SELECTION: VehicleCatalogSelection = {
 
 export async function fetchVehicleMakes() {
   const { data, error } = await supabase.from("vehicle_makes").select("*").order("name").limit(500);
-  if (!error && data.length > 0) return data;
+  const approvedMakes = error ? [] : filterApprovedVehicleMakes(data);
+  if (approvedMakes.length > 0) return approvedMakes;
   return (await loadBundledCatalog()).makes;
 }
 
@@ -132,14 +137,31 @@ async function buildBundledCatalog(): Promise<BundledCatalog> {
   const powertrains: VehiclePowertrain[] = [];
   const lines = content.split("\n");
 
+  const sourceMakes = new Map<string, VehicleMake>();
+  for (const line of lines) {
+    if (!line) continue;
+    const row = JSON.parse(line) as BundledCatalogRow;
+    sourceMakes.set(row.make_id, {
+      id: row.make_id,
+      name: row.make,
+      slug: row.make_slug,
+      created_at: CATALOG_TIMESTAMP,
+    });
+  }
+  const approvedMakes = filterApprovedVehicleMakes([...sourceMakes.values()]);
+  const approvedMakeIds = new Set(approvedMakes.map((make) => make.id));
+
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
     if (!line) continue;
     const row = JSON.parse(line) as BundledCatalogRow;
+    if (!approvedMakeIds.has(row.make_id)) continue;
+    const canonicalMake = canonicalApprovedVehicleMake(row.make);
+    if (!canonicalMake) continue;
 
     makeMap.set(row.make_id, {
       id: row.make_id,
-      name: row.make,
+      name: canonicalMake,
       slug: row.make_slug,
       created_at: CATALOG_TIMESTAMP,
     });

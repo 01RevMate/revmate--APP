@@ -13,6 +13,22 @@ const pathArgument = process.argv.slice(2).find((argument) => !argument.startsWi
 const cataloguePath =
   pathArgument ??
   join(here, "..", "data", "vehicle-catalog", "revmate-uk-vehicle-catalog.jsonl.gz");
+const approvedMakes = JSON.parse(
+  readFileSync(join(here, "..", "data", "approved-vehicle-makes.json"), "utf8"),
+);
+const normalizeMake = (value) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "");
+const approvedByKey = new Map(approvedMakes.map((make) => [normalizeMake(make), make]));
+const catalogueAliases = new Map([
+  ["ds", "DS AUTOMOBILES"],
+  ["greatwall", "GWM"],
+  ["mercedes", "Mercedes-Benz"],
+]);
+const canonicalMake = (value) =>
+  approvedByKey.get(normalizeMake(value)) ?? catalogueAliases.get(normalizeMake(value)) ?? null;
 const supabaseUrl = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -47,27 +63,27 @@ async function upsertBatches(table, rows, batchSize = 500) {
   process.stdout.write("\n");
 }
 
-const makes = new Map();
-const models = new Map();
-const derivatives = new Map();
-const powertrains = [];
+const allMakes = new Map();
+const allModels = new Map();
+const allDerivatives = new Map();
+const allPowertrains = [];
 
 for await (const row of catalogueRows()) {
-  makes.set(row.make_id, { id: row.make_id, name: row.make, slug: row.make_slug });
-  models.set(row.model_id, {
+  allMakes.set(row.make_id, { id: row.make_id, name: row.make, slug: row.make_slug });
+  allModels.set(row.model_id, {
     id: row.model_id,
     make_id: row.make_id,
     name: row.model,
     slug: row.model_slug,
     source_generic_model: row.source_generic_model,
   });
-  derivatives.set(row.derivative_id, {
+  allDerivatives.set(row.derivative_id, {
     id: row.derivative_id,
     model_id: row.model_id,
     name: row.derivative,
     slug: row.derivative_slug,
   });
-  powertrains.push({
+  allPowertrains.push({
     id: row.catalog_entry_id,
     derivative_id: row.derivative_id,
     fuel_type_code: row.fuel_type_code,
@@ -86,10 +102,10 @@ const manifestPath = join(dirname(cataloguePath), "manifest.json");
 if (existsSync(manifestPath)) {
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
   const actual = {
-    makes: makes.size,
-    models: models.size,
-    derivatives: derivatives.size,
-    catalog_entries: powertrains.length,
+    makes: allMakes.size,
+    models: allModels.size,
+    derivatives: allDerivatives.size,
+    catalog_entries: allPowertrains.length,
   };
   for (const [key, value] of Object.entries(actual)) {
     if (manifest[key] !== value) {
@@ -99,6 +115,30 @@ if (existsSync(manifestPath)) {
     }
   }
 }
+
+const preferredMakes = new Map();
+for (const make of allMakes.values()) {
+  const canonical = canonicalMake(make.name);
+  if (!canonical) continue;
+  const current = preferredMakes.get(canonical);
+  const exact = normalizeMake(make.name) === normalizeMake(canonical);
+  const currentExact = current && normalizeMake(current.name) === normalizeMake(canonical);
+  if (!current || (exact && !currentExact)) preferredMakes.set(canonical, make);
+}
+
+const approvedMakeIds = new Set([...preferredMakes.values()].map((make) => make.id));
+const makes = new Map(
+  [...preferredMakes.entries()].map(([name, make]) => [make.id, { ...make, name }]),
+);
+const models = new Map([...allModels].filter(([, model]) => approvedMakeIds.has(model.make_id)));
+const approvedModelIds = new Set(models.keys());
+const derivatives = new Map(
+  [...allDerivatives].filter(([, derivative]) => approvedModelIds.has(derivative.model_id)),
+);
+const approvedDerivativeIds = new Set(derivatives.keys());
+const powertrains = allPowertrains.filter((powertrain) =>
+  approvedDerivativeIds.has(powertrain.derivative_id),
+);
 
 if (!dryRun) {
   await upsertBatches("vehicle_makes", [...makes.values()]);
