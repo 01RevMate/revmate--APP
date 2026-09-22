@@ -10,6 +10,7 @@ export function EditableImage({
   className,
   rounded = "rounded-full",
   label,
+  showTrigger = true,
   children,
 }: {
   userId: string;
@@ -18,6 +19,7 @@ export function EditableImage({
   className?: string;
   rounded?: string;
   label?: string;
+  showTrigger?: boolean;
   children: React.ReactNode;
 }) {
   const [uploading, setUploading] = useState(false);
