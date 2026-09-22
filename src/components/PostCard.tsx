@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { Flag, Heart, MessageCircle, Share2, Trash2, UserX } from "lucide-react";
@@ -43,6 +43,13 @@ export function PostCard({
   const [reportReason, setReportReason] = useState<ReportReason>("spam");
   const [reportDetails, setReportDetails] = useState("");
   const [safetySaving, setSafetySaving] = useState(false);
+
+  // Like state arrives asynchronously (and some pages load it late), so keep
+  // the heart in sync with the server data instead of freezing the first value.
+  useEffect(() => setLiked(initiallyLiked), [initiallyLiked, post.id]);
+  useEffect(() => setLikesCount(post.likes_count), [post.likes_count, post.id]);
+  useEffect(() => setCommentsCount(post.comments_count), [post.comments_count, post.id]);
+
 
   async function toggleLike() {
     if (!user) {

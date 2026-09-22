@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchGarageCar } from "@/lib/garage";
-import { fetchPostsByGarageCar } from "@/lib/posts";
+import { fetchMyLikedPostIds, fetchPostsByGarageCar } from "@/lib/posts";
 import { GarageCarCard } from "@/components/GarageCarCard";
 import { PostCard } from "@/components/PostCard";
 
@@ -26,6 +26,12 @@ function CarProfilePage() {
   const { data: posts } = useQuery({
     queryKey: ["posts-by-garage-car", carId],
     queryFn: () => fetchPostsByGarageCar(carId),
+  });
+
+  const { data: likedIds } = useQuery({
+    queryKey: ["posts-by-garage-car", "liked", user?.id, posts?.map((p) => p.id)],
+    queryFn: () => fetchMyLikedPostIds(user!.id, posts!.map((p) => p.id)),
+    enabled: !!user && !!posts && posts.length > 0,
   });
 
   if (isLoading) {
@@ -60,7 +66,9 @@ function CarProfilePage() {
       <section className="mt-8 border-t border-border pt-6">
         <h2 className="mb-3 text-lg font-semibold">Posts as {car.nickname}</h2>
         <div className="space-y-4">
-          {posts?.map((post) => <PostCard key={post.id} post={post} liked={false} />)}
+          {posts?.map((post) => (
+            <PostCard key={post.id} post={post} liked={likedIds?.has(post.id) ?? false} />
+          ))}
           {posts?.length === 0 && (
             <p className="text-sm text-muted-foreground">No posts made as {car.nickname} yet.</p>
           )}
