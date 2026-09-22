@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { Avatar } from "@/components/Avatar";
 import { CarLogo } from "@/components/CarLogo";
+import { PostImageViewer } from "@/components/PostImageViewer";
 import { carLabel, carPath } from "@/lib/cars";
 import {
   addComment,
@@ -51,6 +52,12 @@ export function PostCard({
   const [reportReason, setReportReason] = useState<ReportReason>("spam");
   const [reportDetails, setReportDetails] = useState("");
   const [safetySaving, setSafetySaving] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const commentsRef = useRef<HTMLDivElement>(null);
+  const postImages = post.post_images
+    .filter((image) => image.image_url)
+    .slice()
+    .sort((a, b) => a.position - b.position);
 
   // Like state arrives asynchronously (and some pages load it late), so keep
   // the heart in sync with the server data instead of freezing the first value.
@@ -80,10 +87,12 @@ export function PostCard({
     }
   }
 
-  async function toggleComments() {
-    const opening = !commentsOpen;
-    setCommentsOpen(opening);
-    if (opening && comments === null) {
+  async function openComments() {
+    setCommentsOpen(true);
+    window.requestAnimationFrame(() =>
+      commentsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }),
+    );
+    if (comments === null) {
       setCommentsLoading(true);
       try {
         setComments(await fetchComments(post.id));
@@ -93,6 +102,11 @@ export function PostCard({
         setCommentsLoading(false);
       }
     }
+  }
+
+  function toggleComments() {
+    if (commentsOpen) setCommentsOpen(false);
+    else void openComments();
   }
 
   async function handleAddComment(e: React.FormEvent) {
@@ -277,23 +291,27 @@ export function PostCard({
 
       <p className="mt-3 whitespace-pre-wrap text-sm">{post.body}</p>
 
-      {post.post_images.length > 0 && (
+      {postImages.length > 0 && (
         <div
           className={`mt-3 grid gap-1 overflow-hidden rounded-md ${
-            post.post_images.length === 1 ? "grid-cols-1" : "grid-cols-2"
+            postImages.length === 1 ? "grid-cols-1" : "grid-cols-2"
           }`}
         >
-          {post.post_images
-            .slice()
-            .sort((a, b) => a.position - b.position)
-            .map((image) => (
+          {postImages.map((image, index) => (
+            <button
+              key={image.id}
+              type="button"
+              onClick={() => setViewerIndex(index)}
+              aria-label={`Open photo ${index + 1} of ${postImages.length}`}
+              className={`overflow-hidden bg-muted ${postImages.length > 1 ? "aspect-square" : ""}`}
+            >
               <img
-                key={image.id}
                 src={image.image_url}
-                alt=""
-                className="max-h-96 w-full bg-muted object-cover"
+                alt={`Post photo ${index + 1}`}
+                className={`${postImages.length > 1 ? "size-full" : "max-h-96 w-full"} object-cover transition-transform hover:scale-[1.01]`}
               />
-            ))}
+            </button>
+          ))}
         </div>
       )}
 
@@ -390,7 +408,7 @@ export function PostCard({
       )}
 
       {commentsOpen && (
-        <div className="mt-3 space-y-3 border-t border-border pt-3">
+        <div ref={commentsRef} className="mt-3 space-y-3 border-t border-border pt-3">
           {commentsLoading && <p className="text-xs text-muted-foreground">Loading comments…</p>}
           {comments?.map((comment) => (
             <div key={comment.id} className="flex gap-2 text-sm">
@@ -422,6 +440,24 @@ export function PostCard({
             </button>
           </form>
         </div>
+      )}
+
+      {viewerIndex !== null && (
+        <PostImageViewer
+          images={postImages}
+          activeIndex={viewerIndex}
+          onActiveIndexChange={setViewerIndex}
+          onClose={() => setViewerIndex(null)}
+          liked={liked}
+          likesCount={likesCount}
+          commentsCount={commentsCount}
+          liking={liking}
+          onLike={() => void toggleLike()}
+          onComment={() => {
+            setViewerIndex(null);
+            void openComments();
+          }}
+        />
       )}
     </article>
   );
