@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, Heart, MessageCircle, X } from "lucide-react";
 
@@ -31,6 +31,8 @@ export function PostImageViewer({
   onComment: () => void;
 }) {
   const touchStartX = useRef<number | null>(null);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [dragging, setDragging] = useState(false);
   const image = images[activeIndex];
 
   function moveBy(offset: number) {
@@ -86,22 +88,53 @@ export function PostImageViewer({
         }}
         onTouchStart={(event) => {
           touchStartX.current = event.touches[0]?.clientX ?? null;
+          setDragOffset(0);
+          setDragging(images.length > 1);
+        }}
+        onTouchMove={(event) => {
+          const start = touchStartX.current;
+          const current = event.touches[0]?.clientX;
+          if (start === null || current === undefined || images.length < 2) return;
+          setDragOffset(current - start);
         }}
         onTouchEnd={(event) => {
           const start = touchStartX.current;
           const end = event.changedTouches[0]?.clientX;
           touchStartX.current = null;
+          setDragging(false);
+          setDragOffset(0);
           if (start === null || end === undefined || images.length < 2) return;
           if (start - end > 50) moveBy(1);
           if (end - start > 50) moveBy(-1);
         }}
+        onTouchCancel={() => {
+          touchStartX.current = null;
+          setDragging(false);
+          setDragOffset(0);
+        }}
       >
-        <img
-          src={image.image_url}
-          alt={`Post photo ${activeIndex + 1} of ${images.length}`}
-          className="max-h-full max-w-full select-none object-contain"
-          draggable={false}
-        />
+        <div className="h-full w-full overflow-hidden touch-pan-y">
+          <div
+            className={`flex h-full w-full ${dragging ? "" : "transition-transform duration-300 ease-out motion-reduce:transition-none"}`}
+            style={{
+              transform: `translate3d(calc(${-activeIndex * 100}% + ${dragOffset}px), 0, 0)`,
+            }}
+          >
+            {images.map((item, index) => (
+              <div
+                key={item.id}
+                className="flex h-full w-full shrink-0 items-center justify-center"
+              >
+                <img
+                  src={item.image_url}
+                  alt={`Post photo ${index + 1} of ${images.length}`}
+                  className="max-h-full max-w-full select-none object-contain"
+                  draggable={false}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {images.length > 1 && (
