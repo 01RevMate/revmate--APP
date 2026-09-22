@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Lock, Plus, Users } from "lucide-react";
@@ -25,10 +25,17 @@ export const Route = createFileRoute("/groups/")({
 });
 
 function GroupsPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { open: openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/login", replace: true });
+    }
+  }, [loading, user, navigate]);
+
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("discover");
   const [creating, setCreating] = useState(false);

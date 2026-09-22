@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useProfile } from "@/hooks/useProfile";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Check, Clock3, Lock, ShieldCheck, Users, X } from "lucide-react";
 import { toast } from "sonner";
@@ -48,11 +48,18 @@ export const Route = createFileRoute("/groups/$slug")({
 
 function GroupPage() {
   const { slug } = Route.useParams();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { isAdmin } = useProfile();
   const [busy, setBusy] = useState(false);
   const { open: openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/login", replace: true });
+    }
+  }, [loading, user, navigate]);
   const {
     data: group,
     isLoading,

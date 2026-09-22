@@ -84,7 +84,7 @@ export function MobileMenu() {
           <MenuLink to="/" icon={Home} label="Home" onNavigate={close} />
           <MenuLink to="/cars" icon={Car} label="Browse Cars" onNavigate={close} />
           <MenuLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" onNavigate={close} />
-          <MenuLink to="/groups" icon={Users} label="Groups" onNavigate={close} />
+          <MenuLink to="/groups" icon={Users} label="Groups" requireAuth onNavigate={close} />
           <MenuLink to="/ask" icon={MessageCircle} label="Ask for help" onNavigate={close} />
           <MenuLink
             to="/community-standards"
