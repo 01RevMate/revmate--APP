@@ -144,21 +144,13 @@ function GarageProfilePage() {
   }
 
   async function handleCoverUploaded(url: string) {
-    try {
-      await updateProfile(profile!.user_id, { cover_photo_url: url });
-      refreshProfile();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't save cover photo");
-    }
+    await updateProfile(profile!.user_id, { cover_photo_url: url });
+    refreshProfile();
   }
 
   async function handleAvatarUploaded(url: string) {
-    try {
-      await updateProfile(profile!.user_id, { avatar_url: url });
-      refreshProfile();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't save profile picture");
-    }
+    await updateProfile(profile!.user_id, { avatar_url: url });
+    refreshProfile();
   }
 
   return (
@@ -171,6 +163,9 @@ function GarageProfilePage() {
         rounded="rounded-none"
         label="Change cover"
         showTrigger={editing}
+        aspect={16 / 9}
+        cropTitle="Crop your cover photo"
+        successMessage="Cover photo updated."
       >
         {profile.cover_photo_url && (
           <img src={profile.cover_photo_url} alt="" className="size-full object-cover" />
@@ -184,6 +179,10 @@ function GarageProfilePage() {
             editable={isOwner}
             onUploaded={handleAvatarUploaded}
             showTrigger={editing}
+            aspect={1}
+            circular
+            cropTitle="Crop your profile picture"
+            successMessage="Profile picture updated."
           >
             <Avatar
               photoUrl={profile.avatar_url}
