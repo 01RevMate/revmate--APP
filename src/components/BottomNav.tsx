@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, Warehouse, MessageCircle, Plus, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -25,6 +25,7 @@ function NavItem({
 }) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const linkProps = exact ? { activeOptions: { exact: true } } : {};
   const blocked = requireAuth && !user;
   return (
@@ -34,6 +35,11 @@ function NavItem({
         if (blocked) {
           e.preventDefault();
           openAuthModal(`Create a free account to use ${label}.`);
+          return;
+        }
+        if (to === "/" && pathname === "/") {
+          e.preventDefault();
+          window.scrollTo({ top: 0, behavior: "smooth" });
         }
       }}
       className={item}
