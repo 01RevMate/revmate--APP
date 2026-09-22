@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { UserPlus, Users } from "lucide-react";
 import { acceptFriendRequest, fetchFriends, fetchPendingRequests, removeFriendship } from "@/lib/friends";
 import { Avatar } from "@/components/Avatar";
-import { displayUsername } from "@/lib/usernames";
+import { displayUsernameWithoutAt } from "@/lib/usernames";
 
 export function FriendsSection({ userId }: { userId: string }) {
   const queryClient = useQueryClient();
@@ -51,7 +51,7 @@ export function FriendsSection({ userId }: { userId: string }) {
               <div className="flex items-center gap-2">
                 <Avatar photoUrl={req.requester.avatar_url} fallback={req.requester.username} className="size-8" />
                 <p className="text-sm">
-                  <span className="font-medium">{displayUsername(req.requester.username)}</span> wants to be friends
+                  <span className="font-medium">{displayUsernameWithoutAt(req.requester.username)}</span> wants to be friends
                 </p>
               </div>
               <div className="flex shrink-0 gap-2">
@@ -86,7 +86,7 @@ export function FriendsSection({ userId }: { userId: string }) {
               >
                 <Avatar photoUrl={friend.avatar_url} fallback={friend.username} className="size-12" />
                 <p className="w-full truncate text-[10px] text-muted-foreground">
-                  {displayUsername(friend.username)}
+                  {displayUsernameWithoutAt(friend.username)}
                 </p>
               </Link>
             );

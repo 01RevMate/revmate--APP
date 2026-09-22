@@ -27,7 +27,7 @@ import {
   updateAccountAccess,
   updateProfileRole,
 } from "@/lib/moderation";
-import { displayUsername } from "@/lib/usernames";
+import { displayUsernameWithoutAt } from "@/lib/usernames";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async () => {
@@ -116,14 +116,14 @@ function AdminPage() {
     }
     const action = status === "active" ? "restore" : status;
     const note =
-      status === "active" ? "" : window.prompt(`Reason to ${action} ${displayUsername(username)}:`)?.trim();
+      status === "active" ? "" : window.prompt(`Reason to ${action} ${displayUsernameWithoutAt(username)}:`)?.trim();
     if (status !== "active" && !note) return false;
-    if (!window.confirm(`${action[0]!.toUpperCase()}${action.slice(1)} ${displayUsername(username)}?`))
+    if (!window.confirm(`${action[0]!.toUpperCase()}${action.slice(1)} ${displayUsernameWithoutAt(username)}?`))
       return false;
     try {
       await updateAccountAccess(userId, status, note ?? "");
       refreshSafety();
-      toast.success(`${displayUsername(username)} is now ${status}.`);
+      toast.success(`${displayUsernameWithoutAt(username)} is now ${status}.`);
       return true;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't update the account");
@@ -138,7 +138,7 @@ function AdminPage() {
     }
     if (
       !window.confirm(
-        `${role === "admin" ? "Make" : "Remove"} ${displayUsername(username)} ${role === "admin" ? "an admin" : "from admins"}?`,
+        `${role === "admin" ? "Make" : "Remove"} ${displayUsernameWithoutAt(username)} ${role === "admin" ? "an admin" : "from admins"}?`,
       )
     )
       return;
@@ -276,7 +276,7 @@ function AdminPage() {
                     </p>
                   )}
                   <p className="mt-3 text-xs text-muted-foreground">
-                    Posted by {displayUsername(report.reported_profile?.username, "unknown")} · reported by {displayUsername(report.reporter?.username, "unknown")} · {accountReports?.total ?? 0} total
+                     Posted by {displayUsernameWithoutAt(report.reported_profile?.username, "unknown")} · reported by {displayUsernameWithoutAt(report.reporter?.username, "unknown")} · {accountReports?.total ?? 0} total
                     reports from {accountReports?.reporters.size ?? 0} people
                   </p>
                   {report.status === "open" && (
@@ -368,7 +368,7 @@ function AdminPage() {
                       params={{ username: profile.username }}
                       className="font-semibold hover:underline"
                     >
-                      {displayUsername(profile.username)}
+                       {displayUsernameWithoutAt(profile.username)}
                     </Link>
                     <p className="text-xs text-muted-foreground">
                       {profile.role} · {profile.account_status} · {count} reports ·{" "}

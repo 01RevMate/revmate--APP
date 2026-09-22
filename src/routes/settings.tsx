@@ -10,7 +10,7 @@ import { carLabel, carPath, type Car } from "@/lib/cars";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { fetchBlockedProfiles, unblockProfile } from "@/lib/moderation";
-import { displayUsername, normalizeUsername } from "@/lib/usernames";
+import { displayUsernameWithoutAt, normalizeUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -61,7 +61,7 @@ function SettingsPage() {
   async function handleUnblock(blockedId: string, username: string) {
     if (
       !user ||
-      !window.confirm(`Unblock ${displayUsername(username)}? They will be able to find and contact you again.`)
+      !window.confirm(`Unblock ${displayUsernameWithoutAt(username)}? They will be able to find and contact you again.`)
     )
       return;
     try {
@@ -69,7 +69,7 @@ function SettingsPage() {
       await queryClient.invalidateQueries({ queryKey: ["blocked-profiles", user.id] });
       queryClient.invalidateQueries({ queryKey: ["user-block", user.id, blockedId] });
       queryClient.invalidateQueries({ queryKey: ["feed"] });
-      toast.success(`${displayUsername(username)} has been unblocked.`);
+      toast.success(`${displayUsernameWithoutAt(username)} has been unblocked.`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't unblock this profile");
     }
@@ -224,7 +224,7 @@ function SettingsPage() {
                         params={{ username: blocked.username }}
                         className="block truncate text-sm font-semibold hover:underline"
                       >
-                        {displayUsername(blocked.username)}
+                        {displayUsernameWithoutAt(blocked.username)}
                       </Link>
                     ) : (
                       <p className="truncate text-sm font-semibold">{username}</p>

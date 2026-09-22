@@ -10,7 +10,7 @@ import { Avatar } from "@/components/Avatar";
 import { CarLogo } from "@/components/CarLogo";
 import { PostImageViewer } from "@/components/PostImageViewer";
 import { carLabel, carPath } from "@/lib/cars";
-import { displayUsername } from "@/lib/usernames";
+import { displayUsernameWithoutAt } from "@/lib/usernames";
 import {
   addComment,
   deletePost,
@@ -172,7 +172,7 @@ export function PostCard({
     if (!user) return openAuthModal("Create a free account to block profiles.");
     if (
       !window.confirm(
-        `Block ${displayUsername(post.profiles?.username, "this profile")}? Their posts will disappear and they won't be able to message you.`,
+        `Block ${displayUsernameWithoutAt(post.profiles?.username, "this profile")}? Their posts will disappear and they won't be able to message you.`,
       )
     )
       return;
@@ -230,7 +230,7 @@ export function PostCard({
             >
               <Avatar photoUrl={post.profiles?.avatar_url} fallback={post.profiles?.username} />
               <div>
-                <p className="text-sm font-medium">{displayUsername(post.profiles?.username)}</p>
+                <p className="text-sm font-medium">{displayUsernameWithoutAt(post.profiles?.username)}</p>
                 <p className="text-xs text-muted-foreground">
                   {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
                 </p>
@@ -425,7 +425,7 @@ export function PostCard({
                 className="size-7"
               />
               <div className="rounded-md bg-muted px-3 py-1.5">
-                <p className="text-xs font-medium">{displayUsername(comment.profiles?.username)}</p>
+                <p className="text-xs font-medium">{displayUsernameWithoutAt(comment.profiles?.username)}</p>
                 <p>{comment.body}</p>
               </div>
             </div>

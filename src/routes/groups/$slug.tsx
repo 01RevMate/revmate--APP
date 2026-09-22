@@ -26,7 +26,7 @@ import { fetchMyLikedPostIds } from "@/lib/posts";
 import { PostComposer } from "@/components/PostComposer";
 import { PostCard } from "@/components/PostCard";
 import { Avatar } from "@/components/Avatar";
-import { displayUsername } from "@/lib/usernames";
+import { displayUsernameWithoutAt } from "@/lib/usernames";
 
 export const Route = createFileRoute("/groups/$slug")({
   head: ({ params }) => {
@@ -272,7 +272,7 @@ function GroupPage() {
                 className="size-8"
               />
               <span className="flex-1 text-sm font-medium">
-                {displayUsername(member.profiles?.username, "Member")}
+                 {displayUsernameWithoutAt(member.profiles?.username, "Member")}
               </span>
               <button
                 onClick={() => reviewMember(member.user_id, "approved")}
@@ -481,13 +481,13 @@ function GroupPage() {
                   className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-sm"
                 >
                   <span className="mr-auto">
-                    {displayUsername(member.profiles?.username, "Member")} · {member.role} · {member.status}
+                    {displayUsernameWithoutAt(member.profiles?.username, "Member")} · {member.role} · {member.status}
                   </span>
                   {canManage &&
                     (membership?.role === "owner" || isAdmin) &&
                     member.status === "approved" && (
                       <select
-                        aria-label={`Role for ${displayUsername(member.profiles?.username, "member")}`}
+                        aria-label={`Role for ${displayUsernameWithoutAt(member.profiles?.username, "member")}`}
                         value={member.role}
                         onChange={async (e) => {
                           try {
