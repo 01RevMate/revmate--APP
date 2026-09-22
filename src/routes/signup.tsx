@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandLogo } from "@/components/BrandLogo";
 import { Button } from "@/components/ui/button";
+import { normalizeUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -33,7 +34,7 @@ function SignupPage() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { username },
+        data: { username: normalizeUsername(username) },
       },
     });
     setSaving(false);

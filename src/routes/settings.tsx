@@ -10,6 +10,7 @@ import { carLabel, carPath, type Car } from "@/lib/cars";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { fetchBlockedProfiles, unblockProfile } from "@/lib/moderation";
+import { displayUsername, normalizeUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -53,7 +54,7 @@ function SettingsPage() {
   async function handleUnblock(blockedId: string, username: string) {
     if (
       !user ||
-      !window.confirm(`Unblock @${username}? They will be able to find and contact you again.`)
+      !window.confirm(`Unblock ${displayUsername(username)}? They will be able to find and contact you again.`)
     )
       return;
     try {
@@ -61,7 +62,7 @@ function SettingsPage() {
       await queryClient.invalidateQueries({ queryKey: ["blocked-profiles", user.id] });
       queryClient.invalidateQueries({ queryKey: ["user-block", user.id, blockedId] });
       queryClient.invalidateQueries({ queryKey: ["feed"] });
-      toast.success(`@${username} has been unblocked.`);
+      toast.success(`${displayUsername(username)} has been unblocked.`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't unblock this profile");
     }
@@ -69,10 +70,12 @@ function SettingsPage() {
 
   async function handleUsernameSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !username.trim()) return;
+    const nextUsername = normalizeUsername(username);
+    if (!user || !nextUsername) return;
     setSavingUsername(true);
     try {
-      await updateProfile(user.id, { username: username.trim() });
+      await updateProfile(user.id, { username: nextUsername });
+      setUsername(nextUsername);
       toast.success("Username updated");
     } catch (err) {
       toast.error(
@@ -146,7 +149,7 @@ function SettingsPage() {
           </button>
         </form>
         <p className="mt-1 text-xs text-muted-foreground">
-          This is also your public profile URL: revmate.app/u/{username || "…"}
+          This is also your public profile URL: revmate.app/u/{normalizeUsername(username) || "…"}
         </p>
       </Section>
 
@@ -212,7 +215,7 @@ function SettingsPage() {
                         params={{ username: blocked.username }}
                         className="block truncate text-sm font-semibold hover:underline"
                       >
-                        @{blocked.username}
+                        {displayUsername(blocked.username)}
                       </Link>
                     ) : (
                       <p className="truncate text-sm font-semibold">{username}</p>

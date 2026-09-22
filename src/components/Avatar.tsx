@@ -1,3 +1,5 @@
+import { displayUsername } from "@/lib/usernames";
+
 export function Avatar({
   photoUrl,
   fallback,
@@ -14,7 +16,7 @@ export function Avatar({
     <div
       className={`${className} flex shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold uppercase text-muted-foreground`}
     >
-      {fallback?.slice(0, 2) ?? "?"}
+      {displayUsername(fallback, "?").replace(/^@/, "").slice(0, 2) || "?"}
     </div>
   );
 }

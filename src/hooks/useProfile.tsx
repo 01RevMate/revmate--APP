@@ -12,10 +12,11 @@ export function useProfile() {
     queryKey: ["profile", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Profile | null> => {
+      if (!user) return null;
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", user!.id)
+        .eq("user_id", user.id)
         .maybeSingle();
       if (error) throw error;
       return data;
