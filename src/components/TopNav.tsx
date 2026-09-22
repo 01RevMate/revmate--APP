@@ -39,7 +39,7 @@ export function TopNav() {
   // plain back button instead of the logo/menu/sign-in row.
   if (AUTH_PATHS.has(pathname)) {
     return (
-      <header className="border-b border-border">
+      <header className="border-b border-border" style={{ paddingTop: "env(safe-area-inset-top)" }}>
         <nav className="flex items-center px-4 py-2 md:px-6 md:py-4">
           <Link
             to="/"
@@ -59,6 +59,7 @@ export function TopNav() {
       className={`sticky top-0 z-30 border-b border-border bg-background transition-transform duration-300 ease-out md:static md:translate-y-0 ${
         hidden ? "-translate-y-full" : "translate-y-0"
       }`}
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <nav className="flex flex-wrap items-center gap-3 px-4 py-2 md:px-6 md:py-4">
         <Link to="/" aria-label="RevMate home" className="block">
