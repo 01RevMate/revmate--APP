@@ -1,7 +1,10 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Camera, Loader2 } from "lucide-react";
-import { uploadImage, validateImageFile } from "@/lib/uploads";
+import { Camera } from "lucide-react";
+import { uploadImageBlob } from "@/lib/uploads";
+import { ImageCropperDialog } from "@/components/ImageCropperDialog";
+
+const MAX_RAW_BYTES = 25 * 1024 * 1024; // raw camera-roll file, before cropping
 
 export function EditableImage({
   userId,
@@ -11,82 +14,121 @@ export function EditableImage({
   rounded = "rounded-full",
   label,
   showTrigger = true,
+  aspect = 1,
+  circular = false,
+  cropTitle,
+  successMessage = "Photo updated.",
   children,
 }: {
   userId: string;
   editable: boolean;
-  onUploaded: (url: string) => void;
+  onUploaded: (url: string) => void | Promise<void>;
   className?: string;
   rounded?: string;
   label?: string;
   showTrigger?: boolean;
+  aspect?: number;
+  circular?: boolean;
+  cropTitle?: string;
+  successMessage?: string;
   children: React.ReactNode;
 }) {
-  const [uploading, setUploading] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+  function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = e.target.files?.[0];
     e.target.value = "";
-    if (!file) return;
-    const problem = validateImageFile(file);
-    if (problem) {
-      toast.error(problem);
+    if (!picked) return;
+    if (!picked.type.startsWith("image/")) {
+      toast.error("That file isn't an image.");
       return;
     }
-    setUploading(true);
+    if (picked.size > MAX_RAW_BYTES) {
+      toast.error("That photo is too large. Please pick one under 25MB.");
+      return;
+    }
+    setFile(picked);
+  }
+
+  async function handleConfirm(blob: Blob) {
+    setSaving(true);
     try {
-      const url = await uploadImage("user-media", userId, file);
-      onUploaded(url);
+      const url = await uploadImageBlob("user-media", userId, blob);
+      await onUploaded(url);
+      toast.success(successMessage);
+      setFile(null);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't upload image");
+      toast.error(err instanceof Error ? err.message : "Couldn't upload that photo. Please try again.");
     } finally {
-      setUploading(false);
+      setSaving(false);
     }
   }
 
-  if (!editable || !showTrigger) return <div className={className}>{children}</div>;
+  const picker = (
+    <input
+      ref={inputRef}
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={handleFileSelected}
+    />
+  );
+
+  const cropper = (
+    <ImageCropperDialog
+      open={!!file}
+      file={file}
+      aspect={aspect}
+      circular={circular}
+      title={cropTitle ?? label ?? "Adjust photo"}
+      saving={saving}
+      onCancel={() => setFile(null)}
+      onConfirm={handleConfirm}
+      onPickAnother={() => {
+        setFile(null);
+        setTimeout(() => inputRef.current?.click(), 50);
+      }}
+    />
+  );
+
+  if (!editable || !showTrigger)
+    return (
+      <div className={className}>
+        {children}
+        {picker}
+        {cropper}
+      </div>
+    );
 
   return (
     <div className={`group relative ${className ?? ""}`}>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
-        className="hidden"
-        onChange={handleFileSelected}
-      />
+      {picker}
       {children}
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        disabled={uploading}
-        aria-label={uploading ? "Uploading image" : label ?? "Change image"}
+        aria-label={label ?? "Change image"}
         title={label ?? "Change image"}
         className={`
           absolute flex cursor-pointer items-center justify-center
           transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:pointer-events-auto
-          disabled:cursor-wait
           md:inset-0 md:flex-col md:gap-1.5 md:bg-black/45 md:text-white md:opacity-0 md:group-hover:opacity-100 md:pointer-events-none md:group-hover:pointer-events-auto
           max-md:bottom-3 max-md:right-3 max-md:gap-1.5 max-md:rounded-full max-md:border max-md:border-border/60 max-md:bg-background/95
           max-md:px-3 max-md:py-2 max-md:text-foreground max-md:shadow-lg max-md:opacity-100
           ${rounded}
         `}
       >
-        {uploading ? (
-          <Loader2 className="size-6 animate-spin md:size-8" />
-        ) : (
+        <Camera className="size-6 md:size-8" />
+        {label ? (
           <>
-            <Camera className="size-6 md:size-8" />
-            {label ? (
-              <>
-                <span className="hidden text-sm font-semibold md:inline">{label}</span>
-                <span className="text-xs font-medium md:hidden">{label}</span>
-              </>
-            ) : null}
+            <span className="hidden text-sm font-semibold md:inline">{label}</span>
+            <span className="text-xs font-medium md:hidden">{label}</span>
           </>
-        )}
+        ) : null}
       </button>
+      {cropper}
     </div>
   );
 }
