@@ -9,6 +9,7 @@ export function EditableImage({
   onUploaded,
   className,
   rounded = "rounded-full",
+  label,
   children,
 }: {
   userId: string;
@@ -16,6 +17,7 @@ export function EditableImage({
   onUploaded: (url: string) => void;
   className?: string;
   rounded?: string;
+  label?: string;
   children: React.ReactNode;
 }) {
   const [uploading, setUploading] = useState(false);
