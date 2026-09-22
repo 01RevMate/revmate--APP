@@ -44,7 +44,7 @@ export function EditableImage({
   if (!editable) return <div className={className}>{children}</div>;
 
   return (
-    <label className={`group relative block cursor-pointer ${className ?? ""}`}>
+    <div className={`group relative ${className ?? ""}`}>
       <input
         ref={inputRef}
         type="file"
@@ -53,15 +53,20 @@ export function EditableImage({
         onChange={handleFileSelected}
       />
       {children}
-      <div
-        className={`absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 ${rounded}`}
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={uploading}
+        aria-label={uploading ? "Uploading image" : "Change image"}
+        title="Change image"
+        className={`absolute inset-0 flex cursor-pointer items-center justify-center bg-foreground/40 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:cursor-wait max-md:inset-auto max-md:bottom-3 max-md:right-3 max-md:size-10 max-md:rounded-full max-md:bg-background/90 max-md:text-foreground max-md:opacity-100 max-md:shadow-md ${rounded}`}
       >
         {uploading ? (
-          <Loader2 className="size-5 animate-spin text-white" />
+          <Loader2 className="size-5 animate-spin text-primary-foreground max-md:text-foreground" />
         ) : (
-          <Camera className="size-5 text-white" />
+          <Camera className="size-5 text-primary-foreground max-md:text-foreground" />
         )}
-      </div>
-    </label>
+      </button>
+    </div>
   );
 }
