@@ -5,11 +5,11 @@ import { fetchGarageCar } from "@/lib/garage";
 import { fetchMyLikedPostIds, fetchPostsByGarageCar } from "@/lib/posts";
 import { GarageCarCard } from "@/components/GarageCarCard";
 import { PostCard } from "@/components/PostCard";
-import { displayUsername } from "@/lib/usernames";
+import { displayUsernameWithoutAt } from "@/lib/usernames";
 
 export const Route = createFileRoute("/u/$username_/cars/$carId")({
   head: ({ params }) => {
-    const handle = displayUsername(params.username);
+    const handle = displayUsernameWithoutAt(params.username);
     const title = `${handle}'s car — RevMate`;
     const description = `View ${handle}'s car profile, build details and related RevMate posts.`;
     return {
@@ -73,7 +73,7 @@ function CarProfilePage() {
         params={{ username }}
         className="text-sm text-muted-foreground hover:text-foreground"
       >
-        ← Back to {displayUsername(username)}'s garage
+         ← Back to {displayUsernameWithoutAt(username)}'s garage
       </Link>
 
       <div className="mt-4">

@@ -6,7 +6,7 @@ import { setActivePostingIdentity } from "@/lib/profiles";
 import type { GarageCar } from "@/lib/garage";
 import { Avatar } from "@/components/Avatar";
 import { CarLogo } from "@/components/CarLogo";
-import { displayUsername } from "@/lib/usernames";
+import { displayUsernameWithoutAt } from "@/lib/usernames";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,7 +62,7 @@ export function PostingIdentitySwitcher({
     variant === "avatar" ? (
       <button
         disabled={saving}
-        title={`Posting as ${activeCar ? activeCar.nickname : displayUsername(username)}`}
+        title={`Posting as ${activeCar ? activeCar.nickname : displayUsernameWithoutAt(username)}`}
         className="relative shrink-0 rounded-full disabled:opacity-50"
       >
         <Avatar
@@ -87,7 +87,7 @@ export function PostingIdentitySwitcher({
         ) : (
           <UserRound className="size-4 shrink-0" />
         )}
-        Posting as {activeCar ? activeCar.nickname : displayUsername(username)}
+        Posting as {activeCar ? activeCar.nickname : displayUsernameWithoutAt(username)}
         <ChevronDown className="size-3.5 text-muted-foreground" />
       </button>
     );
@@ -98,7 +98,7 @@ export function PostingIdentitySwitcher({
       <DropdownMenuContent align={variant === "avatar" ? "end" : "start"}>
         <DropdownMenuItem onClick={() => choose(null)} className="flex items-center gap-2">
           <UserRound className="size-4 shrink-0" />
-          {displayUsername(username)}
+          {displayUsernameWithoutAt(username)}
           {!activeCar && <Check className="ml-auto size-3.5" />}
         </DropdownMenuItem>
         {cars.map((car) => (

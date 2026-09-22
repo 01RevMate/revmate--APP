@@ -8,11 +8,11 @@ import { useAuthModal } from "@/hooks/useAuthModal";
 import { fetchProfileByUsername } from "@/lib/profiles";
 import { fetchOrCreateConversation, fetchMessages, sendMessage } from "@/lib/messages";
 import { Avatar } from "@/components/Avatar";
-import { displayUsername } from "@/lib/usernames";
+import { displayUsernameWithoutAt } from "@/lib/usernames";
 
 export const Route = createFileRoute("/messages/$username")({
   head: ({ params }) => {
-    const handle = displayUsername(params.username);
+    const handle = displayUsernameWithoutAt(params.username);
     const title = `${handle} — Messages — RevMate`;
     const description = `Message ${handle} privately on RevMate.`;
     return {
@@ -83,7 +83,7 @@ function MessageThreadPage() {
         </Link>
         <Link to="/u/$username" params={{ username: otherProfile.username }} className="flex items-center gap-2">
           <Avatar photoUrl={otherProfile.avatar_url} fallback={otherProfile.username} className="size-8" />
-          <span className="font-medium">{displayUsername(otherProfile.username)}</span>
+          <span className="font-medium">{displayUsernameWithoutAt(otherProfile.username)}</span>
         </Link>
       </div>
 
@@ -105,19 +105,19 @@ function MessageThreadPage() {
           })}
         {user && messages?.length === 0 && (
           <p className="text-center text-sm text-muted-foreground">
-            Say hello to {displayUsername(otherProfile.username)}.
+            Say hello to {displayUsernameWithoutAt(otherProfile.username)}.
           </p>
         )}
         {!user && (
           <p className="text-center text-sm text-muted-foreground">
-            Sign in to see your conversation with {displayUsername(otherProfile.username)}.
+            Sign in to see your conversation with {displayUsernameWithoutAt(otherProfile.username)}.
           </p>
         )}
       </div>
 
       <form
         onSubmit={user ? handleSend : (e) => e.preventDefault()}
-        onFocus={() => !user && openAuthModal(`Create a free account to message ${displayUsername(otherProfile.username)}.`)}
+        onFocus={() => !user && openAuthModal(`Create a free account to message ${displayUsernameWithoutAt(otherProfile.username)}.`)}
         className="flex gap-2 border-t border-border pt-4"
       >
         <input
