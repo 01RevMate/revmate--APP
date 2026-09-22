@@ -33,6 +33,7 @@ import { ImageUploadField } from "@/components/ImageUploadField";
 import { CarLogo } from "@/components/CarLogo";
 import { PostingIdentitySwitcher } from "@/components/PostingIdentitySwitcher";
 import { VehicleCatalogPicker } from "@/components/VehicleCatalogPicker";
+import { Button } from "@/components/ui/button";
 import { carLabel, type Car } from "@/lib/cars";
 import { blockProfile, fetchBlock, unblockProfile } from "@/lib/moderation";
 import {
@@ -188,12 +189,15 @@ function GarageProfilePage() {
             />
           </EditableImage>
           {isOwner ? (
-            <button
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
               onClick={() => setEditing((v) => !v)}
-              className="mb-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent"
+              className="mb-0 self-end"
             >
               {editing ? "Close" : "Edit profile"}
-            </button>
+            </Button>
           ) : (
             <div className="mb-2 flex flex-wrap gap-2">
               {!block && (
