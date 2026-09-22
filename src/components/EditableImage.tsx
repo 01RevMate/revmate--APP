@@ -59,14 +59,32 @@ export function EditableImage({
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={uploading}
-        aria-label={uploading ? "Uploading image" : "Change image"}
-        title="Change image"
-        className={`absolute inset-0 flex cursor-pointer items-center justify-center bg-foreground/40 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:cursor-wait max-md:inset-auto max-md:bottom-3 max-md:right-3 max-md:size-10 max-md:rounded-full max-md:bg-background/90 max-md:text-foreground max-md:opacity-100 max-md:shadow-md ${rounded}`}
+        aria-label={uploading ? "Uploading image" : label ?? "Change image"}
+        title={label ?? "Change image"}
+        className={`
+          absolute flex cursor-pointer items-center justify-center
+          transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+          disabled:cursor-wait
+          /* desktop: full overlay */
+          md:inset-0 md:flex-col md:gap-1.5 md:bg-black/45 md:text-white md:opacity-0 md:group-hover:opacity-100
+          /* mobile: floating pill/circle */
+          max-md:bottom-3 max-md:right-3 max-md:rounded-full max-md:border max-md:border-border/60 max-md:bg-background/95
+          max-md:px-3 max-md:py-2 max-md:text-foreground max-md:shadow-lg max-md:opacity-100
+          ${rounded}
+        `}
       >
         {uploading ? (
-          <Loader2 className="size-5 animate-spin text-primary-foreground max-md:text-foreground" />
+          <Loader2 className="size-6 animate-spin md:size-8" />
         ) : (
-          <Camera className="size-5 text-primary-foreground max-md:text-foreground" />
+          <>
+            <Camera className="size-6 md:size-8" />
+            {label ? (
+              <>
+                <span className="hidden text-sm font-semibold md:inline">{label}</span>
+                <span className="text-xs font-medium md:hidden">{label}</span>
+              </>
+            ) : null}
+          </>
         )}
       </button>
     </div>
