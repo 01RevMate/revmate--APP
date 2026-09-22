@@ -148,6 +148,13 @@
       "when": 1790110045027,
       "tag": "0020_grant_group_members_access",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1790110074999,
+      "tag": "0021_grant_group_members_anon_select",
+      "breakpoints": true
     }
   ]
 }
