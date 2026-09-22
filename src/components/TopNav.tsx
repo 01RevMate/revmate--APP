@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Bell, Search, UserRound } from "lucide-react";
+import { ArrowLeft, Search, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -8,6 +8,7 @@ import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 import { fetchGarage } from "@/lib/garage";
 import { BrandLogo } from "@/components/BrandLogo";
 import { PostingIdentitySwitcher } from "@/components/PostingIdentitySwitcher";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { MobileMenu } from "@/components/MobileMenu";
 
 const navLink = "text-sm text-muted-foreground transition-colors hover:text-foreground";
@@ -68,14 +69,7 @@ export function TopNav() {
         <MobileMenu />
         {user && profile && (
           <div className="ml-auto flex items-center gap-3">
-            {/* Not wired up yet — placeholder for notifications. */}
-            <button
-              aria-label="Notifications"
-              title="Notifications"
-              className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
-            >
-              <Bell className="size-5" />
-            </button>
+            <NotificationCenter />
             {/* Visual placeholder only — search will be connected later. */}
             <button
               type="button"

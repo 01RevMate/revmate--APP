@@ -14,6 +14,7 @@ export type PostWithAuthor = Post & {
     Tables<"garage_cars">,
     "id" | "nickname" | "photo_url" | "make" | "model"
   > | null;
+  community_groups: Pick<Tables<"community_groups">, "name" | "slug" | "visibility"> | null;
   post_images: Pick<PostImage, "id" | "image_url" | "position">[];
 };
 
@@ -32,47 +33,58 @@ export const POST_CATEGORY_LABELS: Record<Post["category"], string> = {
   showcase: "Build Showcase",
 };
 
-const POST_SELECT =
-  "*, profiles!posts_user_id_fkey(username, avatar_url), cars(make, model, generation), posted_as_garage_car:garage_cars!posts_posted_as_garage_car_id_fkey(id, nickname, photo_url, make, model), post_images(id, image_url, position)";
+export const POST_SELECT =
+  "*, profiles!posts_user_id_fkey(username, avatar_url), cars(make, model, generation), posted_as_garage_car:garage_cars!posts_posted_as_garage_car_id_fkey(id, nickname, photo_url, make, model), post_images(id, image_url, position), community_groups!posts_group_id_fkey(name, slug, visibility)";
 
-export async function fetchFeed(limit = 20): Promise<PostWithAuthor[]> {
+export async function fetchFeed(
+  scope: string,
+  carId: string | null,
+  category: string,
+  offset = 0,
+): Promise<PostWithAuthor[]> {
   const { data, error } = await supabase
-    .from("posts")
-    .select(POST_SELECT)
-    .order("created_at", { ascending: false })
-    .limit(limit);
+    .rpc("community_feed", {
+      filter_scope: scope,
+      filter_car: carId,
+      filter_category: category,
+      page_offset: offset,
+    })
+    .select(POST_SELECT);
   if (error) throw error;
-  return data as unknown as PostWithAuthor[];
+  return resolvePostPhotos(data as unknown as PostWithAuthor[]);
 }
 
 export async function fetchPostsByUser(userId: string): Promise<PostWithAuthor[]> {
   const { data, error } = await supabase
     .from("posts")
     .select(POST_SELECT)
+    .is("group_id", null)
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return data as unknown as PostWithAuthor[];
+  return resolvePostPhotos(data as unknown as PostWithAuthor[]);
 }
 
 export async function fetchPostsByCar(carId: string): Promise<PostWithAuthor[]> {
   const { data, error } = await supabase
     .from("posts")
     .select(POST_SELECT)
+    .is("group_id", null)
     .eq("car_id", carId)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return data as unknown as PostWithAuthor[];
+  return resolvePostPhotos(data as unknown as PostWithAuthor[]);
 }
 
 export async function fetchPostsByGarageCar(garageCarId: string): Promise<PostWithAuthor[]> {
   const { data, error } = await supabase
     .from("posts")
     .select(POST_SELECT)
+    .is("group_id", null)
     .eq("posted_as_garage_car_id", garageCarId)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return data as unknown as PostWithAuthor[];
+  return resolvePostPhotos(data as unknown as PostWithAuthor[]);
 }
 
 export async function fetchMyLikedPostIds(userId: string, postIds: string[]) {
@@ -92,11 +104,13 @@ export async function createPost(input: {
   carId?: string | undefined;
   postedAsGarageCarId?: string | undefined;
   category?: Post["category"] | undefined;
+  groupId?: string | undefined;
 }) {
   const { data, error } = await supabase
     .from("posts")
     .insert({
       user_id: input.userId,
+      group_id: input.groupId || null,
       body: input.body,
       car_id: input.carId || null,
       posted_as_garage_car_id: input.postedAsGarageCarId || null,
@@ -129,7 +143,10 @@ export async function likePost(postId: string, userId: string) {
   // Idempotent: liking an already-liked post must not error.
   const { error } = await supabase
     .from("post_likes")
-    .upsert({ post_id: postId, user_id: userId }, { onConflict: "post_id,user_id", ignoreDuplicates: true });
+    .upsert(
+      { post_id: postId, user_id: userId },
+      { onConflict: "post_id,user_id", ignoreDuplicates: true },
+    );
   if (error) throw error;
 }
 
@@ -157,4 +174,44 @@ export async function addComment(postId: string, userId: string, body: string) {
     .from("post_comments")
     .insert({ post_id: postId, user_id: userId, body });
   if (error) throw error;
+}
+
+export async function fetchPost(id: string): Promise<PostWithAuthor | null> {
+  const { data, error } = await supabase
+    .from("posts")
+    .select(POST_SELECT)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? (await resolvePostPhotos([data as unknown as PostWithAuthor]))[0]! : null;
+}
+
+export async function resolvePostPhotos(posts: PostWithAuthor[]): Promise<PostWithAuthor[]> {
+  return Promise.all(
+    posts.map(async (post) => ({
+      ...post,
+      post_images: await Promise.all(
+        post.post_images.map(async (photo) => {
+          if (!photo.image_url.startsWith("group-images:")) return photo;
+          const { data } = await supabase.storage
+            .from("group-images")
+            .createSignedUrl(photo.image_url.slice(13), 300);
+          return { ...photo, image_url: data?.signedUrl ?? "" };
+        }),
+      ),
+    })),
+  );
+}
+
+export async function uploadGroupPostImage(
+  userId: string,
+  postId: string,
+  file: File,
+): Promise<string> {
+  const path = `${userId}/${postId}/${crypto.randomUUID()}`;
+  const { error } = await supabase.storage
+    .from("group-images")
+    .upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  return `group-images:${path}`;
 }

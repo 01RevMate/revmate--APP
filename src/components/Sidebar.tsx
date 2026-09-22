@@ -71,33 +71,6 @@ function NavLink({
   );
 }
 
-function GroupsItem({ collapsed }: { collapsed: boolean }) {
-  const span = (
-    <span
-      className={`${item} ${collapsed ? itemCollapsed : ""} cursor-not-allowed opacity-50 hover:bg-transparent`}
-    >
-      <Users className="size-5 shrink-0" />
-      {!collapsed && (
-        <>
-          Groups
-          <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Soon
-          </span>
-        </>
-      )}
-    </span>
-  );
-
-  if (!collapsed) return span;
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>{span}</TooltipTrigger>
-      <TooltipContent side="right">Groups — coming soon</TooltipContent>
-    </Tooltip>
-  );
-}
-
 export function Sidebar() {
   const { isAdmin } = useProfile();
   const [collapsed, setCollapsed] = useState(false);
@@ -132,10 +105,35 @@ export function Sidebar() {
         <NavLink to="/" icon={Home} label="Home" collapsed={collapsed} exact />
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
-        <GroupsItem collapsed={collapsed} />
-        <NavLink to="/garage" icon={Warehouse} label="My Garage" collapsed={collapsed} requireAuth />
-        <NavLink to="/messages" icon={MessageCircle} label="Messages" collapsed={collapsed} requireAuth />
-        <NavLink to="/settings" icon={Settings} label="Settings" collapsed={collapsed} requireAuth />
+        <NavLink to="/groups" icon={Users} label="Groups" collapsed={collapsed} />
+        <NavLink to="/ask" icon={MessageCircle} label="Ask for help" collapsed={collapsed} />
+        <NavLink
+          to="/community-standards"
+          icon={ShieldCheck}
+          label="Community standards"
+          collapsed={collapsed}
+        />
+        <NavLink
+          to="/garage"
+          icon={Warehouse}
+          label="My Garage"
+          collapsed={collapsed}
+          requireAuth
+        />
+        <NavLink
+          to="/messages"
+          icon={MessageCircle}
+          label="Messages"
+          collapsed={collapsed}
+          requireAuth
+        />
+        <NavLink
+          to="/settings"
+          icon={Settings}
+          label="Settings"
+          collapsed={collapsed}
+          requireAuth
+        />
         {isAdmin && <NavLink to="/admin" icon={ShieldCheck} label="Admin" collapsed={collapsed} />}
       </nav>
 
@@ -145,10 +143,16 @@ export function Sidebar() {
             onClick={toggle}
             className="mt-auto flex items-center justify-center self-end rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
-            {collapsed ? <PanelLeft className="size-5 shrink-0" /> : <PanelLeftClose className="size-5 shrink-0" />}
+            {collapsed ? (
+              <PanelLeft className="size-5 shrink-0" />
+            ) : (
+              <PanelLeftClose className="size-5 shrink-0" />
+            )}
           </button>
         </TooltipTrigger>
-        <TooltipContent side="right">{collapsed ? "Expand sidebar" : "Collapse sidebar"}</TooltipContent>
+        <TooltipContent side="right">
+          {collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        </TooltipContent>
       </Tooltip>
     </aside>
   );

@@ -8,6 +8,8 @@ import {
   attachImagesToPost,
   createPost,
   uploadPostImage,
+  uploadGroupPostImage,
+  deletePost,
   MAX_IMAGES_PER_POST,
   POST_CATEGORY_LABELS,
   type Post,
@@ -19,12 +21,14 @@ import type { GarageCar } from "@/lib/garage";
 
 export function PostComposer({
   onPosted,
+  lockedGroup,
   requiredCarIdentity = false,
   garageCars = [],
   preferredGarageCarId = null,
   onGarageCarSelected,
 }: {
   onPosted: () => void;
+  lockedGroup?: { id: string; name: string; postPolicy: "member" | "moderated" };
   requiredCarIdentity?: boolean;
   garageCars?: GarageCar[];
   preferredGarageCarId?: string | null;
@@ -127,11 +131,29 @@ export function PostComposer({
         carId: carId || undefined,
         postedAsGarageCarId: postingAs || undefined,
         category,
+        groupId: lockedGroup?.id,
       });
       if (images.length > 0) {
-        const urls = await Promise.all(images.map((img) => uploadPostImage(user.id, img.file)));
-        await attachImagesToPost(postId, urls);
+        try {
+          const urls = await Promise.all(
+            images.map((img) =>
+              lockedGroup
+                ? uploadGroupPostImage(user.id, postId, img.file)
+                : uploadPostImage(user.id, img.file),
+            ),
+          );
+          await attachImagesToPost(postId, urls);
+        } catch (error) {
+          // Remove the incomplete post so retrying cannot publish duplicates.
+          await deletePost(postId);
+          throw error;
+        }
       }
+      toast.success(
+        lockedGroup?.postPolicy === "moderated"
+          ? "Post submitted. Group moderators may need to approve it."
+          : "Post published.",
+      );
       resetForm();
       onPosted();
     } catch (err) {
@@ -143,11 +165,18 @@ export function PostComposer({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-border bg-card p-4">
+      {lockedGroup && (
+        <p className="text-xs font-medium text-primary">
+          Posting in {lockedGroup.name} ·{" "}
+          {lockedGroup.postPolicy === "moderated" ? "Posts may need approval" : "Group members"}
+        </p>
+      )}
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
         onFocus={() => !user && openAuthModal("Create a free account to post to the feed.")}
         placeholder="What are you working on?"
+        maxLength={10000}
         rows={3}
         className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
       />
@@ -180,7 +209,7 @@ export function PostComposer({
                 className="size-4 rounded-full"
               />
             )}
-            Personal-profile posts can only appear in All Cars.
+            Use your profile in All Cars or groups. Choose an owned car for the car feeds.
           </p>
         </div>
       )}
@@ -199,7 +228,8 @@ export function PostComposer({
               <button
                 type="button"
                 onClick={() => removeImage(i)}
-                className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                aria-label={`Remove photo ${i + 1}`}
+                className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"
               >
                 <X className="size-3" />
               </button>

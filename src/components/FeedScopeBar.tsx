@@ -26,7 +26,7 @@ export function FeedScopeBar({
       {(registerRef) =>
         SCOPES.map(({ id, label, icon: Icon }) => {
           const active = scope === id;
-          const disabled = id === "my_car" || id === "same_brand" ? !hasGarageCars : id === "my_groups";
+          const disabled = id === "my_car" || id === "same_brand" ? !hasGarageCars : false;
           const button = (
             <button
               key={id}
@@ -50,9 +50,7 @@ export function FeedScopeBar({
           return (
             <Tooltip key={id}>
               <TooltipTrigger asChild>{button}</TooltipTrigger>
-              <TooltipContent>
-                {id === "my_groups" ? "Groups — coming soon" : "Add a car to your garage to unlock this"}
-              </TooltipContent>
+              <TooltipContent>Add a car to your garage to unlock this</TooltipContent>
             </Tooltip>
           );
         })

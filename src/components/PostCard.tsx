@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { Flag, Heart, MessageCircle, Share2, Trash2, UserX } from "lucide-react";
@@ -24,13 +25,20 @@ export function PostCard({
   post,
   liked: initiallyLiked,
   onDeleted,
+  canModerate = false,
+  onHide,
 }: {
   post: PostWithAuthor;
   liked: boolean;
   onDeleted?: () => void;
+  canModerate?: boolean;
+  onHide?: () => void;
 }) {
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
+  const [liking, setLiking] = useState(false);
+  const [commentSaving, setCommentSaving] = useState(false);
   const [liked, setLiked] = useState(initiallyLiked);
   const [likesCount, setLikesCount] = useState(post.likes_count);
   const [commentsOpen, setCommentsOpen] = useState(false);
@@ -50,12 +58,13 @@ export function PostCard({
   useEffect(() => setLikesCount(post.likes_count), [post.likes_count, post.id]);
   useEffect(() => setCommentsCount(post.comments_count), [post.comments_count, post.id]);
 
-
   async function toggleLike() {
+    if (liking) return;
     if (!user) {
       openAuthModal("Create a free account to like posts.");
       return;
     }
+    setLiking(true);
     const next = !liked;
     setLiked(next);
     setLikesCount((n) => n + (next ? 1 : -1));
@@ -66,6 +75,8 @@ export function PostCard({
       setLiked(!next);
       setLikesCount((n) => n + (next ? -1 : 1));
       toast.error(err instanceof Error ? err.message : "Couldn't update like");
+    } finally {
+      setLiking(false);
     }
   }
 
@@ -86,24 +97,27 @@ export function PostCard({
 
   async function handleAddComment(e: React.FormEvent) {
     e.preventDefault();
-    if (!commentBody.trim()) return;
+    if (!commentBody.trim() || commentSaving) return;
     if (!user) {
       openAuthModal("Create a free account to comment.");
       return;
     }
     const body = commentBody.trim();
-    setCommentBody("");
+    setCommentSaving(true);
     try {
       await addComment(post.id, user.id, body);
+      setCommentBody("");
       setCommentsCount((n) => n + 1);
       setComments(await fetchComments(post.id));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't post comment");
+    } finally {
+      setCommentSaving(false);
     }
   }
 
   async function handleShare() {
-    const url = `${window.location.origin}/?post=${post.id}`;
+    const url = `${window.location.origin}/posts/${post.id}`;
     try {
       await navigator.clipboard.writeText(url);
       toast.success("Link copied");
@@ -151,6 +165,7 @@ export function PostCard({
     try {
       await blockProfile(user.id, post.user_id);
       setDeleted(true);
+      await queryClient.invalidateQueries();
       onDeleted?.();
       toast.success("Profile blocked.");
     } catch (err) {
@@ -224,6 +239,32 @@ export function PostCard({
         </div>
       </header>
 
+      {post.community_groups && (
+        <Link
+          to="/groups/$slug"
+          params={{ slug: post.community_groups.slug }}
+          className="mt-3 block text-xs font-semibold text-primary"
+        >
+          {post.community_groups.name} ·{" "}
+          {post.community_groups.visibility === "private" ? "Private group" : "Group"}
+        </Link>
+      )}
+      {post.moderation_status === "pending" && (
+        <p className="mt-2 text-xs text-amber-600">Awaiting moderator approval</p>
+      )}
+      {post.moderation_status === "rejected" && (
+        <p className="mt-2 text-xs text-destructive">Hidden by group moderators</p>
+      )}
+      {canModerate && post.group_id && post.moderation_status === "published" && (
+        <button
+          onClick={() => {
+            if (window.confirm("Hide this post from the group?")) onHide?.();
+          }}
+          className="mt-2 text-xs text-destructive"
+        >
+          Hide post
+        </button>
+      )}
       {post.cars && (
         <Link
           {...carPath(post.cars)}
@@ -256,9 +297,10 @@ export function PostCard({
         </div>
       )}
 
-      <div className="mt-4 flex items-center gap-5 border-t border-border pt-3 text-sm text-muted-foreground">
+      <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-border pt-3 text-sm text-muted-foreground">
         <button
           onClick={toggleLike}
+          disabled={liking}
           className={`flex items-center gap-1.5 hover:text-foreground ${liked ? "text-red-500 hover:text-red-500" : ""}`}
         >
           <Heart
@@ -369,11 +411,11 @@ export function PostCard({
               onChange={(e) => setCommentBody(e.target.value)}
               onFocus={() => !user && openAuthModal("Create a free account to comment.")}
               placeholder="Write a comment…"
-              className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+              className="min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm"
             />
             <button
               type="submit"
-              disabled={!commentBody.trim()}
+              disabled={commentSaving || !commentBody.trim()}
               className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               Post

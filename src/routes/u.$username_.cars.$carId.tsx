@@ -30,7 +30,11 @@ function CarProfilePage() {
 
   const { data: likedIds } = useQuery({
     queryKey: ["posts-by-garage-car", "liked", user?.id, posts?.map((p) => p.id)],
-    queryFn: () => fetchMyLikedPostIds(user!.id, posts!.map((p) => p.id)),
+    queryFn: () =>
+      fetchMyLikedPostIds(
+        user!.id,
+        posts!.map((p) => p.id),
+      ),
     enabled: !!user && !!posts && posts.length > 0,
   });
 
@@ -51,7 +55,11 @@ function CarProfilePage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <Link to="/u/$username" params={{ username }} className="text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        to="/u/$username"
+        params={{ username }}
+        className="text-sm text-muted-foreground hover:text-foreground"
+      >
         ← Back to {username}'s garage
       </Link>
 

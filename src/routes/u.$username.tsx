@@ -84,7 +84,11 @@ function GarageProfilePage() {
 
   const { data: likedPostIds } = useQuery({
     queryKey: ["posts-by-user", "liked", user?.id, posts?.map((p) => p.id)],
-    queryFn: () => fetchMyLikedPostIds(user!.id, posts!.map((p) => p.id)),
+    queryFn: () =>
+      fetchMyLikedPostIds(
+        user!.id,
+        posts!.map((p) => p.id),
+      ),
     enabled: !!user && !!posts && posts.length > 0,
   });
 

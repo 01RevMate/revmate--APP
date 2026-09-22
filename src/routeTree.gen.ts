@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AskRouteImport } from './routes/ask'
+import { Route as CommunityStandardsRouteImport } from './routes/community-standards'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as GarageRouteImport } from './routes/garage'
 import { Route as LoginRouteImport } from './routes/login'
@@ -22,7 +23,10 @@ import { Route as SellRouteImport } from './routes/sell'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
+import { Route as GroupsIndexRouteImport } from './routes/groups/index'
+import { Route as GroupsSlugRouteImport } from './routes/groups/$slug'
 import { Route as MessagesUsernameRouteImport } from './routes/messages.$username'
+import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as CarsMakeModelGenerationRouteImport } from './routes/cars/$make.$model.$generation'
 import { Route as UUsernameCarsCarIdRouteImport } from './routes/u.$username_.cars.$carId'
@@ -40,6 +44,11 @@ const AdminRoute = AdminRouteImport.update({
 const AskRoute = AskRouteImport.update({
   id: '/ask',
   path: '/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityStandardsRoute = CommunityStandardsRouteImport.update({
+  id: '/community-standards',
+  path: '/community-standards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -92,10 +101,25 @@ const CarsIndexRoute = CarsIndexRouteImport.update({
   path: '/cars/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GroupsIndexRoute = GroupsIndexRouteImport.update({
+  id: '/groups/',
+  path: '/groups/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GroupsSlugRoute = GroupsSlugRouteImport.update({
+  id: '/groups/$slug',
+  path: '/groups/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MessagesUsernameRoute = MessagesUsernameRouteImport.update({
   id: '/$username',
   path: '/$username',
   getParentRoute: () => MessagesRoute,
+} as any)
+const PostsPostIdRoute = PostsPostIdRouteImport.update({
+  id: '/posts/$postId',
+  path: '/posts/$postId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
@@ -117,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ask': typeof AskRoute
+  '/community-standards': typeof CommunityStandardsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
   '/login': typeof LoginRoute
@@ -126,9 +151,12 @@ export interface FileRoutesByFullPath {
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/groups/$slug': typeof GroupsSlugRoute
   '/messages/$username': typeof MessagesUsernameRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/u/$username': typeof UUsernameRoute
   '/cars/': typeof CarsIndexRoute
+  '/groups/': typeof GroupsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
@@ -136,6 +164,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ask': typeof AskRoute
+  '/community-standards': typeof CommunityStandardsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
   '/login': typeof LoginRoute
@@ -145,9 +174,12 @@ export interface FileRoutesByTo {
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/groups/$slug': typeof GroupsSlugRoute
   '/messages/$username': typeof MessagesUsernameRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/u/$username': typeof UUsernameRoute
   '/cars': typeof CarsIndexRoute
+  '/groups': typeof GroupsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
@@ -156,6 +188,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/ask': typeof AskRoute
+  '/community-standards': typeof CommunityStandardsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
   '/login': typeof LoginRoute
@@ -165,9 +198,12 @@ export interface FileRoutesById {
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/groups/$slug': typeof GroupsSlugRoute
   '/messages/$username': typeof MessagesUsernameRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/u/$username': typeof UUsernameRoute
   '/cars/': typeof CarsIndexRoute
+  '/groups/': typeof GroupsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username_/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
@@ -177,6 +213,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ask'
+    | '/community-standards'
     | '/forgot-password'
     | '/garage'
     | '/login'
@@ -186,9 +223,12 @@ export interface FileRouteTypes {
     | '/sell'
     | '/settings'
     | '/signup'
+    | '/groups/$slug'
     | '/messages/$username'
+    | '/posts/$postId'
     | '/u/$username'
     | '/cars/'
+    | '/groups/'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
   fileRoutesByTo: FileRoutesByTo
@@ -196,6 +236,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ask'
+    | '/community-standards'
     | '/forgot-password'
     | '/garage'
     | '/login'
@@ -205,9 +246,12 @@ export interface FileRouteTypes {
     | '/sell'
     | '/settings'
     | '/signup'
+    | '/groups/$slug'
     | '/messages/$username'
+    | '/posts/$postId'
     | '/u/$username'
     | '/cars'
+    | '/groups'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
   id:
@@ -215,6 +259,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ask'
+    | '/community-standards'
     | '/forgot-password'
     | '/garage'
     | '/login'
@@ -224,9 +269,12 @@ export interface FileRouteTypes {
     | '/sell'
     | '/settings'
     | '/signup'
+    | '/groups/$slug'
     | '/messages/$username'
+    | '/posts/$postId'
     | '/u/$username'
     | '/cars/'
+    | '/groups/'
     | '/cars/$make/$model/$generation'
     | '/u/$username_/cars/$carId'
   fileRoutesById: FileRoutesById
@@ -235,6 +283,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AskRoute: typeof AskRoute
+  CommunityStandardsRoute: typeof CommunityStandardsRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   GarageRoute: typeof GarageRoute
   LoginRoute: typeof LoginRoute
@@ -244,8 +293,11 @@ export interface RootRouteChildren {
   SellRoute: typeof SellRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
+  GroupsSlugRoute: typeof GroupsSlugRoute
+  PostsPostIdRoute: typeof PostsPostIdRoute
   UUsernameRoute: typeof UUsernameRoute
   CarsIndexRoute: typeof CarsIndexRoute
+  GroupsIndexRoute: typeof GroupsIndexRoute
   CarsMakeModelGenerationRoute: typeof CarsMakeModelGenerationRoute
   UUsernameCarsCarIdRoute: typeof UUsernameCarsCarIdRoute
 }
@@ -271,6 +323,13 @@ declare module '@tanstack/react-router' {
       path: '/ask'
       fullPath: '/ask'
       preLoaderRoute: typeof AskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community-standards': {
+      id: '/community-standards'
+      path: '/community-standards'
+      fullPath: '/community-standards'
+      preLoaderRoute: typeof CommunityStandardsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -343,12 +402,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CarsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/groups/': {
+      id: '/groups/'
+      path: '/groups'
+      fullPath: '/groups/'
+      preLoaderRoute: typeof GroupsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/groups/$slug': {
+      id: '/groups/$slug'
+      path: '/groups/$slug'
+      fullPath: '/groups/$slug'
+      preLoaderRoute: typeof GroupsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/messages/$username': {
       id: '/messages/$username'
       path: '/$username'
       fullPath: '/messages/$username'
       preLoaderRoute: typeof MessagesUsernameRouteImport
       parentRoute: typeof MessagesRoute
+    }
+    '/posts/$postId': {
+      id: '/posts/$postId'
+      path: '/posts/$postId'
+      fullPath: '/posts/$postId'
+      preLoaderRoute: typeof PostsPostIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/u/$username': {
       id: '/u/$username'
@@ -390,6 +470,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AskRoute: AskRoute,
+  CommunityStandardsRoute: CommunityStandardsRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   GarageRoute: GarageRoute,
   LoginRoute: LoginRoute,
@@ -399,8 +480,11 @@ const rootRouteChildren: RootRouteChildren = {
   SellRoute: SellRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
+  GroupsSlugRoute: GroupsSlugRoute,
+  PostsPostIdRoute: PostsPostIdRoute,
   UUsernameRoute: UUsernameRoute,
   CarsIndexRoute: CarsIndexRoute,
+  GroupsIndexRoute: GroupsIndexRoute,
   CarsMakeModelGenerationRoute: CarsMakeModelGenerationRoute,
   UUsernameCarsCarIdRoute: UUsernameCarsCarIdRoute,
 }

@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, Home, Car, ShoppingBag, Users, Warehouse, MessageCircle, Settings, ShieldCheck } from "lucide-react";
+import {
+  Menu,
+  Home,
+  Car,
+  ShoppingBag,
+  Users,
+  Warehouse,
+  MessageCircle,
+  Settings,
+  ShieldCheck,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
@@ -74,16 +84,35 @@ export function MobileMenu() {
           <MenuLink to="/" icon={Home} label="Home" onNavigate={close} />
           <MenuLink to="/cars" icon={Car} label="Browse Cars" onNavigate={close} />
           <MenuLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" onNavigate={close} />
-          <span className="flex cursor-not-allowed items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground/50">
-            <Users className="size-5 shrink-0" />
-            Groups
-            <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Soon
-            </span>
-          </span>
-          <MenuLink to="/garage" icon={Warehouse} label="My Garage" requireAuth onNavigate={close} />
-          <MenuLink to="/messages" icon={MessageCircle} label="Messages" requireAuth onNavigate={close} />
-          <MenuLink to="/settings" icon={Settings} label="Settings" requireAuth onNavigate={close} />
+          <MenuLink to="/groups" icon={Users} label="Groups" onNavigate={close} />
+          <MenuLink to="/ask" icon={MessageCircle} label="Ask for help" onNavigate={close} />
+          <MenuLink
+            to="/community-standards"
+            icon={ShieldCheck}
+            label="Community standards"
+            onNavigate={close}
+          />
+          <MenuLink
+            to="/garage"
+            icon={Warehouse}
+            label="My Garage"
+            requireAuth
+            onNavigate={close}
+          />
+          <MenuLink
+            to="/messages"
+            icon={MessageCircle}
+            label="Messages"
+            requireAuth
+            onNavigate={close}
+          />
+          <MenuLink
+            to="/settings"
+            icon={Settings}
+            label="Settings"
+            requireAuth
+            onNavigate={close}
+          />
           {isAdmin && <MenuLink to="/admin" icon={ShieldCheck} label="Admin" onNavigate={close} />}
         </nav>
       </SheetContent>
