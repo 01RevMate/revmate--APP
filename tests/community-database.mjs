@@ -26,7 +26,9 @@ await db.exec(`
  GRANT SELECT,INSERT,DELETE ON storage.objects TO anon,authenticated;
  CREATE FUNCTION storage.foldername(text) RETURNS text[] LANGUAGE sql AS $$ SELECT string_to_array($1,'/') $$;
 `);
-for (const file of (await readdir("drizzle/migrations")).filter((f) => f.endsWith(".sql")).sort()) {
+for (const file of (await readdir("drizzle/migrations"))
+  .filter((f) => /^\d{4}_[a-z0-9_]+\.sql$/.test(f))
+  .sort()) {
   try {
     await db.exec(await readFile(`drizzle/migrations/${file}`, "utf8"));
   } catch (error) {
@@ -113,6 +115,7 @@ await denied(member, `UPDATE posts SET moderation_status='published' WHERE id=$1
 await denied(outsider, `SELECT review_group_post($1,'published')`, [p.id]);
 await as(mod, `SELECT review_group_post($1,'published')`, [p.id]);
 await count(member, "posts", "id=$1", [p.id], 1);
+await count(member, "notifications", "kind='post_review' AND post_id=$1", [p.id], 1);
 await denied(member, `UPDATE posts SET group_id=NULL WHERE id=$1`, [p.id]);
 await denied(outsider, `INSERT INTO posts(user_id,body,group_id) VALUES($1,'Intrusion',$2)`, [
   outsider,
@@ -227,11 +230,13 @@ const scopedPost = (
 ).rows[0].id;
 await as(owner, `INSERT INTO posts(user_id,body) VALUES($1,'General person discussion')`, [owner]);
 await as(mod, `INSERT INTO friendships(requester_id,recipient_id) VALUES($1,$2)`, [mod, owner]);
+await count(owner, "notifications", "kind='friend_request' AND actor_id=$1", [mod], 1);
 await as(
   owner,
   `UPDATE friendships SET status='accepted' WHERE requester_id=$1 AND recipient_id=$2`,
   [mod, owner],
 );
+await count(mod, "notifications", "kind='friend_accepted' AND actor_id=$1", [owner], 1);
 const friendPost = (
   await as(
     mod,
@@ -286,6 +291,25 @@ await as(mod, `INSERT INTO post_images(post_id,image_url) VALUES($1,$2)`, [
 ]);
 await count(owner, "storage.objects", "name=$1", [`${mod}/${friendPost}/friends-photo`], 1);
 await count(outsider, "storage.objects", "name=$1", [`${mod}/${friendPost}/friends-photo`], 0);
+await as(pending, `INSERT INTO garage_car_likes(garage_car_id,user_id) VALUES($1,$2)`, [
+  ownCar,
+  pending,
+]);
+await count(owner, "notifications", "kind='car_like' AND garage_car_id=$1", [ownCar], 1);
+const questionCar = (await as(owner, `SELECT id FROM cars ORDER BY id LIMIT 1`)).rows[0].id;
+const question = (
+  await as(
+    owner,
+    `INSERT INTO questions(car_id,user_id,title,body) VALUES($1,$2,'Battery help','Testing notifications') RETURNING id`,
+    [questionCar, owner],
+  )
+).rows[0].id;
+await as(
+  pending,
+  `INSERT INTO answers(question_id,user_id,body) VALUES($1,$2,'Check the battery voltage')`,
+  [question, pending],
+);
+await count(owner, "notifications", "kind='answer' AND question_id=$1", [question], 1);
 await as(
   owner,
   `INSERT INTO post_comments(post_id,user_id,body) VALUES($1,$2,'Visible to friends')`,
@@ -381,6 +405,8 @@ const photoPost = (
     owner,
   ])
 ).rows[0].id;
+await as(peer, `INSERT INTO post_likes(post_id,user_id) VALUES($1,$2)`, [photoPost, peer]);
+await count(owner, "notifications", "kind='like' AND post_id=$1", [photoPost], 1);
 for (let i = 0; i < 5; i++)
   await as(owner, `INSERT INTO post_images(post_id,image_url,position) VALUES($1,$2,$3)`, [
     photoPost,
@@ -398,5 +424,19 @@ await denied(owner, `INSERT INTO notifications(user_id,actor_id,kind) VALUES($1,
   owner,
 ]);
 await count(pending, "notifications", "user_id=$1", [owner], 0);
+await denied(owner, `SELECT send_app_update('A new feature is ready','/')`);
+await denied(admin, `SELECT send_app_update('A new feature is ready','https://example.test')`);
+const updateCount = (
+  await as(admin, `SELECT send_app_update('A new feature is ready','/groups') n`)
+).rows[0].n;
+assert.equal(updateCount, 5);
+checks++;
+await count(
+  pending,
+  "notifications",
+  "kind='app_update' AND message='A new feature is ready' AND action_url='/groups'",
+  [],
+  1,
+);
 console.log(`PASS: migrations applied locally; ${checks} permission and lifecycle assertions.`);
 await db.close();

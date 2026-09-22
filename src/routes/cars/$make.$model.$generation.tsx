@@ -46,7 +46,11 @@ function CarPage() {
 
   const { data: likedIds } = useQuery({
     queryKey: ["posts-by-car", "liked", car?.id, user?.id],
-    queryFn: () => fetchMyLikedPostIds(user!.id, posts.data!.map((p) => p.id)),
+    queryFn: () =>
+      fetchMyLikedPostIds(
+        user!.id,
+        posts.data!.map((p) => p.id),
+      ),
     enabled: !!user && !!posts.data && posts.data.length > 0,
   });
 
@@ -217,7 +221,11 @@ function CarPage() {
         </Link>
         <ul className="mt-4 space-y-3">
           {questions.data?.map((question) => (
-            <li key={question.id} className="rounded-lg border border-border p-4">
+            <li
+              key={question.id}
+              id={`question-${question.id}`}
+              className="scroll-mt-24 rounded-lg border border-border p-4"
+            >
               <p className="font-medium">{question.title}</p>
               {question.body && (
                 <p className="mt-1 text-sm text-muted-foreground">{question.body}</p>

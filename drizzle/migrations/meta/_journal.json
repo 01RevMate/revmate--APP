@@ -162,6 +162,13 @@
       "when": 1790110106704,
       "tag": "0022_fix_community_feed_group_membership",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1790116200000,
+      "tag": "0023_complete_in_app_notifications",
+      "breakpoints": true
     }
   ]
 }

@@ -1,12 +1,65 @@
-import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, X } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import {
+  Bell,
+  Car,
+  CheckCircle2,
+  Heart,
+  HelpCircle,
+  Megaphone,
+  MessageCircle,
+  ShieldCheck,
+  UserPlus,
+  Users,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
+import type { Tables } from "@/integrations/supabase/types";
+
+type NotificationWithContext = Tables<"notifications"> & {
+  actor: Pick<Tables<"profiles">, "username"> | null;
+  community_groups: Pick<Tables<"community_groups">, "slug" | "name"> | null;
+};
+
+function notificationDetails(notification: NotificationWithContext) {
+  const actor = displayUsernameWithoutAt(notification.actor?.username, "A member");
+  const group = notification.community_groups?.name ?? "the group";
+  switch (notification.kind) {
+    case "comment":
+      return { Icon: MessageCircle, text: `${actor} commented on your post` };
+    case "like":
+      return { Icon: Heart, text: `${actor} liked your post` };
+    case "friend_request":
+      return { Icon: UserPlus, text: `${actor} sent you a friend request` };
+    case "friend_accepted":
+      return { Icon: CheckCircle2, text: `${actor} accepted your friend request` };
+    case "car_like":
+      return { Icon: Car, text: `${actor} liked a car in your garage` };
+    case "answer":
+      return { Icon: HelpCircle, text: `${actor} answered your question` };
+    case "join_request":
+      return { Icon: Users, text: `${actor} requested to join ${group}` };
+    case "membership":
+      return {
+        Icon: Users,
+        text: `${actor} ${notification.message ?? "updated your membership in"} ${group}`,
+      };
+    case "post_review":
+      return {
+        Icon: ShieldCheck,
+        text: `${actor} ${notification.message ?? "reviewed your post in"} ${group}`,
+      };
+    case "app_update":
+      return { Icon: Megaphone, text: notification.message ?? "There is a new RevMate update" };
+    default:
+      return { Icon: Bell, text: "You have a new RevMate notification" };
+  }
+}
 
 export function NotificationCenter() {
   const { user } = useAuth();
@@ -21,7 +74,7 @@ export function NotificationCenter() {
   } = useQuery({
     queryKey: ["notifications", user?.id],
     enabled: !!user,
-    refetchInterval: 30000,
+    refetchInterval: 15000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("notifications")
@@ -34,6 +87,25 @@ export function NotificationCenter() {
       return data;
     },
   });
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`notifications:${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => client.invalidateQueries({ queryKey: ["notifications", user.id] }),
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [client, user]);
   const unread = notifications.filter((n) => !n.read_at).length;
   async function markRead(id?: string) {
     let query = supabase
@@ -94,42 +166,42 @@ export function NotificationCenter() {
               Replies, likes and group updates will appear here.
             </p>
           )}
-          {notifications.map((n) => (
-            <div
-              key={n.id}
-              className={`flex items-center border-b p-3 ${n.read_at ? "" : "bg-primary/5"}`}
-            >
-              <Link
-                to={n.post_id ? "/posts/$postId" : "/groups/$slug"}
-                params={
-                  n.post_id ? { postId: n.post_id } : { slug: n.community_groups?.slug ?? "" }
-                }
-                onClick={() => {
-                  markRead(n.id);
-                  setOpen(false);
-                }}
-                className="min-w-0 flex-1 text-sm"
+          {(notifications as NotificationWithContext[]).map((n) => {
+            const { Icon, text } = notificationDetails(n);
+            return (
+              <div
+                key={n.id}
+                className={`flex items-center border-b p-3 ${n.read_at ? "" : "bg-primary/5"}`}
               >
-                <span className="font-medium">{displayUsernameWithoutAt(n.actor?.username, "A member")}</span>
-                {n.kind === "comment"
-                  ? " commented on your post"
-                  : n.kind === "like"
-                    ? " liked your post"
-                    : n.kind === "join_request"
-                      ? ` requested to join ${n.community_groups?.name ?? "your group"}`
-                      : ` updated your membership in ${n.community_groups?.name ?? "a group"}`}
-                .
-              </Link>
-              <button
-                onClick={() => remove(n.id)}
-                disabled={busy}
-                aria-label="Dismiss notification"
-                className="ml-2 rounded p-2 hover:bg-accent"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-          ))}
+                <a
+                  href={n.action_url ?? "/"}
+                  onClick={() => {
+                    void markRead(n.id);
+                    setOpen(false);
+                  }}
+                  className="flex min-w-0 flex-1 items-start gap-2.5 text-sm"
+                >
+                  <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
+                    <Icon className="size-4" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block leading-snug">{text}</span>
+                    <span className="mt-0.5 block text-[11px] text-muted-foreground">
+                      {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                    </span>
+                  </span>
+                </a>
+                <button
+                  onClick={() => remove(n.id)}
+                  disabled={busy}
+                  aria-label="Dismiss notification"
+                  className="ml-2 rounded p-2 hover:bg-accent"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            );
+          })}
         </div>
       </PopoverContent>
     </Popover>

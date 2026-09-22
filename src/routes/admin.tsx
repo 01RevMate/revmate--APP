@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   Car,
   FileWarning,
+  Megaphone,
   Shield,
   ShieldCheck,
   Trash2,
@@ -28,6 +29,7 @@ import {
   updateProfileRole,
 } from "@/lib/moderation";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
+import { sendAppUpdate } from "@/lib/notifications";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async () => {
@@ -46,9 +48,15 @@ export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
       { title: "Safety & Admin — RevMate" },
-      { name: "description", content: "Moderate RevMate reports, accounts, protected terms and car pages." },
+      {
+        name: "description",
+        content: "Moderate RevMate reports, accounts, protected terms and car pages.",
+      },
       { property: "og:title", content: "Safety & Admin — RevMate" },
-      { property: "og:description", content: "Moderate RevMate reports, accounts, protected terms and car pages." },
+      {
+        property: "og:description",
+        content: "Moderate RevMate reports, accounts, protected terms and car pages.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -56,7 +64,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type AdminSection = "reports" | "people" | "protect" | "cars";
+type AdminSection = "reports" | "people" | "protect" | "updates" | "cars";
 
 function AdminPage() {
   const { user } = useAuth();
@@ -66,6 +74,9 @@ function AdminPage() {
   const [peopleSearch, setPeopleSearch] = useState("");
   const [newTerm, setNewTerm] = useState("");
   const [newTermType, setNewTermType] = useState<"word" | "phrase">("phrase");
+  const [updateMessage, setUpdateMessage] = useState("");
+  const [updateUrl, setUpdateUrl] = useState("/");
+  const [sendingUpdate, setSendingUpdate] = useState(false);
 
   const reportsQuery = useQuery({ queryKey: ["admin", "reports"], queryFn: fetchAdminReports });
   const profilesQuery = useQuery({ queryKey: ["admin", "profiles"], queryFn: fetchAdminProfiles });
@@ -116,9 +127,15 @@ function AdminPage() {
     }
     const action = status === "active" ? "restore" : status;
     const note =
-      status === "active" ? "" : window.prompt(`Reason to ${action} ${displayUsernameWithoutAt(username)}:`)?.trim();
+      status === "active"
+        ? ""
+        : window.prompt(`Reason to ${action} ${displayUsernameWithoutAt(username)}:`)?.trim();
     if (status !== "active" && !note) return false;
-    if (!window.confirm(`${action[0]!.toUpperCase()}${action.slice(1)} ${displayUsernameWithoutAt(username)}?`))
+    if (
+      !window.confirm(
+        `${action[0]!.toUpperCase()}${action.slice(1)} ${displayUsernameWithoutAt(username)}?`,
+      )
+    )
       return false;
     try {
       await updateAccountAccess(userId, status, note ?? "");
@@ -192,6 +209,25 @@ function AdminPage() {
     }
   }
 
+  async function publishAppUpdate(e: React.FormEvent) {
+    e.preventDefault();
+    const message = updateMessage.trim();
+    const url = updateUrl.trim() || "/";
+    if (message.length < 4 || sendingUpdate) return;
+    if (!window.confirm("Send this in-app update to every active RevMate account?")) return;
+    setSendingUpdate(true);
+    try {
+      const sent = await sendAppUpdate(message, url);
+      setUpdateMessage("");
+      setUpdateUrl("/");
+      toast.success(`Update sent to ${sent} active account${sent === 1 ? "" : "s"}.`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't send the update");
+    } finally {
+      setSendingUpdate(false);
+    }
+  }
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="text-2xl font-semibold tracking-tight">Safety & Admin</h1>
@@ -205,6 +241,7 @@ function AdminPage() {
             ["reports", "Reports", FileWarning],
             ["people", "People", UserCog],
             ["protect", "Protect Posts", Shield],
+            ["updates", "App Updates", Megaphone],
             ["cars", "Car pages", Car],
           ] as const
         ).map(([id, label, Icon]) => (
@@ -276,8 +313,11 @@ function AdminPage() {
                     </p>
                   )}
                   <p className="mt-3 text-xs text-muted-foreground">
-                     Posted by {displayUsernameWithoutAt(report.reported_profile?.username, "unknown")} · reported by {displayUsernameWithoutAt(report.reporter?.username, "unknown")} · {accountReports?.total ?? 0} total
-                    reports from {accountReports?.reporters.size ?? 0} people
+                    Posted by{" "}
+                    {displayUsernameWithoutAt(report.reported_profile?.username, "unknown")} ·
+                    reported by {displayUsernameWithoutAt(report.reporter?.username, "unknown")} ·{" "}
+                    {accountReports?.total ?? 0} total reports from{" "}
+                    {accountReports?.reporters.size ?? 0} people
                   </p>
                   {report.status === "open" && (
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -368,7 +408,7 @@ function AdminPage() {
                       params={{ username: profile.username }}
                       className="font-semibold hover:underline"
                     >
-                       {displayUsernameWithoutAt(profile.username)}
+                      {displayUsernameWithoutAt(profile.username)}
                     </Link>
                     <p className="text-xs text-muted-foreground">
                       {profile.role} · {profile.account_status} · {count} reports ·{" "}
@@ -498,6 +538,59 @@ function AdminPage() {
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {section === "updates" && (
+        <section className="mt-6 max-w-2xl">
+          <h2 className="text-lg font-semibold">App updates</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Send a short announcement to every active RevMate account. It appears in the in-app
+            notification bell; no email, text message, or push notification is sent.
+          </p>
+          <form
+            onSubmit={publishAppUpdate}
+            className="mt-5 space-y-4 rounded-xl border border-border bg-card p-5"
+          >
+            <label className="block">
+              <span className="text-sm font-medium">Update message</span>
+              <textarea
+                value={updateMessage}
+                onChange={(e) => setUpdateMessage(e.target.value)}
+                minLength={4}
+                maxLength={500}
+                required
+                rows={4}
+                placeholder="Tell members what is new…"
+                className="mt-1.5 w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+              <span className="mt-1 block text-right text-xs text-muted-foreground">
+                {updateMessage.length}/500
+              </span>
+            </label>
+            <label className="block">
+              <span className="text-sm font-medium">Open this page when tapped</span>
+              <input
+                value={updateUrl}
+                onChange={(e) => setUpdateUrl(e.target.value)}
+                required
+                pattern="^/(?!/).*$"
+                placeholder="/"
+                className="mt-1.5 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+              <span className="mt-1 block text-xs text-muted-foreground">
+                Use an internal RevMate path, for example /groups or /garage.
+              </span>
+            </label>
+            <button
+              type="submit"
+              disabled={sendingUpdate || updateMessage.trim().length < 4}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+            >
+              <Megaphone className="size-4" />
+              {sendingUpdate ? "Sending…" : "Send app update"}
+            </button>
+          </form>
         </section>
       )}
 
