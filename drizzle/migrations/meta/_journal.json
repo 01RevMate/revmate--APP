@@ -141,6 +141,13 @@
       "when": 1790110800000,
       "tag": "0019_friends_only_feed",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1790110045027,
+      "tag": "0020_grant_group_members_access",
+      "breakpoints": true
     }
   ]
 }
