@@ -170,6 +170,7 @@ function GarageProfilePage() {
         className="h-40 w-full bg-muted sm:h-56"
         rounded="rounded-none"
         label="Change cover"
+        showTrigger={editing}
       >
         {profile.cover_photo_url && (
           <img src={profile.cover_photo_url} alt="" className="size-full object-cover" />
@@ -182,6 +183,7 @@ function GarageProfilePage() {
             userId={profile.user_id}
             editable={isOwner}
             onUploaded={handleAvatarUploaded}
+            showTrigger={editing}
           >
             <Avatar
               photoUrl={profile.avatar_url}
@@ -200,7 +202,7 @@ function GarageProfilePage() {
               {editing ? "Close" : "Edit profile"}
             </Button>
           ) : (
-            <div className="mb-2 flex flex-wrap gap-2">
+            <div className="mt-12 flex flex-wrap gap-2 self-end">
               {!block && (
                 <Link
                   to="/messages/$username"
