@@ -528,7 +528,11 @@ function GroupPage() {
         <div className="mt-5">
           <PostComposer
             onPosted={refresh}
-            lockedGroup={{ id: group.id, name: group.name, postPolicy: group.post_policy }}
+            lockedGroup={{
+              id: group.id,
+              name: group.name,
+              postPolicy: group.post_policy as "member" | "moderated",
+            }}
           />
         </div>
       )}
