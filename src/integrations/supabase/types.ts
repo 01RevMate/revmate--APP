@@ -46,6 +46,44 @@ export type Database = {
           },
         ]
       }
+      approved_vehicle_make_aliases: {
+        Row: {
+          alias_key: string
+          make_name: string
+        }
+        Insert: {
+          alias_key: string
+          make_name: string
+        }
+        Update: {
+          alias_key?: string
+          make_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approved_vehicle_make_aliases_make_name_fkey"
+            columns: ["make_name"]
+            isOneToOne: false
+            referencedRelation: "approved_vehicle_makes"
+            referencedColumns: ["name"]
+          },
+        ]
+      }
+      approved_vehicle_makes: {
+        Row: {
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          name: string
+          sort_order: number
+        }
+        Update: {
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       car_catalog_links: {
         Row: {
           car_id: string
