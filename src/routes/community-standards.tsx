@@ -1,5 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-export const Route = createFileRoute("/community-standards")({ component: CommunityStandards });
+export const Route = createFileRoute("/community-standards")({
+  head: () => ({
+    meta: [
+      { title: "Community Standards — RevMate" },
+      { name: "description", content: "Review the RevMate rules for respectful car discussion, groups and marketplace posts." },
+      { property: "og:title", content: "Community Standards — RevMate" },
+      { property: "og:description", content: "Review the RevMate rules for respectful car discussion, groups and marketplace posts." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: CommunityStandards,
+});
 const rules = [
   [
     "Respect people and their builds",

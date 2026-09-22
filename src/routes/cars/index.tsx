@@ -24,6 +24,8 @@ export const Route = createFileRoute("/cars/")({
         property: "og:description",
         content: "Browse and search every car generation covered on RevMate.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: BrowseCars,

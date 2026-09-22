@@ -12,6 +12,8 @@ export const Route = createFileRoute("/login")({
       { name: "description", content: "Log in to your RevMate account." },
       { property: "og:title", content: "Log in — RevMate" },
       { property: "og:description", content: "Log in to your RevMate account." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: LoginPage,

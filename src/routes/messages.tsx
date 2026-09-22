@@ -5,10 +5,18 @@ import { MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchConversations } from "@/lib/messages";
 import { Avatar } from "@/components/Avatar";
+import { displayUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/messages")({
   head: () => ({
-    meta: [{ title: "Messages — RevMate" }],
+    meta: [
+      { title: "Messages — RevMate" },
+      { name: "description", content: "Read and reply to private RevMate conversations with other members." },
+      { property: "og:title", content: "Messages — RevMate" },
+      { property: "og:description", content: "Read and reply to private RevMate conversations with other members." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
   }),
   component: MessagesPage,
 });
@@ -67,7 +75,7 @@ function MessagesPage() {
               >
                 <Avatar photoUrl={c.otherUser.avatar_url} fallback={c.otherUser.username} className="size-10" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">{c.otherUser.username}</p>
+                  <p className="text-sm font-medium">{displayUsername(c.otherUser.username)}</p>
                   {c.lastMessage && (
                     <p className="truncate text-xs text-muted-foreground">
                       {c.lastMessage.sender_id === user?.id ? "You: " : ""}

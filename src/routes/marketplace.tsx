@@ -10,6 +10,10 @@ export const Route = createFileRoute("/marketplace")({
     meta: [
       { title: "Buy & Sell — RevMate" },
       { name: "description", content: "Cars and parts for sale from the RevMate community." },
+      { property: "og:title", content: "Buy & Sell — RevMate" },
+      { property: "og:description", content: "Cars and parts for sale from the RevMate community." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: MarketplacePage,

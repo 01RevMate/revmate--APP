@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandLogo } from "@/components/BrandLogo";
 import { Button } from "@/components/ui/button";
+import { normalizeUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -12,6 +13,8 @@ export const Route = createFileRoute("/signup")({
       { name: "description", content: "Create a RevMate account to ask, answer and trade." },
       { property: "og:title", content: "Sign up — RevMate" },
       { property: "og:description", content: "Create a RevMate account to ask, answer and trade." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SignupPage,
@@ -33,7 +36,7 @@ function SignupPage() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { username },
+        data: { username: normalizeUsername(username) },
       },
     });
     setSaving(false);

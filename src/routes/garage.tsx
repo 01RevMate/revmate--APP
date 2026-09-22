@@ -24,7 +24,14 @@ export const Route = createFileRoute("/garage")({
     throw redirect({ to: "/u/$username", params: { username: profile.username } });
   },
   head: () => ({
-    meta: [{ title: "My Garage — RevMate" }],
+    meta: [
+      { title: "My Garage — RevMate" },
+      { name: "description", content: "Open your RevMate garage to manage the cars linked to your profile." },
+      { property: "og:title", content: "My Garage — RevMate" },
+      { property: "og:description", content: "Open your RevMate garage to manage the cars linked to your profile." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
   }),
   component: GaragePromptPage,
 });

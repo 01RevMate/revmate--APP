@@ -5,11 +5,24 @@ import { fetchGarageCar } from "@/lib/garage";
 import { fetchMyLikedPostIds, fetchPostsByGarageCar } from "@/lib/posts";
 import { GarageCarCard } from "@/components/GarageCarCard";
 import { PostCard } from "@/components/PostCard";
+import { displayUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/u/$username_/cars/$carId")({
-  head: ({ params }) => ({
-    meta: [{ title: `${params.username}'s car — RevMate` }],
-  }),
+  head: ({ params }) => {
+    const handle = displayUsername(params.username);
+    const title = `${handle}'s car — RevMate`;
+    const description = `View ${handle}'s car profile, build details and related RevMate posts.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary" },
+      ],
+    };
+  },
   component: CarProfilePage,
 });
 
@@ -60,7 +73,7 @@ function CarProfilePage() {
         params={{ username }}
         className="text-sm text-muted-foreground hover:text-foreground"
       >
-        ← Back to {username}'s garage
+        ← Back to {displayUsername(username)}'s garage
       </Link>
 
       <div className="mt-4">

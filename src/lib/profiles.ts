@@ -1,13 +1,17 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { normalizeUsername, usernameLookupCandidates } from "@/lib/usernames";
 
 export type Profile = Tables<"profiles">;
 
 export async function fetchProfileByUsername(username: string): Promise<Profile | null> {
+  const candidates = usernameLookupCandidates(username);
+  if (candidates.length === 0) return null;
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
-    .eq("username", username)
+    .in("username", candidates)
+    .limit(1)
     .maybeSingle();
   if (error) throw error;
   return data;
@@ -29,7 +33,11 @@ export async function updateProfile(
     >
   >,
 ) {
-  const { error } = await supabase.from("profiles").update(fields).eq("user_id", userId);
+  const nextFields = { ...fields };
+  if (typeof nextFields.username === "string") {
+    nextFields.username = normalizeUsername(nextFields.username);
+  }
+  const { error } = await supabase.from("profiles").update(nextFields).eq("user_id", userId);
   if (error) throw error;
 }
 

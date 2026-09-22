@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { displayUsername } from "@/lib/usernames";
 
 export function NotificationCenter() {
   const { user } = useAuth();
@@ -109,7 +110,7 @@ export function NotificationCenter() {
                 }}
                 className="min-w-0 flex-1 text-sm"
               >
-                <span className="font-medium">{n.actor?.username ?? "A member"}</span>
+                <span className="font-medium">{displayUsername(n.actor?.username, "A member")}</span>
                 {n.kind === "comment"
                   ? " commented on your post"
                   : n.kind === "like"
