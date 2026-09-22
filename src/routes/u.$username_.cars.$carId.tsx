@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchGarageCar } from "@/lib/garage";
-import { fetchPostsByGarageCar } from "@/lib/posts";
+import { fetchMyLikedPostIds, fetchPostsByGarageCar } from "@/lib/posts";
 import { GarageCarCard } from "@/components/GarageCarCard";
 import { PostCard } from "@/components/PostCard";
 
