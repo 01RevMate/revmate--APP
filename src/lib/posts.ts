@@ -10,11 +10,14 @@ export type PostImage = Tables<"post_images">;
 export type PostWithAuthor = Post & {
   profiles: Pick<Tables<"profiles">, "username" | "avatar_url"> | null;
   cars: Pick<Tables<"cars">, "make" | "model" | "generation"> | null;
-  posted_as_garage_car: Pick<Tables<"garage_cars">, "id" | "nickname" | "photo_url" | "make" | "model"> | null;
+  posted_as_garage_car: Pick<
+    Tables<"garage_cars">,
+    "id" | "nickname" | "photo_url" | "make" | "model"
+  > | null;
   post_images: Pick<PostImage, "id" | "image_url" | "position">[];
 };
 
-export const MAX_IMAGES_PER_POST = 4;
+export const MAX_IMAGES_PER_POST = 5;
 
 export type CommentWithAuthor = PostComment & {
   profiles: Pick<Tables<"profiles">, "username" | "avatar_url"> | null;

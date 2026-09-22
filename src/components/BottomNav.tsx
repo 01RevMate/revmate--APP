@@ -59,7 +59,9 @@ function ComposeButton() {
   return (
     <div className="relative flex w-[62px] shrink-0 items-center justify-center">
       <button
-        onClick={() => (user ? setModalOpen(true) : openAuthModal("Create a free account to post to the feed."))}
+        onClick={() =>
+          user ? setModalOpen(true) : openAuthModal("Create a free account to post to the feed.")
+        }
         aria-label="New post"
         className="absolute -top-2 flex size-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105"
       >
@@ -83,7 +85,7 @@ export function BottomNav() {
       className={`fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-card/95 backdrop-blur transition-transform duration-300 ease-out supports-[backdrop-filter]:bg-card/80 md:hidden md:translate-y-0 ${
         hidden ? "translate-y-full" : "translate-y-0"
       }`}
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)" }}
     >
       <div className="flex flex-1">
         <NavItem to="/" icon={Home} label="Home" exact />

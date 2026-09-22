@@ -221,3 +221,12 @@
     animation: none;
   }
 }
+
+/* iOS zooms the page when a focused form control is rendered below 16px. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}

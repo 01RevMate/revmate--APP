@@ -1,6 +1,19 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Trash2, Zap, Cog, Fuel, Palette, Plus, Heart, Trophy, Loader2, KeyRound, Undo2 } from "lucide-react";
+import {
+  Trash2,
+  Zap,
+  Cog,
+  Fuel,
+  Palette,
+  Plus,
+  Heart,
+  Trophy,
+  Loader2,
+  KeyRound,
+  Undo2,
+  Image,
+} from "lucide-react";
 import {
   addCarPhoto,
   addMod,
@@ -13,6 +26,7 @@ import {
   removeGarageCar,
   removeMod,
   setGarageCarOwnershipStatus,
+  updateGarageCar,
   unlikeGarageCar,
   FUEL_TYPE_LABELS,
   MOD_CATEGORY_LABELS,
@@ -47,6 +61,7 @@ export function GarageCarCard({
   const [modCategory, setModCategory] = useState<NonNullable<GarageMod["category"]>>("other");
   const [shareToFeed, setShareToFeed] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [mainPhotoBusy, setMainPhotoBusy] = useState<string | null>(null);
   const [statusBusy, setStatusBusy] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const isPrevious = car.ownership_status === "previous";
@@ -125,6 +140,21 @@ export function GarageCarCard({
     }
   }
 
+  async function handleSetMainPhoto(photoUrl: string) {
+    if (photoUrl === car.photo_url) return;
+    setMainPhotoBusy(photoUrl);
+    try {
+      await updateGarageCar(car.id, { photo_url: photoUrl });
+      queryClient.invalidateQueries({ queryKey: ["garage"] });
+      queryClient.invalidateQueries({ queryKey: ["garage-car", car.id] });
+      toast.success("Main photo updated");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't change the main photo");
+    } finally {
+      setMainPhotoBusy(null);
+    }
+  }
+
   function refreshMods() {
     queryClient.invalidateQueries({ queryKey: ["garage-mods", car.id] });
   }
@@ -169,7 +199,11 @@ export function GarageCarCard({
   }
 
   async function handleRemoveCar() {
-    if (!confirm("Remove this car for good? This can't be undone — if you just sold it, mark it as previously owned instead.")) {
+    if (
+      !confirm(
+        "Remove this car for good? This can't be undone — if you just sold it, mark it as previously owned instead.",
+      )
+    ) {
       return;
     }
     try {
@@ -196,7 +230,9 @@ export function GarageCarCard({
   }
 
   return (
-    <div className={`rounded-lg border border-border bg-card p-4 ${isPrevious ? "opacity-75" : ""}`}>
+    <div
+      className={`rounded-lg border border-border bg-card p-4 ${isPrevious ? "opacity-75" : ""}`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <div className="relative">
@@ -263,12 +299,20 @@ export function GarageCarCard({
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         <SpecTile icon={Zap} label="Power" value={car.horsepower ? `${car.horsepower} hp` : "—"} />
         <SpecTile icon={Cog} label="Engine" value={car.engine ?? "—"} />
-        <SpecTile icon={Fuel} label="Fuel" value={car.fuel_type ? FUEL_TYPE_LABELS[car.fuel_type] : "—"} />
+        <SpecTile
+          icon={Fuel}
+          label="Fuel"
+          value={car.fuel_type ? FUEL_TYPE_LABELS[car.fuel_type] : "—"}
+        />
         <SpecTile icon={Palette} label="Color" value={car.color ?? "—"} />
       </div>
       {(car.trim || car.transmission || car.mileage != null) && (
         <p className="mt-2 text-xs text-muted-foreground">
-          {[car.trim, car.transmission ? TRANSMISSION_LABELS[car.transmission] : null, car.mileage != null ? `${car.mileage.toLocaleString()} miles` : null]
+          {[
+            car.trim,
+            car.transmission ? TRANSMISSION_LABELS[car.transmission] : null,
+            car.mileage != null ? `${car.mileage.toLocaleString()} miles` : null,
+          ]
             .filter(Boolean)
             .join(" · ")}
         </p>
@@ -276,14 +320,18 @@ export function GarageCarCard({
 
       {car.bio && (
         <div className="mt-4 border-t border-border pt-3">
-          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">About</h3>
+          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            About
+          </h3>
           <p className="text-sm">{car.bio}</p>
         </div>
       )}
 
       <div className="mt-4 border-t border-border pt-3">
         <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Photos</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Photos
+          </h3>
           {isOwner && (
             <>
               <input
@@ -299,7 +347,11 @@ export function GarageCarCard({
                 className="text-muted-foreground hover:text-foreground disabled:opacity-50"
                 title="Add photo"
               >
-                {uploadingPhoto ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+                {uploadingPhoto ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Plus className="size-4" />
+                )}
               </button>
             </>
           )}
@@ -307,15 +359,38 @@ export function GarageCarCard({
         {photos && photos.length > 0 ? (
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {photos.map((photo) => (
-              <div key={photo.id} className="group relative aspect-video overflow-hidden rounded-md bg-muted">
+              <div
+                key={photo.id}
+                className="group relative aspect-video overflow-hidden rounded-md bg-muted"
+              >
                 <img src={photo.photo_url} alt="" className="size-full object-cover" />
                 {isOwner && (
-                  <button
-                    onClick={() => handleRemovePhoto(photo.id)}
-                    className="absolute right-1 top-1 rounded bg-black/60 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
-                  >
-                    <Trash2 className="size-3" />
-                  </button>
+                  <>
+                    <button
+                      onClick={() => handleSetMainPhoto(photo.photo_url)}
+                      disabled={photo.photo_url === car.photo_url || mainPhotoBusy !== null}
+                      title={
+                        photo.photo_url === car.photo_url
+                          ? "Current main photo"
+                          : "Use as main photo"
+                      }
+                      className="absolute bottom-1 left-1 inline-flex items-center gap-1 rounded bg-black/70 px-2 py-1 text-[10px] font-medium text-white disabled:cursor-default disabled:opacity-80"
+                    >
+                      {mainPhotoBusy === photo.photo_url ? (
+                        <Loader2 className="size-3 animate-spin" />
+                      ) : (
+                        <Image className="size-3" />
+                      )}
+                      {photo.photo_url === car.photo_url ? "Main photo" : "Make main"}
+                    </button>
+                    <button
+                      onClick={() => handleRemovePhoto(photo.id)}
+                      className="absolute right-1 top-1 rounded bg-black/60 p-1 text-white opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
+                      title="Remove photo"
+                    >
+                      <Trash2 className="size-3" />
+                    </button>
+                  </>
                 )}
               </div>
             ))}
@@ -366,7 +441,9 @@ export function GarageCarCard({
               />
               <select
                 value={modCategory}
-                onChange={(e) => setModCategory(e.target.value as NonNullable<GarageMod["category"]>)}
+                onChange={(e) =>
+                  setModCategory(e.target.value as NonNullable<GarageMod["category"]>)
+                }
                 className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
               >
                 {Object.entries(MOD_CATEGORY_LABELS).map(([value, label]) => (
