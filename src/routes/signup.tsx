@@ -13,6 +13,8 @@ export const Route = createFileRoute("/signup")({
       { name: "description", content: "Create a RevMate account to ask, answer and trade." },
       { property: "og:title", content: "Sign up — RevMate" },
       { property: "og:description", content: "Create a RevMate account to ask, answer and trade." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SignupPage,
