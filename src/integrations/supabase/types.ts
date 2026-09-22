@@ -193,6 +193,62 @@ export type Database = {
         }
         Relationships: []
       }
+      community_groups: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          join_policy: string
+          make_name: string | null
+          member_count: number
+          model_name: string | null
+          name: string
+          owner_id: string
+          post_policy: string
+          rules: string
+          slug: string
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          join_policy?: string
+          make_name?: string | null
+          member_count?: number
+          model_name?: string | null
+          name: string
+          owner_id: string
+          post_policy?: string
+          rules?: string
+          slug: string
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          join_policy?: string
+          make_name?: string | null
+          member_count?: number
+          model_name?: string | null
+          name?: string
+          owner_id?: string
+          post_policy?: string
+          rules?: string
+          slug?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_groups_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string
@@ -495,6 +551,48 @@ export type Database = {
           },
         ]
       }
+      group_members: {
+        Row: {
+          group_id: string
+          id: string
+          requested_at: string
+          role: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          requested_at?: string
+          role?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          requested_at?: string
+          role?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       listings: {
         Row: {
           car_id: string
@@ -575,6 +673,68 @@ export type Database = {
           {
             foreignKeyName: "messages_sender_id_fkey"
             columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          actor_id: string
+          created_at: string
+          group_id: string | null
+          id: string
+          kind: string
+          post_id: string | null
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          group_id?: string | null
+          id?: string
+          kind: string
+          post_id?: string | null
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          group_id?: string | null
+          id?: string
+          kind?: string
+          post_id?: string | null
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "notifications_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
@@ -763,9 +923,11 @@ export type Database = {
           category: Database["public"]["Enums"]["post_category"]
           comments_count: number
           created_at: string
+          group_id: string | null
           id: string
           image_url: string | null
           likes_count: number
+          moderation_status: string
           posted_as_garage_car_id: string | null
           user_id: string
         }
@@ -775,9 +937,11 @@ export type Database = {
           category?: Database["public"]["Enums"]["post_category"]
           comments_count?: number
           created_at?: string
+          group_id?: string | null
           id?: string
           image_url?: string | null
           likes_count?: number
+          moderation_status?: string
           posted_as_garage_car_id?: string | null
           user_id: string
         }
@@ -787,9 +951,11 @@ export type Database = {
           category?: Database["public"]["Enums"]["post_category"]
           comments_count?: number
           created_at?: string
+          group_id?: string | null
           id?: string
           image_url?: string | null
           likes_count?: number
+          moderation_status?: string
           posted_as_garage_car_id?: string | null
           user_id?: string
         }
@@ -799,6 +965,13 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
             referencedColumns: ["id"]
           },
           {
@@ -1173,7 +1346,43 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      community_feed: {
+        Args: {
+          filter_car?: string
+          filter_category?: string
+          filter_scope?: string
+          page_offset?: number
+        }
+        Returns: {
+          body: string
+          car_id: string | null
+          category: Database["public"]["Enums"]["post_category"]
+          comments_count: number
+          created_at: string
+          group_id: string | null
+          id: string
+          image_url: string | null
+          likes_count: number
+          moderation_status: string
+          posted_as_garage_car_id: string | null
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "posts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       is_admin: { Args: { check_user_id: string }; Returns: boolean }
+      manage_group_member: {
+        Args: { action: string; gid: string; target_user: string }
+        Returns: undefined
+      }
+      review_group_post: {
+        Args: { decision: string; pid: string }
+        Returns: undefined
+      }
     }
     Enums: {
       account_status: "active" | "banned" | "removed"
