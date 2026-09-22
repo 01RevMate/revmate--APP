@@ -1446,6 +1446,7 @@ export type Database = {
         | "audio"
         | "brakes"
         | "other"
+      post_audience: "public" | "friends"
       post_category:
         | "discussion"
         | "diagnostics"
@@ -1453,7 +1454,6 @@ export type Database = {
         | "bodywork"
         | "maintenance"
         | "showcase"
-      post_audience: "public" | "friends"
       post_report_reason:
         | "spam"
         | "scam"
@@ -1620,6 +1620,7 @@ export const Constants = {
         "brakes",
         "other",
       ],
+      post_audience: ["public", "friends"],
       post_category: [
         "discussion",
         "diagnostics",
@@ -1628,7 +1629,6 @@ export const Constants = {
         "maintenance",
         "showcase",
       ],
-      post_audience: ["public", "friends"],
       post_report_reason: [
         "spam",
         "scam",
