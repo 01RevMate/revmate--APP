@@ -352,9 +352,13 @@ export function PostCard({
           <MessageCircle className="size-4" />
           {commentsCount > 0 ? commentsCount : "Comment"}
         </button>
-        <button onClick={handleShare} className="flex items-center gap-1.5 hover:text-foreground">
+        <button
+          onClick={handleShare}
+          aria-label="Share post"
+          title="Share post"
+          className="flex items-center hover:text-foreground"
+        >
           <Share2 className="size-4" />
-          Share
         </button>
         {user?.id !== post.user_id && (
           <div className="ml-auto flex items-center gap-1">
