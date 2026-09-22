@@ -76,6 +76,8 @@ function SettingsPage() {
     try {
       await updateProfile(user.id, { username: nextUsername });
       setUsername(nextUsername);
+      await queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
+      await queryClient.invalidateQueries({ queryKey: ["profile-by-username"] });
       toast.success("Username updated");
     } catch (err) {
       toast.error(
