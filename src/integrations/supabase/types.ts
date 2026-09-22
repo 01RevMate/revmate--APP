@@ -719,55 +719,36 @@ export type Database = {
       }
       notifications: {
         Row: {
-          action_url: string | null
           actor_id: string
           created_at: string
-          garage_car_id: string | null
           group_id: string | null
           id: string
           kind: string
-          message: string | null
           post_id: string | null
-          question_id: string | null
           read_at: string | null
           user_id: string
         }
         Insert: {
-          action_url?: string | null
           actor_id: string
           created_at?: string
-          garage_car_id?: string | null
           group_id?: string | null
           id?: string
           kind: string
-          message?: string | null
           post_id?: string | null
-          question_id?: string | null
           read_at?: string | null
           user_id: string
         }
         Update: {
-          action_url?: string | null
           actor_id?: string
           created_at?: string
-          garage_car_id?: string | null
           group_id?: string | null
           id?: string
           kind?: string
-          message?: string | null
           post_id?: string | null
-          question_id?: string | null
           read_at?: string | null
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "notifications_garage_car_id_fkey"
-            columns: ["garage_car_id"]
-            isOneToOne: false
-            referencedRelation: "garage_cars"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "notifications_actor_id_fkey"
             columns: ["actor_id"]
@@ -787,13 +768,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "notifications_question_id_fkey"
-            columns: ["question_id"]
-            isOneToOne: false
-            referencedRelation: "questions"
             referencedColumns: ["id"]
           },
           {
@@ -1450,10 +1424,6 @@ export type Database = {
       review_group_post: {
         Args: { decision: string; pid: string }
         Returns: undefined
-      }
-      send_app_update: {
-        Args: { update_message: string; update_url?: string }
-        Returns: number
       }
     }
     Enums: {
