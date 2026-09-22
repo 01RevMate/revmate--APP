@@ -29,12 +29,14 @@ export function PostCard({
   onDeleted,
   canModerate = false,
   onHide,
+  immersive = false,
 }: {
   post: PostWithAuthor;
   liked: boolean;
   onDeleted?: () => void;
   canModerate?: boolean;
   onHide?: () => void;
+  immersive?: boolean;
 }) {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -193,7 +195,13 @@ export function PostCard({
   if (deleted) return null;
 
   return (
-    <article className="rounded-lg border border-border bg-card p-4">
+    <article
+      className={
+        immersive
+          ? "border-y border-border bg-card p-3 sm:rounded-lg sm:border sm:p-4"
+          : "rounded-lg border border-border bg-card p-4"
+      }
+    >
       <header className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-3">
           {post.posted_as_garage_car ? (
@@ -303,7 +311,7 @@ export function PostCard({
 
       {postImages.length > 0 && (
         <div
-          className={`mt-3 grid gap-1 overflow-hidden rounded-md ${
+          className={`mt-3 grid gap-1 overflow-hidden ${immersive ? "-mx-3 rounded-none sm:mx-0 sm:rounded-md" : "rounded-md"} ${
             postImages.length === 1 ? "grid-cols-1" : "grid-cols-2"
           }`}
         >

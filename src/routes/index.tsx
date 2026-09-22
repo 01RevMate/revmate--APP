@@ -134,124 +134,133 @@ function Home() {
       <Sidebar />
       <main className="min-w-0 flex-1">
         <PullToRefresh onRefresh={refreshFeed}>
-          <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
-            <FeedScopeBar
-              scope={scope}
-              onScopeChange={setScope}
-              hasGarageCars={hasGarageCars}
-              isAuthenticated={!!user}
-            />
-            <CategoryFilterBar category={category} onCategoryChange={setCategory} />
-
-            {scope === "my_groups" ? (
-              <Link
-                to="/groups"
-                className="block rounded-lg border bg-card p-4 text-sm text-primary"
-              >
-                Explore your groups or choose a group to post in →
-              </Link>
-            ) : (
-              <PostComposer
-                onPosted={refreshFeed}
-                requiredCarIdentity={scope === "my_car" || scope === "same_brand"}
-                garageCars={currentCars}
-                preferredGarageCarId={
-                  activeCar?.id ??
-                  (sessionFilterCarId && sessionFilterCarId !== "all" ? sessionFilterCarId : null)
-                }
-                onGarageCarSelected={setSessionFilterCarId}
-                audience={scope === "friends" ? "friends" : "public"}
+          <div className="mx-auto max-w-2xl py-4 sm:px-4 sm:py-6">
+            <div className="space-y-4 px-3 sm:px-0">
+              <FeedScopeBar
+                scope={scope}
+                onScopeChange={setScope}
+                hasGarageCars={hasGarageCars}
+                isAuthenticated={!!user}
               />
-            )}
+              <CategoryFilterBar category={category} onCategoryChange={setCategory} />
 
-            {needsCarPrompt && (
-              <div className="rounded-lg border border-dashed border-border p-4">
-                <p className="text-sm font-medium">Which car do you mean?</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  You've got more than one car in the garage — pick one, or look at posts for all of
-                  them.
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {currentCars.map((car) => (
+              {scope === "my_groups" ? (
+                <Link
+                  to="/groups"
+                  className="block rounded-lg border bg-card p-4 text-sm text-primary"
+                >
+                  Explore your groups or choose a group to post in →
+                </Link>
+              ) : (
+                <PostComposer
+                  onPosted={refreshFeed}
+                  requiredCarIdentity={scope === "my_car" || scope === "same_brand"}
+                  garageCars={currentCars}
+                  preferredGarageCarId={
+                    activeCar?.id ??
+                    (sessionFilterCarId && sessionFilterCarId !== "all" ? sessionFilterCarId : null)
+                  }
+                  onGarageCarSelected={setSessionFilterCarId}
+                  audience={scope === "friends" ? "friends" : "public"}
+                />
+              )}
+
+              {needsCarPrompt && (
+                <div className="rounded-lg border border-dashed border-border p-4">
+                  <p className="text-sm font-medium">Which car do you mean?</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    You've got more than one car in the garage — pick one, or look at posts for all
+                    of them.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {currentCars.map((car) => (
+                      <button
+                        key={car.id}
+                        onClick={() => setSessionFilterCarId(car.id)}
+                        className="flex items-center gap-1.5 rounded-full border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
+                      >
+                        <CarLogo make={car.make} className="size-4 shrink-0 rounded-full" />
+                        {car.nickname}
+                      </button>
+                    ))}
                     <button
-                      key={car.id}
-                      onClick={() => setSessionFilterCarId(car.id)}
-                      className="flex items-center gap-1.5 rounded-full border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
+                      onClick={() => setSessionFilterCarId("all")}
+                      className="rounded-full border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
                     >
-                      <CarLogo make={car.make} className="size-4 shrink-0 rounded-full" />
-                      {car.nickname}
+                      All my cars
                     </button>
-                  ))}
+                  </div>
+                </div>
+              )}
+
+              {user && !hasGarageCars && (
+                <Link
+                  to="/garage"
+                  className="flex items-center gap-3 rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 hover:border-primary/60"
+                >
+                  <Car className="size-5 shrink-0 text-primary" />
+                  <div>
+                    <p className="text-sm font-semibold">Add a car to unlock the My Car feed</p>
+                    <p className="text-xs text-muted-foreground">
+                      See posts from people with the same car as you.
+                    </p>
+                  </div>
+                </Link>
+              )}
+
+              {feedError && (
+                <p role="alert" className="rounded-lg border p-4 text-sm">
+                  Could not load discussions.{" "}
                   <button
-                    onClick={() => setSessionFilterCarId("all")}
-                    className="rounded-full border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
+                    className="text-primary"
+                    onClick={() => {
+                      refreshFeed();
+                      queryClient.invalidateQueries({ queryKey: ["groups"] });
+                    }}
                   >
-                    All my cars
+                    Try again
+                  </button>
+                </p>
+              )}
+            </div>
+
+            <div className="mt-4 space-y-1 bg-muted/60 sm:space-y-4 sm:bg-transparent">
+              {isLoading &&
+                Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} immersive />)}
+
+              {!isLoading && !feedError && !needsCarPrompt && filteredPosts.length === 0 && (
+                <div className="mx-3 rounded-lg border border-dashed border-border bg-background p-8 text-center text-sm text-muted-foreground sm:mx-0">
+                  {scope === "my_car"
+                    ? "No posts about your car yet — be the first."
+                    : scope === "friends" && friends?.length === 0
+                      ? "No friends yet — visit another profile to add one."
+                      : scope === "friends"
+                        ? "No friends-only posts in this category yet."
+                        : "No posts here yet — try a different filter."}
+                </div>
+              )}
+
+              {filteredPosts.map((post: PostWithAuthor) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  liked={likedIds?.has(post.id) ?? false}
+                  onDeleted={refreshFeed}
+                  immersive
+                />
+              ))}
+              {hasNextPage && (
+                <div className="bg-background px-3 py-3 sm:p-0">
+                  <button
+                    disabled={isFetchingNextPage}
+                    onClick={() => fetchNextPage()}
+                    className="w-full rounded-lg border p-3 text-sm"
+                  >
+                    {isFetchingNextPage ? "Loading…" : "Load more discussions"}
                   </button>
                 </div>
-              </div>
-            )}
-
-            {user && !hasGarageCars && (
-              <Link
-                to="/garage"
-                className="flex items-center gap-3 rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 hover:border-primary/60"
-              >
-                <Car className="size-5 shrink-0 text-primary" />
-                <div>
-                  <p className="text-sm font-semibold">Add a car to unlock the My Car feed</p>
-                  <p className="text-xs text-muted-foreground">
-                    See posts from people with the same car as you.
-                  </p>
-                </div>
-              </Link>
-            )}
-
-            {feedError && (
-              <p role="alert" className="rounded-lg border p-4 text-sm">
-                Could not load discussions.{" "}
-                <button
-                  className="text-primary"
-                  onClick={() => {
-                    refreshFeed();
-                    queryClient.invalidateQueries({ queryKey: ["groups"] });
-                  }}
-                >
-                  Try again
-                </button>
-              </p>
-            )}
-            {isLoading && Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} />)}
-
-            {!isLoading && !feedError && !needsCarPrompt && filteredPosts.length === 0 && (
-              <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-                {scope === "my_car"
-                  ? "No posts about your car yet — be the first."
-                  : scope === "friends" && friends?.length === 0
-                    ? "No friends yet — visit another profile to add one."
-                    : scope === "friends"
-                      ? "No friends-only posts in this category yet."
-                      : "No posts here yet — try a different filter."}
-              </div>
-            )}
-
-            {filteredPosts.map((post: PostWithAuthor) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                liked={likedIds?.has(post.id) ?? false}
-                onDeleted={refreshFeed}
-              />
-            ))}
-            {hasNextPage && (
-              <button
-                disabled={isFetchingNextPage}
-                onClick={() => fetchNextPage()}
-                className="w-full rounded-lg border p-3 text-sm"
-              >
-                {isFetchingNextPage ? "Loading…" : "Load more discussions"}
-              </button>
-            )}
+              )}
+            </div>
           </div>
         </PullToRefresh>
       </main>

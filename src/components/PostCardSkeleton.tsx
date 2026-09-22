@@ -1,8 +1,14 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function PostCardSkeleton() {
+export function PostCardSkeleton({ immersive = false }: { immersive?: boolean }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div
+      className={
+        immersive
+          ? "border-y border-border bg-card p-3 sm:rounded-lg sm:border sm:p-4"
+          : "rounded-lg border border-border bg-card p-4"
+      }
+    >
       <div className="flex items-center gap-3">
         <Skeleton className="size-9 rounded-full" />
         <div className="space-y-1.5">
