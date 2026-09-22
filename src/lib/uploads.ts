@@ -25,3 +25,19 @@ export async function uploadImage(bucket: "post-images" | "user-media", userId: 
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
 }
+
+// Cropped output always arrives as a JPEG blob, so phone-camera formats
+// (HEIC and friends) never reach storage.
+export async function uploadImageBlob(
+  bucket: "post-images" | "user-media",
+  userId: string,
+  blob: Blob,
+): Promise<string> {
+  const path = `${userId}/${crypto.randomUUID()}.jpg`;
+  const { error: uploadError } = await supabase.storage
+    .from(bucket)
+    .upload(path, blob, { contentType: "image/jpeg" });
+  if (uploadError) throw uploadError;
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
+}
