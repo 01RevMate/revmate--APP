@@ -45,7 +45,7 @@ export async function fetchFeed(
   const { data, error } = await supabase
     .rpc("community_feed", {
       filter_scope: scope,
-      filter_car: carId,
+      filter_car: carId ?? undefined,
       filter_category: category,
       page_offset: offset,
     })

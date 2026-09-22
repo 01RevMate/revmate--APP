@@ -451,10 +451,16 @@ function GroupPage() {
           {members
             ?.filter((m) => m.status !== "pending")
             .map((member) => {
-              const ranks = { owner: 4, admin: 3, moderator: 2, member: 1 };
+              const ranks: Record<string, number> = {
+                owner: 4,
+                admin: 3,
+                moderator: 2,
+                member: 1,
+              };
               const canManage =
                 member.role !== "owner" &&
-                (isAdmin || (membership && ranks[membership.role] > ranks[member.role]));
+                (isAdmin ||
+                  (membership && (ranks[membership.role] ?? 0) > (ranks[member.role] ?? 0)));
               return (
                 <div
                   key={member.id}
