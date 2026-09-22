@@ -19,6 +19,8 @@ export const Route = createFileRoute("/sell")({
         property: "og:description",
         content: "Create a listing for a car or a part against the exact model and generation.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SellPage,

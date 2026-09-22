@@ -8,9 +8,21 @@ import { PostCard } from "@/components/PostCard";
 import { displayUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/u/$username_/cars/$carId")({
-  head: ({ params }) => ({
-    meta: [{ title: `${displayUsername(params.username)}'s car — RevMate` }],
-  }),
+  head: ({ params }) => {
+    const handle = displayUsername(params.username);
+    const title = `${handle}'s car — RevMate`;
+    const description = `View ${handle}'s car profile, build details and related RevMate posts.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary" },
+      ],
+    };
+  },
   component: CarProfilePage,
 });
 

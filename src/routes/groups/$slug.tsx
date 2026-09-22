@@ -29,7 +29,20 @@ import { Avatar } from "@/components/Avatar";
 import { displayUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/groups/$slug")({
-  head: ({ params }) => ({ meta: [{ title: `${params.slug} — RevMate` }] }),
+  head: ({ params }) => {
+    const title = `${params.slug} — RevMate Group`;
+    const description = `Join the ${params.slug} group on RevMate for car discussions and member posts.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary" },
+      ],
+    };
+  },
   component: GroupPage,
 });
 

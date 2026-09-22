@@ -11,9 +11,21 @@ import { Avatar } from "@/components/Avatar";
 import { displayUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/messages/$username")({
-  head: ({ params }) => ({
-    meta: [{ title: `${displayUsername(params.username)} — Messages — RevMate` }],
-  }),
+  head: ({ params }) => {
+    const handle = displayUsername(params.username);
+    const title = `${handle} — Messages — RevMate`;
+    const description = `Message ${handle} privately on RevMate.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary" },
+      ],
+    };
+  },
   component: MessageThreadPage,
 });
 

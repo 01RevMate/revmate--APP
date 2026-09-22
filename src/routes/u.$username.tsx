@@ -44,9 +44,20 @@ import {
 } from "@/lib/vehicleCatalog";
 
 export const Route = createFileRoute("/u/$username")({
-  head: ({ params }) => ({
-    meta: [{ title: `${displayUsername(params.username)} — RevMate` }],
-  }),
+  head: ({ params }) => {
+    const handle = displayUsername(params.username);
+    const description = `View ${handle}'s RevMate profile, garage, posts and questions.`;
+    return {
+      meta: [
+        { title: `${handle} — RevMate` },
+        { name: "description", content: description },
+        { property: "og:title", content: `${handle} — RevMate` },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "profile" },
+        { name: "twitter:card", content: "summary" },
+      ],
+    };
+  },
   component: GarageProfilePage,
 });
 
