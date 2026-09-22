@@ -5,6 +5,7 @@ import { MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchConversations } from "@/lib/messages";
 import { Avatar } from "@/components/Avatar";
+import { displayUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/messages")({
   head: () => ({
@@ -67,7 +68,7 @@ function MessagesPage() {
               >
                 <Avatar photoUrl={c.otherUser.avatar_url} fallback={c.otherUser.username} className="size-10" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">{c.otherUser.username}</p>
+                  <p className="text-sm font-medium">{displayUsername(c.otherUser.username)}</p>
                   {c.lastMessage && (
                     <p className="truncate text-xs text-muted-foreground">
                       {c.lastMessage.sender_id === user?.id ? "You: " : ""}

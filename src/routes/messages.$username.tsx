@@ -8,10 +8,11 @@ import { useAuthModal } from "@/hooks/useAuthModal";
 import { fetchProfileByUsername } from "@/lib/profiles";
 import { fetchOrCreateConversation, fetchMessages, sendMessage } from "@/lib/messages";
 import { Avatar } from "@/components/Avatar";
+import { displayUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/messages/$username")({
   head: ({ params }) => ({
-    meta: [{ title: `${params.username} — Messages — RevMate` }],
+    meta: [{ title: `${displayUsername(params.username)} — Messages — RevMate` }],
   }),
   component: MessageThreadPage,
 });
@@ -70,7 +71,7 @@ function MessageThreadPage() {
         </Link>
         <Link to="/u/$username" params={{ username: otherProfile.username }} className="flex items-center gap-2">
           <Avatar photoUrl={otherProfile.avatar_url} fallback={otherProfile.username} className="size-8" />
-          <span className="font-medium">{otherProfile.username}</span>
+          <span className="font-medium">{displayUsername(otherProfile.username)}</span>
         </Link>
       </div>
 
@@ -92,19 +93,19 @@ function MessageThreadPage() {
           })}
         {user && messages?.length === 0 && (
           <p className="text-center text-sm text-muted-foreground">
-            Say hello to {otherProfile.username}.
+            Say hello to {displayUsername(otherProfile.username)}.
           </p>
         )}
         {!user && (
           <p className="text-center text-sm text-muted-foreground">
-            Sign in to see your conversation with {otherProfile.username}.
+            Sign in to see your conversation with {displayUsername(otherProfile.username)}.
           </p>
         )}
       </div>
 
       <form
         onSubmit={user ? handleSend : (e) => e.preventDefault()}
-        onFocus={() => !user && openAuthModal(`Create a free account to message ${otherProfile.username}.`)}
+        onFocus={() => !user && openAuthModal(`Create a free account to message ${displayUsername(otherProfile.username)}.`)}
         className="flex gap-2 border-t border-border pt-4"
       >
         <input

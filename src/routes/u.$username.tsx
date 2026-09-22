@@ -36,6 +36,7 @@ import { VehicleCatalogPicker } from "@/components/VehicleCatalogPicker";
 import { Button } from "@/components/ui/button";
 import { carLabel, type Car } from "@/lib/cars";
 import { blockProfile, fetchBlock, unblockProfile } from "@/lib/moderation";
+import { displayUsername } from "@/lib/usernames";
 import {
   EMPTY_VEHICLE_CATALOG_SELECTION,
   garageFuelTypeForCatalogFuel,
@@ -44,7 +45,7 @@ import {
 
 export const Route = createFileRoute("/u/$username")({
   head: ({ params }) => ({
-    meta: [{ title: `${params.username} — RevMate` }],
+    meta: [{ title: `${displayUsername(params.username)} — RevMate` }],
   }),
   component: GarageProfilePage,
 });
@@ -123,7 +124,7 @@ function GarageProfilePage() {
       } else {
         if (
           !window.confirm(
-            `Block @${profile.username}? Their posts will disappear and they won't be able to message you.`,
+            `Block ${displayUsername(profile.username)}? Their posts will disappear and they won't be able to message you.`,
           )
         )
           return;
@@ -147,7 +148,7 @@ function GarageProfilePage() {
       <div className="mx-auto max-w-3xl px-4 py-10">
         <h1 className="text-2xl font-semibold tracking-tight">Not found</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          There's no RevMate profile at @{username}.
+          There's no RevMate profile at {displayUsername(username)}.
         </p>
       </div>
     );
@@ -219,7 +220,7 @@ function GarageProfilePage() {
                   onClick={(e) => {
                     if (!user) {
                       e.preventDefault();
-                      openAuthModal(`Create a free account to message ${profile.username}.`);
+                      openAuthModal(`Create a free account to message ${displayUsername(profile.username)}.`);
                     }
                   }}
                   className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
@@ -250,7 +251,7 @@ function GarageProfilePage() {
           )}
         </div>
 
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">{profile.username}</h1>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight">{displayUsername(profile.username)}</h1>
         <p className="text-sm text-muted-foreground">{PERSONA_LABELS[profile.persona]}</p>
         {profile.bio && (
           <p className="mt-2 max-w-2xl whitespace-pre-wrap break-words text-sm">{profile.bio}</p>
@@ -282,7 +283,7 @@ function GarageProfilePage() {
             {garage
               ?.filter((car) => car.ownership_status !== "previous")
               .map((car) => (
-                <GarageCarTile key={car.id} username={username} car={car} />
+                <GarageCarTile key={car.id} username={profile.username} car={car} />
               ))}
           </div>
           {garage?.length === 0 && !adding && (
@@ -297,7 +298,7 @@ function GarageProfilePage() {
                 {garage
                   ?.filter((car) => car.ownership_status === "previous")
                   .map((car) => (
-                    <GarageCarTile key={car.id} username={username} car={car} />
+                    <GarageCarTile key={car.id} username={profile.username} car={car} />
                   ))}
               </div>
             </div>
