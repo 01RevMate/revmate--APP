@@ -63,12 +63,10 @@ export function EditableImage({
         title={label ?? "Change image"}
         className={`
           absolute flex cursor-pointer items-center justify-center
-          transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+          transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:pointer-events-auto
           disabled:cursor-wait
-          /* desktop: full overlay */
-          md:inset-0 md:flex-col md:gap-1.5 md:bg-black/45 md:text-white md:opacity-0 md:group-hover:opacity-100
-          /* mobile: floating pill/circle */
-          max-md:bottom-3 max-md:right-3 max-md:rounded-full max-md:border max-md:border-border/60 max-md:bg-background/95
+          md:inset-0 md:flex-col md:gap-1.5 md:bg-black/45 md:text-white md:opacity-0 md:group-hover:opacity-100 md:pointer-events-none md:group-hover:pointer-events-auto
+          max-md:bottom-3 max-md:right-3 max-md:gap-1.5 max-md:rounded-full max-md:border max-md:border-border/60 max-md:bg-background/95
           max-md:px-3 max-md:py-2 max-md:text-foreground max-md:shadow-lg max-md:opacity-100
           ${rounded}
         `}
