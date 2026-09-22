@@ -169,6 +169,7 @@ function GarageProfilePage() {
         onUploaded={handleCoverUploaded}
         className="h-40 w-full bg-muted sm:h-56"
         rounded="rounded-none"
+        label="Change cover"
       >
         {profile.cover_photo_url && (
           <img src={profile.cover_photo_url} alt="" className="size-full object-cover" />
