@@ -339,23 +339,29 @@ export function PostCard({
           Share
         </button>
         {user?.id !== post.user_id && (
-          <div className="ml-auto flex items-center gap-4">
+          <div className="ml-auto flex items-center gap-1">
             <button
+              type="button"
               onClick={() =>
                 user
                   ? setReportOpen((open) => !open)
                   : openAuthModal("Create a free account to report posts.")
               }
-              className="flex items-center gap-1.5 hover:text-foreground"
+              aria-label="Report post"
+              title="Report post"
+              className="flex size-8 items-center justify-center rounded-full hover:bg-accent hover:text-foreground"
             >
-              <Flag className="size-4" /> Report
+              <Flag className="size-4" />
             </button>
             <button
+              type="button"
               onClick={handleBlock}
               disabled={safetySaving}
-              className="flex items-center gap-1.5 hover:text-destructive disabled:opacity-50"
+              aria-label="Block profile"
+              title="Block profile"
+              className="flex size-8 items-center justify-center rounded-full hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
             >
-              <UserX className="size-4" /> Block
+              <UserX className="size-4" />
             </button>
           </div>
         )}
