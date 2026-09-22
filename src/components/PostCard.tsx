@@ -44,6 +44,13 @@ export function PostCard({
   const [reportDetails, setReportDetails] = useState("");
   const [safetySaving, setSafetySaving] = useState(false);
 
+  // Like state arrives asynchronously (and some pages load it late), so keep
+  // the heart in sync with the server data instead of freezing the first value.
+  useEffect(() => setLiked(initiallyLiked), [initiallyLiked, post.id]);
+  useEffect(() => setLikesCount(post.likes_count), [post.likes_count, post.id]);
+  useEffect(() => setCommentsCount(post.comments_count), [post.comments_count, post.id]);
+
+
   async function toggleLike() {
     if (!user) {
       openAuthModal("Create a free account to like posts.");
