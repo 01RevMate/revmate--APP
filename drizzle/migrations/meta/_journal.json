@@ -127,6 +127,13 @@
       "when": 1790099487266,
       "tag": "0017_approved_vehicle_makes",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790101285307,
+      "tag": "0018_normalize_profile_usernames_on_signup",
+      "breakpoints": true
     }
   ]
 }
