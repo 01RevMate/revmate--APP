@@ -141,6 +141,27 @@
       "when": 1790110800000,
       "tag": "0019_friends_only_feed",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1790110045027,
+      "tag": "0020_grant_group_members_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1790110074999,
+      "tag": "0021_grant_group_members_anon_select",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1790110106704,
+      "tag": "0022_fix_community_feed_group_membership",
+      "breakpoints": true
     }
   ]
 }
