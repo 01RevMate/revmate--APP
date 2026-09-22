@@ -45,7 +45,7 @@ export function EditableImage({
     }
   }
 
-  if (!editable) return <div className={className}>{children}</div>;
+  if (!editable || !showTrigger) return <div className={className}>{children}</div>;
 
   return (
     <div className={`group relative ${className ?? ""}`}>
