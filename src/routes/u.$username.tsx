@@ -19,7 +19,7 @@ import {
   TRANSMISSION_LABELS,
   type GarageCar,
 } from "@/lib/garage";
-import { fetchPostsByUser } from "@/lib/posts";
+import { fetchMyLikedPostIds, fetchPostsByUser } from "@/lib/posts";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { GarageCarTile } from "@/components/GarageCarTile";
@@ -80,6 +80,12 @@ function GarageProfilePage() {
     queryKey: ["posts-by-user", profile?.user_id],
     enabled: !!profile,
     queryFn: () => fetchPostsByUser(profile!.user_id),
+  });
+
+  const { data: likedPostIds } = useQuery({
+    queryKey: ["posts-by-user", "liked", user?.id, posts?.map((p) => p.id)],
+    queryFn: () => fetchMyLikedPostIds(user!.id, posts!.map((p) => p.id)),
+    enabled: !!user && !!posts && posts.length > 0,
   });
 
   const { data: questions } = useQuery({
