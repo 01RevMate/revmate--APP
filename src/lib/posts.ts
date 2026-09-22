@@ -126,7 +126,10 @@ export async function deletePost(postId: string) {
 }
 
 export async function likePost(postId: string, userId: string) {
-  const { error } = await supabase.from("post_likes").insert({ post_id: postId, user_id: userId });
+  // Idempotent: liking an already-liked post must not error.
+  const { error } = await supabase
+    .from("post_likes")
+    .upsert({ post_id: postId, user_id: userId }, { onConflict: "post_id,user_id", ignoreDuplicates: true });
   if (error) throw error;
 }
 
