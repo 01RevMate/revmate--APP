@@ -32,6 +32,11 @@ function notificationDetails(notification: NotificationWithContext) {
   switch (notification.kind) {
     case "comment":
       return { Icon: MessageCircle, text: `${actor} commented on your post` };
+    case "message":
+      return {
+        Icon: MessageCircle,
+        text: `${actor} ${notification.message ?? "sent you a message"}`,
+      };
     case "like":
       return { Icon: Heart, text: `${actor} liked your post` };
     case "friend_request":
@@ -163,7 +168,7 @@ export function NotificationCenter() {
           )}
           {!error && !isLoading && notifications.length === 0 && (
             <p className="p-4 text-sm text-muted-foreground">
-              Replies, likes and group updates will appear here.
+              Messages, replies, likes and group updates will appear here.
             </p>
           )}
           {(notifications as NotificationWithContext[]).map((n) => {
