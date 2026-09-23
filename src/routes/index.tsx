@@ -7,7 +7,6 @@ import { useProfile } from "@/hooks/useProfile";
 import { fetchFeed, fetchMyLikedPostIds, type PostWithAuthor } from "@/lib/posts";
 import { fetchGarage } from "@/lib/garage";
 import { fetchFriends } from "@/lib/friends";
-import { CarLogo } from "@/components/CarLogo";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { Sidebar } from "@/components/Sidebar";
 import { PostComposer } from "@/components/PostComposer";
@@ -56,10 +55,9 @@ function Home() {
   const queryClient = useQueryClient();
   const [scope, setScope] = useState<FeedScope>("all");
   const [category, setCategory] = useState<CategoryFilter>("all");
-  // Which car's make/model to use for My Car/Same Brand when posting as
-  // yourself with more than one car — null until the person picks one (or
-  // "all" to mix every car together, the old behavior).
-  const [sessionFilterCarId, setSessionFilterCarId] = useState<string | "all" | null>(null);
+  // A car chosen in the composer also focuses My Car/Same Brand on that car.
+  // Until then, the feed can show matches for every current car in the garage.
+  const [sessionFilterCarId, setSessionFilterCarId] = useState<string | null>(null);
 
   const { data: garage } = useQuery({
     queryKey: ["garage", user?.id],
@@ -85,16 +83,8 @@ function Home() {
     () => currentCars.find((c) => c.id === profile?.active_garage_car_id) ?? null,
     [currentCars, profile?.active_garage_car_id],
   );
-  const needsCarPrompt =
-    !activeCar &&
-    currentCars.length > 1 &&
-    sessionFilterCarId === null &&
-    (scope === "my_car" || scope === "same_brand");
-
   const hasGarageCars = currentCars.length > 0;
-  const filterCarId =
-    activeCar?.id ??
-    (sessionFilterCarId && sessionFilterCarId !== "all" ? sessionFilterCarId : null);
+  const filterCarId = sessionFilterCarId ?? activeCar?.id ?? null;
   const {
     data: pages,
     isLoading,
@@ -108,7 +98,6 @@ function Home() {
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length === 30 ? allPages.length * 30 : undefined,
-    enabled: !needsCarPrompt,
     refetchInterval: 240000,
   });
   const filteredPosts = useMemo(
@@ -156,41 +145,10 @@ function Home() {
                   onPosted={refreshFeed}
                   requiredCarIdentity={scope === "my_car" || scope === "same_brand"}
                   garageCars={currentCars}
-                  preferredGarageCarId={
-                    activeCar?.id ??
-                    (sessionFilterCarId && sessionFilterCarId !== "all" ? sessionFilterCarId : null)
-                  }
+                  preferredGarageCarId={filterCarId}
                   onGarageCarSelected={setSessionFilterCarId}
                   audience={scope === "friends" ? "friends" : "public"}
                 />
-              )}
-
-              {needsCarPrompt && (
-                <div className="rounded-lg border border-dashed border-border p-4">
-                  <p className="text-sm font-medium">Which car do you mean?</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    You've got more than one car in the garage — pick one, or look at posts for all
-                    of them.
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {currentCars.map((car) => (
-                      <button
-                        key={car.id}
-                        onClick={() => setSessionFilterCarId(car.id)}
-                        className="flex items-center gap-1.5 rounded-full border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
-                      >
-                        <CarLogo make={car.make} className="size-4 shrink-0 rounded-full" />
-                        {car.nickname}
-                      </button>
-                    ))}
-                    <button
-                      onClick={() => setSessionFilterCarId("all")}
-                      className="rounded-full border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
-                    >
-                      All my cars
-                    </button>
-                  </div>
-                </div>
               )}
 
               {user && !hasGarageCars && (
@@ -228,7 +186,7 @@ function Home() {
               {isLoading &&
                 Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} immersive />)}
 
-              {!isLoading && !feedError && !needsCarPrompt && filteredPosts.length === 0 && (
+              {!isLoading && !feedError && filteredPosts.length === 0 && (
                 <div className="mx-3 rounded-lg border border-dashed border-border bg-background p-8 text-center text-sm text-muted-foreground sm:mx-0">
                   {scope === "my_car"
                     ? "No posts about your car yet — be the first."

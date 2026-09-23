@@ -227,35 +227,37 @@ export function PostComposer({
       />
       {requiredCarIdentity && (
         <div className="rounded-md border border-primary/25 bg-primary/5 p-3">
-          <label htmlFor="posting-car" className="text-xs font-semibold">
-            Choose which car you’re posting as
-          </label>
-          <select
-            id="posting-car"
-            value={selectedGarageCarId}
-            onChange={(e) => {
-              setSelectedGarageCarId(e.target.value);
-              if (e.target.value) onGarageCarSelected?.(e.target.value);
-            }}
-            required
-            className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="">Select one of your cars</option>
-            {garageCars.map((car) => (
-              <option key={car.id} value={car.id}>
-                {car.nickname} — {car.make} {car.model}
-              </option>
-            ))}
-          </select>
-          <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-            {postingAs && (
-              <CarLogo
-                make={garageCars.find((car) => car.id === postingAs)?.make ?? ""}
-                className="size-4 rounded-full"
-              />
-            )}
-            Use your profile in All Cars or groups. Choose an owned car for the car feeds.
+          <p className="text-sm font-semibold">Which car are you posting as?</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            This puts your post with the right owners and car discussions.
           </p>
+          <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Choose your car">
+            {garageCars.map((car) => {
+              const selected = car.id === selectedGarageCarId;
+              return (
+                <button
+                  key={car.id}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => {
+                    setSelectedGarageCarId(car.id);
+                    onGarageCarSelected?.(car.id);
+                  }}
+                  className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition-colors ${
+                    selected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-input bg-background hover:bg-accent"
+                  }`}
+                >
+                  <CarLogo
+                    make={car.make}
+                    className="size-5 shrink-0 rounded-full bg-white p-0.5"
+                  />
+                  {car.nickname}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
       {tagging && !requiredCarIdentity && (
