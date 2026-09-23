@@ -118,6 +118,9 @@ function GarageProfilePage() {
     },
   });
 
+  const currentGarageCars = (garage ?? []).filter((car) => car.ownership_status !== "previous");
+  const previousGarageCars = (garage ?? []).filter((car) => car.ownership_status === "previous");
+
   function refreshProfile() {
     queryClient.invalidateQueries({ queryKey: ["profile-by-username", username] });
   }
@@ -231,7 +234,9 @@ function GarageProfilePage() {
                   onClick={(e) => {
                     if (!user) {
                       e.preventDefault();
-                      openAuthModal(`Create a free account to message ${displayUsername(profile.username)}.`);
+                      openAuthModal(
+                        `Create a free account to message ${displayUsername(profile.username)}.`,
+                      );
                     }
                   }}
                   className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
@@ -262,7 +267,9 @@ function GarageProfilePage() {
           )}
         </div>
 
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">{displayUsername(profile.username)}</h1>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+          {displayUsername(profile.username)}
+        </h1>
         <p className="text-sm text-muted-foreground">{PERSONA_LABELS[profile.persona]}</p>
         {profile.bio && (
           <p className="mt-2 max-w-2xl whitespace-pre-wrap break-words text-sm">{profile.bio}</p>
@@ -290,27 +297,46 @@ function GarageProfilePage() {
         )}
 
         <Section title="Garage">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {garage
-              ?.filter((car) => car.ownership_status !== "previous")
-              .map((car) => (
-                <GarageCarTile key={car.id} username={profile.username} car={car} />
-              ))}
+          <div className="relative mt-14 rounded-b-xl border-x border-b border-border bg-card px-3 pb-3 pt-4 shadow-sm sm:px-5 sm:pb-5">
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 100 30"
+              preserveAspectRatio="none"
+              className="pointer-events-none absolute -left-px -top-12 h-12 w-[calc(100%+2px)] overflow-visible"
+            >
+              <path
+                d="M 0 30 L 50 1 L 100 30 Z"
+                className="fill-card stroke-border"
+                strokeWidth="1.5"
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+            <div className="relative rounded-t-xl border border-border bg-muted/20 p-3 sm:p-4">
+              <div
+                aria-hidden="true"
+                className="absolute inset-x-0 top-0 h-3 rounded-t-xl border-b border-border bg-muted/60"
+              />
+              <div className="grid grid-cols-2 gap-3 pt-3">
+                {currentGarageCars.map((car) => (
+                  <GarageCarTile key={car.id} username={profile.username} car={car} />
+                ))}
+              </div>
+              {currentGarageCars.length === 0 && (
+                <p className="px-3 py-8 text-center text-sm text-muted-foreground">
+                  No cars parked here yet.
+                </p>
+              )}
+            </div>
           </div>
-          {garage?.length === 0 && !adding && (
-            <p className="mt-2 text-sm text-muted-foreground">No cars in the garage yet.</p>
-          )}
-          {garage?.some((car) => car.ownership_status === "previous") && (
+          {previousGarageCars.length > 0 && (
             <div className="mt-6 border-t border-border pt-4">
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Previously owned
               </h3>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {garage
-                  ?.filter((car) => car.ownership_status === "previous")
-                  .map((car) => (
-                    <GarageCarTile key={car.id} username={profile.username} car={car} />
-                  ))}
+                {previousGarageCars.map((car) => (
+                  <GarageCarTile key={car.id} username={profile.username} car={car} />
+                ))}
               </div>
             </div>
           )}
@@ -333,12 +359,12 @@ function GarageProfilePage() {
                   >
                     + Add a car
                   </button>
-                  {(garage?.some((car) => car.ownership_status !== "previous") ?? false) && (
+                  {currentGarageCars.length > 0 && (
                     <PostingIdentitySwitcher
                       userId={user!.id}
                       username={profile.username}
                       activeGarageCarId={profile.active_garage_car_id}
-                      cars={garage!.filter((car) => car.ownership_status !== "previous")}
+                      cars={currentGarageCars}
                     />
                   )}
                 </div>
