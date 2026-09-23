@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ImagePlus, UserRoundCheck, X } from "lucide-react";
+import {
+  Gauge,
+  ImagePlus,
+  MessagesSquare,
+  Paintbrush,
+  Sparkles,
+  Stethoscope,
+  UserRoundCheck,
+  Wrench,
+  X,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
@@ -17,7 +27,23 @@ import {
 import { validateImageFile } from "@/lib/uploads";
 import { CarPicker } from "@/components/CarPicker";
 import { CarLogo } from "@/components/CarLogo";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { GarageCar } from "@/lib/garage";
+
+const CATEGORY_DETAILS = {
+  discussion: { icon: MessagesSquare, description: "General car chat and opinions" },
+  diagnostics: { icon: Stethoscope, description: "Faults, warning lights and fixes" },
+  modifications: { icon: Wrench, description: "Upgrades, tuning and changes" },
+  bodywork: { icon: Paintbrush, description: "Paint, dents and body repairs" },
+  maintenance: { icon: Gauge, description: "Servicing, upkeep and how-tos" },
+  showcase: { icon: Sparkles, description: "Show everyone your car or build" },
+} satisfies Record<Post["category"], { icon: typeof MessagesSquare; description: string }>;
 
 export function PostComposer({
   onPosted,
@@ -43,7 +69,8 @@ export function PostComposer({
   const [carId, setCarId] = useState("");
   const [tagging, setTagging] = useState(false);
   const [selectedGarageCarId, setSelectedGarageCarId] = useState("");
-  const [category, setCategory] = useState<Post["category"]>("discussion");
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [publishingCategory, setPublishingCategory] = useState<Post["category"] | null>(null);
   const [images, setImages] = useState<{ file: File; previewUrl: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -110,11 +137,10 @@ export function PostComposer({
     setBody("");
     setCarId("");
     setTagging(false);
-    setCategory("discussion");
     setImages([]);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!body.trim()) return;
     if (!user) {
@@ -125,6 +151,12 @@ export function PostComposer({
       toast.error("Choose one of your cars before posting here.");
       return;
     }
+    setCategoryOpen(true);
+  }
+
+  async function publishPost(category: Post["category"]) {
+    if (saving || !user || !body.trim()) return;
+    setPublishingCategory(category);
     setSaving(true);
     try {
       const postId = await createPost({
@@ -159,12 +191,14 @@ export function PostComposer({
             ? "Friends-only post published."
             : "Post published.",
       );
+      setCategoryOpen(false);
       resetForm();
       onPosted();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't post");
     } finally {
       setSaving(false);
+      setPublishingCategory(null);
     }
   }
 
@@ -251,17 +285,6 @@ export function PostComposer({
       )}
 
       <div className="flex flex-wrap items-center gap-2">
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value as Post["category"])}
-          className="rounded-md border border-input bg-background px-2 py-1 text-xs"
-        >
-          {Object.entries(POST_CATEGORY_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
         {!requiredCarIdentity && (
           <button
             type="button"
@@ -304,6 +327,49 @@ export function PostComposer({
           {saving ? "Posting…" : "Post"}
         </button>
       </div>
+
+      <Dialog
+        open={categoryOpen}
+        onOpenChange={(open) => {
+          if (!saving) setCategoryOpen(open);
+        }}
+      >
+        <DialogContent className="max-w-[calc(100%-2rem)] rounded-2xl p-4 sm:max-w-md sm:p-6">
+          <DialogHeader className="pr-7 text-left">
+            <DialogTitle>Choose a category</DialogTitle>
+            <DialogDescription>Where should this post appear?</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2">
+            {(Object.entries(POST_CATEGORY_LABELS) as [Post["category"], string][]).map(
+              ([value, label]) => {
+                const Icon = CATEGORY_DETAILS[value].icon;
+                const isPublishing = saving && publishingCategory === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    disabled={saving}
+                    onClick={() => void publishPost(value)}
+                    className="flex items-center gap-3 rounded-xl border border-border p-3 text-left transition-colors hover:border-primary hover:bg-accent disabled:opacity-50"
+                  >
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Icon className="size-5" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold">
+                        {isPublishing ? "Posting…" : label}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {CATEGORY_DETAILS[value].description}
+                      </span>
+                    </span>
+                  </button>
+                );
+              },
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </form>
   );
 }
