@@ -3,6 +3,7 @@ import { Loader2 } from "lucide-react";
 
 const THRESHOLD = 70;
 const MAX_PULL = 120;
+const MIN_REFRESH_MS = 2000;
 
 // Facebook/Twitter-style pull-to-refresh: dragging down from the very top of
 // the page reveals a spinner that grows with the pull, then spins
@@ -54,7 +55,11 @@ export function PullToRefresh({
         if (current >= THRESHOLD && !refreshingRef.current) {
           refreshingRef.current = true;
           setRefreshing(true);
-          Promise.resolve(onRefresh()).finally(() => {
+          const refresh = Promise.resolve().then(onRefresh);
+          const minimumDisplay = new Promise<void>((resolve) => {
+            window.setTimeout(resolve, MIN_REFRESH_MS);
+          });
+          Promise.allSettled([refresh, minimumDisplay]).then(() => {
             refreshingRef.current = false;
             setRefreshing(false);
             setPull(0);
@@ -80,17 +85,21 @@ export function PullToRefresh({
   return (
     <div ref={containerRef}>
       <div
-        className="flex items-center justify-center overflow-hidden transition-[height] duration-200 ease-out md:hidden"
+        className="flex items-center justify-center gap-2 overflow-hidden text-muted-foreground transition-[height] duration-200 ease-out md:hidden"
         style={{ height: indicatorHeight }}
       >
         <Loader2
-          className={`size-5 text-muted-foreground ${refreshing ? "animate-spin" : ""}`}
+          className={`size-5 ${refreshing ? "animate-spin" : ""}`}
           style={
             refreshing
               ? undefined
-              : { transform: `rotate(${(pull / THRESHOLD) * 360}deg)`, opacity: Math.min(pull / THRESHOLD, 1) }
+              : {
+                  transform: `rotate(${(pull / THRESHOLD) * 360}deg)`,
+                  opacity: Math.min(pull / THRESHOLD, 1),
+                }
           }
         />
+        {refreshing && <span className="text-xs font-medium">Refreshing…</span>}
       </div>
       {children}
     </div>

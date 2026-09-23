@@ -218,6 +218,20 @@ function Home() {
                   </button>
                 </div>
               )}
+              {!isLoading && !feedError && filteredPosts.length > 0 && hasNextPage === false && (
+                <div className="bg-background px-4 py-8 text-center sm:rounded-lg sm:border sm:border-border">
+                  <span
+                    aria-hidden="true"
+                    className="mx-auto flex size-11 items-center justify-center rounded-full border border-border bg-muted font-mono text-sm font-semibold text-muted-foreground"
+                  >
+                    •ᴗ•
+                  </span>
+                  <p className="mt-3 text-sm font-semibold">You’re all caught up</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    That’s everything in this feed for now.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </PullToRefresh>
