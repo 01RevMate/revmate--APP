@@ -358,12 +358,6 @@ export function PostCard({
 
       <p className="mt-3 whitespace-pre-wrap text-sm">{post.body}</p>
 
-      {isForSale && post.listings && (
-        <p className="mt-1 text-lg font-semibold text-blue-500">
-          {post.listings.price != null ? `£${post.listings.price}` : "POA"}
-        </p>
-      )}
-
       {postImages.length > 0 && (
         <div
           className={`mt-3 grid gap-1 overflow-hidden ${immersive ? "-mx-3 rounded-none sm:mx-0 sm:rounded-md" : "rounded-md"} ${
@@ -385,6 +379,14 @@ export function PostCard({
               />
             </button>
           ))}
+        </div>
+      )}
+
+      {isForSale && post.listings && (
+        <div className="mt-3 rounded-md bg-blue-500/10 px-3 py-2">
+          <p className="text-lg font-semibold text-blue-500">
+            {post.listings.price != null ? `£${post.listings.price.toLocaleString("en-GB")}` : "POA"}
+          </p>
         </div>
       )}
 
