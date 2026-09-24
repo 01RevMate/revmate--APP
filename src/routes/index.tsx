@@ -5,7 +5,7 @@ import { Car } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { fetchFeed, fetchMyLikedPostIds, type PostWithAuthor } from "@/lib/posts";
-import { fetchGarage, fetchMyLikedGarageCarIds } from "@/lib/garage";
+import { fetchGarage, fetchMyLikedGarageCarIds, fetchMyDislikedGarageCarIds } from "@/lib/garage";
 import { fetchFollowing } from "@/lib/follows";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { Sidebar } from "@/components/Sidebar";
@@ -128,6 +128,11 @@ function Home() {
     queryFn: () => fetchMyLikedGarageCarIds(user!.id, showcaseCarIds),
     enabled: !!user && showcaseCarIds.length > 0,
   });
+  const { data: dislikedCarIds } = useQuery({
+    queryKey: ["feed", "disliked-cars", user?.id, showcaseCarIds],
+    queryFn: () => fetchMyDislikedGarageCarIds(user!.id, showcaseCarIds),
+    enabled: !!user && showcaseCarIds.length > 0,
+  });
 
   function refreshFeed() {
     return queryClient.invalidateQueries({ queryKey: ["feed"] });
@@ -219,6 +224,7 @@ function Home() {
                   post={post}
                   liked={likedIds?.has(post.id) ?? false}
                   carLiked={likedCarIds?.has(post.posted_as_garage_car?.id ?? "") ?? false}
+                  carDisliked={dislikedCarIds?.has(post.posted_as_garage_car?.id ?? "") ?? false}
                   onDeleted={refreshFeed}
                   immersive
                 />

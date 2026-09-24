@@ -8,7 +8,9 @@ import {
   MessageCircle,
   Share2,
   Tag,
+  ThumbsDown,
   Trash2,
+  Trophy,
   UserRoundCheck,
   UserX,
 } from "lucide-react";
@@ -20,7 +22,7 @@ import { CarLogo } from "@/components/CarLogo";
 import { PostImageViewer } from "@/components/PostImageViewer";
 import { carLabel, carPath } from "@/lib/cars";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
-import { likeGarageCar, unlikeGarageCar } from "@/lib/garage";
+import { dislikeGarageCar, likeGarageCar, undislikeGarageCar, unlikeGarageCar } from "@/lib/garage";
 import {
   addComment,
   deletePost,
@@ -37,6 +39,7 @@ export function PostCard({
   post,
   liked: initiallyLiked,
   carLiked: initiallyCarLiked = false,
+  carDisliked: initiallyCarDisliked = false,
   onDeleted,
   canModerate = false,
   onHide,
@@ -45,6 +48,7 @@ export function PostCard({
   post: PostWithAuthor;
   liked: boolean;
   carLiked?: boolean;
+  carDisliked?: boolean;
   onDeleted?: () => void;
   canModerate?: boolean;
   onHide?: () => void;
@@ -61,6 +65,11 @@ export function PostCard({
   const isForSale = post.category === "for_sale";
   const [carLiked, setCarLiked] = useState(initiallyCarLiked);
   const [carLikesCount, setCarLikesCount] = useState(post.posted_as_garage_car?.likes_count ?? 0);
+  const [carDisliked, setCarDisliked] = useState(initiallyCarDisliked);
+  const [carDislikesCount, setCarDislikesCount] = useState(
+    post.posted_as_garage_car?.dislikes_count ?? 0,
+  );
+  const [dislikingCar, setDislikingCar] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [comments, setComments] = useState<CommentWithAuthor[] | null>(null);
   const [commentsLoading, setCommentsLoading] = useState(false);
@@ -92,6 +101,11 @@ export function PostCard({
   useEffect(
     () => setCarLikesCount(post.posted_as_garage_car?.likes_count ?? 0),
     [post.posted_as_garage_car?.likes_count, post.id],
+  );
+  useEffect(() => setCarDisliked(initiallyCarDisliked), [initiallyCarDisliked, post.id]);
+  useEffect(
+    () => setCarDislikesCount(post.posted_as_garage_car?.dislikes_count ?? 0),
+    [post.posted_as_garage_car?.dislikes_count, post.id],
   );
 
   async function toggleLike() {
@@ -125,19 +139,64 @@ export function PostCard({
     const garageCarId = post.posted_as_garage_car.id;
     setLiking(true);
     const next = !carLiked;
+    const clearedDislike = next && carDisliked;
     setCarLiked(next);
     setCarLikesCount((n) => n + (next ? 1 : -1));
+    if (clearedDislike) {
+      setCarDisliked(false);
+      setCarDislikesCount((n) => Math.max(0, n - 1));
+    }
     try {
       if (next) await likeGarageCar(garageCarId, user.id);
       else await unlikeGarageCar(garageCarId, user.id);
       queryClient.invalidateQueries({ queryKey: ["garage-car-rank", garageCarId] });
       queryClient.invalidateQueries({ queryKey: ["feed", "liked-cars"] });
+      queryClient.invalidateQueries({ queryKey: ["feed", "disliked-cars"] });
     } catch (err) {
       setCarLiked(!next);
       setCarLikesCount((n) => n + (next ? -1 : 1));
+      if (clearedDislike) {
+        setCarDisliked(true);
+        setCarDislikesCount((n) => n + 1);
+      }
       toast.error(err instanceof Error ? err.message : "Couldn't update like");
     } finally {
       setLiking(false);
+    }
+  }
+
+  async function toggleCarDislike() {
+    if (dislikingCar || !post.posted_as_garage_car) return;
+    if (!user) {
+      openAuthModal("Create a free account to react to this car.");
+      return;
+    }
+    const garageCarId = post.posted_as_garage_car.id;
+    setDislikingCar(true);
+    const next = !carDisliked;
+    const clearedLike = next && carLiked;
+    setCarDisliked(next);
+    setCarDislikesCount((n) => n + (next ? 1 : -1));
+    if (clearedLike) {
+      setCarLiked(false);
+      setCarLikesCount((n) => Math.max(0, n - 1));
+    }
+    try {
+      if (next) await dislikeGarageCar(garageCarId, user.id);
+      else await undislikeGarageCar(garageCarId, user.id);
+      queryClient.invalidateQueries({ queryKey: ["garage-car-rank", garageCarId] });
+      queryClient.invalidateQueries({ queryKey: ["feed", "liked-cars"] });
+      queryClient.invalidateQueries({ queryKey: ["feed", "disliked-cars"] });
+    } catch (err) {
+      setCarDisliked(!next);
+      setCarDislikesCount((n) => n + (next ? -1 : 1));
+      if (clearedLike) {
+        setCarLiked(true);
+        setCarLikesCount((n) => n + 1);
+      }
+      toast.error(err instanceof Error ? err.message : "Couldn't update dislike");
+    } finally {
+      setDislikingCar(false);
     }
   }
 
@@ -435,27 +494,46 @@ export function PostCard({
 
       <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
         {isCarLike ? (
-          <button
-            onClick={toggleCarLike}
-            disabled={liking}
-            title={`Like ${post.posted_as_garage_car?.nickname} — counts toward its RevMate rank`}
-            aria-label={`Like ${post.posted_as_garage_car?.nickname} — counts toward its RevMate rank`}
-            className={`relative flex items-center gap-1.5 hover:text-foreground ${carLiked ? "text-amber-500 hover:text-amber-500" : ""}`}
-          >
-            <span className="relative">
-              <Heart
-                className={`size-4 transition-transform duration-200 ${carLiked ? "scale-110" : "scale-100"}`}
-                fill={carLiked ? "currentColor" : "none"}
-              />
-              {post.posted_as_garage_car && (
-                <CarLogo
-                  make={post.posted_as_garage_car.make}
-                  className="absolute -bottom-1.5 -right-1.5 size-3 rounded-full border border-background bg-background"
+          <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-transparent py-0.5 pl-1 pr-2">
+            <button
+              onClick={toggleCarLike}
+              disabled={liking}
+              title={`Like ${post.posted_as_garage_car?.nickname} — counts toward its RevMate rank`}
+              aria-label={`Like ${post.posted_as_garage_car?.nickname} — counts toward its RevMate rank`}
+              className={`relative flex items-center gap-1.5 rounded-full px-2 py-1 font-semibold hover:text-foreground ${carLiked ? "bg-amber-500/15 text-amber-500 hover:text-amber-500" : ""}`}
+            >
+              <span className="relative">
+                <Heart
+                  className={`size-5 transition-transform duration-200 ${carLiked ? "scale-110" : "scale-100"}`}
+                  fill={carLiked ? "currentColor" : "none"}
                 />
-              )}
+                {post.posted_as_garage_car && (
+                  <CarLogo
+                    make={post.posted_as_garage_car.make}
+                    className="absolute -bottom-1.5 -right-1.5 size-3 rounded-full border border-background bg-background"
+                  />
+                )}
+              </span>
+              {carLikesCount > 0 ? carLikesCount : "Like this car"}
+            </button>
+            <button
+              onClick={toggleCarDislike}
+              disabled={dislikingCar}
+              title={`Dislike ${post.posted_as_garage_car?.nickname} — affects its RevMate rank`}
+              aria-label={`Dislike ${post.posted_as_garage_car?.nickname} — affects its RevMate rank`}
+              className={`flex items-center gap-1.5 rounded-full px-2 py-1 hover:text-foreground ${carDisliked ? "bg-foreground/10 text-foreground" : ""}`}
+            >
+              <ThumbsDown className="size-4" fill={carDisliked ? "currentColor" : "none"} />
+              {carDislikesCount > 0 ? carDislikesCount : ""}
+            </button>
+            <span
+              title="Net score — likes minus dislikes, feeds this car's RevMate rank"
+              className="ml-1 flex items-center gap-1 text-xs font-semibold text-amber-600"
+            >
+              <Trophy className="size-3.5" />
+              {carLikesCount - carDislikesCount}
             </span>
-            {carLikesCount > 0 ? carLikesCount : "Like this car"}
-          </button>
+          </div>
         ) : (
           <button
             onClick={toggleLike}

@@ -267,6 +267,20 @@ export async function fetchMyLikedGarageCarIds(
   return new Set(data.map((row) => row.garage_car_id));
 }
 
+export async function fetchMyDislikedGarageCarIds(
+  userId: string,
+  garageCarIds: string[],
+): Promise<Set<string>> {
+  if (garageCarIds.length === 0) return new Set();
+  const { data, error } = await supabase
+    .from("garage_car_dislikes")
+    .select("garage_car_id")
+    .eq("user_id", userId)
+    .in("garage_car_id", garageCarIds);
+  if (error) throw error;
+  return new Set(data.map((row) => row.garage_car_id));
+}
+
 // A like and a dislike on the same car by the same user are mutually
 // exclusive — a DB trigger clears the opposite reaction automatically.
 export async function dislikeGarageCar(garageCarId: string, userId: string) {
