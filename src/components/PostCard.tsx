@@ -383,8 +383,8 @@ export function PostCard({
       )}
 
       {isForSale && post.listings && (
-        <div className="mt-3 rounded-md bg-blue-500/10 px-3 py-2">
-          <p className="text-lg font-semibold text-blue-500">
+        <div className={`mt-3 bg-slate-800 px-4 py-3 ${immersive ? "-mx-3 sm:mx-0" : "-mx-4"}`}>
+          <p className="text-lg font-semibold text-white">
             {post.listings.price != null ? `£${post.listings.price.toLocaleString("en-GB")}` : "POA"}
           </p>
         </div>
