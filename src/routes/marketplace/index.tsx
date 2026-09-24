@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { carLabel, carPath } from "@/lib/cars";
 import { fetchActiveListings } from "@/lib/listings";
 
-export const Route = createFileRoute("/marketplace")({
+export const Route = createFileRoute("/marketplace/")({
   head: () => ({
     meta: [
       { title: "Buy & Sell — RevMate" },
@@ -64,43 +64,51 @@ function MarketplacePage() {
       <ul className="mt-6 grid gap-3 sm:grid-cols-2">
         {listings?.map((listing) => (
           <li key={listing.id} className="overflow-hidden rounded-lg border border-border bg-card">
-            {listing.photos?.[0] && (
-              <img src={listing.photos[0]} alt="" className="aspect-video w-full object-cover" />
-            )}
+            <Link to="/marketplace/$listingId" params={{ listingId: listing.id }}>
+              {listing.photos?.[0] && (
+                <img src={listing.photos[0]} alt="" className="aspect-video w-full object-cover" />
+              )}
+            </Link>
             <div className="p-4">
-            <div className="flex items-start justify-between gap-2">
-              <p className="font-medium">{listing.title}</p>
-              <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">
-                {listing.type === "car" ? "Whole car" : "Part"}
-              </span>
-            </div>
-            {listing.cars && (
-              <Link {...carPath(listing.cars)} className="mt-1 block text-xs text-muted-foreground hover:underline">
-                {carLabel(listing.cars)}
-              </Link>
-            )}
-            {listing.description && (
-              <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{listing.description}</p>
-            )}
-            {listing.show_car_stats && listing.garage_cars && (
-              <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Heart className="size-3.5" />
-                  {listing.garage_cars.likes_count}
-                </span>
-                <span className="flex items-center gap-1">
-                  <ThumbsDown className="size-3.5" />
-                  {listing.garage_cars.dislikes_count}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Users className="size-3.5" />
-                  {listing.garage_cars.followers_count}
+              <div className="flex items-start justify-between gap-2">
+                <Link
+                  to="/marketplace/$listingId"
+                  params={{ listingId: listing.id }}
+                  className="font-medium hover:underline"
+                >
+                  {listing.title}
+                </Link>
+                <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">
+                  {listing.type === "car" ? "Whole car" : "Part"}
                 </span>
               </div>
-            )}
-            <p className="mt-2 text-sm font-semibold">
-              {listing.price != null ? `£${listing.price}` : "POA"}
-            </p>
+              {listing.cars && (
+                <Link {...carPath(listing.cars)} className="mt-1 block text-xs text-muted-foreground hover:underline">
+                  {carLabel(listing.cars)}
+                </Link>
+              )}
+              {listing.description && (
+                <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{listing.description}</p>
+              )}
+              {listing.show_car_stats && listing.garage_cars && (
+                <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Heart className="size-3.5" />
+                    {listing.garage_cars.likes_count}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <ThumbsDown className="size-3.5" />
+                    {listing.garage_cars.dislikes_count}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="size-3.5" />
+                    {listing.garage_cars.followers_count}
+                  </span>
+                </div>
+              )}
+              <p className="mt-2 text-sm font-semibold">
+                {listing.price != null ? `£${listing.price}` : "POA"}
+              </p>
             </div>
           </li>
         ))}

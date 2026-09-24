@@ -18,7 +18,6 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as GarageRouteImport } from './routes/garage'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SellRouteImport } from './routes/sell'
@@ -29,6 +28,8 @@ import { Route as GroupsIndexRouteImport } from './routes/groups/index'
 import { Route as GroupsSlugRouteImport } from './routes/groups/$slug'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
+import { Route as MarketplaceIndexRouteImport } from './routes/marketplace/index'
+import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace/$listingId'
 import { Route as MessagesUsernameRouteImport } from './routes/messages.$username'
 import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
@@ -78,11 +79,6 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketplaceRoute = MarketplaceRouteImport.update({
-  id: '/marketplace',
-  path: '/marketplace',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -135,6 +131,16 @@ const LegalTermsRoute = LegalTermsRouteImport.update({
   path: '/legal/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
+  id: '/marketplace/',
+  path: '/marketplace/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceListingIdRoute = MarketplaceListingIdRouteImport.update({
+  id: '/marketplace/$listingId',
+  path: '/marketplace/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MessagesUsernameRoute = MessagesUsernameRouteImport.update({
   id: '/$username',
   path: '/$username',
@@ -171,7 +177,6 @@ export interface FileRoutesByFullPath {
   '/garage': typeof GarageRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
-  '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/sell': typeof SellRoute
@@ -180,11 +185,13 @@ export interface FileRoutesByFullPath {
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/u/$username': typeof UUsernameRoute
   '/cars/': typeof CarsIndexRoute
   '/groups/': typeof GroupsIndexRoute
+  '/marketplace/': typeof MarketplaceIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
@@ -198,7 +205,6 @@ export interface FileRoutesByTo {
   '/garage': typeof GarageRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
-  '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/sell': typeof SellRoute
@@ -207,11 +213,13 @@ export interface FileRoutesByTo {
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/u/$username': typeof UUsernameRoute
   '/cars': typeof CarsIndexRoute
   '/groups': typeof GroupsIndexRoute
+  '/marketplace': typeof MarketplaceIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
@@ -226,7 +234,6 @@ export interface FileRoutesById {
   '/garage': typeof GarageRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
-  '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/sell': typeof SellRoute
@@ -235,11 +242,13 @@ export interface FileRoutesById {
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/u/$username': typeof UUsernameRoute
   '/cars/': typeof CarsIndexRoute
   '/groups/': typeof GroupsIndexRoute
+  '/marketplace/': typeof MarketplaceIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username_/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
@@ -255,7 +264,6 @@ export interface FileRouteTypes {
     | '/garage'
     | '/leaderboard'
     | '/login'
-    | '/marketplace'
     | '/messages'
     | '/reset-password'
     | '/sell'
@@ -264,11 +272,13 @@ export interface FileRouteTypes {
     | '/groups/$slug'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/marketplace/$listingId'
     | '/messages/$username'
     | '/posts/$postId'
     | '/u/$username'
     | '/cars/'
     | '/groups/'
+    | '/marketplace/'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
   fileRoutesByTo: FileRoutesByTo
@@ -282,7 +292,6 @@ export interface FileRouteTypes {
     | '/garage'
     | '/leaderboard'
     | '/login'
-    | '/marketplace'
     | '/messages'
     | '/reset-password'
     | '/sell'
@@ -291,11 +300,13 @@ export interface FileRouteTypes {
     | '/groups/$slug'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/marketplace/$listingId'
     | '/messages/$username'
     | '/posts/$postId'
     | '/u/$username'
     | '/cars'
     | '/groups'
+    | '/marketplace'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
   id:
@@ -309,7 +320,6 @@ export interface FileRouteTypes {
     | '/garage'
     | '/leaderboard'
     | '/login'
-    | '/marketplace'
     | '/messages'
     | '/reset-password'
     | '/sell'
@@ -318,11 +328,13 @@ export interface FileRouteTypes {
     | '/groups/$slug'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/marketplace/$listingId'
     | '/messages/$username'
     | '/posts/$postId'
     | '/u/$username'
     | '/cars/'
     | '/groups/'
+    | '/marketplace/'
     | '/cars/$make/$model/$generation'
     | '/u/$username_/cars/$carId'
   fileRoutesById: FileRoutesById
@@ -337,7 +349,6 @@ export interface RootRouteChildren {
   GarageRoute: typeof GarageRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
-  MarketplaceRoute: typeof MarketplaceRoute
   MessagesRoute: typeof MessagesRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   SellRoute: typeof SellRoute
@@ -346,10 +357,12 @@ export interface RootRouteChildren {
   GroupsSlugRoute: typeof GroupsSlugRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
+  MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
   UUsernameRoute: typeof UUsernameRoute
   CarsIndexRoute: typeof CarsIndexRoute
   GroupsIndexRoute: typeof GroupsIndexRoute
+  MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   CarsMakeModelGenerationRoute: typeof CarsMakeModelGenerationRoute
   UUsernameCarsCarIdRoute: typeof UUsernameCarsCarIdRoute
 }
@@ -417,13 +430,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketplace': {
-      id: '/marketplace'
-      path: '/marketplace'
-      fullPath: '/marketplace'
-      preLoaderRoute: typeof MarketplaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -496,6 +502,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LegalTermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/marketplace/': {
+      id: '/marketplace/'
+      path: '/marketplace'
+      fullPath: '/marketplace/'
+      preLoaderRoute: typeof MarketplaceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace/$listingId': {
+      id: '/marketplace/$listingId'
+      path: '/marketplace/$listingId'
+      fullPath: '/marketplace/$listingId'
+      preLoaderRoute: typeof MarketplaceListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/messages/$username': {
       id: '/messages/$username'
       path: '/$username'
@@ -556,7 +576,6 @@ const rootRouteChildren: RootRouteChildren = {
   GarageRoute: GarageRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
-  MarketplaceRoute: MarketplaceRoute,
   MessagesRoute: MessagesRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   SellRoute: SellRoute,
@@ -565,10 +584,12 @@ const rootRouteChildren: RootRouteChildren = {
   GroupsSlugRoute: GroupsSlugRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
+  MarketplaceListingIdRoute: MarketplaceListingIdRoute,
   PostsPostIdRoute: PostsPostIdRoute,
   UUsernameRoute: UUsernameRoute,
   CarsIndexRoute: CarsIndexRoute,
   GroupsIndexRoute: GroupsIndexRoute,
+  MarketplaceIndexRoute: MarketplaceIndexRoute,
   CarsMakeModelGenerationRoute: CarsMakeModelGenerationRoute,
   UUsernameCarsCarIdRoute: UUsernameCarsCarIdRoute,
 }

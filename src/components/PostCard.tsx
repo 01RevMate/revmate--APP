@@ -423,6 +423,16 @@ export function PostCard({
         </div>
       )}
 
+      {isForSale && post.listings && (
+        <Link
+          to="/marketplace/$listingId"
+          params={{ listingId: post.listings.id }}
+          className={`block bg-blue-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-blue-600 ${immersive ? "-mx-3 sm:-mx-4" : "-mx-4"}`}
+        >
+          View full listing →
+        </Link>
+      )}
+
       <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
         {isCarLike ? (
           <button

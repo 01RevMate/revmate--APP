@@ -13,6 +13,21 @@ export type ListingWithCar = Listing & {
   } | null;
 };
 
+export type ListingDetail = Listing & {
+  cars: { make: string; model: string; generation: string } | null;
+  garage_cars: {
+    id: string;
+    nickname: string;
+    make: string;
+    model: string;
+    year: number | null;
+    likes_count: number;
+    dislikes_count: number;
+    followers_count: number;
+  } | null;
+  profiles: { username: string; avatar_url: string | null } | null;
+};
+
 // A car-for-sale listing needs enough photos to actually sell it — mirrors
 // what buyers expect from a Facebook Marketplace / AutoTrader listing.
 export const MIN_CAR_LISTING_PHOTOS = 5;
@@ -39,6 +54,27 @@ export async function fetchListingsForCar(carId: string): Promise<ListingWithCar
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data as unknown as ListingWithCar[];
+}
+
+export async function fetchListingById(id: string): Promise<ListingDetail | null> {
+  const { data, error } = await supabase
+    .from("listings")
+    .select(
+      "*, cars(make, model, generation), garage_cars(id, nickname, make, model, year, likes_count, dislikes_count, followers_count)",
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  // listings.user_id has no declared FK to profiles (unlike posts), so the
+  // seller's profile is fetched separately rather than embedded.
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("username, avatar_url")
+    .eq("user_id", data.user_id)
+    .maybeSingle();
+  if (profileError) throw profileError;
+  return { ...data, profiles: profile } as unknown as ListingDetail;
 }
 
 // Used to badge a garage car "For sale" — a car is on the market if it has
