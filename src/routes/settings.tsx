@@ -272,6 +272,21 @@ function SettingsPage() {
           )}
         </ul>
       </Section>
+
+      <Section title="About & legal">
+        <ul className="space-y-2 text-sm">
+          <li>
+            <Link to="/legal/terms" className="text-primary underline">
+              Terms of service & marketplace disclaimer
+            </Link>
+          </li>
+          <li>
+            <Link to="/legal/privacy" className="text-primary underline">
+              Privacy policy
+            </Link>
+          </li>
+        </ul>
+      </Section>
     </div>
   );
 }

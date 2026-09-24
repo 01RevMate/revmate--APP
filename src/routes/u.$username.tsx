@@ -20,6 +20,7 @@ import {
   type GarageCar,
 } from "@/lib/garage";
 import { fetchMyLikedPostIds, fetchPostsByUser } from "@/lib/posts";
+import { fetchActiveListingsByUser } from "@/lib/listings";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { GarageCarTile } from "@/components/GarageCarTile";
@@ -120,6 +121,15 @@ function GarageProfilePage() {
 
   const currentGarageCars = (garage ?? []).filter((car) => car.ownership_status !== "previous");
   const previousGarageCars = (garage ?? []).filter((car) => car.ownership_status === "previous");
+
+  const { data: activeListings } = useQuery({
+    queryKey: ["listings", "by-user", profile?.user_id],
+    enabled: !!profile,
+    queryFn: () => fetchActiveListingsByUser(profile!.user_id),
+  });
+  const forSaleGarageCarIds = new Set(
+    (activeListings ?? []).map((l) => l.garage_car_id).filter((id): id is string => !!id),
+  );
 
   function refreshProfile() {
     queryClient.invalidateQueries({ queryKey: ["profile-by-username", username] });
@@ -318,7 +328,12 @@ function GarageProfilePage() {
               />
               <div className="grid grid-cols-2 gap-3 pt-3">
                 {currentGarageCars.map((car) => (
-                  <GarageCarTile key={car.id} username={profile.username} car={car} />
+                  <GarageCarTile
+                    key={car.id}
+                    username={profile.username}
+                    car={car}
+                    forSale={forSaleGarageCarIds.has(car.id)}
+                  />
                 ))}
               </div>
               {currentGarageCars.length === 0 && (
@@ -372,6 +387,30 @@ function GarageProfilePage() {
             </div>
           )}
         </Section>
+
+        {(activeListings?.length ?? 0) > 0 && (
+          <Section title={isOwner ? "Selling" : `${profile.username} is selling`}>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {activeListings?.map((listing) => (
+                <Link
+                  key={listing.id}
+                  to="/marketplace"
+                  className="overflow-hidden rounded-lg border border-border bg-card hover:border-primary"
+                >
+                  {listing.photos?.[0] && (
+                    <img src={listing.photos[0]} alt="" className="aspect-video w-full object-cover" />
+                  )}
+                  <div className="p-3">
+                    <p className="font-medium">{listing.title}</p>
+                    <p className="text-sm font-semibold">
+                      {listing.price != null ? `£${listing.price}` : "POA"}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </Section>
+        )}
 
         <Section title="Activity">
           <div className="space-y-4">

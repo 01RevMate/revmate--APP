@@ -169,6 +169,27 @@
       "when": 1790116200000,
       "tag": "0023_complete_in_app_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1790116300000,
+      "tag": "0024_message_images_and_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1790116400000,
+      "tag": "0025_garage_car_reactions_and_ranking",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1790116500000,
+      "tag": "0026_car_sale_listings_and_feed",
+      "breakpoints": true
     }
   ]
 }

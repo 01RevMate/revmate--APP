@@ -219,10 +219,15 @@ export async function removeCarPhoto(id: string) {
   if (error) throw error;
 }
 
+// Idempotent: liking an already-liked car must not error (a double-click
+// shouldn't throw a unique-violation).
 export async function likeGarageCar(garageCarId: string, userId: string) {
   const { error } = await supabase
     .from("garage_car_likes")
-    .insert({ garage_car_id: garageCarId, user_id: userId });
+    .upsert(
+      { garage_car_id: garageCarId, user_id: userId },
+      { onConflict: "garage_car_id,user_id", ignoreDuplicates: true },
+    );
   if (error) throw error;
 }
 
@@ -246,16 +251,149 @@ export async function hasLikedGarageCar(garageCarId: string, userId: string): Pr
   return !!data;
 }
 
-// Rank a car by likes among all garage cars — fetches a large batch and finds
-// the index client-side, same approach as the old app rather than a
-// window-function RPC, since supabase-js has no raw-SQL escape hatch here.
-export async function fetchGarageCarRank(garageCarId: string): Promise<number | null> {
+// Batch check for feed rendering — mirrors fetchMyLikedPostIds in posts.ts,
+// so showcase-post car-like state doesn't fire one query per card.
+export async function fetchMyLikedGarageCarIds(
+  userId: string,
+  garageCarIds: string[],
+): Promise<Set<string>> {
+  if (garageCarIds.length === 0) return new Set();
   const { data, error } = await supabase
-    .from("garage_cars")
-    .select("id, likes_count")
-    .order("likes_count", { ascending: false })
-    .limit(500);
+    .from("garage_car_likes")
+    .select("garage_car_id")
+    .eq("user_id", userId)
+    .in("garage_car_id", garageCarIds);
   if (error) throw error;
-  const idx = data.findIndex((c) => c.id === garageCarId);
-  return idx >= 0 ? idx + 1 : null;
+  return new Set(data.map((row) => row.garage_car_id));
+}
+
+// A like and a dislike on the same car by the same user are mutually
+// exclusive — a DB trigger clears the opposite reaction automatically.
+export async function dislikeGarageCar(garageCarId: string, userId: string) {
+  const { error } = await supabase
+    .from("garage_car_dislikes")
+    .upsert(
+      { garage_car_id: garageCarId, user_id: userId },
+      { onConflict: "garage_car_id,user_id", ignoreDuplicates: true },
+    );
+  if (error) throw error;
+}
+
+export async function undislikeGarageCar(garageCarId: string, userId: string) {
+  const { error } = await supabase
+    .from("garage_car_dislikes")
+    .delete()
+    .eq("garage_car_id", garageCarId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
+export async function hasDislikedGarageCar(garageCarId: string, userId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("garage_car_dislikes")
+    .select("id")
+    .eq("garage_car_id", garageCarId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  return !!data;
+}
+
+export async function followGarageCar(garageCarId: string, userId: string) {
+  const { error } = await supabase
+    .from("garage_car_follows")
+    .upsert(
+      { garage_car_id: garageCarId, user_id: userId },
+      { onConflict: "garage_car_id,user_id", ignoreDuplicates: true },
+    );
+  if (error) throw error;
+}
+
+export async function unfollowGarageCar(garageCarId: string, userId: string) {
+  const { error } = await supabase
+    .from("garage_car_follows")
+    .delete()
+    .eq("garage_car_id", garageCarId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
+export async function hasFollowedGarageCar(garageCarId: string, userId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("garage_car_follows")
+    .select("id")
+    .eq("garage_car_id", garageCarId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  return !!data;
+}
+
+export type GarageCarRankEntry = {
+  id: string;
+  user_id: string;
+  username: string;
+  nickname: string;
+  make: string;
+  model: string;
+  photo_url: string | null;
+  likes_count: number;
+  dislikes_count: number;
+  followers_count: number;
+  net_score: number;
+  rank: number;
+};
+
+export type GarageCarBrandRankEntry = {
+  make: string;
+  car_count: number;
+  total_likes: number;
+  total_dislikes: number;
+  net_score: number;
+  rank: number;
+};
+
+export type GarageCarModelRankEntry = GarageCarBrandRankEntry & { model: string };
+
+// Rank a single car by net score (likes - dislikes) among current cars, via
+// a window-function RPC — cheap indexed scan, not a 500-row client fetch.
+export async function fetchGarageCarRank(garageCarId: string): Promise<number | null> {
+  const { data, error } = await supabase.rpc("rank_garage_car", { target_id: garageCarId });
+  if (error) throw error;
+  return data ?? null;
+}
+
+export async function fetchGarageCarLeaderboard(limit = 50, offset = 0): Promise<GarageCarRankEntry[]> {
+  const { data, error } = await supabase.rpc("rank_garage_cars", {
+    result_limit: limit,
+    result_offset: offset,
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchGarageCarBrandLeaderboard(
+  limit = 50,
+  offset = 0,
+): Promise<GarageCarBrandRankEntry[]> {
+  const { data, error } = await supabase.rpc("rank_garage_car_brands", {
+    result_limit: limit,
+    result_offset: offset,
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchGarageCarModelLeaderboard(
+  filterMake?: string,
+  limit = 50,
+  offset = 0,
+): Promise<GarageCarModelRankEntry[]> {
+  const { data, error } = await supabase.rpc("rank_garage_car_models", {
+    ...(filterMake ? { filter_make: filterMake } : {}),
+    result_limit: limit,
+    result_offset: offset,
+  });
+  if (error) throw error;
+  return data;
 }

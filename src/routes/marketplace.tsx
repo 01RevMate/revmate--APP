@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { Heart, ThumbsDown, Users } from "lucide-react";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useAuth } from "@/hooks/useAuth";
-import { carLabel, carPath, type Car } from "@/lib/cars";
-import { supabase } from "@/integrations/supabase/client";
+import { carLabel, carPath } from "@/lib/cars";
+import { fetchActiveListings } from "@/lib/listings";
 
 export const Route = createFileRoute("/marketplace")({
   head: () => ({
@@ -19,32 +20,13 @@ export const Route = createFileRoute("/marketplace")({
   component: MarketplacePage,
 });
 
-type ListingWithCar = {
-  id: string;
-  title: string;
-  description: string | null;
-  price: number | null;
-  type: "car" | "part";
-  status: string;
-  created_at: string;
-  cars: Pick<Car, "make" | "model" | "generation"> | null;
-};
-
 function MarketplacePage() {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
 
   const { data: listings, isLoading } = useQuery({
     queryKey: ["listings"],
-    queryFn: async (): Promise<ListingWithCar[]> => {
-      const { data, error } = await supabase
-        .from("listings")
-        .select("*, cars(make, model, generation)")
-        .eq("status", "active")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as unknown as ListingWithCar[];
-    },
+    queryFn: fetchActiveListings,
   });
 
   return (
@@ -57,6 +39,7 @@ function MarketplacePage() {
         {user ? (
           <Link
             to="/sell"
+            search={{ garageCarId: undefined }}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             + List something
@@ -80,7 +63,11 @@ function MarketplacePage() {
 
       <ul className="mt-6 grid gap-3 sm:grid-cols-2">
         {listings?.map((listing) => (
-          <li key={listing.id} className="rounded-lg border border-border bg-card p-4">
+          <li key={listing.id} className="overflow-hidden rounded-lg border border-border bg-card">
+            {listing.photos?.[0] && (
+              <img src={listing.photos[0]} alt="" className="aspect-video w-full object-cover" />
+            )}
+            <div className="p-4">
             <div className="flex items-start justify-between gap-2">
               <p className="font-medium">{listing.title}</p>
               <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">
@@ -95,9 +82,26 @@ function MarketplacePage() {
             {listing.description && (
               <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{listing.description}</p>
             )}
+            {listing.show_car_stats && listing.garage_cars && (
+              <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Heart className="size-3.5" />
+                  {listing.garage_cars.likes_count}
+                </span>
+                <span className="flex items-center gap-1">
+                  <ThumbsDown className="size-3.5" />
+                  {listing.garage_cars.dislikes_count}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Users className="size-3.5" />
+                  {listing.garage_cars.followers_count}
+                </span>
+              </div>
+            )}
             <p className="mt-2 text-sm font-semibold">
               {listing.price != null ? `£${listing.price}` : "POA"}
             </p>
+            </div>
           </li>
         ))}
       </ul>

@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { Heart, ThumbsDown, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { carLabel, engineOptions, fetchCarBySlug, yearRange } from "@/lib/cars";
 import { fetchMyLikedPostIds, fetchPostsByCar } from "@/lib/posts";
+import { fetchListingsForCar } from "@/lib/listings";
 import { PostCard } from "@/components/PostCard";
 import { CarLogo } from "@/components/CarLogo";
 
@@ -85,16 +87,7 @@ function CarPage() {
   const listings = useQuery({
     queryKey: ["listings", car?.id],
     enabled: !!car,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("listings")
-        .select("*")
-        .eq("car_id", car!.id)
-        .eq("status", "active")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => fetchListingsForCar(car!.id),
   });
 
   if (carQuery.isLoading) {
@@ -242,7 +235,7 @@ function CarPage() {
       </Section>
 
       <Section title="Listings">
-        <Link to="/sell" className="text-sm underline">
+        <Link to="/sell" search={{ garageCarId: undefined }} className="text-sm underline">
           List a car or part
         </Link>
         <ul className="mt-4 space-y-3">
@@ -256,6 +249,22 @@ function CarPage() {
               </div>
               {listing.description && (
                 <p className="mt-1 text-sm text-muted-foreground">{listing.description}</p>
+              )}
+              {listing.show_car_stats && listing.garage_cars && (
+                <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Heart className="size-3.5" />
+                    {listing.garage_cars.likes_count}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <ThumbsDown className="size-3.5" />
+                    {listing.garage_cars.dislikes_count}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="size-3.5" />
+                    {listing.garage_cars.followers_count}
+                  </span>
+                </div>
               )}
             </li>
           ))}

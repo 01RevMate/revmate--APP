@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
-import { Flag, Heart, MessageCircle, Share2, Trash2, UserRoundCheck, UserX } from "lucide-react";
+import { Flag, Heart, MessageCircle, Share2, Tag, Trash2, UserRoundCheck, UserX } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -11,6 +11,7 @@ import { CarLogo } from "@/components/CarLogo";
 import { PostImageViewer } from "@/components/PostImageViewer";
 import { carLabel, carPath } from "@/lib/cars";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
+import { likeGarageCar, unlikeGarageCar } from "@/lib/garage";
 import {
   addComment,
   deletePost,
@@ -26,6 +27,7 @@ import { blockProfile, reportPost, type ReportReason } from "@/lib/moderation";
 export function PostCard({
   post,
   liked: initiallyLiked,
+  carLiked: initiallyCarLiked = false,
   onDeleted,
   canModerate = false,
   onHide,
@@ -33,6 +35,7 @@ export function PostCard({
 }: {
   post: PostWithAuthor;
   liked: boolean;
+  carLiked?: boolean;
   onDeleted?: () => void;
   canModerate?: boolean;
   onHide?: () => void;
@@ -45,6 +48,10 @@ export function PostCard({
   const [commentSaving, setCommentSaving] = useState(false);
   const [liked, setLiked] = useState(initiallyLiked);
   const [likesCount, setLikesCount] = useState(post.likes_count);
+  const isCarLike = post.category === "showcase" && !!post.posted_as_garage_car;
+  const isForSale = post.category === "for_sale";
+  const [carLiked, setCarLiked] = useState(initiallyCarLiked);
+  const [carLikesCount, setCarLikesCount] = useState(post.posted_as_garage_car?.likes_count ?? 0);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [comments, setComments] = useState<CommentWithAuthor[] | null>(null);
   const [commentsLoading, setCommentsLoading] = useState(false);
@@ -67,6 +74,11 @@ export function PostCard({
   useEffect(() => setLiked(initiallyLiked), [initiallyLiked, post.id]);
   useEffect(() => setLikesCount(post.likes_count), [post.likes_count, post.id]);
   useEffect(() => setCommentsCount(post.comments_count), [post.comments_count, post.id]);
+  useEffect(() => setCarLiked(initiallyCarLiked), [initiallyCarLiked, post.id]);
+  useEffect(
+    () => setCarLikesCount(post.posted_as_garage_car?.likes_count ?? 0),
+    [post.posted_as_garage_car?.likes_count, post.id],
+  );
 
   async function toggleLike() {
     if (liking) return;
@@ -84,6 +96,31 @@ export function PostCard({
     } catch (err) {
       setLiked(!next);
       setLikesCount((n) => n + (next ? -1 : 1));
+      toast.error(err instanceof Error ? err.message : "Couldn't update like");
+    } finally {
+      setLiking(false);
+    }
+  }
+
+  async function toggleCarLike() {
+    if (liking || !post.posted_as_garage_car) return;
+    if (!user) {
+      openAuthModal("Create a free account to like this car.");
+      return;
+    }
+    const garageCarId = post.posted_as_garage_car.id;
+    setLiking(true);
+    const next = !carLiked;
+    setCarLiked(next);
+    setCarLikesCount((n) => n + (next ? 1 : -1));
+    try {
+      if (next) await likeGarageCar(garageCarId, user.id);
+      else await unlikeGarageCar(garageCarId, user.id);
+      queryClient.invalidateQueries({ queryKey: ["garage-car-rank", garageCarId] });
+      queryClient.invalidateQueries({ queryKey: ["feed", "liked-cars"] });
+    } catch (err) {
+      setCarLiked(!next);
+      setCarLikesCount((n) => n + (next ? -1 : 1));
       toast.error(err instanceof Error ? err.message : "Couldn't update like");
     } finally {
       setLiking(false);
@@ -249,7 +286,10 @@ export function PostCard({
           )}
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent-foreground">
+          <span
+            className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${isForSale ? "bg-blue-500 text-white" : "bg-accent text-accent-foreground"}`}
+          >
+            {isForSale && <Tag className="size-2.5" />}
             {POST_CATEGORY_LABELS[post.category]}
           </span>
           {user?.id === post.user_id && (
@@ -309,6 +349,12 @@ export function PostCard({
 
       <p className="mt-3 whitespace-pre-wrap text-sm">{post.body}</p>
 
+      {isForSale && post.listings && (
+        <p className="mt-1 text-lg font-semibold text-blue-500">
+          {post.listings.price != null ? `£${post.listings.price}` : "POA"}
+        </p>
+      )}
+
       {postImages.length > 0 && (
         <div
           className={`mt-3 grid gap-1 overflow-hidden ${immersive ? "-mx-3 rounded-none sm:mx-0 sm:rounded-md" : "rounded-md"} ${
@@ -334,17 +380,41 @@ export function PostCard({
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-border pt-3 text-sm text-muted-foreground">
-        <button
-          onClick={toggleLike}
-          disabled={liking}
-          className={`flex items-center gap-1.5 hover:text-foreground ${liked ? "text-red-500 hover:text-red-500" : ""}`}
-        >
-          <Heart
-            className={`size-4 transition-transform duration-200 ${liked ? "scale-110" : "scale-100"}`}
-            fill={liked ? "currentColor" : "none"}
-          />
-          {likesCount > 0 ? likesCount : "Like"}
-        </button>
+        {isCarLike ? (
+          <button
+            onClick={toggleCarLike}
+            disabled={liking}
+            title={`Like ${post.posted_as_garage_car?.nickname} — counts toward its RevMate rank`}
+            aria-label={`Like ${post.posted_as_garage_car?.nickname} — counts toward its RevMate rank`}
+            className={`relative flex items-center gap-1.5 hover:text-foreground ${carLiked ? "text-amber-500 hover:text-amber-500" : ""}`}
+          >
+            <span className="relative">
+              <Heart
+                className={`size-4 transition-transform duration-200 ${carLiked ? "scale-110" : "scale-100"}`}
+                fill={carLiked ? "currentColor" : "none"}
+              />
+              {post.posted_as_garage_car && (
+                <CarLogo
+                  make={post.posted_as_garage_car.make}
+                  className="absolute -bottom-1.5 -right-1.5 size-3 rounded-full border border-background bg-background"
+                />
+              )}
+            </span>
+            {carLikesCount > 0 ? carLikesCount : "Like this car"}
+          </button>
+        ) : (
+          <button
+            onClick={toggleLike}
+            disabled={liking}
+            className={`flex items-center gap-1.5 hover:text-foreground ${liked ? "text-red-500 hover:text-red-500" : ""}`}
+          >
+            <Heart
+              className={`size-4 transition-transform duration-200 ${liked ? "scale-110" : "scale-100"}`}
+              fill={liked ? "currentColor" : "none"}
+            />
+            {likesCount > 0 ? likesCount : "Like"}
+          </button>
+        )}
         <button
           onClick={toggleComments}
           className="flex items-center gap-1.5 hover:text-foreground"
@@ -478,11 +548,11 @@ export function PostCard({
           activeIndex={viewerIndex}
           onActiveIndexChange={setViewerIndex}
           onClose={() => setViewerIndex(null)}
-          liked={liked}
-          likesCount={likesCount}
+          liked={isCarLike ? carLiked : liked}
+          likesCount={isCarLike ? carLikesCount : likesCount}
           commentsCount={commentsCount}
           liking={liking}
-          onLike={() => void toggleLike()}
+          onLike={() => void (isCarLike ? toggleCarLike() : toggleLike())}
           onComment={() => {
             setViewerIndex(null);
             void openComments();

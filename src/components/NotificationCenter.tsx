@@ -45,6 +45,8 @@ function notificationDetails(notification: NotificationWithContext) {
       return { Icon: CheckCircle2, text: `${actor} accepted your friend request` };
     case "car_like":
       return { Icon: Car, text: `${actor} liked a car in your garage` };
+    case "car_follow":
+      return { Icon: UserPlus, text: `${actor} started following your car` };
     case "answer":
       return { Icon: HelpCircle, text: `${actor} answered your question` };
     case "join_request":

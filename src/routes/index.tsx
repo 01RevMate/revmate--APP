@@ -5,7 +5,7 @@ import { Car } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { fetchFeed, fetchMyLikedPostIds, type PostWithAuthor } from "@/lib/posts";
-import { fetchGarage } from "@/lib/garage";
+import { fetchGarage, fetchMyLikedGarageCarIds } from "@/lib/garage";
 import { fetchFriends } from "@/lib/friends";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { Sidebar } from "@/components/Sidebar";
@@ -114,6 +114,21 @@ function Home() {
     enabled: !!user && filteredPosts.length > 0,
   });
 
+  // Showcase posts made as a car let people "like the car" itself, not the
+  // post — batch-check those separately so each card doesn't fire its own query.
+  const showcaseCarIds = useMemo(
+    () =>
+      filteredPosts
+        .filter((p) => p.category === "showcase" && p.posted_as_garage_car)
+        .map((p) => p.posted_as_garage_car!.id),
+    [filteredPosts],
+  );
+  const { data: likedCarIds } = useQuery({
+    queryKey: ["feed", "liked-cars", user?.id, showcaseCarIds],
+    queryFn: () => fetchMyLikedGarageCarIds(user!.id, showcaseCarIds),
+    enabled: !!user && showcaseCarIds.length > 0,
+  });
+
   function refreshFeed() {
     return queryClient.invalidateQueries({ queryKey: ["feed"] });
   }
@@ -203,6 +218,7 @@ function Home() {
                   key={post.id}
                   post={post}
                   liked={likedIds?.has(post.id) ?? false}
+                  carLiked={likedCarIds?.has(post.posted_as_garage_car?.id ?? "") ?? false}
                   onDeleted={refreshFeed}
                   immersive
                 />

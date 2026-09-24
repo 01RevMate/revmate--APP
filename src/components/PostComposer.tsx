@@ -36,6 +36,10 @@ import {
 } from "@/components/ui/dialog";
 import type { GarageCar } from "@/lib/garage";
 
+// "for_sale" posts are only created via the sell flow (pushed from a
+// listing), not chosen directly here, so it's excluded from this picker.
+type ComposerCategory = Exclude<Post["category"], "for_sale">;
+
 const CATEGORY_DETAILS = {
   discussion: { icon: MessagesSquare, description: "General car chat and opinions" },
   diagnostics: { icon: Stethoscope, description: "Faults, warning lights and fixes" },
@@ -43,7 +47,7 @@ const CATEGORY_DETAILS = {
   bodywork: { icon: Paintbrush, description: "Paint, dents and body repairs" },
   maintenance: { icon: Gauge, description: "Servicing, upkeep and how-tos" },
   showcase: { icon: Sparkles, description: "Show everyone your car or build" },
-} satisfies Record<Post["category"], { icon: typeof MessagesSquare; description: string }>;
+} satisfies Record<ComposerCategory, { icon: typeof MessagesSquare; description: string }>;
 
 export function PostComposer({
   onPosted,
@@ -342,8 +346,10 @@ export function PostComposer({
             <DialogDescription>Where should this post appear?</DialogDescription>
           </DialogHeader>
           <div className="grid gap-2">
-            {(Object.entries(POST_CATEGORY_LABELS) as [Post["category"], string][]).map(
-              ([value, label]) => {
+            {(Object.entries(POST_CATEGORY_LABELS).filter(([id]) => id !== "for_sale") as [
+              ComposerCategory,
+              string,
+            ][]).map(([value, label]) => {
                 const Icon = CATEGORY_DETAILS[value].icon;
                 const isPublishing = saving && publishingCategory === value;
                 return (
@@ -367,8 +373,7 @@ export function PostComposer({
                     </span>
                   </button>
                 );
-              },
-            )}
+              })}
           </div>
         </DialogContent>
       </Dialog>

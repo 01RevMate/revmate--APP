@@ -15,6 +15,7 @@ import { Route as AskRouteImport } from './routes/ask'
 import { Route as CommunityStandardsRouteImport } from './routes/community-standards'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as GarageRouteImport } from './routes/garage'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as MessagesRouteImport } from './routes/messages'
@@ -25,6 +26,8 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
 import { Route as GroupsIndexRouteImport } from './routes/groups/index'
 import { Route as GroupsSlugRouteImport } from './routes/groups/$slug'
+import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
+import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as MessagesUsernameRouteImport } from './routes/messages.$username'
 import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
@@ -59,6 +62,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
 const GarageRoute = GarageRouteImport.update({
   id: '/garage',
   path: '/garage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -111,6 +119,16 @@ const GroupsSlugRoute = GroupsSlugRouteImport.update({
   path: '/groups/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
+  id: '/legal/privacy',
+  path: '/legal/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalTermsRoute = LegalTermsRouteImport.update({
+  id: '/legal/terms',
+  path: '/legal/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MessagesUsernameRoute = MessagesUsernameRouteImport.update({
   id: '/$username',
   path: '/$username',
@@ -144,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/community-standards': typeof CommunityStandardsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -152,6 +171,8 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/groups/$slug': typeof GroupsSlugRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -167,6 +188,7 @@ export interface FileRoutesByTo {
   '/community-standards': typeof CommunityStandardsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -175,6 +197,8 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/groups/$slug': typeof GroupsSlugRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -191,6 +215,7 @@ export interface FileRoutesById {
   '/community-standards': typeof CommunityStandardsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -199,6 +224,8 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/groups/$slug': typeof GroupsSlugRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -216,6 +243,7 @@ export interface FileRouteTypes {
     | '/community-standards'
     | '/forgot-password'
     | '/garage'
+    | '/leaderboard'
     | '/login'
     | '/marketplace'
     | '/messages'
@@ -224,6 +252,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/signup'
     | '/groups/$slug'
+    | '/legal/privacy'
+    | '/legal/terms'
     | '/messages/$username'
     | '/posts/$postId'
     | '/u/$username'
@@ -239,6 +269,7 @@ export interface FileRouteTypes {
     | '/community-standards'
     | '/forgot-password'
     | '/garage'
+    | '/leaderboard'
     | '/login'
     | '/marketplace'
     | '/messages'
@@ -247,6 +278,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/signup'
     | '/groups/$slug'
+    | '/legal/privacy'
+    | '/legal/terms'
     | '/messages/$username'
     | '/posts/$postId'
     | '/u/$username'
@@ -262,6 +295,7 @@ export interface FileRouteTypes {
     | '/community-standards'
     | '/forgot-password'
     | '/garage'
+    | '/leaderboard'
     | '/login'
     | '/marketplace'
     | '/messages'
@@ -270,6 +304,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/signup'
     | '/groups/$slug'
+    | '/legal/privacy'
+    | '/legal/terms'
     | '/messages/$username'
     | '/posts/$postId'
     | '/u/$username'
@@ -286,6 +322,7 @@ export interface RootRouteChildren {
   CommunityStandardsRoute: typeof CommunityStandardsRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   GarageRoute: typeof GarageRoute
+  LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MessagesRoute: typeof MessagesRouteWithChildren
@@ -294,6 +331,8 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
   GroupsSlugRoute: typeof GroupsSlugRoute
+  LegalPrivacyRoute: typeof LegalPrivacyRoute
+  LegalTermsRoute: typeof LegalTermsRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
   UUsernameRoute: typeof UUsernameRoute
   CarsIndexRoute: typeof CarsIndexRoute
@@ -344,6 +383,13 @@ declare module '@tanstack/react-router' {
       path: '/garage'
       fullPath: '/garage'
       preLoaderRoute: typeof GarageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -416,6 +462,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GroupsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legal/privacy': {
+      id: '/legal/privacy'
+      path: '/legal/privacy'
+      fullPath: '/legal/privacy'
+      preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/terms': {
+      id: '/legal/terms'
+      path: '/legal/terms'
+      fullPath: '/legal/terms'
+      preLoaderRoute: typeof LegalTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/messages/$username': {
       id: '/messages/$username'
       path: '/$username'
@@ -473,6 +533,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityStandardsRoute: CommunityStandardsRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   GarageRoute: GarageRoute,
+  LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   MarketplaceRoute: MarketplaceRoute,
   MessagesRoute: MessagesRouteWithChildren,
@@ -481,6 +542,8 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
   GroupsSlugRoute: GroupsSlugRoute,
+  LegalPrivacyRoute: LegalPrivacyRoute,
+  LegalTermsRoute: LegalTermsRoute,
   PostsPostIdRoute: PostsPostIdRoute,
   UUsernameRoute: UUsernameRoute,
   CarsIndexRoute: CarsIndexRoute,

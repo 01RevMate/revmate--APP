@@ -8,6 +8,7 @@ import {
   Paintbrush,
   Gauge,
   Sparkles,
+  Tag,
 } from "lucide-react";
 
 export type CategoryFilter = Post["category"] | "all";
@@ -19,6 +20,7 @@ const CATEGORY_ICONS = {
   bodywork: Paintbrush,
   maintenance: Gauge,
   showcase: Sparkles,
+  for_sale: Tag,
 } satisfies Record<Post["category"], typeof MessagesSquare>;
 
 export function CategoryFilterBar({

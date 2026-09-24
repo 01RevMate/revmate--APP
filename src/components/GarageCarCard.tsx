@@ -8,24 +8,35 @@ import {
   Palette,
   Plus,
   Heart,
+  ThumbsDown,
+  UserPlus,
+  UserCheck,
   Trophy,
+  Tag,
   Loader2,
   KeyRound,
   Undo2,
   Image,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import {
   addCarPhoto,
   addMod,
+  dislikeGarageCar,
   fetchCarPhotos,
   fetchGarageCarRank,
   fetchMods,
+  followGarageCar,
+  hasDislikedGarageCar,
+  hasFollowedGarageCar,
   hasLikedGarageCar,
   likeGarageCar,
   removeCarPhoto,
   removeGarageCar,
   removeMod,
   setGarageCarOwnershipStatus,
+  undislikeGarageCar,
+  unfollowGarageCar,
   updateGarageCar,
   unlikeGarageCar,
   FUEL_TYPE_LABELS,
@@ -34,6 +45,7 @@ import {
   type GarageCar,
   type GarageMod,
 } from "@/lib/garage";
+import { fetchListingsForGarageCar } from "@/lib/listings";
 import { createPost } from "@/lib/posts";
 import { uploadImage, validateImageFile } from "@/lib/uploads";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -77,10 +89,38 @@ export function GarageCarCard({
     queryFn: () => hasLikedGarageCar(car.id, user!.id),
   });
 
+  const { data: disliked, refetch: refetchDisliked } = useQuery({
+    queryKey: ["garage-car-disliked", car.id, user?.id],
+    enabled: !!user,
+    queryFn: () => hasDislikedGarageCar(car.id, user!.id),
+  });
+
+  const { data: followed, refetch: refetchFollowed } = useQuery({
+    queryKey: ["garage-car-followed", car.id, user?.id],
+    enabled: !!user,
+    queryFn: () => hasFollowedGarageCar(car.id, user!.id),
+  });
+
   const { data: rank } = useQuery({
     queryKey: ["garage-car-rank", car.id],
     queryFn: () => fetchGarageCarRank(car.id),
   });
+
+  const { data: activeListing } = useQuery({
+    queryKey: ["garage-car-listing", car.id],
+    queryFn: () => fetchListingsForGarageCar(car.id),
+  });
+  const forSale = (activeListing?.length ?? 0) > 0;
+
+  const [dislikeBusy, setDislikeBusy] = useState(false);
+  const [followBusy, setFollowBusy] = useState(false);
+
+  function invalidateReactions() {
+    queryClient.invalidateQueries({ queryKey: ["garage-car-liked", car.id] });
+    queryClient.invalidateQueries({ queryKey: ["garage-car-disliked", car.id] });
+    queryClient.invalidateQueries({ queryKey: ["garage-car-rank", car.id] });
+    queryClient.invalidateQueries({ queryKey: ["garage-car", car.id] });
+  }
 
   async function toggleLike() {
     if (!user) {
@@ -92,12 +132,49 @@ export function GarageCarCard({
       if (liked) await unlikeGarageCar(car.id, user.id);
       else await likeGarageCar(car.id, user.id);
       refetchLiked();
-      queryClient.invalidateQueries({ queryKey: ["garage-car-rank", car.id] });
-      queryClient.invalidateQueries({ queryKey: ["garage-car", car.id] });
+      refetchDisliked();
+      invalidateReactions();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't update like");
     } finally {
       setLikeBusy(false);
+    }
+  }
+
+  async function toggleDislike() {
+    if (!user) {
+      openAuthModal("Create a free account to react to a build.");
+      return;
+    }
+    setDislikeBusy(true);
+    try {
+      if (disliked) await undislikeGarageCar(car.id, user.id);
+      else await dislikeGarageCar(car.id, user.id);
+      refetchDisliked();
+      refetchLiked();
+      invalidateReactions();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't update dislike");
+    } finally {
+      setDislikeBusy(false);
+    }
+  }
+
+  async function toggleFollow() {
+    if (!user) {
+      openAuthModal("Create a free account to follow a car.");
+      return;
+    }
+    setFollowBusy(true);
+    try {
+      if (followed) await unfollowGarageCar(car.id, user.id);
+      else await followGarageCar(car.id, user.id);
+      refetchFollowed();
+      queryClient.invalidateQueries({ queryKey: ["garage-car", car.id] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't update follow");
+    } finally {
+      setFollowBusy(false);
     }
   }
 
@@ -231,8 +308,14 @@ export function GarageCarCard({
 
   return (
     <div
-      className={`rounded-lg border border-border bg-card p-4 ${isPrevious ? "opacity-75" : ""}`}
+      className={`rounded-lg border p-4 ${isPrevious ? "border-border opacity-75" : forSale ? "border-blue-500 ring-1 ring-blue-500" : "border-border"} bg-card`}
     >
+      {forSale && (
+        <div className="mb-3 flex items-center gap-1.5 rounded-md bg-blue-500/10 px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-blue-500">
+          <Tag className="size-3.5" />
+          For sale
+        </div>
+      )}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <div className="relative">
@@ -265,14 +348,35 @@ export function GarageCarCard({
             onClick={toggleLike}
             disabled={likeBusy}
             className={`flex items-center gap-1.5 text-sm ${liked ? "text-red-500" : "text-muted-foreground hover:text-foreground"}`}
+            title="Like this car"
           >
             <Heart className="size-4" fill={liked ? "currentColor" : "none"} />
             {car.likes_count}
+          </button>
+          <button
+            onClick={toggleDislike}
+            disabled={dislikeBusy}
+            className={`flex items-center gap-1.5 text-sm ${disliked ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            title="Dislike this car"
+          >
+            <ThumbsDown className="size-4" fill={disliked ? "currentColor" : "none"} />
+            {car.dislikes_count}
           </button>
           {rank && (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <Trophy className="size-3.5 text-yellow-500" />#{rank}
             </span>
+          )}
+          {!isOwner && (
+            <button
+              onClick={toggleFollow}
+              disabled={followBusy}
+              className={`flex items-center gap-1.5 text-sm ${followed ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              title={followed ? "Unfollow this car" : "Follow this car"}
+            >
+              {followed ? <UserCheck className="size-4" /> : <UserPlus className="size-4" />}
+              {car.followers_count}
+            </button>
           )}
           {isOwner && (
             <>
@@ -295,6 +399,16 @@ export function GarageCarCard({
           )}
         </div>
       </div>
+
+      {isOwner && !isPrevious && (
+        <Link
+          to="/sell"
+          search={{ garageCarId: car.id }}
+          className="mt-3 inline-block text-xs font-medium text-primary underline"
+        >
+          {forSale ? "Manage this listing" : "List this car for sale"}
+        </Link>
+      )}
 
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         <SpecTile icon={Zap} label="Power" value={car.horsepower ? `${car.horsepower} hp` : "—"} />

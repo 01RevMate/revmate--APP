@@ -11,6 +11,7 @@ import {
   ShoppingBag,
   Settings,
   MessageCircle,
+  Trophy,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -105,6 +106,7 @@ export function Sidebar() {
         <NavLink to="/" icon={Home} label="Home" collapsed={collapsed} exact />
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
+        <NavLink to="/leaderboard" icon={Trophy} label="Leaderboard" collapsed={collapsed} />
         <NavLink to="/groups" icon={Users} label="Groups" collapsed={collapsed} requireAuth />
         <NavLink to="/ask" icon={MessageCircle} label="Ask for help" collapsed={collapsed} />
         <NavLink
