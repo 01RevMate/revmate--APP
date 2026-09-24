@@ -383,8 +383,14 @@ export function PostCard({
       )}
 
       {isForSale && post.listings && (
-        <div className={`mt-3 bg-slate-800 px-4 py-3 ${immersive ? "-mx-3 sm:mx-0" : "-mx-4"}`}>
-          <p className="text-lg font-semibold text-white">
+        <div className={`mt-3 bg-muted px-4 py-3 ${immersive ? "-mx-3 sm:-mx-4" : "-mx-4"}`}>
+          {post.posted_as_garage_car && (
+            <p className="text-sm font-semibold text-foreground">
+              {post.posted_as_garage_car.year ? `${post.posted_as_garage_car.year} ` : ""}
+              {post.posted_as_garage_car.make} {post.posted_as_garage_car.model}
+            </p>
+          )}
+          <p className="text-2xl font-bold text-foreground">
             {post.listings.price != null ? `£${post.listings.price.toLocaleString("en-GB")}` : "POA"}
           </p>
         </div>

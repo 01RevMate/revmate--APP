@@ -12,7 +12,15 @@ export type PostWithAuthor = Post & {
   cars: Pick<Tables<"cars">, "make" | "model" | "generation"> | null;
   posted_as_garage_car: Pick<
     Tables<"garage_cars">,
-    "id" | "nickname" | "photo_url" | "make" | "model" | "likes_count" | "dislikes_count" | "ownership_status"
+    | "id"
+    | "nickname"
+    | "photo_url"
+    | "make"
+    | "model"
+    | "year"
+    | "likes_count"
+    | "dislikes_count"
+    | "ownership_status"
   > | null;
   listings: Pick<Tables<"listings">, "id" | "price" | "photos" | "status"> | null;
   community_groups: Pick<Tables<"community_groups">, "name" | "slug" | "visibility"> | null;
@@ -36,7 +44,7 @@ export const POST_CATEGORY_LABELS: Record<Post["category"], string> = {
 };
 
 export const POST_SELECT =
-  "*, profiles!posts_user_id_fkey(username, avatar_url), cars(make, model, generation), posted_as_garage_car:garage_cars!posts_posted_as_garage_car_id_fkey(id, nickname, photo_url, make, model, likes_count, dislikes_count, ownership_status), listings(id, price, photos, status), post_images(id, image_url, position), community_groups!posts_group_id_fkey(name, slug, visibility)";
+  "*, profiles!posts_user_id_fkey(username, avatar_url), cars(make, model, generation), posted_as_garage_car:garage_cars!posts_posted_as_garage_car_id_fkey(id, nickname, photo_url, make, model, year, likes_count, dislikes_count, ownership_status), listings(id, price, photos, status), post_images(id, image_url, position), community_groups!posts_group_id_fkey(name, slug, visibility)";
 
 export async function fetchFeed(
   scope: string,
