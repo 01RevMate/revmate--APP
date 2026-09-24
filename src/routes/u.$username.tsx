@@ -232,15 +232,22 @@ function GarageProfilePage() {
             />
           </EditableImage>
           {isOwner ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setEditing((v) => !v)}
-              className="mb-0 self-end"
-            >
-              {editing ? "Close" : "Edit profile"}
-            </Button>
+            <div className="mb-0 flex items-center gap-2 self-end">
+              <Link
+                to="/analytics"
+                className="inline-flex rounded-md border border-input px-3 py-1.5 text-sm font-semibold hover:bg-accent"
+              >
+                Account Stats
+              </Link>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setEditing((v) => !v)}
+              >
+                {editing ? "Close" : "Edit profile"}
+              </Button>
+            </div>
           ) : (
             <div className="mt-12 flex flex-wrap gap-2 self-end">
               {!block && (
@@ -298,15 +305,6 @@ function GarageProfilePage() {
           <AchievementBadges userId={profile.user_id} />
         </div>
         <ProfileStatsBar userId={profile.user_id} />
-
-        {isOwner && (
-          <Link
-            to="/analytics"
-            className="mt-3 inline-flex rounded-md border border-input px-3 py-1.5 text-sm font-semibold hover:bg-accent"
-          >
-            View account analytics
-          </Link>
-        )}
 
         {isOwner && editing && (
           <EditProfileForm
