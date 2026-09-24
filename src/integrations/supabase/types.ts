@@ -1541,6 +1541,7 @@ export type Database = {
           id: string
           image_url: string | null
           likes_count: number
+          listing_id: string | null
           moderation_status: string
           posted_as_garage_car_id: string | null
           user_id: string
@@ -1557,10 +1558,7 @@ export type Database = {
         Args: { action: string; gid: string; target_user: string }
         Returns: undefined
       }
-      rank_garage_car: {
-        Args: { target_id: string }
-        Returns: number
-      }
+      rank_garage_car: { Args: { target_id: string }; Returns: number }
       rank_garage_car_brands: {
         Args: { result_limit?: number; result_offset?: number }
         Returns: {
@@ -1573,7 +1571,11 @@ export type Database = {
         }[]
       }
       rank_garage_car_models: {
-        Args: { filter_make?: string; result_limit?: number; result_offset?: number }
+        Args: {
+          filter_make?: string
+          result_limit?: number
+          result_offset?: number
+        }
         Returns: {
           car_count: number
           make: string
@@ -1595,7 +1597,7 @@ export type Database = {
           model: string
           net_score: number
           nickname: string
-          photo_url: string | null
+          photo_url: string
           rank: number
           user_id: string
           username: string
