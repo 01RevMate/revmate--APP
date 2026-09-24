@@ -17,11 +17,11 @@ export function ProfileStatsBar({ userId }: { userId: string }) {
     [data?.cars ?? 0, "Cars"],
   ] as const;
   return (
-    <div className="mt-4 grid grid-cols-4 divide-x divide-border rounded-xl border border-border bg-card py-3 text-center shadow-sm">
+    <div className="mt-4 flex flex-wrap gap-5">
       {stats.map(([value, label]) => (
-        <div key={label}>
-          <p className="text-base font-bold tabular-nums sm:text-lg">{value.toLocaleString()}</p>
-          <p className="text-[10px] text-muted-foreground sm:text-xs">{label}</p>
+        <div key={label} className="flex items-baseline gap-1.5">
+          <p className="text-lg font-bold tabular-nums">{value.toLocaleString()}</p>
+          <p className="text-sm text-muted-foreground">{label}</p>
         </div>
       ))}
     </div>
