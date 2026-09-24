@@ -423,7 +423,7 @@ export function PostCard({
         </div>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-border pt-3 text-sm text-muted-foreground">
+      <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
         {isCarLike ? (
           <button
             onClick={toggleCarLike}
