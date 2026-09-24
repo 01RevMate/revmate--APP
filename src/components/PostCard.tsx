@@ -77,6 +77,11 @@ export function PostCard({
     .filter((image) => image.image_url)
     .slice()
     .sort((a, b) => a.position - b.position);
+  // Cap the feed grid at 4 tiles — the last one shows a "+N" overlay for the
+  // rest, instead of every photo bloating the card. Full set stays viewable
+  // in PostImageViewer, which the "+N" tile still opens into.
+  const MAX_VISIBLE_IMAGES = 4;
+  const visibleImages = postImages.slice(0, MAX_VISIBLE_IMAGES);
 
   // Like state arrives asynchronously (and some pages load it late), so keep
   // the heart in sync with the server data instead of freezing the first value.
@@ -364,21 +369,34 @@ export function PostCard({
             postImages.length === 1 ? "grid-cols-1" : "grid-cols-2"
           }`}
         >
-          {postImages.map((image, index) => (
-            <button
-              key={image.id}
-              type="button"
-              onClick={() => setViewerIndex(index)}
-              aria-label={`Open photo ${index + 1} of ${postImages.length}`}
-              className={`overflow-hidden bg-muted ${postImages.length > 1 ? "aspect-square" : ""}`}
-            >
-              <img
-                src={image.image_url}
-                alt={`Post photo ${index + 1}`}
-                className={`${postImages.length > 1 ? "size-full" : "max-h-96 w-full"} object-cover transition-transform hover:scale-[1.01]`}
-              />
-            </button>
-          ))}
+          {visibleImages.map((image, index) => {
+            const isLastTile = index === visibleImages.length - 1;
+            const remaining = postImages.length - visibleImages.length;
+            return (
+              <button
+                key={image.id}
+                type="button"
+                onClick={() => setViewerIndex(index)}
+                aria-label={
+                  isLastTile && remaining > 0
+                    ? `Open photo ${index + 1} of ${postImages.length}, ${remaining} more`
+                    : `Open photo ${index + 1} of ${postImages.length}`
+                }
+                className={`relative overflow-hidden bg-muted ${postImages.length > 1 ? "aspect-square" : ""}`}
+              >
+                <img
+                  src={image.image_url}
+                  alt={`Post photo ${index + 1}`}
+                  className={`${postImages.length > 1 ? "size-full" : "max-h-96 w-full"} object-cover transition-transform hover:scale-[1.01]`}
+                />
+                {isLastTile && remaining > 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+                    <span className="text-xl font-semibold text-white">+{remaining}</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
 
