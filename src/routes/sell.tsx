@@ -142,6 +142,7 @@ function SellCarForm({
   const [uploading, setUploading] = useState(false);
   const [price, setPrice] = useState("");
   const [mileage, setMileage] = useState("");
+  const [headline, setHeadline] = useState("");
   const [description, setDescription] = useState("");
   const [showCarStats, setShowCarStats] = useState(true);
   const [pushToFeed, setPushToFeed] = useState(true);
@@ -212,6 +213,7 @@ function SellCarForm({
         price: Number(price),
         mileage: Number(mileage),
         photos: allPhotos,
+        headline: headline.trim() || null,
       });
       if (pushToFeed) {
         const postId = await createPost({
@@ -294,6 +296,19 @@ function SellCarForm({
               Change car
             </button>
           </div>
+
+          <Field label="Ad headline">
+            <input
+              value={headline}
+              onChange={(e) => setHeadline(e.target.value)}
+              maxLength={80}
+              placeholder="e.g. Widebody M4 — turn heads on every drive"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
+            <span className="block text-xs text-muted-foreground">
+              A short line to grab attention — shown with the price.
+            </span>
+          </Field>
 
           <Field label="Price (£)">
             <input
@@ -405,11 +420,15 @@ function SellCarForm({
               <div className="overflow-hidden rounded-md">
                 <img src={allPhotos[0]} alt="" className="aspect-video w-full object-cover" />
               </div>
-              <p className="mt-2 font-medium">
+              {headline && <p className="mt-2 font-semibold">{headline}</p>}
+              <p className="mt-1 text-sm text-muted-foreground">
+                {selectedCar.year ? `${selectedCar.year} ` : ""}
                 {selectedCar.make} {selectedCar.model}
                 {selectedCar.generation ? ` (${selectedCar.generation})` : ""}
               </p>
-              <p className="text-sm font-semibold">{price ? `£${price}` : "POA"}</p>
+              <p className="text-lg font-bold">
+                {price ? `£${Number(price).toLocaleString("en-GB")}` : "POA"}
+              </p>
               {mileage && <p className="text-xs text-muted-foreground">{Number(mileage).toLocaleString()} miles</p>}
             </div>
           )}

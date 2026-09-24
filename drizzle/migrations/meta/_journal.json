@@ -197,6 +197,13 @@
       "when": 1790208000000,
       "tag": "0027_profile_followers_and_analytics",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1790208100000,
+      "tag": "0028_listing_ad_headline",
+      "breakpoints": true
     }
   ]
 }

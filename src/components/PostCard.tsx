@@ -383,16 +383,25 @@ export function PostCard({
       )}
 
       {isForSale && post.listings && (
-        <div className={`mt-3 bg-muted px-4 py-3 ${immersive ? "-mx-3 sm:-mx-4" : "-mx-4"}`}>
-          {post.posted_as_garage_car && (
-            <p className="text-sm font-semibold text-foreground">
-              {post.posted_as_garage_car.year ? `${post.posted_as_garage_car.year} ` : ""}
-              {post.posted_as_garage_car.make} {post.posted_as_garage_car.model}
+        <div
+          className={`mt-3 flex items-center justify-between gap-3 bg-muted px-4 py-3 ${immersive ? "-mx-3 sm:-mx-4" : "-mx-4"}`}
+        >
+          <div>
+            {post.posted_as_garage_car && (
+              <p className="text-sm font-semibold text-foreground">
+                {post.posted_as_garage_car.year ? `${post.posted_as_garage_car.year} ` : ""}
+                {post.posted_as_garage_car.make} {post.posted_as_garage_car.model}
+              </p>
+            )}
+            <p className="text-2xl font-bold text-foreground">
+              {post.listings.price != null ? `£${post.listings.price.toLocaleString("en-GB")}` : "POA"}
+            </p>
+          </div>
+          {post.listings.headline && (
+            <p className="max-w-[55%] text-right text-sm font-medium italic text-foreground/80">
+              {post.listings.headline}
             </p>
           )}
-          <p className="text-2xl font-bold text-foreground">
-            {post.listings.price != null ? `£${post.listings.price.toLocaleString("en-GB")}` : "POA"}
-          </p>
         </div>
       )}
 

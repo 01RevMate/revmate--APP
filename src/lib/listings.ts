@@ -90,6 +90,7 @@ export async function createListing(input: {
   price: number | null;
   mileage?: number | null;
   photos?: string[];
+  headline?: string | null;
 }): Promise<string> {
   const { data, error } = await supabase
     .from("listings")
@@ -104,6 +105,7 @@ export async function createListing(input: {
       price: input.price,
       mileage: input.mileage ?? null,
       photos: input.photos ?? [],
+      headline: input.headline || null,
     })
     .select("id")
     .single();

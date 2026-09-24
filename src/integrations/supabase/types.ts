@@ -715,6 +715,7 @@ export type Database = {
           created_at: string
           description: string | null
           garage_car_id: string | null
+          headline: string | null
           id: string
           mileage: number | null
           photos: string[]
@@ -730,6 +731,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           garage_car_id?: string | null
+          headline?: string | null
           id?: string
           mileage?: number | null
           photos?: string[]
@@ -745,6 +747,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           garage_car_id?: string | null
+          headline?: string | null
           id?: string
           mileage?: number | null
           photos?: string[]
