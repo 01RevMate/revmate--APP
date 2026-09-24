@@ -14,7 +14,7 @@ export function ProfileStatsBar({ userId }: { userId: string }) {
     [data?.posts ?? 0, "Posts"],
     [data?.followers ?? 0, "Followers"],
     [data?.following ?? 0, "Following"],
-    [data?.cars ?? 0, "Cars"],
+    [data?.likes ?? 0, "Likes"],
   ] as const;
   return (
     <div className="mt-4 flex flex-wrap gap-5">

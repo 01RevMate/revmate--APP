@@ -7,7 +7,7 @@ export type SocialCounts = {
   posts: number;
   followers: number;
   following: number;
-  cars: number;
+  likes: number;
 };
 
 export type AccountAnalytics = {
@@ -69,7 +69,7 @@ export async function fetchFollowing(userId: string): Promise<FollowProfile[]> {
 }
 
 export async function fetchSocialCounts(userId: string): Promise<SocialCounts> {
-  const [followers, following, posts, cars] = await Promise.all([
+  const [followers, following, posts, postLikes, carLikes] = await Promise.all([
     supabase
       .from("profile_follows")
       .select("follower_id", { count: "exact", head: true })
@@ -79,20 +79,20 @@ export async function fetchSocialCounts(userId: string): Promise<SocialCounts> {
       .select("followed_id", { count: "exact", head: true })
       .eq("follower_id", userId),
     supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", userId),
-    supabase
-      .from("garage_cars")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .eq("ownership_status", "current"),
+    supabase.from("posts").select("likes_count").eq("user_id", userId),
+    supabase.from("garage_cars").select("likes_count").eq("user_id", userId),
   ]);
-  for (const result of [followers, following, posts, cars]) {
+  for (const result of [followers, following, posts, postLikes, carLikes]) {
     if (result.error) throw result.error;
   }
+  const likes =
+    (postLikes.data ?? []).reduce((sum, row) => sum + row.likes_count, 0) +
+    (carLikes.data ?? []).reduce((sum, row) => sum + row.likes_count, 0);
   return {
     followers: followers.count ?? 0,
     following: following.count ?? 0,
     posts: posts.count ?? 0,
-    cars: cars.count ?? 0,
+    likes,
   };
 }
 
