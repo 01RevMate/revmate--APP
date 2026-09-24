@@ -362,78 +362,6 @@ export type Database = {
           },
         ]
       }
-      garage_car_dislikes: {
-        Row: {
-          created_at: string
-          garage_car_id: string
-          id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          garage_car_id: string
-          id?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          garage_car_id?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "garage_car_dislikes_garage_car_id_fkey"
-            columns: ["garage_car_id"]
-            isOneToOne: false
-            referencedRelation: "garage_cars"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "garage_car_dislikes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      garage_car_follows: {
-        Row: {
-          created_at: string
-          garage_car_id: string
-          id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          garage_car_id: string
-          id?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          garage_car_id?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "garage_car_follows_garage_car_id_fkey"
-            columns: ["garage_car_id"]
-            isOneToOne: false
-            referencedRelation: "garage_cars"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "garage_car_follows_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
       garage_car_likes: {
         Row: {
           created_at: string
@@ -509,9 +437,7 @@ export type Database = {
           catalog_powertrain_id: string | null
           color: string | null
           created_at: string
-          dislikes_count: number
           engine: string | null
-          followers_count: number
           fuel_type: Database["public"]["Enums"]["fuel_type"] | null
           generation: string | null
           horsepower: number | null
@@ -538,9 +464,7 @@ export type Database = {
           catalog_powertrain_id?: string | null
           color?: string | null
           created_at?: string
-          dislikes_count?: number
           engine?: string | null
-          followers_count?: number
           fuel_type?: Database["public"]["Enums"]["fuel_type"] | null
           generation?: string | null
           horsepower?: number | null
@@ -567,9 +491,7 @@ export type Database = {
           catalog_powertrain_id?: string | null
           color?: string | null
           created_at?: string
-          dislikes_count?: number
           engine?: string | null
-          followers_count?: number
           fuel_type?: Database["public"]["Enums"]["fuel_type"] | null
           generation?: string | null
           horsepower?: number | null
@@ -711,45 +633,33 @@ export type Database = {
       }
       listings: {
         Row: {
-          car_id: string | null
+          car_id: string
           created_at: string
           description: string | null
-          garage_car_id: string | null
           id: string
-          mileage: number | null
-          photos: string[]
           price: number | null
-          show_car_stats: boolean
           status: string
           title: string
           type: Database["public"]["Enums"]["listing_type"]
           user_id: string
         }
         Insert: {
-          car_id?: string | null
+          car_id: string
           created_at?: string
           description?: string | null
-          garage_car_id?: string | null
           id?: string
-          mileage?: number | null
-          photos?: string[]
           price?: number | null
-          show_car_stats?: boolean
           status?: string
           title: string
           type?: Database["public"]["Enums"]["listing_type"]
           user_id: string
         }
         Update: {
-          car_id?: string | null
+          car_id?: string
           created_at?: string
           description?: string | null
-          garage_car_id?: string | null
           id?: string
-          mileage?: number | null
-          photos?: string[]
           price?: number | null
-          show_car_stats?: boolean
           status?: string
           title?: string
           type?: Database["public"]["Enums"]["listing_type"]
@@ -761,13 +671,6 @@ export type Database = {
             columns: ["car_id"]
             isOneToOne: false
             referencedRelation: "cars"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "listings_garage_car_id_fkey"
-            columns: ["garage_car_id"]
-            isOneToOne: false
-            referencedRelation: "garage_cars"
             referencedColumns: ["id"]
           },
         ]
@@ -1092,7 +995,6 @@ export type Database = {
           id: string
           image_url: string | null
           likes_count: number
-          listing_id: string | null
           moderation_status: string
           posted_as_garage_car_id: string | null
           user_id: string
@@ -1108,7 +1010,6 @@ export type Database = {
           id?: string
           image_url?: string | null
           likes_count?: number
-          listing_id?: string | null
           moderation_status?: string
           posted_as_garage_car_id?: string | null
           user_id: string
@@ -1124,7 +1025,6 @@ export type Database = {
           id?: string
           image_url?: string | null
           likes_count?: number
-          listing_id?: string | null
           moderation_status?: string
           posted_as_garage_car_id?: string | null
           user_id?: string
@@ -1142,13 +1042,6 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "community_groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "posts_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
             referencedColumns: ["id"]
           },
           {
@@ -1557,50 +1450,6 @@ export type Database = {
         Args: { action: string; gid: string; target_user: string }
         Returns: undefined
       }
-      rank_garage_car: {
-        Args: { target_id: string }
-        Returns: number
-      }
-      rank_garage_car_brands: {
-        Args: { result_limit?: number; result_offset?: number }
-        Returns: {
-          car_count: number
-          make: string
-          net_score: number
-          rank: number
-          total_dislikes: number
-          total_likes: number
-        }[]
-      }
-      rank_garage_car_models: {
-        Args: { filter_make?: string; result_limit?: number; result_offset?: number }
-        Returns: {
-          car_count: number
-          make: string
-          model: string
-          net_score: number
-          rank: number
-          total_dislikes: number
-          total_likes: number
-        }[]
-      }
-      rank_garage_cars: {
-        Args: { result_limit?: number; result_offset?: number }
-        Returns: {
-          dislikes_count: number
-          followers_count: number
-          id: string
-          likes_count: number
-          make: string
-          model: string
-          net_score: number
-          nickname: string
-          photo_url: string | null
-          rank: number
-          user_id: string
-          username: string
-        }[]
-      }
       review_group_post: {
         Args: { decision: string; pid: string }
         Returns: undefined
@@ -1638,7 +1487,6 @@ export type Database = {
         | "bodywork"
         | "maintenance"
         | "showcase"
-        | "for_sale"
       post_report_reason:
         | "spam"
         | "scam"
@@ -1813,7 +1661,6 @@ export const Constants = {
         "bodywork",
         "maintenance",
         "showcase",
-        "for_sale",
       ],
       post_report_reason: [
         "spam",
