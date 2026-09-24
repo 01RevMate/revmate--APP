@@ -1242,6 +1242,75 @@ export type Database = {
           },
         ]
       }
+      profile_follows: {
+        Row: {
+          created_at: string
+          followed_id: string
+          follower_id: string
+        }
+        Insert: {
+          created_at?: string
+          followed_id: string
+          follower_id: string
+        }
+        Update: {
+          created_at?: string
+          followed_id?: string
+          follower_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_follows_followed_id_fkey"
+            columns: ["followed_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "profile_follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      profile_views: {
+        Row: {
+          created_at: string
+          viewed_on: string
+          viewed_user_id: string
+          viewer_id: string
+        }
+        Insert: {
+          created_at?: string
+          viewed_on?: string
+          viewed_user_id: string
+          viewer_id: string
+        }
+        Update: {
+          created_at?: string
+          viewed_on?: string
+          viewed_user_id?: string
+          viewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_views_viewed_user_id_fkey"
+            columns: ["viewed_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "profile_views_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       protected_post_terms: {
         Row: {
           active: boolean
@@ -1523,6 +1592,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      account_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          comments_received_30d: number
+          followers_total: number
+          following_total: number
+          likes_received_30d: number
+          new_followers_30d: number
+          posts_total: number
+          profile_views_30d: number
+          profile_views_7d: number
+        }[]
+      }
       community_feed: {
         Args: {
           filter_car?: string
@@ -1559,6 +1641,10 @@ export type Database = {
         Returns: undefined
       }
       rank_garage_car: { Args: { target_id: string }; Returns: number }
+      record_profile_view: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       rank_garage_car_brands: {
         Args: { result_limit?: number; result_offset?: number }
         Returns: {

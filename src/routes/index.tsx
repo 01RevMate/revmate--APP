@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { fetchFeed, fetchMyLikedPostIds, type PostWithAuthor } from "@/lib/posts";
 import { fetchGarage, fetchMyLikedGarageCarIds } from "@/lib/garage";
-import { fetchFriends } from "@/lib/friends";
+import { fetchFollowing } from "@/lib/follows";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { Sidebar } from "@/components/Sidebar";
 import { PostComposer } from "@/components/PostComposer";
@@ -64,10 +64,10 @@ function Home() {
     enabled: !!user,
     queryFn: () => fetchGarage(user!.id),
   });
-  const { data: friends } = useQuery({
-    queryKey: ["friends", user?.id],
+  const { data: following } = useQuery({
+    queryKey: ["following", user?.id],
     enabled: !!user && scope === "friends",
-    queryFn: () => fetchFriends(user!.id),
+    queryFn: () => fetchFollowing(user!.id),
   });
 
   useEffect(() => {
@@ -205,10 +205,10 @@ function Home() {
                 <div className="mx-3 rounded-lg border border-dashed border-border bg-background p-8 text-center text-sm text-muted-foreground sm:mx-0">
                   {scope === "my_car"
                     ? "No posts about your car yet — be the first."
-                    : scope === "friends" && friends?.length === 0
-                      ? "No friends yet — visit another profile to add one."
+                    : scope === "friends" && following?.length === 0
+                      ? "You are not following anyone yet — visit a profile and tap Follow."
                       : scope === "friends"
-                        ? "No friends-only posts in this category yet."
+                        ? "No posts from people you follow in this category yet."
                         : "No posts here yet — try a different filter."}
                 </div>
               )}

@@ -11,6 +11,7 @@ import {
   Settings,
   ShieldCheck,
   Trophy,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -105,6 +106,13 @@ export function MobileMenu() {
             to="/messages"
             icon={MessageCircle}
             label="Messages"
+            requireAuth
+            onNavigate={close}
+          />
+          <MenuLink
+            to="/analytics"
+            icon={ChartNoAxesCombined}
+            label="Account analytics"
             requireAuth
             onNavigate={close}
           />

@@ -192,7 +192,7 @@ export function PostComposer({
         lockedGroup?.postPolicy === "moderated"
           ? "Post submitted. Group moderators may need to approve it."
           : audience === "friends"
-            ? "Friends-only post published."
+            ? "Followers-only post published."
             : "Post published.",
       );
       setCategoryOpen(false);
@@ -217,7 +217,7 @@ export function PostComposer({
       {!lockedGroup && audience === "friends" && (
         <div className="flex items-center gap-2 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-900">
           <UserRoundCheck className="size-4 shrink-0" />
-          Friends only — only your accepted friends can see this post.
+          Followers only — only people who follow you can see this post.
         </div>
       )}
       <textarea
@@ -346,34 +346,36 @@ export function PostComposer({
             <DialogDescription>Where should this post appear?</DialogDescription>
           </DialogHeader>
           <div className="grid gap-2">
-            {(Object.entries(POST_CATEGORY_LABELS).filter(([id]) => id !== "for_sale") as [
-              ComposerCategory,
-              string,
-            ][]).map(([value, label]) => {
-                const Icon = CATEGORY_DETAILS[value].icon;
-                const isPublishing = saving && publishingCategory === value;
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    disabled={saving}
-                    onClick={() => void publishPost(value)}
-                    className="flex items-center gap-3 rounded-xl border border-border p-3 text-left transition-colors hover:border-primary hover:bg-accent disabled:opacity-50"
-                  >
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <Icon className="size-5" />
+            {(
+              Object.entries(POST_CATEGORY_LABELS).filter(([id]) => id !== "for_sale") as [
+                ComposerCategory,
+                string,
+              ][]
+            ).map(([value, label]) => {
+              const Icon = CATEGORY_DETAILS[value].icon;
+              const isPublishing = saving && publishingCategory === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  disabled={saving}
+                  onClick={() => void publishPost(value)}
+                  className="flex items-center gap-3 rounded-xl border border-border p-3 text-left transition-colors hover:border-primary hover:bg-accent disabled:opacity-50"
+                >
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Icon className="size-5" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold">
+                      {isPublishing ? "Posting…" : label}
                     </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold">
-                        {isPublishing ? "Posting…" : label}
-                      </span>
-                      <span className="block text-xs text-muted-foreground">
-                        {CATEGORY_DETAILS[value].description}
-                      </span>
+                    <span className="block text-xs text-muted-foreground">
+                      {CATEGORY_DETAILS[value].description}
                     </span>
-                  </button>
-                );
-              })}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </DialogContent>
       </Dialog>

@@ -7,7 +7,7 @@ export type FeedScope = "my_car" | "same_brand" | "friends" | "my_groups" | "pop
 const SCOPES: { id: FeedScope; label: string; icon: typeof Car }[] = [
   { id: "my_car", label: "My Car", icon: Car },
   { id: "same_brand", label: "Same Brand", icon: Bookmark },
-  { id: "friends", label: "Friends", icon: UserRoundCheck },
+  { id: "friends", label: "Following", icon: UserRoundCheck },
   { id: "my_groups", label: "My Groups", icon: Users },
   { id: "popular", label: "Popular", icon: Flame },
   { id: "all", label: "All Cars", icon: Globe },
@@ -60,7 +60,7 @@ export function FeedScopeBar({
               <TooltipTrigger asChild>{button}</TooltipTrigger>
               <TooltipContent>
                 {id === "friends"
-                  ? "Sign in to view your friends feed"
+                  ? "Sign in to view posts from people you follow"
                   : "Add a car to your garage to unlock this"}
               </TooltipContent>
             </Tooltip>

@@ -190,6 +190,13 @@
       "when": 1790116500000,
       "tag": "0026_car_sale_listings_and_feed",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1790208000000,
+      "tag": "0027_profile_followers_and_analytics",
+      "breakpoints": true
     }
   ]
 }

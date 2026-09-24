@@ -12,7 +12,9 @@ export type Achievement = {
   description: string;
 };
 
-export const ACHIEVEMENT_DEFINITIONS: (Achievement & { check: (stats: ProfileStats) => boolean })[] = [
+export const ACHIEVEMENT_DEFINITIONS: (Achievement & {
+  check: (stats: ProfileStats) => boolean;
+})[] = [
   {
     id: "first_post",
     name: "Community Builder",
@@ -59,8 +61,8 @@ export const ACHIEVEMENT_DEFINITIONS: (Achievement & { check: (stats: ProfileSta
     id: "well_connected",
     name: "Well Connected",
     emoji: "🤝",
-    description: "Made your first friend",
-    check: (s) => s.friendsCount >= 1,
+    description: "Gained your first follower",
+    check: (s) => s.followersCount >= 1,
   },
 ];
 
@@ -69,7 +71,7 @@ export type ProfileStats = {
   modsCount: number;
   photosCount: number;
   maxCarLikes: number;
-  friendsCount: number;
+  followersCount: number;
 };
 
 export async function fetchProfileStats(userId: string): Promise<ProfileStats> {
@@ -82,10 +84,13 @@ export async function fetchProfileStats(userId: string): Promise<ProfileStats> {
   const garageCarIds = garageCars.map((c) => c.id);
   const maxCarLikes = garageCars.reduce((max, c) => Math.max(max, c.likes_count), 0);
 
-  const [postsRes, modsRes, photosRes, friendsRes] = await Promise.all([
+  const [postsRes, modsRes, photosRes, followersRes] = await Promise.all([
     supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", userId),
     garageCarIds.length > 0
-      ? supabase.from("garage_mods").select("id", { count: "exact", head: true }).in("garage_car_id", garageCarIds)
+      ? supabase
+          .from("garage_mods")
+          .select("id", { count: "exact", head: true })
+          .in("garage_car_id", garageCarIds)
       : Promise.resolve({ count: 0, error: null }),
     garageCarIds.length > 0
       ? supabase
@@ -94,23 +99,22 @@ export async function fetchProfileStats(userId: string): Promise<ProfileStats> {
           .in("garage_car_id", garageCarIds)
       : Promise.resolve({ count: 0, error: null }),
     supabase
-      .from("friendships")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "accepted")
-      .or(`requester_id.eq.${userId},recipient_id.eq.${userId}`),
+      .from("profile_follows")
+      .select("follower_id", { count: "exact", head: true })
+      .eq("followed_id", userId),
   ]);
 
   if (postsRes.error) throw postsRes.error;
   if (modsRes.error) throw modsRes.error;
   if (photosRes.error) throw photosRes.error;
-  if (friendsRes.error) throw friendsRes.error;
+  if (followersRes.error) throw followersRes.error;
 
   return {
     postsCount: postsRes.count ?? 0,
     modsCount: modsRes.count ?? 0,
     photosCount: photosRes.count ?? 0,
     maxCarLikes,
-    friendsCount: friendsRes.count ?? 0,
+    followersCount: followersRes.count ?? 0,
   };
 }
 

@@ -16,9 +16,15 @@ export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
       { title: "Settings — RevMate" },
-      { name: "description", content: "Manage your RevMate profile, password, blocked people and saved cars." },
+      {
+        name: "description",
+        content: "Manage your RevMate profile, password, blocked people and saved cars.",
+      },
       { property: "og:title", content: "Settings — RevMate" },
-      { property: "og:description", content: "Manage your RevMate profile, password, blocked people and saved cars." },
+      {
+        property: "og:description",
+        content: "Manage your RevMate profile, password, blocked people and saved cars.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -61,7 +67,9 @@ function SettingsPage() {
   async function handleUnblock(blockedId: string, username: string) {
     if (
       !user ||
-      !window.confirm(`Unblock ${displayUsernameWithoutAt(username)}? They will be able to find and contact you again.`)
+      !window.confirm(
+        `Unblock ${displayUsernameWithoutAt(username)}? They will be able to find and contact you again.`,
+      )
     )
       return;
     try {
@@ -186,8 +194,8 @@ function SettingsPage() {
         <div className="mb-4 flex gap-3 rounded-lg bg-muted/50 p-4">
           <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" />
           <p className="text-sm text-muted-foreground">
-            People you block cannot message you, add you as a friend, or show their posts in your
-            feed. They are not notified when you block or unblock them.
+            People you block cannot message you, follow you, or show their posts in your feed. They
+            are not notified when you block or unblock them.
           </p>
         </div>
 

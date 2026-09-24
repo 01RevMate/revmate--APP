@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CheckCircle2, Loader2, MessageCircle, UserPlus, UserX } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,8 +27,8 @@ import { GarageCarTile } from "@/components/GarageCarTile";
 import { PostCard } from "@/components/PostCard";
 import { SocialLinksDisplay, SocialLinksEditor } from "@/components/SocialLinks";
 import { AchievementBadges } from "@/components/AchievementBadges";
-import { FriendButton } from "@/components/FriendButton";
-import { FriendsSection } from "@/components/FriendsSection";
+import { FollowButton } from "@/components/FollowButton";
+import { ProfileConnections, ProfileStatsBar } from "@/components/ProfileSocial";
 import { EditableImage } from "@/components/EditableImage";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { CarLogo } from "@/components/CarLogo";
@@ -43,6 +43,7 @@ import {
   garageFuelTypeForCatalogFuel,
   type VehicleCatalogSelection,
 } from "@/lib/vehicleCatalog";
+import { recordProfileView } from "@/lib/follows";
 
 export const Route = createFileRoute("/u/$username")({
   head: ({ params }) => {
@@ -76,6 +77,11 @@ function GarageProfilePage() {
   });
 
   const isOwner = !!user && !!profile && user.id === profile.user_id;
+
+  useEffect(() => {
+    if (!user || !profile || user.id === profile.user_id) return;
+    void recordProfileView(profile.user_id).catch(() => undefined);
+  }, [profile, user]);
 
   const { data: block } = useQuery({
     queryKey: ["user-block", user?.id, profile?.user_id],
@@ -257,14 +263,14 @@ function GarageProfilePage() {
               )}
               {!block &&
                 (user ? (
-                  <FriendButton myId={user.id} otherId={profile.user_id} />
+                  <FollowButton myId={user.id} otherId={profile.user_id} />
                 ) : (
                   <button
-                    onClick={() => openAuthModal("Create a free account to add friends.")}
+                    onClick={() => openAuthModal("Create a free account to follow people.")}
                     className="flex items-center gap-1.5 rounded-md border border-input px-3 py-1.5 text-sm font-medium hover:bg-accent"
                   >
                     <UserPlus className="size-3.5" />
-                    Add Friend
+                    Follow
                   </button>
                 ))}
               <button
@@ -291,6 +297,16 @@ function GarageProfilePage() {
         <div className="mt-3">
           <AchievementBadges userId={profile.user_id} />
         </div>
+        <ProfileStatsBar userId={profile.user_id} />
+
+        {isOwner && (
+          <Link
+            to="/analytics"
+            className="mt-3 inline-flex rounded-md border border-input px-3 py-1.5 text-sm font-semibold hover:bg-accent"
+          >
+            View account analytics
+          </Link>
+        )}
 
         {isOwner && editing && (
           <EditProfileForm
@@ -300,11 +316,9 @@ function GarageProfilePage() {
           />
         )}
 
-        {isOwner && (
-          <Section title="Friends">
-            <FriendsSection userId={profile.user_id} />
-          </Section>
-        )}
+        <Section title="Community">
+          <ProfileConnections userId={profile.user_id} />
+        </Section>
 
         <Section title="Garage">
           <div className="relative mt-14 rounded-b-xl border-x border-b border-border bg-card px-3 pb-3 pt-4 shadow-sm sm:px-5 sm:pb-5">
@@ -398,7 +412,11 @@ function GarageProfilePage() {
                   className="overflow-hidden rounded-lg border border-border bg-card hover:border-primary"
                 >
                   {listing.photos?.[0] && (
-                    <img src={listing.photos[0]} alt="" className="aspect-video w-full object-cover" />
+                    <img
+                      src={listing.photos[0]}
+                      alt=""
+                      className="aspect-video w-full object-cover"
+                    />
                   )}
                   <div className="p-3">
                     <p className="font-medium">{listing.title}</p>

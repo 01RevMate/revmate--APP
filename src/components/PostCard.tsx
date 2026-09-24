@@ -2,7 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
-import { Flag, Heart, MessageCircle, Share2, Tag, Trash2, UserRoundCheck, UserX } from "lucide-react";
+import {
+  Flag,
+  Heart,
+  MessageCircle,
+  Share2,
+  Tag,
+  Trash2,
+  UserRoundCheck,
+  UserX,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -307,7 +316,7 @@ export function PostCard({
       {post.audience === "friends" && (
         <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-white">
           <UserRoundCheck className="size-3" />
-          Friends only
+          Followers only
         </span>
       )}
 

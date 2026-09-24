@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AskRouteImport } from './routes/ask'
 import { Route as CommunityStandardsRouteImport } from './routes/community-standards'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AskRoute = AskRouteImport.update({
@@ -158,6 +164,7 @@ const UUsernameCarsCarIdRoute = UUsernameCarsCarIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/analytics': typeof AnalyticsRoute
   '/ask': typeof AskRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/analytics': typeof AnalyticsRoute
   '/ask': typeof AskRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -211,6 +219,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/analytics': typeof AnalyticsRoute
   '/ask': typeof AskRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/analytics'
     | '/ask'
     | '/community-standards'
     | '/forgot-password'
@@ -265,6 +275,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/analytics'
     | '/ask'
     | '/community-standards'
     | '/forgot-password'
@@ -291,6 +302,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/analytics'
     | '/ask'
     | '/community-standards'
     | '/forgot-password'
@@ -318,6 +330,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  AnalyticsRoute: typeof AnalyticsRoute
   AskRoute: typeof AskRoute
   CommunityStandardsRoute: typeof CommunityStandardsRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -355,6 +368,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ask': {
@@ -529,6 +549,7 @@ const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  AnalyticsRoute: AnalyticsRoute,
   AskRoute: AskRoute,
   CommunityStandardsRoute: CommunityStandardsRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
