@@ -64,6 +64,20 @@ export const ACHIEVEMENT_DEFINITIONS: (Achievement & {
     description: "Gained your first follower",
     check: (s) => s.followersCount >= 1,
   },
+  {
+    id: "amateur_salesman",
+    name: "Amateur Salesman",
+    emoji: "🏷️",
+    description: "Listed your first car or part for sale",
+    check: (s) => s.listingsCount >= 1,
+  },
+  {
+    id: "real_salesman",
+    name: "Real Salesman",
+    emoji: "💼",
+    description: "Listed 3+ cars or parts for sale",
+    check: (s) => s.listingsCount >= 3,
+  },
 ];
 
 export type ProfileStats = {
@@ -72,6 +86,7 @@ export type ProfileStats = {
   photosCount: number;
   maxCarLikes: number;
   followersCount: number;
+  listingsCount: number;
 };
 
 export async function fetchProfileStats(userId: string): Promise<ProfileStats> {
