@@ -1170,6 +1170,75 @@ export type Database = {
           },
         ]
       }
+      profile_follows: {
+        Row: {
+          created_at: string
+          followed_id: string
+          follower_id: string
+        }
+        Insert: {
+          created_at?: string
+          followed_id: string
+          follower_id: string
+        }
+        Update: {
+          created_at?: string
+          followed_id?: string
+          follower_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_follows_followed_id_fkey"
+            columns: ["followed_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "profile_follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      profile_views: {
+        Row: {
+          created_at: string
+          viewed_on: string
+          viewed_user_id: string
+          viewer_id: string
+        }
+        Insert: {
+          created_at?: string
+          viewed_on?: string
+          viewed_user_id: string
+          viewer_id: string
+        }
+        Update: {
+          created_at?: string
+          viewed_on?: string
+          viewed_user_id?: string
+          viewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_views_viewed_user_id_fkey"
+            columns: ["viewed_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "profile_views_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_status: Database["public"]["Enums"]["account_status"]
@@ -1239,75 +1308,6 @@ export type Database = {
           {
             foreignKeyName: "profiles_moderated_by_fkey"
             columns: ["moderated_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      profile_follows: {
-        Row: {
-          created_at: string
-          followed_id: string
-          follower_id: string
-        }
-        Insert: {
-          created_at?: string
-          followed_id: string
-          follower_id: string
-        }
-        Update: {
-          created_at?: string
-          followed_id?: string
-          follower_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profile_follows_followed_id_fkey"
-            columns: ["followed_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "profile_follows_follower_id_fkey"
-            columns: ["follower_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      profile_views: {
-        Row: {
-          created_at: string
-          viewed_on: string
-          viewed_user_id: string
-          viewer_id: string
-        }
-        Insert: {
-          created_at?: string
-          viewed_on?: string
-          viewed_user_id: string
-          viewer_id: string
-        }
-        Update: {
-          created_at?: string
-          viewed_on?: string
-          viewed_user_id?: string
-          viewer_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profile_views_viewed_user_id_fkey"
-            columns: ["viewed_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "profile_views_viewer_id_fkey"
-            columns: ["viewer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
@@ -1596,7 +1596,7 @@ export type Database = {
     }
     Functions: {
       account_analytics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           comments_received_30d: number
           followers_total: number
@@ -1644,10 +1644,6 @@ export type Database = {
         Returns: undefined
       }
       rank_garage_car: { Args: { target_id: string }; Returns: number }
-      record_profile_view: {
-        Args: { target_user_id: string }
-        Returns: undefined
-      }
       rank_garage_car_brands: {
         Args: { result_limit?: number; result_offset?: number }
         Returns: {
@@ -1691,6 +1687,10 @@ export type Database = {
           user_id: string
           username: string
         }[]
+      }
+      record_profile_view: {
+        Args: { target_user_id: string }
+        Returns: undefined
       }
       review_group_post: {
         Args: { decision: string; pid: string }
