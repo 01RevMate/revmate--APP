@@ -265,14 +265,24 @@ function ListingDetailPage() {
             </div>
           </Link>
           {!isOwner && listing.status === "active" && (
-            <button
-              type="button"
-              onClick={openMessageDialog}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              <MessageCircle className="size-4" />
-              Message seller
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={openMessageDialog}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                <MessageCircle className="size-4" />
+                Message seller
+              </button>
+              <button
+                type="button"
+                onClick={openReportDialog}
+                className="mt-2 flex w-full items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-destructive"
+              >
+                <Flag className="size-3.5" />
+                Report this seller
+              </button>
+            </>
           )}
         </div>
       )}
