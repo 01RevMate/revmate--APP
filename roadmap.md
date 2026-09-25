@@ -7,4 +7,5 @@
 - Seller score on profiles, shown only once a user has listed something
 
 ## Open
-- None
+- Create a realistic demo member from the supplied portrait and Mercedes A45 photos
+- Add her garage car, natural posts, and activity using car reactions/follows
