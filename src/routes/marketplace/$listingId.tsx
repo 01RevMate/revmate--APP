@@ -174,11 +174,7 @@ function ListingDetailPage() {
           {listing.headline && (
             <p className="text-sm font-semibold text-muted-foreground">{listing.headline}</p>
           )}
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {listing.garage_cars
-              ? `${listing.garage_cars.year ? `${listing.garage_cars.year} ` : ""}${listing.garage_cars.make} ${listing.garage_cars.model}`
-              : listing.title}
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{carName}</h1>
           {listing.mileage != null && (
             <p className="text-sm text-muted-foreground">
               {listing.mileage.toLocaleString()} miles
