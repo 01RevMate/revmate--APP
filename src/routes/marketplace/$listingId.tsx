@@ -340,6 +340,52 @@ function ListingDetailPage() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={reportOpen} onOpenChange={(open) => !sendingReport && setReportOpen(open)}>
+        <DialogContent className="max-w-[calc(100%-2rem)] rounded-2xl sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Report this seller</DialogTitle>
+            <DialogDescription>
+              Tell us what's wrong with this advert. Reports are reviewed by the RevMate team.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2">
+            {(Object.entries(SELLER_REPORT_REASONS) as [SellerReportReason, string][]).map(
+              ([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setReportReason(value)}
+                  className={`rounded-lg border px-3 py-2.5 text-left text-sm font-medium transition-colors ${
+                    reportReason === value
+                      ? "border-primary bg-primary/5 text-foreground"
+                      : "border-border hover:bg-accent"
+                  }`}
+                >
+                  {label}
+                </button>
+              ),
+            )}
+          </div>
+          <textarea
+            value={reportDetails}
+            onChange={(e) => setReportDetails(e.target.value)}
+            rows={3}
+            maxLength={1000}
+            placeholder="Add any details (optional)…"
+            className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => void handleSendReport()}
+            disabled={sendingReport}
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-destructive px-4 py-2.5 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+          >
+            {sendingReport ? <Loader2 className="size-4 animate-spin" /> : <Flag className="size-4" />}
+            {sendingReport ? "Sending…" : "Send report"}
+          </button>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={manageOpen} onOpenChange={(open) => !endingReason && setManageOpen(open)}>
         <DialogContent className="max-w-[calc(100%-2rem)] rounded-2xl sm:max-w-md">
           <DialogHeader>
