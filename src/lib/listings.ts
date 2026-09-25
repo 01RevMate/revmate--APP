@@ -33,6 +33,8 @@ export type ListingDetail = Listing & {
 export const MIN_CAR_LISTING_PHOTOS = 5;
 export const MAX_CAR_LISTING_PHOTOS = 15;
 
+export type ListingEndReason = "sold_revmate" | "sold_elsewhere" | "withdrawn" | "other";
+
 const LISTING_SELECT =
   "*, cars(make, model, generation), garage_cars(id, nickname, likes_count, dislikes_count, followers_count)";
 
@@ -64,6 +66,7 @@ export async function fetchListingById(id: string): Promise<ListingDetail | null
       "*, cars(make, model, generation), garage_cars(id, nickname, make, model, year, likes_count, dislikes_count, followers_count)",
     )
     .eq("id", id)
+    .eq("status", "active")
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
@@ -148,4 +151,40 @@ export async function createListing(input: {
     .single();
   if (error) throw error;
   return data.id;
+}
+
+export async function endListing(input: {
+  listingId: string;
+  userId: string;
+  garageCarId: string | null;
+  reason: ListingEndReason;
+}): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("listings")
+    .update({ status: input.reason })
+    .eq("id", input.listingId)
+    .eq("user_id", input.userId)
+    .select("id")
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("This advert could not be updated.");
+
+  const warnings: string[] = [];
+  const { error: postError } = await supabase
+    .from("posts")
+    .delete()
+    .eq("listing_id", input.listingId)
+    .eq("user_id", input.userId);
+  if (postError) warnings.push("Its linked feed post could not be removed yet.");
+
+  if (input.garageCarId && (input.reason === "sold_revmate" || input.reason === "sold_elsewhere")) {
+    const { error: garageError } = await supabase
+      .from("garage_cars")
+      .update({ ownership_status: "previous" })
+      .eq("id", input.garageCarId)
+      .eq("user_id", input.userId);
+    if (garageError) warnings.push("The car could not be moved to previously owned yet.");
+  }
+
+  return warnings;
 }

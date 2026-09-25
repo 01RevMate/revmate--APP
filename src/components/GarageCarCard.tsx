@@ -400,15 +400,25 @@ export function GarageCarCard({
         </div>
       </div>
 
-      {isOwner && !isPrevious && (
-        <Link
-          to="/sell"
-          search={{ garageCarId: car.id }}
-          className="mt-3 inline-block text-xs font-medium text-primary underline"
-        >
-          {forSale ? "Manage this listing" : "List this car for sale"}
-        </Link>
-      )}
+      {isOwner &&
+        !isPrevious &&
+        (forSale && activeListing?.[0] ? (
+          <Link
+            to="/marketplace/$listingId"
+            params={{ listingId: activeListing[0].id }}
+            className="mt-3 inline-block text-xs font-medium text-primary underline"
+          >
+            Manage this listing
+          </Link>
+        ) : (
+          <Link
+            to="/sell"
+            search={{ garageCarId: car.id }}
+            className="mt-3 inline-block text-xs font-medium text-primary underline"
+          >
+            List this car for sale
+          </Link>
+        ))}
 
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         <SpecTile icon={Zap} label="Power" value={car.horsepower ? `${car.horsepower} hp` : "—"} />

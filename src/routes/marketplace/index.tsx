@@ -12,7 +12,10 @@ export const Route = createFileRoute("/marketplace/")({
       { title: "Buy & Sell — RevMate" },
       { name: "description", content: "Cars and parts for sale from the RevMate community." },
       { property: "og:title", content: "Buy & Sell — RevMate" },
-      { property: "og:description", content: "Cars and parts for sale from the RevMate community." },
+      {
+        property: "og:description",
+        content: "Cars and parts for sale from the RevMate community.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -34,7 +37,9 @@ function MarketplacePage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Buy & Sell</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Cars and parts listed by the community.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Cars and parts listed by the community.
+          </p>
         </div>
         {user ? (
           <Link
@@ -83,12 +88,17 @@ function MarketplacePage() {
                 </span>
               </div>
               {listing.cars && (
-                <Link {...carPath(listing.cars)} className="mt-1 block text-xs text-muted-foreground hover:underline">
+                <Link
+                  {...carPath(listing.cars)}
+                  className="mt-1 block text-xs text-muted-foreground hover:underline"
+                >
                   {carLabel(listing.cars)}
                 </Link>
               )}
               {listing.description && (
-                <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{listing.description}</p>
+                <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                  {listing.description}
+                </p>
               )}
               {listing.show_car_stats && listing.garage_cars && (
                 <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
@@ -109,6 +119,15 @@ function MarketplacePage() {
               <p className="mt-2 text-sm font-semibold">
                 {listing.price != null ? `£${listing.price}` : "POA"}
               </p>
+              {user?.id === listing.user_id && (
+                <Link
+                  to="/marketplace/$listingId"
+                  params={{ listingId: listing.id }}
+                  className="mt-3 inline-block text-xs font-semibold text-primary underline underline-offset-2"
+                >
+                  Manage your advert
+                </Link>
+              )}
             </div>
           </li>
         ))}

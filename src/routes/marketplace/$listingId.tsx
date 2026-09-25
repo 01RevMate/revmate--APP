@@ -1,10 +1,20 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Heart, ThumbsDown, Users } from "lucide-react";
-import { fetchListingById } from "@/lib/listings";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Heart, Loader2, Settings2, ThumbsDown, Users } from "lucide-react";
+import { endListing, fetchListingById, type ListingEndReason } from "@/lib/listings";
 import { carLabel, carPath } from "@/lib/cars";
 import { Avatar } from "@/components/Avatar";
 import { displayUsername } from "@/lib/usernames";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
   head: () => ({
@@ -18,6 +28,11 @@ export const Route = createFileRoute("/marketplace/$listingId")({
 
 function ListingDetailPage() {
   const { listingId } = Route.useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [manageOpen, setManageOpen] = useState(false);
+  const [endingReason, setEndingReason] = useState<ListingEndReason | null>(null);
   const { data: listing, isLoading } = useQuery({
     queryKey: ["listing", listingId],
     queryFn: () => fetchListingById(listingId),
@@ -31,23 +46,77 @@ function ListingDetailPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10">
         <h1 className="text-xl font-semibold">Listing not found</h1>
-        <Link to="/marketplace" className="mt-2 inline-block text-sm text-muted-foreground underline">
+        <Link
+          to="/marketplace"
+          className="mt-2 inline-block text-sm text-muted-foreground underline"
+        >
           Back to Buy & Sell
         </Link>
       </div>
     );
   }
 
+  const isOwner = user?.id === listing.user_id;
+
+  async function handleEndListing(reason: ListingEndReason) {
+    if (!user || !listing || endingReason) return;
+    setEndingReason(reason);
+    try {
+      const warnings = await endListing({
+        listingId: listing.id,
+        userId: user.id,
+        garageCarId: listing.garage_car_id,
+        reason,
+      });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["listings"] }),
+        queryClient.invalidateQueries({ queryKey: ["listing", listing.id] }),
+        queryClient.invalidateQueries({ queryKey: ["feed"] }),
+        queryClient.invalidateQueries({ queryKey: ["garage"] }),
+        queryClient.invalidateQueries({ queryKey: ["garage-car-listing"] }),
+      ]);
+      toast.success(
+        reason === "sold_revmate"
+          ? "Marked as sold through RevMate"
+          : reason === "sold_elsewhere"
+            ? "Marked as sold elsewhere"
+            : "Advert removed from sale",
+      );
+      warnings.forEach((warning) => toast.warning(warning));
+      setManageOpen(false);
+      navigate({ to: "/marketplace" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't end this advert");
+    } finally {
+      setEndingReason(null);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <Link to="/marketplace" className="text-sm text-muted-foreground hover:text-foreground">
-        ← Back to Buy & Sell
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link to="/marketplace" className="text-sm text-muted-foreground hover:text-foreground">
+          ← Back to Buy & Sell
+        </Link>
+        {isOwner && (
+          <button
+            type="button"
+            onClick={() => setManageOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-md border border-input px-3 py-1.5 text-sm font-medium hover:bg-accent"
+          >
+            <Settings2 className="size-4" />
+            Manage advert
+          </button>
+        )}
+      </div>
 
       {listing.photos.length > 0 && (
         <div className="mt-4 grid grid-cols-2 gap-1 overflow-hidden rounded-lg sm:grid-cols-3">
           {listing.photos.map((url, index) => (
-            <div key={url} className={`aspect-square bg-muted ${index === 0 ? "col-span-2 row-span-2 aspect-video sm:col-span-2 sm:row-span-2" : ""}`}>
+            <div
+              key={url}
+              className={`aspect-square bg-muted ${index === 0 ? "col-span-2 row-span-2 aspect-video sm:col-span-2 sm:row-span-2" : ""}`}
+            >
               <img src={url} alt="" className="size-full object-cover" />
             </div>
           ))}
@@ -65,7 +134,9 @@ function ListingDetailPage() {
               : listing.title}
           </h1>
           {listing.mileage != null && (
-            <p className="text-sm text-muted-foreground">{listing.mileage.toLocaleString()} miles</p>
+            <p className="text-sm text-muted-foreground">
+              {listing.mileage.toLocaleString()} miles
+            </p>
           )}
         </div>
         <p className="text-3xl font-bold">
@@ -116,6 +187,41 @@ function ListingDetailPage() {
           </div>
         </Link>
       )}
+
+      <Dialog open={manageOpen} onOpenChange={(open) => !endingReason && setManageOpen(open)}>
+        <DialogContent className="max-w-[calc(100%-2rem)] rounded-2xl sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>End this advert</DialogTitle>
+            <DialogDescription>
+              Choose what happened. The advert and its selling post will stop appearing publicly.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2">
+            {(
+              [
+                ["sold_revmate", "Sold through RevMate", "The buyer found it here."],
+                ["sold_elsewhere", "Sold elsewhere", "It sold through another place."],
+                ["withdrawn", "No longer selling", "Keep the car and remove the advert."],
+                ["other", "Other reason", "Remove it from sale for another reason."],
+              ] as const
+            ).map(([reason, title, description]) => (
+              <button
+                key={reason}
+                type="button"
+                onClick={() => handleEndListing(reason)}
+                disabled={endingReason !== null}
+                className="flex min-h-14 items-center gap-3 rounded-lg border border-border px-4 py-3 text-left hover:bg-accent disabled:opacity-50"
+              >
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold">{title}</span>
+                  <span className="block text-xs text-muted-foreground">{description}</span>
+                </span>
+                {endingReason === reason && <Loader2 className="size-4 shrink-0 animate-spin" />}
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
