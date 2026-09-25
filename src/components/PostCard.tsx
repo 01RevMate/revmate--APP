@@ -9,9 +9,9 @@ import {
   MessageCircle,
   Share2,
   Tag,
+  ThumbsUp,
   ThumbsDown,
   Trash2,
-  Trophy,
   UserRoundCheck,
   UserX,
 } from "lucide-react";
@@ -81,7 +81,6 @@ export function PostCard({
   const [carDislikesCount, setCarDislikesCount] = useState(
     post.posted_as_garage_car?.dislikes_count ?? 0,
   );
-  const [carReactionBurst, setCarReactionBurst] = useState(false);
   const [dislikingCar, setDislikingCar] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [comments, setComments] = useState<CommentWithAuthor[] | null>(null);
@@ -159,10 +158,6 @@ export function PostCard({
       setCarDisliked(false);
       setCarDislikesCount((n) => Math.max(0, n - 1));
     }
-    if (next) {
-      setCarReactionBurst(true);
-      window.setTimeout(() => setCarReactionBurst(false), 700);
-    }
     try {
       if (next) await likeGarageCar(garageCarId, user.id);
       else await unlikeGarageCar(garageCarId, user.id);
@@ -170,7 +165,6 @@ export function PostCard({
       queryClient.invalidateQueries({ queryKey: ["feed", "liked-cars"] });
       queryClient.invalidateQueries({ queryKey: ["feed", "disliked-cars"] });
     } catch (err) {
-      setCarReactionBurst(false);
       setCarLiked(!next);
       setCarLikesCount((n) => n + (next ? -1 : 1));
       if (clearedDislike) {
@@ -381,9 +375,9 @@ export function PostCard({
             <Link
               to="/leaderboard"
               title="View the RevMate leaderboard"
-              className="flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground"
+              className="text-xs font-semibold text-muted-foreground hover:text-foreground"
             >
-              <Trophy className="size-3" />#{carRank}
+              #{carRank}
             </Link>
           )}
           <span
@@ -524,37 +518,18 @@ export function PostCard({
 
       <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
         {isCarLike ? (
-          <div className="w-full overflow-hidden rounded-xl border border-border bg-card text-foreground">
-            <div className="grid grid-cols-[7fr_3fr] gap-2 p-2 sm:p-3">
+          <div className="w-full">
+            <div className="grid grid-cols-[7fr_3fr] gap-1.5">
               <button
                 onClick={toggleCarLike}
                 disabled={liking}
                 title={`Like ${post.posted_as_garage_car?.nickname} — counts toward its RevMate rank`}
                 aria-label={`Like ${post.posted_as_garage_car?.nickname} — counts toward its RevMate rank`}
-                className={`relative flex min-h-12 items-center justify-center gap-2 overflow-visible rounded-lg px-4 py-2 font-bold text-white shadow-sm transition-all active:scale-[0.98] disabled:opacity-60 ${
-                  carLiked
-                    ? "bg-emerald-700 shadow-emerald-600/20"
-                    : "bg-emerald-600 hover:bg-emerald-700"
-                }`}
+                className={`flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-white disabled:opacity-60 ${carLiked ? "bg-emerald-700" : "bg-emerald-600 hover:bg-emerald-700"}`}
               >
-                <span className="relative">
-                  {carReactionBurst && (
-                    <span className="absolute inset-0 animate-ping rounded-full bg-white/70" />
-                  )}
-                  <Heart
-                    className={`relative size-5 transition-transform duration-200 ${carLiked ? "scale-110" : "scale-100"}`}
-                    fill={carLiked ? "currentColor" : "none"}
-                  />
-                </span>
+                <ThumbsUp className="size-4" fill={carLiked ? "currentColor" : "none"} />
                 <span>{carLiked ? "Liked" : "Like"}</span>
-                <span className="rounded-full bg-black/15 px-2 py-0.5 text-xs tabular-nums">
-                  {carLikesCount}
-                </span>
-                {carReactionBurst && (
-                  <span className="pointer-events-none absolute -top-7 right-5 animate-bounce text-sm font-black text-orange-500">
-                    +1 ♥
-                  </span>
-                )}
+                <span className="font-normal tabular-nums opacity-80">{carLikesCount}</span>
               </button>
 
               <button
@@ -562,20 +537,20 @@ export function PostCard({
                 disabled={dislikingCar}
                 title={`Dislike ${post.posted_as_garage_car?.nickname} — affects its RevMate rank`}
                 aria-label={`Dislike ${post.posted_as_garage_car?.nickname} — affects its RevMate rank`}
-                className={`flex min-h-12 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold text-white shadow-sm transition-colors active:scale-[0.98] disabled:opacity-60 ${carDisliked ? "bg-red-700 shadow-red-600/20" : "bg-red-600 hover:bg-red-700"}`}
+                className={`flex min-h-11 items-center justify-center gap-1.5 rounded-md px-2 py-2 text-xs font-semibold text-white disabled:opacity-60 ${carDisliked ? "bg-red-700" : "bg-red-600 hover:bg-red-700"}`}
               >
                 <ThumbsDown className="size-4" fill={carDisliked ? "currentColor" : "none"} />
                 <span>Dislike</span>
-                <span className="rounded-full bg-black/15 px-1.5 py-0.5 tabular-nums">
-                  {carDislikesCount}
-                </span>
+                <span className="font-normal tabular-nums opacity-80">{carDislikesCount}</span>
               </button>
             </div>
 
-            <div className="flex items-center justify-center gap-1.5 border-t border-border/60 px-3 py-1.5 text-[10px] text-muted-foreground">
-              <Trophy className="size-3" />
-              Reactions affect this car’s RevMate leaderboard position
-            </div>
+            <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
+              Votes update this car’s position on the{" "}
+              <Link to="/leaderboard" className="underline-offset-2 hover:underline">
+                leaderboard
+              </Link>
+            </p>
           </div>
         ) : (
           <button
