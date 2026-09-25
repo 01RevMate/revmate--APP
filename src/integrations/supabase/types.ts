@@ -1413,6 +1413,61 @@ export type Database = {
           },
         ]
       }
+      seller_reports: {
+        Row: {
+          created_at: string
+          details: string
+          id: string
+          listing_id: string | null
+          reason: string
+          reporter_id: string
+          seller_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string
+          id?: string
+          listing_id?: string | null
+          reason: string
+          reporter_id: string
+          seller_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string
+          id?: string
+          listing_id?: string | null
+          reason?: string
+          reporter_id?: string
+          seller_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_reports_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "seller_reports_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_blocks: {
         Row: {
           blocked_id: string
@@ -1695,6 +1750,14 @@ export type Database = {
       review_group_post: {
         Args: { decision: string; pid: string }
         Returns: undefined
+      }
+      seller_score: {
+        Args: { target_user: string }
+        Returns: {
+          actioned_reports: number
+          listings_count: number
+          score: number
+        }[]
       }
       send_app_update: {
         Args: { update_message: string; update_url?: string }

@@ -27,6 +27,7 @@ import { GarageCarTile } from "@/components/GarageCarTile";
 import { PostCard } from "@/components/PostCard";
 import { SocialLinksDisplay, SocialLinksEditor } from "@/components/SocialLinks";
 import { AchievementBadges } from "@/components/AchievementBadges";
+import { SellerScoreBadge } from "@/components/SellerScoreBadge";
 import { FollowButton } from "@/components/FollowButton";
 import { ProfileConnections, ProfileStatsBar } from "@/components/ProfileSocial";
 import { EditableImage } from "@/components/EditableImage";
@@ -301,8 +302,9 @@ function GarageProfilePage() {
         <div className="mt-3">
           <SocialLinksDisplay profile={profile} />
         </div>
-        <div className="mt-3">
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <AchievementBadges userId={profile.user_id} />
+          <SellerScoreBadge userId={profile.user_id} />
         </div>
         <ProfileStatsBar userId={profile.user_id} />
 

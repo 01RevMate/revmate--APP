@@ -2,9 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Heart, Loader2, MessageCircle, Send, Settings2, ThumbsDown, Users } from "lucide-react";
+import { Flag, Heart, Loader2, MessageCircle, Send, Settings2, ThumbsDown, Users } from "lucide-react";
 import { endListing, fetchListingById, type ListingEndReason } from "@/lib/listings";
 import { fetchOrCreateConversation, sendMessage } from "@/lib/messages";
+import { reportSeller, SELLER_REPORT_REASONS, type SellerReportReason } from "@/lib/sellers";
 import { carLabel, carPath } from "@/lib/cars";
 import { Avatar } from "@/components/Avatar";
 import { displayUsername, displayUsernameWithoutAt } from "@/lib/usernames";
@@ -39,6 +40,10 @@ function ListingDetailPage() {
   const [messageOpen, setMessageOpen] = useState(false);
   const [messageBody, setMessageBody] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState<SellerReportReason>("scam");
+  const [reportDetails, setReportDetails] = useState("");
+  const [sendingReport, setSendingReport] = useState(false);
   const { data: listing, isLoading } = useQuery({
     queryKey: ["listing", listingId],
     queryFn: () => fetchListingById(listingId),
@@ -101,6 +106,36 @@ function ListingDetailPage() {
       toast.error(err instanceof Error ? err.message : "Couldn't send your message");
     } finally {
       setSendingMessage(false);
+    }
+  }
+
+  function openReportDialog() {
+    if (!user) {
+      openAuthModal("Create a free account to report a seller.");
+      return;
+    }
+    setReportReason("scam");
+    setReportDetails("");
+    setReportOpen(true);
+  }
+
+  async function handleSendReport() {
+    if (!user || !listing || sendingReport) return;
+    setSendingReport(true);
+    try {
+      await reportSeller({
+        listingId: listing.id,
+        sellerId: listing.user_id,
+        reporterId: user.id,
+        reason: reportReason,
+        details: reportDetails,
+      });
+      toast.success("Report sent. Our team will take a look.");
+      setReportOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't send your report");
+    } finally {
+      setSendingReport(false);
     }
   }
 
@@ -230,14 +265,24 @@ function ListingDetailPage() {
             </div>
           </Link>
           {!isOwner && listing.status === "active" && (
-            <button
-              type="button"
-              onClick={openMessageDialog}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              <MessageCircle className="size-4" />
-              Message seller
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={openMessageDialog}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                <MessageCircle className="size-4" />
+                Message seller
+              </button>
+              <button
+                type="button"
+                onClick={openReportDialog}
+                className="mt-2 flex w-full items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-destructive"
+              >
+                <Flag className="size-3.5" />
+                Report this seller
+              </button>
+            </>
           )}
         </div>
       )}
@@ -291,6 +336,52 @@ function ListingDetailPage() {
               <Send className="size-4" />
             )}
             {sendingMessage ? "Sending…" : "Send message"}
+          </button>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={reportOpen} onOpenChange={(open) => !sendingReport && setReportOpen(open)}>
+        <DialogContent className="max-w-[calc(100%-2rem)] rounded-2xl sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Report this seller</DialogTitle>
+            <DialogDescription>
+              Tell us what's wrong with this advert. Reports are reviewed by the RevMate team.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2">
+            {(Object.entries(SELLER_REPORT_REASONS) as [SellerReportReason, string][]).map(
+              ([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setReportReason(value)}
+                  className={`rounded-lg border px-3 py-2.5 text-left text-sm font-medium transition-colors ${
+                    reportReason === value
+                      ? "border-primary bg-primary/5 text-foreground"
+                      : "border-border hover:bg-accent"
+                  }`}
+                >
+                  {label}
+                </button>
+              ),
+            )}
+          </div>
+          <textarea
+            value={reportDetails}
+            onChange={(e) => setReportDetails(e.target.value)}
+            rows={3}
+            maxLength={1000}
+            placeholder="Add any details (optional)…"
+            className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => void handleSendReport()}
+            disabled={sendingReport}
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-destructive px-4 py-2.5 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+          >
+            {sendingReport ? <Loader2 className="size-4 animate-spin" /> : <Flag className="size-4" />}
+            {sendingReport ? "Sending…" : "Send report"}
           </button>
         </DialogContent>
       </Dialog>

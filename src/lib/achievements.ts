@@ -64,6 +64,20 @@ export const ACHIEVEMENT_DEFINITIONS: (Achievement & {
     description: "Gained your first follower",
     check: (s) => s.followersCount >= 1,
   },
+  {
+    id: "amateur_salesman",
+    name: "Amateur Salesman",
+    emoji: "🏷️",
+    description: "Listed your first car or part for sale",
+    check: (s) => s.listingsCount >= 1,
+  },
+  {
+    id: "real_salesman",
+    name: "Real Salesman",
+    emoji: "💼",
+    description: "Listed 3+ cars or parts for sale",
+    check: (s) => s.listingsCount >= 3,
+  },
 ];
 
 export type ProfileStats = {
@@ -72,6 +86,7 @@ export type ProfileStats = {
   photosCount: number;
   maxCarLikes: number;
   followersCount: number;
+  listingsCount: number;
 };
 
 export async function fetchProfileStats(userId: string): Promise<ProfileStats> {
@@ -84,7 +99,7 @@ export async function fetchProfileStats(userId: string): Promise<ProfileStats> {
   const garageCarIds = garageCars.map((c) => c.id);
   const maxCarLikes = garageCars.reduce((max, c) => Math.max(max, c.likes_count), 0);
 
-  const [postsRes, modsRes, photosRes, followersRes] = await Promise.all([
+  const [postsRes, modsRes, photosRes, followersRes, listingsRes] = await Promise.all([
     supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", userId),
     garageCarIds.length > 0
       ? supabase
@@ -102,12 +117,14 @@ export async function fetchProfileStats(userId: string): Promise<ProfileStats> {
       .from("profile_follows")
       .select("follower_id", { count: "exact", head: true })
       .eq("followed_id", userId),
+    supabase.from("listings").select("id", { count: "exact", head: true }).eq("user_id", userId),
   ]);
 
   if (postsRes.error) throw postsRes.error;
   if (modsRes.error) throw modsRes.error;
   if (photosRes.error) throw photosRes.error;
   if (followersRes.error) throw followersRes.error;
+  if (listingsRes.error) throw listingsRes.error;
 
   return {
     postsCount: postsRes.count ?? 0,
@@ -115,6 +132,7 @@ export async function fetchProfileStats(userId: string): Promise<ProfileStats> {
     photosCount: photosRes.count ?? 0,
     maxCarLikes,
     followersCount: followersRes.count ?? 0,
+    listingsCount: listingsRes.count ?? 0,
   };
 }
 
