@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import {
   Flag,
+  Flame,
   Heart,
   MessageCircle,
   Share2,
@@ -22,7 +23,13 @@ import { CarLogo } from "@/components/CarLogo";
 import { PostImageViewer } from "@/components/PostImageViewer";
 import { carLabel, carPath } from "@/lib/cars";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
-import { dislikeGarageCar, likeGarageCar, undislikeGarageCar, unlikeGarageCar } from "@/lib/garage";
+import {
+  dislikeGarageCar,
+  fetchGarageCarRank,
+  likeGarageCar,
+  undislikeGarageCar,
+  unlikeGarageCar,
+} from "@/lib/garage";
 import {
   addComment,
   deletePost,
@@ -63,12 +70,18 @@ export function PostCard({
   const [likesCount, setLikesCount] = useState(post.likes_count);
   const isCarLike = post.category === "showcase" && !!post.posted_as_garage_car;
   const isForSale = post.category === "for_sale";
+  const { data: carRank } = useQuery({
+    queryKey: ["garage-car-rank", post.posted_as_garage_car?.id],
+    queryFn: () => fetchGarageCarRank(post.posted_as_garage_car!.id),
+    enabled: isCarLike,
+  });
   const [carLiked, setCarLiked] = useState(initiallyCarLiked);
   const [carLikesCount, setCarLikesCount] = useState(post.posted_as_garage_car?.likes_count ?? 0);
   const [carDisliked, setCarDisliked] = useState(initiallyCarDisliked);
   const [carDislikesCount, setCarDislikesCount] = useState(
     post.posted_as_garage_car?.dislikes_count ?? 0,
   );
+  const [carReactionBurst, setCarReactionBurst] = useState(false);
   const [dislikingCar, setDislikingCar] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [comments, setComments] = useState<CommentWithAuthor[] | null>(null);
@@ -146,6 +159,10 @@ export function PostCard({
       setCarDisliked(false);
       setCarDislikesCount((n) => Math.max(0, n - 1));
     }
+    if (next) {
+      setCarReactionBurst(true);
+      window.setTimeout(() => setCarReactionBurst(false), 700);
+    }
     try {
       if (next) await likeGarageCar(garageCarId, user.id);
       else await unlikeGarageCar(garageCarId, user.id);
@@ -153,6 +170,7 @@ export function PostCard({
       queryClient.invalidateQueries({ queryKey: ["feed", "liked-cars"] });
       queryClient.invalidateQueries({ queryKey: ["feed", "disliked-cars"] });
     } catch (err) {
+      setCarReactionBurst(false);
       setCarLiked(!next);
       setCarLikesCount((n) => n + (next ? -1 : 1));
       if (clearedDislike) {
@@ -359,10 +377,20 @@ export function PostCard({
           )}
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {isCarLike && carRank != null && (
+            <Link
+              to="/leaderboard"
+              title="View the RevMate leaderboard"
+              className="flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground"
+            >
+              <Trophy className="size-3" />#{carRank}
+            </Link>
+          )}
           <span
-            className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${isForSale ? "bg-blue-500 text-white" : "bg-accent text-accent-foreground"}`}
+            className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${isForSale ? "bg-blue-500 text-white" : isCarLike ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm" : "bg-accent text-accent-foreground"}`}
           >
             {isForSale && <Tag className="size-2.5" />}
+            {isCarLike && <Flame className="size-2.5" fill="currentColor" />}
             {POST_CATEGORY_LABELS[post.category]}
           </span>
           {user?.id === post.user_id && (
@@ -471,7 +499,9 @@ export function PostCard({
               </p>
             )}
             <p className="text-2xl font-bold text-foreground">
-              {post.listings.price != null ? `£${post.listings.price.toLocaleString("en-GB")}` : "POA"}
+              {post.listings.price != null
+                ? `£${post.listings.price.toLocaleString("en-GB")}`
+                : "POA"}
             </p>
           </div>
           {post.listings.headline && (
@@ -494,45 +524,58 @@ export function PostCard({
 
       <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
         {isCarLike ? (
-          <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-transparent py-0.5 pl-1 pr-2">
-            <button
-              onClick={toggleCarLike}
-              disabled={liking}
-              title={`Like ${post.posted_as_garage_car?.nickname} — counts toward its RevMate rank`}
-              aria-label={`Like ${post.posted_as_garage_car?.nickname} — counts toward its RevMate rank`}
-              className={`relative flex items-center gap-1.5 rounded-full px-2 py-1 font-semibold hover:text-foreground ${carLiked ? "bg-amber-500/15 text-amber-500 hover:text-amber-500" : ""}`}
-            >
-              <span className="relative">
-                <Heart
-                  className={`size-5 transition-transform duration-200 ${carLiked ? "scale-110" : "scale-100"}`}
-                  fill={carLiked ? "currentColor" : "none"}
-                />
-                {post.posted_as_garage_car && (
-                  <CarLogo
-                    make={post.posted_as_garage_car.make}
-                    className="absolute -bottom-1.5 -right-1.5 size-3 rounded-full border border-background bg-background"
+          <div className="w-full overflow-hidden rounded-xl border border-border bg-card text-foreground">
+            <div className="grid grid-cols-[7fr_3fr] gap-2 p-2 sm:p-3">
+              <button
+                onClick={toggleCarLike}
+                disabled={liking}
+                title={`Like ${post.posted_as_garage_car?.nickname} — counts toward its RevMate rank`}
+                aria-label={`Like ${post.posted_as_garage_car?.nickname} — counts toward its RevMate rank`}
+                className={`relative flex min-h-12 items-center justify-center gap-2 overflow-visible rounded-lg px-4 py-2 font-bold text-white shadow-sm transition-all active:scale-[0.98] disabled:opacity-60 ${
+                  carLiked
+                    ? "bg-emerald-700 shadow-emerald-600/20"
+                    : "bg-emerald-600 hover:bg-emerald-700"
+                }`}
+              >
+                <span className="relative">
+                  {carReactionBurst && (
+                    <span className="absolute inset-0 animate-ping rounded-full bg-white/70" />
+                  )}
+                  <Heart
+                    className={`relative size-5 transition-transform duration-200 ${carLiked ? "scale-110" : "scale-100"}`}
+                    fill={carLiked ? "currentColor" : "none"}
                   />
+                </span>
+                <span>{carLiked ? "Liked" : "Like"}</span>
+                <span className="rounded-full bg-black/15 px-2 py-0.5 text-xs tabular-nums">
+                  {carLikesCount}
+                </span>
+                {carReactionBurst && (
+                  <span className="pointer-events-none absolute -top-7 right-5 animate-bounce text-sm font-black text-orange-500">
+                    +1 ♥
+                  </span>
                 )}
-              </span>
-              {carLikesCount > 0 ? carLikesCount : "Like this car"}
-            </button>
-            <button
-              onClick={toggleCarDislike}
-              disabled={dislikingCar}
-              title={`Dislike ${post.posted_as_garage_car?.nickname} — affects its RevMate rank`}
-              aria-label={`Dislike ${post.posted_as_garage_car?.nickname} — affects its RevMate rank`}
-              className={`flex items-center gap-1.5 rounded-full px-2 py-1 hover:text-foreground ${carDisliked ? "bg-foreground/10 text-foreground" : ""}`}
-            >
-              <ThumbsDown className="size-4" fill={carDisliked ? "currentColor" : "none"} />
-              {carDislikesCount > 0 ? carDislikesCount : ""}
-            </button>
-            <span
-              title="Net score — likes minus dislikes, feeds this car's RevMate rank"
-              className="ml-1 flex items-center gap-1 text-xs font-semibold text-amber-600"
-            >
-              <Trophy className="size-3.5" />
-              {carLikesCount - carDislikesCount}
-            </span>
+              </button>
+
+              <button
+                onClick={toggleCarDislike}
+                disabled={dislikingCar}
+                title={`Dislike ${post.posted_as_garage_car?.nickname} — affects its RevMate rank`}
+                aria-label={`Dislike ${post.posted_as_garage_car?.nickname} — affects its RevMate rank`}
+                className={`flex min-h-12 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold text-white shadow-sm transition-colors active:scale-[0.98] disabled:opacity-60 ${carDisliked ? "bg-red-700 shadow-red-600/20" : "bg-red-600 hover:bg-red-700"}`}
+              >
+                <ThumbsDown className="size-4" fill={carDisliked ? "currentColor" : "none"} />
+                <span>Dislike</span>
+                <span className="rounded-full bg-black/15 px-1.5 py-0.5 tabular-nums">
+                  {carDislikesCount}
+                </span>
+              </button>
+            </div>
+
+            <div className="flex items-center justify-center gap-1.5 border-t border-border/60 px-3 py-1.5 text-[10px] text-muted-foreground">
+              <Trophy className="size-3" />
+              Reactions affect this car’s RevMate leaderboard position
+            </div>
           </div>
         ) : (
           <button
