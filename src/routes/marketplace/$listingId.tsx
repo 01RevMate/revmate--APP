@@ -31,10 +31,14 @@ export const Route = createFileRoute("/marketplace/$listingId")({
 function ListingDetailPage() {
   const { listingId } = Route.useParams();
   const { user } = useAuth();
+  const { open: openAuthModal } = useAuthModal();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [manageOpen, setManageOpen] = useState(false);
   const [endingReason, setEndingReason] = useState<ListingEndReason | null>(null);
+  const [messageOpen, setMessageOpen] = useState(false);
+  const [messageBody, setMessageBody] = useState("");
+  const [sendingMessage, setSendingMessage] = useState(false);
   const { data: listing, isLoading } = useQuery({
     queryKey: ["listing", listingId],
     queryFn: () => fetchListingById(listingId),
