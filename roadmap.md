@@ -1,9 +1,10 @@
 # Roadmap
 
-## In progress
-- Verify Message seller dialog end-to-end (signed in as @PriyaQuattro on the Scirocco advert)
+## Done
+- Message seller button on adverts with prefilled questions (verified end-to-end)
+- Seller achievements: Amateur Salesman (1+ listing), Real Salesman (3+)
+- Report-a-seller flow on adverts (scam etc., duplicate reports blocked)
+- Seller score on profiles, shown only once a user has listed something
 
-## Queued
-- Seller achievements: "Amateur Salesman" on first listing, "Real Salesman" after 3+ listings
-- Seller reporting: report a seller for scams etc. (extend post_reports or new table)
-- Seller score: shown on profiles/listings only once a user has listed something for sale
+## Open
+- None
