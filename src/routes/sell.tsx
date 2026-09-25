@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Car, Loader2, Package, Upload, X } from "lucide-react";
@@ -159,6 +159,7 @@ function SellCarForm({
   const [showCarStats, setShowCarStats] = useState(true);
   const [pushToFeed, setPushToFeed] = useState(true);
   const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
 
   const allPhotos = useMemo(
     () => [...selectedPhotos, ...uploadedPhotos],
@@ -229,6 +230,7 @@ function SellCarForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (savingRef.current) return;
     if (!selectedCar) {
       toast.error("Pick a car from your garage first.");
       return;
@@ -249,6 +251,7 @@ function SellCarForm({
       toast.error(`A listing can have up to ${MAX_CAR_LISTING_PHOTOS} photos.`);
       return;
     }
+    savingRef.current = true;
     setSaving(true);
     try {
       const listingId = await createListing({
@@ -265,21 +268,26 @@ function SellCarForm({
         headline: headline.trim() || null,
       });
       if (pushToFeed) {
-        const postId = await createPost({
-          userId,
-          body: description || `${selectedCar.nickname} is up for sale — £${price}`,
-          carId: selectedCar.car_id || undefined,
-          postedAsGarageCarId: selectedCar.id,
-          category: "for_sale",
-          listingId,
-        });
-        await attachImagesToPost(postId, allPhotos.slice(0, 5));
+        try {
+          const postId = await createPost({
+            userId,
+            body: description || `${selectedCar.nickname} is up for sale — £${price}`,
+            carId: selectedCar.car_id || undefined,
+            postedAsGarageCarId: selectedCar.id,
+            category: "for_sale",
+            listingId,
+          });
+          await attachImagesToPost(postId, allPhotos.slice(0, 5));
+        } catch {
+          toast.warning("Your advert is live, but it couldn't also be shared to the feed.");
+        }
       }
-      toast.success("Listing created");
+      toast.success("Your advert is live");
       navigate({ to: "/marketplace" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't create listing");
+      toast.error(err instanceof Error ? err.message : "Couldn't create your advert");
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }
