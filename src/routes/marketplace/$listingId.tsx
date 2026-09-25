@@ -2,9 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Heart, Loader2, MessageCircle, Send, Settings2, ThumbsDown, Users } from "lucide-react";
+import { Flag, Heart, Loader2, MessageCircle, Send, Settings2, ThumbsDown, Users } from "lucide-react";
 import { endListing, fetchListingById, type ListingEndReason } from "@/lib/listings";
 import { fetchOrCreateConversation, sendMessage } from "@/lib/messages";
+import { reportSeller, SELLER_REPORT_REASONS, type SellerReportReason } from "@/lib/sellers";
 import { carLabel, carPath } from "@/lib/cars";
 import { Avatar } from "@/components/Avatar";
 import { displayUsername, displayUsernameWithoutAt } from "@/lib/usernames";
@@ -39,6 +40,10 @@ function ListingDetailPage() {
   const [messageOpen, setMessageOpen] = useState(false);
   const [messageBody, setMessageBody] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState<SellerReportReason>("scam");
+  const [reportDetails, setReportDetails] = useState("");
+  const [sendingReport, setSendingReport] = useState(false);
   const { data: listing, isLoading } = useQuery({
     queryKey: ["listing", listingId],
     queryFn: () => fetchListingById(listingId),
