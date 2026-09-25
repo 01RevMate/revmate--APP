@@ -217,18 +217,83 @@ function ListingDetailPage() {
       )}
 
       {listing.profiles && (
-        <Link
-          to="/u/$username"
-          params={{ username: listing.profiles.username }}
-          className="mt-8 flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-accent"
-        >
-          <Avatar photoUrl={listing.profiles.avatar_url} fallback={listing.profiles.username} />
-          <div>
-            <p className="text-xs text-muted-foreground">Listed by</p>
-            <p className="text-sm font-medium">{displayUsername(listing.profiles.username)}</p>
-          </div>
-        </Link>
+        <div className="mt-8 rounded-lg border border-border p-3">
+          <Link
+            to="/u/$username"
+            params={{ username: listing.profiles.username }}
+            className="flex items-center gap-3 rounded-md p-1 hover:bg-accent"
+          >
+            <Avatar photoUrl={listing.profiles.avatar_url} fallback={listing.profiles.username} />
+            <div>
+              <p className="text-xs text-muted-foreground">Listed by</p>
+              <p className="text-sm font-medium">{displayUsername(listing.profiles.username)}</p>
+            </div>
+          </Link>
+          {!isOwner && listing.status === "active" && (
+            <button
+              type="button"
+              onClick={openMessageDialog}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              <MessageCircle className="size-4" />
+              Message seller
+            </button>
+          )}
+        </div>
       )}
+
+      <Dialog
+        open={messageOpen}
+        onOpenChange={(open) => !sendingMessage && setMessageOpen(open)}
+      >
+        <DialogContent className="max-w-[calc(100%-2rem)] rounded-2xl sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              Message {displayUsernameWithoutAt(listing.profiles?.username ?? "")}
+            </DialogTitle>
+            <DialogDescription>
+              Pick a question or write your own about the {carName}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-wrap gap-2">
+            {QUICK_QUESTIONS.map((question) => (
+              <button
+                key={question}
+                type="button"
+                onClick={() => setMessageBody(question)}
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  messageBody === question
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-input bg-background hover:bg-accent"
+                }`}
+              >
+                {question}
+              </button>
+            ))}
+          </div>
+          <textarea
+            value={messageBody}
+            onChange={(e) => setMessageBody(e.target.value)}
+            rows={4}
+            maxLength={5000}
+            placeholder="Write your message…"
+            className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => void handleSendMessage()}
+            disabled={sendingMessage || !messageBody.trim()}
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          >
+            {sendingMessage ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Send className="size-4" />
+            )}
+            {sendingMessage ? "Sending…" : "Send message"}
+          </button>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={manageOpen} onOpenChange={(open) => !endingReason && setManageOpen(open)}>
         <DialogContent className="max-w-[calc(100%-2rem)] rounded-2xl sm:max-w-md">
