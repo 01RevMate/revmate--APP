@@ -118,22 +118,22 @@ export async function createPost(input: {
   audience?: Post["audience"] | undefined;
   listingId?: string | undefined;
 }) {
-  const { data, error } = await supabase
-    .from("posts")
-    .insert({
-      user_id: input.userId,
-      group_id: input.groupId || null,
-      body: input.body,
-      car_id: input.carId || null,
-      posted_as_garage_car_id: input.postedAsGarageCarId || null,
-      category: input.category || "discussion",
-      audience: input.groupId ? "public" : (input.audience ?? "public"),
-      listing_id: input.listingId || null,
-    })
-    .select("id")
-    .single();
+  // Generate the id client-side and skip RETURNING: the visibility policy
+  // can't see a brand-new row inside the insert, which made some posts fail.
+  const id = crypto.randomUUID();
+  const { error } = await supabase.from("posts").insert({
+    id,
+    user_id: input.userId,
+    group_id: input.groupId || null,
+    body: input.body,
+    car_id: input.carId || null,
+    posted_as_garage_car_id: input.postedAsGarageCarId || null,
+    category: input.category || "discussion",
+    audience: input.groupId ? "public" : (input.audience ?? "public"),
+    listing_id: input.listingId || null,
+  });
   if (error) throw error;
-  return data.id;
+  return id;
 }
 
 export async function uploadPostImage(userId: string, file: File): Promise<string> {
