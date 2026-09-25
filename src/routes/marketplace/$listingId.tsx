@@ -109,6 +109,36 @@ function ListingDetailPage() {
     }
   }
 
+  function openReportDialog() {
+    if (!user) {
+      openAuthModal("Create a free account to report a seller.");
+      return;
+    }
+    setReportReason("scam");
+    setReportDetails("");
+    setReportOpen(true);
+  }
+
+  async function handleSendReport() {
+    if (!user || !listing || sendingReport) return;
+    setSendingReport(true);
+    try {
+      await reportSeller({
+        listingId: listing.id,
+        sellerId: listing.user_id,
+        reporterId: user.id,
+        reason: reportReason,
+        details: reportDetails,
+      });
+      toast.success("Report sent. Our team will take a look.");
+      setReportOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't send your report");
+    } finally {
+      setSendingReport(false);
+    }
+  }
+
   async function handleEndListing(reason: ListingEndReason) {
     if (!user || !listing || endingReason) return;
     setEndingReason(reason);
