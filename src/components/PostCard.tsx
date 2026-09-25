@@ -486,6 +486,11 @@ export function PostCard({
           className={`mt-3 flex items-center justify-between gap-3 bg-muted px-4 py-3 ${immersive ? "-mx-3 sm:-mx-4" : "-mx-4"}`}
         >
           <div>
+            {user?.id === post.user_id && (
+              <span className="mb-1 inline-block rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
+                This is your ad
+              </span>
+            )}
             {post.posted_as_garage_car && (
               <p className="text-sm font-semibold text-foreground">
                 {post.posted_as_garage_car.year ? `${post.posted_as_garage_car.year} ` : ""}
