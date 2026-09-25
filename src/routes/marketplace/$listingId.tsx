@@ -2,12 +2,14 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Heart, Loader2, Settings2, ThumbsDown, Users } from "lucide-react";
+import { Heart, Loader2, MessageCircle, Send, Settings2, ThumbsDown, Users } from "lucide-react";
 import { endListing, fetchListingById, type ListingEndReason } from "@/lib/listings";
+import { fetchOrCreateConversation, sendMessage } from "@/lib/messages";
 import { carLabel, carPath } from "@/lib/cars";
 import { Avatar } from "@/components/Avatar";
-import { displayUsername } from "@/lib/usernames";
+import { displayUsername, displayUsernameWithoutAt } from "@/lib/usernames";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthModal } from "@/hooks/useAuthModal";
 import {
   Dialog,
   DialogContent,
