@@ -204,6 +204,13 @@
       "when": 1790208100000,
       "tag": "0028_listing_ad_headline",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1790298856495,
+      "tag": "0029_seller_reports_and_score",
+      "breakpoints": true
     }
   ]
 }
