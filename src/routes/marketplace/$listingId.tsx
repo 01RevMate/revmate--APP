@@ -64,6 +64,46 @@ function ListingDetailPage() {
 
   const isOwner = user?.id === listing.user_id;
 
+  const carName = listing.garage_cars
+    ? `${listing.garage_cars.year ? `${listing.garage_cars.year} ` : ""}${listing.garage_cars.make} ${listing.garage_cars.model}`
+    : listing.title;
+
+  const QUICK_QUESTIONS = [
+    `Hi! Is the ${carName} still available?`,
+    `What's the lowest you'd take for the ${carName}?`,
+    `Can I come and view the ${carName} this week?`,
+    `Has the ${carName} got full service history?`,
+  ];
+
+  function openMessageDialog() {
+    if (!user) {
+      openAuthModal("Create a free account to message the seller.");
+      return;
+    }
+    setMessageBody(QUICK_QUESTIONS[0]!);
+    setMessageOpen(true);
+  }
+
+  async function handleSendMessage() {
+    if (!user || !listing?.profiles || !messageBody.trim() || sendingMessage) return;
+    setSendingMessage(true);
+    try {
+      const conversationId = await fetchOrCreateConversation(user.id, listing.user_id);
+      await sendMessage(conversationId, user.id, messageBody.trim());
+      await queryClient.invalidateQueries({ queryKey: ["conversations", user.id] });
+      toast.success("Message sent to the seller");
+      setMessageOpen(false);
+      navigate({
+        to: "/messages/$username",
+        params: { username: listing.profiles.username },
+      });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't send your message");
+    } finally {
+      setSendingMessage(false);
+    }
+  }
+
   async function handleEndListing(reason: ListingEndReason) {
     if (!user || !listing || endingReason) return;
     setEndingReason(reason);
