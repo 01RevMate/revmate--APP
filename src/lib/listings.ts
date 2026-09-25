@@ -31,6 +31,7 @@ export type ListingDetail = Listing & {
 // A car-for-sale listing needs enough photos to actually sell it — mirrors
 // what buyers expect from a Facebook Marketplace / AutoTrader listing.
 export const MIN_CAR_LISTING_PHOTOS = 5;
+export const MAX_CAR_LISTING_PHOTOS = 15;
 
 const LISTING_SELECT =
   "*, cars(make, model, generation), garage_cars(id, nickname, likes_count, dislikes_count, followers_count)";

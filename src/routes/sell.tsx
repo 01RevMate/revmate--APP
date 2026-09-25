@@ -9,13 +9,19 @@ import { CarPicker } from "@/components/CarPicker";
 import { Avatar } from "@/components/Avatar";
 import { CarLogo } from "@/components/CarLogo";
 import { fetchCarPhotos } from "@/lib/garage";
-import { createListing, fetchMySellableGarageCars, MIN_CAR_LISTING_PHOTOS } from "@/lib/listings";
+import {
+  createListing,
+  fetchMySellableGarageCars,
+  MAX_CAR_LISTING_PHOTOS,
+  MIN_CAR_LISTING_PHOTOS,
+} from "@/lib/listings";
 import { createPost, attachImagesToPost } from "@/lib/posts";
 import { uploadImage, validateImageFile } from "@/lib/uploads";
 
 export const Route = createFileRoute("/sell")({
   validateSearch: (search: Record<string, unknown>) => ({
-    garageCarId: typeof search["garageCarId"] === "string" ? (search["garageCarId"] as string) : undefined,
+    garageCarId:
+      typeof search["garageCarId"] === "string" ? (search["garageCarId"] as string) : undefined,
   }),
   head: () => ({
     meta: [
@@ -100,7 +106,13 @@ function SellPage() {
   }
 
   if (mode === "other") {
-    return <SellSomethingElseForm onBack={() => setMode("choose")} userId={user.id} navigate={navigate} />;
+    return (
+      <SellSomethingElseForm
+        onBack={() => setMode("choose")}
+        userId={user.id}
+        navigate={navigate}
+      />
+    );
   }
 
   return (
@@ -148,7 +160,10 @@ function SellCarForm({
   const [pushToFeed, setPushToFeed] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const allPhotos = useMemo(() => [...selectedPhotos, ...uploadedPhotos], [selectedPhotos, uploadedPhotos]);
+  const allPhotos = useMemo(
+    () => [...selectedPhotos, ...uploadedPhotos],
+    [selectedPhotos, uploadedPhotos],
+  );
 
   function selectCar(id: string) {
     setGarageCarId(id);
@@ -159,24 +174,54 @@ function SellCarForm({
   }
 
   function togglePhoto(url: string) {
-    setSelectedPhotos((prev) => (prev.includes(url) ? prev.filter((p) => p !== url) : [...prev, url]));
-  }
-
-  async function handleUploadPhoto(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-    const problem = validateImageFile(file);
-    if (problem) {
-      toast.error(problem);
+    if (!selectedPhotos.includes(url) && allPhotos.length >= MAX_CAR_LISTING_PHOTOS) {
+      toast.error(`A listing can have up to ${MAX_CAR_LISTING_PHOTOS} photos.`);
       return;
     }
+    setSelectedPhotos((prev) =>
+      prev.includes(url) ? prev.filter((p) => p !== url) : [...prev, url],
+    );
+  }
+
+  async function handleUploadPhotos(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    if (files.length === 0) return;
+
+    const remainingSlots = MAX_CAR_LISTING_PHOTOS - allPhotos.length;
+    if (remainingSlots <= 0) {
+      toast.error(`A listing can have up to ${MAX_CAR_LISTING_PHOTOS} photos.`);
+      return;
+    }
+
+    const validFiles = files.filter((file) => {
+      const problem = validateImageFile(file);
+      if (problem) toast.error(problem);
+      return !problem;
+    });
+    const filesToUpload = validFiles.slice(0, remainingSlots);
+    if (validFiles.length > remainingSlots) {
+      toast.error(
+        `Only ${remainingSlots} more photo${remainingSlots === 1 ? "" : "s"} can be added. The limit is ${MAX_CAR_LISTING_PHOTOS}.`,
+      );
+    }
+    if (filesToUpload.length === 0) return;
+
     setUploading(true);
+    const uploadedUrls: string[] = [];
     try {
-      const url = await uploadImage("user-media", userId, file);
-      setUploadedPhotos((prev) => [...prev, url]);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't upload photo");
+      for (const file of filesToUpload) {
+        try {
+          uploadedUrls.push(await uploadImage("user-media", userId, file));
+        } catch (err) {
+          toast.error(
+            err instanceof Error ? `${file.name}: ${err.message}` : `Couldn't upload ${file.name}`,
+          );
+        }
+      }
+      if (uploadedUrls.length > 0) {
+        setUploadedPhotos((prev) => [...prev, ...uploadedUrls]);
+      }
     } finally {
       setUploading(false);
     }
@@ -198,6 +243,10 @@ function SellCarForm({
     }
     if (allPhotos.length < MIN_CAR_LISTING_PHOTOS) {
       toast.error(`Add at least ${MIN_CAR_LISTING_PHOTOS} photos — ${allPhotos.length} so far.`);
+      return;
+    }
+    if (allPhotos.length > MAX_CAR_LISTING_PHOTOS) {
+      toast.error(`A listing can have up to ${MAX_CAR_LISTING_PHOTOS} photos.`);
       return;
     }
     setSaving(true);
@@ -280,7 +329,11 @@ function SellCarForm({
       {selectedCar && (
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
-            <Avatar photoUrl={selectedCar.photo_url} fallback={selectedCar.nickname} className="size-12" />
+            <Avatar
+              photoUrl={selectedCar.photo_url}
+              fallback={selectedCar.nickname}
+              className="size-12"
+            />
             <div>
               <p className="font-medium">{selectedCar.nickname}</p>
               <p className="text-xs text-muted-foreground">
@@ -334,7 +387,12 @@ function SellCarForm({
 
           <div className="space-y-2">
             <p className="text-sm font-medium">
-              Photos ({allPhotos.length}/{MIN_CAR_LISTING_PHOTOS} minimum)
+              Photos ({allPhotos.length}/{MAX_CAR_LISTING_PHOTOS})
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Add at least {MIN_CAR_LISTING_PHOTOS}. You can select several photos at once, up to a
+              maximum of
+              {` ${MAX_CAR_LISTING_PHOTOS}`}.
             </p>
             <ul className="list-inside list-disc text-xs text-muted-foreground">
               {RECOMMENDED_SHOTS.map((shot) => (
@@ -371,15 +429,26 @@ function SellCarForm({
                 ))}
               </div>
             )}
-            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-input px-3 py-1.5 text-sm font-medium hover:bg-accent">
-              {uploading ? <Loader2 className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
-              {uploading ? "Uploading…" : "Add a photo"}
+            <label
+              className={`inline-flex items-center gap-1.5 rounded-md border border-input px-3 py-1.5 text-sm font-medium ${uploading || allPhotos.length >= MAX_CAR_LISTING_PHOTOS ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-accent"}`}
+            >
+              {uploading ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Upload className="size-3.5" />
+              )}
+              {uploading
+                ? "Uploading photos…"
+                : allPhotos.length >= MAX_CAR_LISTING_PHOTOS
+                  ? "15 photo limit reached"
+                  : "Add photos"}
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif"
+                multiple
                 className="hidden"
-                onChange={handleUploadPhoto}
-                disabled={uploading}
+                onChange={handleUploadPhotos}
+                disabled={uploading || allPhotos.length >= MAX_CAR_LISTING_PHOTOS}
               />
             </label>
           </div>
@@ -429,7 +498,11 @@ function SellCarForm({
               <p className="text-lg font-bold">
                 {price ? `£${Number(price).toLocaleString("en-GB")}` : "POA"}
               </p>
-              {mileage && <p className="text-xs text-muted-foreground">{Number(mileage).toLocaleString()} miles</p>}
+              {mileage && (
+                <p className="text-xs text-muted-foreground">
+                  {Number(mileage).toLocaleString()} miles
+                </p>
+              )}
             </div>
           )}
 
