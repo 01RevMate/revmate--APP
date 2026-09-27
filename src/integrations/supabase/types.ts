@@ -109,7 +109,29 @@ export type Database = {
           voter_id?: string
           winner_car_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "car_battle_votes_loser_car_id_fkey"
+            columns: ["loser_car_id"]
+            isOneToOne: false
+            referencedRelation: "garage_cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "car_battle_votes_voter_id_fkey"
+            columns: ["voter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "car_battle_votes_winner_car_id_fkey"
+            columns: ["winner_car_id"]
+            isOneToOne: false
+            referencedRelation: "garage_cars"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       car_catalog_links: {
         Row: {
@@ -206,8 +228,6 @@ export type Database = {
       }
       car_meets: {
         Row: {
-          latitude: number | null
-          longitude: number | null
           address: string | null
           cancelled_at: string | null
           cover_url: string | null
@@ -217,15 +237,15 @@ export type Database = {
           going_count: number
           id: string
           interested_count: number
+          latitude: number | null
           location_name: string
+          longitude: number | null
           organizer_id: string
           reminder_sent_at: string | null
           starts_at: string
           title: string
         }
         Insert: {
-          latitude?: number | null
-          longitude?: number | null
           address?: string | null
           cancelled_at?: string | null
           cover_url?: string | null
@@ -235,15 +255,15 @@ export type Database = {
           going_count?: number
           id?: string
           interested_count?: number
+          latitude?: number | null
           location_name: string
+          longitude?: number | null
           organizer_id: string
           reminder_sent_at?: string | null
           starts_at: string
           title: string
         }
         Update: {
-          latitude?: number | null
-          longitude?: number | null
           address?: string | null
           cancelled_at?: string | null
           cover_url?: string | null
@@ -253,7 +273,9 @@ export type Database = {
           going_count?: number
           id?: string
           interested_count?: number
+          latitude?: number | null
           location_name?: string
+          longitude?: number | null
           organizer_id?: string
           reminder_sent_at?: string | null
           starts_at?: string
@@ -386,7 +408,22 @@ export type Database = {
           title?: string
           winner_post_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "challenges_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "challenges_winner_post_id_fkey"
+            columns: ["winner_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       comment_likes: {
         Row: {
@@ -691,9 +728,8 @@ export type Database = {
       }
       garage_cars: {
         Row: {
-          battle_wins: number
           battle_losses: number
-          last_rank: number | null
+          battle_wins: number
           bio: string | null
           car_id: string | null
           catalog_derivative_id: string | null
@@ -709,6 +745,7 @@ export type Database = {
           generation: string | null
           horsepower: number | null
           id: string
+          last_rank: number | null
           likes_count: number
           make: string
           mileage: number | null
@@ -724,9 +761,8 @@ export type Database = {
           year: number | null
         }
         Insert: {
-          battle_wins?: number
           battle_losses?: number
-          last_rank?: number | null
+          battle_wins?: number
           bio?: string | null
           car_id?: string | null
           catalog_derivative_id?: string | null
@@ -742,6 +778,7 @@ export type Database = {
           generation?: string | null
           horsepower?: number | null
           id?: string
+          last_rank?: number | null
           likes_count?: number
           make: string
           mileage?: number | null
@@ -757,9 +794,8 @@ export type Database = {
           year?: number | null
         }
         Update: {
-          battle_wins?: number
           battle_losses?: number
-          last_rank?: number | null
+          battle_wins?: number
           bio?: string | null
           car_id?: string | null
           catalog_derivative_id?: string | null
@@ -775,6 +811,7 @@ export type Database = {
           generation?: string | null
           horsepower?: number | null
           id?: string
+          last_rank?: number | null
           likes_count?: number
           make?: string
           mileage?: number | null
@@ -1077,7 +1114,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notification_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -1169,33 +1214,40 @@ export type Database = {
       }
       post_comments: {
         Row: {
-          parent_id: string | null
-          likes_count: number
           body: string
           created_at: string
           id: string
+          likes_count: number
+          parent_id: string | null
           post_id: string
           user_id: string
         }
         Insert: {
-          parent_id?: string | null
-          likes_count?: number
           body: string
           created_at?: string
           id?: string
+          likes_count?: number
+          parent_id?: string | null
           post_id: string
           user_id: string
         }
         Update: {
-          parent_id?: string | null
-          likes_count?: number
           body?: string
           created_at?: string
           id?: string
+          likes_count?: number
+          parent_id?: string | null
           post_id?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "post_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "post_comments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "post_comments_post_id_fkey"
             columns: ["post_id"]
@@ -1246,24 +1298,24 @@ export type Database = {
       }
       post_likes: {
         Row: {
-          reaction: string
           created_at: string
           id: string
           post_id: string
+          reaction: string
           user_id: string
         }
         Insert: {
-          reaction?: string
           created_at?: string
           id?: string
           post_id: string
+          reaction?: string
           user_id: string
         }
         Update: {
-          reaction?: string
           created_at?: string
           id?: string
           post_id?: string
+          reaction?: string
           user_id?: string
         }
         Relationships: [
@@ -1355,6 +1407,13 @@ export type Database = {
             referencedRelation: "posts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "post_poll_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       post_reports: {
@@ -1427,13 +1486,6 @@ export type Database = {
       }
       posts: {
         Row: {
-          reaction_counts: Json
-          latitude: number | null
-          longitude: number | null
-          has_poll: boolean
-          repost_of_id: string | null
-          reposts_count: number
-          spotted_garage_car_id: string | null
           audience: Database["public"]["Enums"]["post_audience"]
           body: string
           car_id: string | null
@@ -1441,22 +1493,22 @@ export type Database = {
           comments_count: number
           created_at: string
           group_id: string | null
+          has_poll: boolean
           id: string
           image_url: string | null
+          latitude: number | null
           likes_count: number
           listing_id: string | null
+          longitude: number | null
           moderation_status: string
           posted_as_garage_car_id: string | null
+          reaction_counts: Json
+          repost_of_id: string | null
+          reposts_count: number
+          spotted_garage_car_id: string | null
           user_id: string
         }
         Insert: {
-          reaction_counts?: Json
-          latitude?: number | null
-          longitude?: number | null
-          has_poll?: boolean
-          repost_of_id?: string | null
-          reposts_count?: number
-          spotted_garage_car_id?: string | null
           audience?: Database["public"]["Enums"]["post_audience"]
           body: string
           car_id?: string | null
@@ -1464,22 +1516,22 @@ export type Database = {
           comments_count?: number
           created_at?: string
           group_id?: string | null
+          has_poll?: boolean
           id?: string
           image_url?: string | null
+          latitude?: number | null
           likes_count?: number
           listing_id?: string | null
+          longitude?: number | null
           moderation_status?: string
           posted_as_garage_car_id?: string | null
-          user_id: string
-        }
-        Update: {
           reaction_counts?: Json
-          latitude?: number | null
-          longitude?: number | null
-          has_poll?: boolean
           repost_of_id?: string | null
           reposts_count?: number
           spotted_garage_car_id?: string | null
+          user_id: string
+        }
+        Update: {
           audience?: Database["public"]["Enums"]["post_audience"]
           body?: string
           car_id?: string | null
@@ -1487,12 +1539,19 @@ export type Database = {
           comments_count?: number
           created_at?: string
           group_id?: string | null
+          has_poll?: boolean
           id?: string
           image_url?: string | null
+          latitude?: number | null
           likes_count?: number
           listing_id?: string | null
+          longitude?: number | null
           moderation_status?: string
           posted_as_garage_car_id?: string | null
+          reaction_counts?: Json
+          repost_of_id?: string | null
+          reposts_count?: number
+          spotted_garage_car_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -1520,6 +1579,20 @@ export type Database = {
           {
             foreignKeyName: "posts_posted_as_garage_car_id_fkey"
             columns: ["posted_as_garage_car_id"]
+            isOneToOne: false
+            referencedRelation: "garage_cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_repost_of_id_fkey"
+            columns: ["repost_of_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_spotted_garage_car_id_fkey"
+            columns: ["spotted_garage_car_id"]
             isOneToOne: false
             referencedRelation: "garage_cars"
             referencedColumns: ["id"]
@@ -1604,22 +1677,21 @@ export type Database = {
       }
       profiles: {
         Row: {
-          favourite_makes: string[]
-          onboarded_at: string | null
-          current_streak: number
-          longest_streak: number
-          last_active_on: string | null
-          verified_type: string | null
           account_status: Database["public"]["Enums"]["account_status"]
           active_garage_car_id: string | null
           avatar_url: string | null
           bio: string | null
           cover_photo_url: string | null
           created_at: string
+          current_streak: number
+          favourite_makes: string[]
           id: string
+          last_active_on: string | null
+          longest_streak: number
           moderated_at: string | null
           moderated_by: string | null
           moderation_note: string | null
+          onboarded_at: string | null
           persona: Database["public"]["Enums"]["profile_persona"]
           role: Database["public"]["Enums"]["profile_role"]
           social_facebook: string | null
@@ -1627,24 +1699,24 @@ export type Database = {
           social_tiktok: string | null
           user_id: string
           username: string
+          verified_type: string | null
         }
         Insert: {
-          favourite_makes?: string[]
-          onboarded_at?: string | null
-          current_streak?: number
-          longest_streak?: number
-          last_active_on?: string | null
-          verified_type?: string | null
           account_status?: Database["public"]["Enums"]["account_status"]
           active_garage_car_id?: string | null
           avatar_url?: string | null
           bio?: string | null
           cover_photo_url?: string | null
           created_at?: string
+          current_streak?: number
+          favourite_makes?: string[]
           id?: string
+          last_active_on?: string | null
+          longest_streak?: number
           moderated_at?: string | null
           moderated_by?: string | null
           moderation_note?: string | null
+          onboarded_at?: string | null
           persona?: Database["public"]["Enums"]["profile_persona"]
           role?: Database["public"]["Enums"]["profile_role"]
           social_facebook?: string | null
@@ -1652,24 +1724,24 @@ export type Database = {
           social_tiktok?: string | null
           user_id: string
           username: string
+          verified_type?: string | null
         }
         Update: {
-          favourite_makes?: string[]
-          onboarded_at?: string | null
-          current_streak?: number
-          longest_streak?: number
-          last_active_on?: string | null
-          verified_type?: string | null
           account_status?: Database["public"]["Enums"]["account_status"]
           active_garage_car_id?: string | null
           avatar_url?: string | null
           bio?: string | null
           cover_photo_url?: string | null
           created_at?: string
+          current_streak?: number
+          favourite_makes?: string[]
           id?: string
+          last_active_on?: string | null
+          longest_streak?: number
           moderated_at?: string | null
           moderated_by?: string | null
           moderation_note?: string | null
+          onboarded_at?: string | null
           persona?: Database["public"]["Enums"]["profile_persona"]
           role?: Database["public"]["Enums"]["profile_role"]
           social_facebook?: string | null
@@ -1677,6 +1749,7 @@ export type Database = {
           social_tiktok?: string | null
           user_id?: string
           username?: string
+          verified_type?: string | null
         }
         Relationships: [
           {
@@ -1979,6 +2052,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "story_views_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "story_views_viewer_id_fkey"
             columns: ["viewer_id"]
             isOneToOne: false
@@ -2180,18 +2260,65 @@ export type Database = {
           user_id?: string
           week_start?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "weekly_recaps_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      account_analytics: {
+        Args: never
+        Returns: {
+          comments_received_30d: number
+          followers_total: number
+          following_total: number
+          likes_received_30d: number
+          new_followers_30d: number
+          posts_total: number
+          profile_views_30d: number
+          profile_views_7d: number
+        }[]
+      }
       check_my_rank_changes: { Args: never; Returns: number }
-      crown_car_of_the_week: { Args: never; Returns: string | null }
-      for_you_feed: {
-        Args: { page_offset?: number; filter_category?: string }
-        Returns: Database["public"]["Tables"]["posts"]["Row"][]
+      community_feed: {
+        Args: {
+          filter_car?: string
+          filter_category?: string
+          filter_scope?: string
+          page_offset?: number
+        }
+        Returns: {
+          audience: Database["public"]["Enums"]["post_audience"]
+          body: string
+          car_id: string | null
+          category: Database["public"]["Enums"]["post_category"]
+          comments_count: number
+          created_at: string
+          group_id: string | null
+          has_poll: boolean
+          id: string
+          image_url: string | null
+          latitude: number | null
+          likes_count: number
+          listing_id: string | null
+          longitude: number | null
+          moderation_status: string
+          posted_as_garage_car_id: string | null
+          reaction_counts: Json
+          repost_of_id: string | null
+          reposts_count: number
+          spotted_garage_car_id: string | null
+          user_id: string
+        }[]
         SetofOptions: {
           from: "*"
           to: "posts"
@@ -2199,9 +2326,64 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      crown_car_of_the_week: { Args: never; Returns: string }
+      for_you_feed: {
+        Args: { filter_category?: string; page_offset?: number }
+        Returns: {
+          audience: Database["public"]["Enums"]["post_audience"]
+          body: string
+          car_id: string | null
+          category: Database["public"]["Enums"]["post_category"]
+          comments_count: number
+          created_at: string
+          group_id: string | null
+          has_poll: boolean
+          id: string
+          image_url: string | null
+          latitude: number | null
+          likes_count: number
+          listing_id: string | null
+          longitude: number | null
+          moderation_status: string
+          posted_as_garage_car_id: string | null
+          reaction_counts: Json
+          repost_of_id: string | null
+          reposts_count: number
+          spotted_garage_car_id: string | null
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "posts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      is_admin: { Args: { check_user_id: string }; Returns: boolean }
+      manage_group_member: {
+        Args: { action: string; gid: string; target_user: string }
+        Returns: undefined
+      }
       nearby_meets: {
         Args: { lat: number; lng: number; radius_km?: number }
-        Returns: Database["public"]["Tables"]["car_meets"]["Row"][]
+        Returns: {
+          address: string | null
+          cancelled_at: string | null
+          cover_url: string | null
+          created_at: string
+          description: string
+          ends_at: string | null
+          going_count: number
+          id: string
+          interested_count: number
+          latitude: number | null
+          location_name: string
+          longitude: number | null
+          organizer_id: string
+          reminder_sent_at: string | null
+          starts_at: string
+          title: string
+        }[]
         SetofOptions: {
           from: "*"
           to: "car_meets"
@@ -2210,8 +2392,35 @@ export type Database = {
         }
       }
       nearby_posts: {
-        Args: { lat: number; lng: number; radius_km?: number; page_offset?: number }
-        Returns: Database["public"]["Tables"]["posts"]["Row"][]
+        Args: {
+          lat: number
+          lng: number
+          page_offset?: number
+          radius_km?: number
+        }
+        Returns: {
+          audience: Database["public"]["Enums"]["post_audience"]
+          body: string
+          car_id: string | null
+          category: Database["public"]["Enums"]["post_category"]
+          comments_count: number
+          created_at: string
+          group_id: string | null
+          has_poll: boolean
+          id: string
+          image_url: string | null
+          latitude: number | null
+          likes_count: number
+          listing_id: string | null
+          longitude: number | null
+          moderation_status: string
+          posted_as_garage_car_id: string | null
+          reaction_counts: Json
+          repost_of_id: string | null
+          reposts_count: number
+          spotted_garage_car_id: string | null
+          user_id: string
+        }[]
         SetofOptions: {
           from: "*"
           to: "posts"
@@ -2231,7 +2440,7 @@ export type Database = {
           photo_url: string
           user_id: string
           username: string
-          year: number | null
+          year: number
         }[]
       }
       profile_level: {
@@ -2239,83 +2448,9 @@ export type Database = {
         Returns: {
           level_floor: number
           level_name: string
-          next_level_at: number | null
+          next_level_at: number
           xp: number
         }[]
-      }
-      record_daily_activity: {
-        Args: never
-        Returns: { current_streak: number; longest_streak: number }[]
-      }
-      revs_feed: {
-        Args: { page_offset?: number }
-        Returns: Database["public"]["Tables"]["posts"]["Row"][]
-        SetofOptions: {
-          from: "*"
-          to: "posts"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
-      send_my_weekly_recap: { Args: never; Returns: boolean }
-      suggested_profiles: {
-        Args: { result_limit?: number }
-        Returns: {
-          avatar_url: string | null
-          followers: number
-          reason: string
-          user_id: string
-          username: string
-        }[]
-      }
-      vote_car_battle: { Args: { winner: string; loser: string }; Returns: undefined }
-      account_analytics: {
-        Args: never
-        Returns: {
-          comments_received_30d: number
-          followers_total: number
-          following_total: number
-          likes_received_30d: number
-          new_followers_30d: number
-          posts_total: number
-          profile_views_30d: number
-          profile_views_7d: number
-        }[]
-      }
-      community_feed: {
-        Args: {
-          filter_car?: string
-          filter_category?: string
-          filter_scope?: string
-          page_offset?: number
-        }
-        Returns: {
-          audience: Database["public"]["Enums"]["post_audience"]
-          body: string
-          car_id: string | null
-          category: Database["public"]["Enums"]["post_category"]
-          comments_count: number
-          created_at: string
-          group_id: string | null
-          id: string
-          image_url: string | null
-          likes_count: number
-          listing_id: string | null
-          moderation_status: string
-          posted_as_garage_car_id: string | null
-          user_id: string
-        }[]
-        SetofOptions: {
-          from: "*"
-          to: "posts"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
-      is_admin: { Args: { check_user_id: string }; Returns: boolean }
-      manage_group_member: {
-        Args: { action: string; gid: string; target_user: string }
-        Returns: undefined
       }
       rank_garage_car: { Args: { target_id: string }; Returns: number }
       rank_garage_car_brands: {
@@ -2362,6 +2497,13 @@ export type Database = {
           username: string
         }[]
       }
+      record_daily_activity: {
+        Args: never
+        Returns: {
+          current_streak: number
+          longest_streak: number
+        }[]
+      }
       record_profile_view: {
         Args: { target_user_id: string }
         Returns: undefined
@@ -2369,6 +2511,38 @@ export type Database = {
       review_group_post: {
         Args: { decision: string; pid: string }
         Returns: undefined
+      }
+      revs_feed: {
+        Args: { page_offset?: number }
+        Returns: {
+          audience: Database["public"]["Enums"]["post_audience"]
+          body: string
+          car_id: string | null
+          category: Database["public"]["Enums"]["post_category"]
+          comments_count: number
+          created_at: string
+          group_id: string | null
+          has_poll: boolean
+          id: string
+          image_url: string | null
+          latitude: number | null
+          likes_count: number
+          listing_id: string | null
+          longitude: number | null
+          moderation_status: string
+          posted_as_garage_car_id: string | null
+          reaction_counts: Json
+          repost_of_id: string | null
+          reposts_count: number
+          spotted_garage_car_id: string | null
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "posts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       seller_score: {
         Args: { target_user: string }
@@ -2383,6 +2557,21 @@ export type Database = {
         Returns: number
       }
       send_due_meet_reminders: { Args: never; Returns: number }
+      send_my_weekly_recap: { Args: never; Returns: boolean }
+      suggested_profiles: {
+        Args: { result_limit?: number }
+        Returns: {
+          avatar_url: string
+          followers: number
+          reason: string
+          user_id: string
+          username: string
+        }[]
+      }
+      vote_car_battle: {
+        Args: { loser: string; winner: string }
+        Returns: undefined
+      }
     }
     Enums: {
       account_status: "active" | "banned" | "removed"

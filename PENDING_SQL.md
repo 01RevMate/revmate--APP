@@ -103,4 +103,4 @@ ALTER TABLE public.garage_cars
 
 ## Applied
 
-_Nothing yet._
+- 2026-09-27: items 1–4 (removal reason, social features, engagement, existing profiles). Items 2–3 were already in the database.
