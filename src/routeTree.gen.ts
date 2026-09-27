@@ -23,11 +23,13 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as UpdatesDotjsonRouteImport } from './routes/updates[.]json'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
 import { Route as GroupsIndexRouteImport } from './routes/groups/index'
 import { Route as GroupsSlugRouteImport } from './routes/groups/$slug'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
+import { Route as LegalUpdatesRouteImport } from './routes/legal/updates'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace/index'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace/$listingId'
 import { Route as MeetsIndexRouteImport } from './routes/meets/index'
@@ -109,6 +111,11 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UpdatesDotjsonRoute = UpdatesDotjsonRouteImport.update({
+  id: '/updates.json',
+  path: '/updates.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CarsIndexRoute = CarsIndexRouteImport.update({
   id: '/cars/',
   path: '/cars/',
@@ -132,6 +139,11 @@ const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
 const LegalTermsRoute = LegalTermsRouteImport.update({
   id: '/legal/terms',
   path: '/legal/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalUpdatesRoute = LegalUpdatesRouteImport.update({
+  id: '/legal/updates',
+  path: '/legal/updates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
@@ -200,9 +212,11 @@ export interface FileRoutesByFullPath {
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/updates.json': typeof UpdatesDotjsonRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/legal/updates': typeof LegalUpdatesRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/meets/$meetId': typeof MeetsMeetIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
@@ -231,9 +245,11 @@ export interface FileRoutesByTo {
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/updates.json': typeof UpdatesDotjsonRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/legal/updates': typeof LegalUpdatesRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/meets/$meetId': typeof MeetsMeetIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
@@ -263,9 +279,11 @@ export interface FileRoutesById {
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/updates.json': typeof UpdatesDotjsonRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/legal/updates': typeof LegalUpdatesRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
   '/meets/$meetId': typeof MeetsMeetIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
@@ -296,9 +314,11 @@ export interface FileRouteTypes {
     | '/sell'
     | '/settings'
     | '/signup'
+    | '/updates.json'
     | '/groups/$slug'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/legal/updates'
     | '/marketplace/$listingId'
     | '/meets/$meetId'
     | '/messages/$username'
@@ -327,9 +347,11 @@ export interface FileRouteTypes {
     | '/sell'
     | '/settings'
     | '/signup'
+    | '/updates.json'
     | '/groups/$slug'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/legal/updates'
     | '/marketplace/$listingId'
     | '/meets/$meetId'
     | '/messages/$username'
@@ -358,9 +380,11 @@ export interface FileRouteTypes {
     | '/sell'
     | '/settings'
     | '/signup'
+    | '/updates.json'
     | '/groups/$slug'
     | '/legal/privacy'
     | '/legal/terms'
+    | '/legal/updates'
     | '/marketplace/$listingId'
     | '/meets/$meetId'
     | '/messages/$username'
@@ -390,9 +414,11 @@ export interface RootRouteChildren {
   SellRoute: typeof SellRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
+  UpdatesDotjsonRoute: typeof UpdatesDotjsonRoute
   GroupsSlugRoute: typeof GroupsSlugRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
+  LegalUpdatesRoute: typeof LegalUpdatesRoute
   MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
   MeetsMeetIdRoute: typeof MeetsMeetIdRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
@@ -506,6 +532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/updates.json': {
+      id: '/updates.json'
+      path: '/updates.json'
+      fullPath: '/updates.json'
+      preLoaderRoute: typeof UpdatesDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cars/': {
       id: '/cars/'
       path: '/cars'
@@ -539,6 +572,13 @@ declare module '@tanstack/react-router' {
       path: '/legal/terms'
       fullPath: '/legal/terms'
       preLoaderRoute: typeof LegalTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/updates': {
+      id: '/legal/updates'
+      path: '/legal/updates'
+      fullPath: '/legal/updates'
+      preLoaderRoute: typeof LegalUpdatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace/': {
@@ -641,9 +681,11 @@ const rootRouteChildren: RootRouteChildren = {
   SellRoute: SellRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
+  UpdatesDotjsonRoute: UpdatesDotjsonRoute,
   GroupsSlugRoute: GroupsSlugRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
+  LegalUpdatesRoute: LegalUpdatesRoute,
   MarketplaceListingIdRoute: MarketplaceListingIdRoute,
   MeetsMeetIdRoute: MeetsMeetIdRoute,
   PostsPostIdRoute: PostsPostIdRoute,

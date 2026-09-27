@@ -1,0 +1,135 @@
+// RevMate release history — the single source of truth for the App updates
+// page (/legal/updates) and the machine-readable feed (/updates.json).
+//
+// When you ship a user-facing change: add it to the newest release (or start
+// a new one at the top), bump APP_VERSION to match, and set `status`.
+// Newest release first.
+
+export type ReleaseStatus =
+  /** Everything in this release is live for everyone. */
+  | "live"
+  /** Code is shipped but some features wait on a database update (see PENDING_SQL.md). */
+  | "needs_database_update";
+
+export type Release = {
+  version: string;
+  date: string; // YYYY-MM-DD
+  title: string;
+  status: ReleaseStatus;
+  highlights: string[];
+  fixes?: string[];
+  /** Migrations this release needs, in run order (paths in the repo). */
+  requiredSql?: string[];
+};
+
+export const RELEASES: Release[] = [
+  {
+    version: "1.5.0",
+    date: "2026-09-27",
+    title: "Social pack",
+    status: "needs_database_update",
+    highlights: [
+      "Car meets & events: post a meet, RSVP Going or Interested, see who's coming, get directions, add it to your calendar and get a reminder the day before",
+      "Reply to comments and like them",
+      "@mention people in posts and comments — they get notified",
+      "#hashtags link to a page of every post with that tag",
+      "Video posts (MP4, MOV or WebM up to 50MB)",
+      "Save posts and find them under Saved on your profile",
+      "Repost to your followers with your own caption",
+      "Polls with two to four options",
+      "Spotted: post a car you saw out and about and link the owner's garage car",
+      "Build timeline on every car page",
+      "Verified badges for clubs, traders and creators",
+      "Phone push notifications (switch on in Settings)",
+      "Share button opens your phone's share sheet",
+    ],
+    fixes: ["Marking a car as sold works even before the removal-reason database update"],
+    requiredSql: [
+      "drizzle/migrations/0031_social_features.sql",
+      "drizzle/migrations/0032_push_notifications.sql",
+    ],
+  },
+  {
+    version: "1.4.0",
+    date: "2026-09-27",
+    title: "Garage tidy-up and launch screen",
+    status: "needs_database_update",
+    highlights: [
+      "Removing a car asks what happened to it — sold, for sale, scrapped, written off or other",
+      "New launch screen with the RevMate logo and a loading bar",
+    ],
+    fixes: ["Liking a showcase post now counts once across the whole app, wherever you see it"],
+    requiredSql: ["drizzle/migrations/0030_garage_car_ownership_end_reason.sql"],
+  },
+  {
+    version: "1.3.0",
+    date: "2026-09-25",
+    title: "Followers, marketplace and sellers",
+    status: "live",
+    highlights: [
+      "Follow people instead of friend requests, with Account Stats for your profile",
+      "Full listing pages for cars for sale, with multi-photo uploads and an ad headline",
+      "Manage your adverts and message sellers from a listing",
+      "Seller achievements, seller score and report-a-seller",
+      "Showcase posts get like and dislike votes that feed the car leaderboard",
+    ],
+    fixes: [
+      "Duplicate marketplace submissions are prevented",
+      "For-sale posts stay in sync with the feed",
+    ],
+  },
+  {
+    version: "1.2.0",
+    date: "2026-09-24",
+    title: "Car rankings",
+    status: "live",
+    highlights: [
+      "Like, dislike and follow individual garage cars",
+      "Car leaderboard by overall, brand and model",
+      "Sell a car straight from your garage",
+    ],
+  },
+  {
+    version: "1.1.0",
+    date: "2026-09-23",
+    title: "Messaging and a better feed",
+    status: "live",
+    highlights: [
+      "Private messages with photos and read receipts",
+      "Immersive full-width feed on phones, with swipeable photos",
+      "Choose a post's category after tapping Post",
+      "Profile cars shown as a garage",
+      "In-app notifications for likes, comments, follows and more",
+    ],
+  },
+  {
+    version: "1.0.0",
+    date: "2026-09-22",
+    title: "Community launch",
+    status: "live",
+    highlights: [
+      "Groups with public or private membership",
+      "Followers-only posts",
+      "Full-screen photo viewer",
+      "Only approved vehicle makes can be added to garages",
+      "Content safety: reporting, blocking and admin moderation",
+    ],
+  },
+];
+
+export const APP_VERSION = RELEASES[0]!.version;
+export const LATEST_RELEASE = RELEASES[0]!;
+
+/** The machine-readable shape served at /updates.json. */
+export function changelogFeed() {
+  return {
+    app: "RevMate",
+    latest_version: APP_VERSION,
+    latest_release_date: LATEST_RELEASE.date,
+    latest_status: LATEST_RELEASE.status,
+    human_readable_url: "/legal/updates",
+    notes:
+      "Releases are newest first. status 'needs_database_update' means the code is shipped but the listed requiredSql has not necessarily been run yet; see PENDING_SQL.md in the repository.",
+    releases: RELEASES,
+  };
+}

@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 import { usePushFeature } from "@/lib/features";
+import { APP_VERSION } from "@/lib/changelog";
 import { fetchBlockedProfiles, unblockProfile } from "@/lib/moderation";
 import { displayUsernameWithoutAt, normalizeUsername } from "@/lib/usernames";
 
@@ -302,7 +303,13 @@ function SettingsPage() {
               Privacy policy
             </Link>
           </li>
+          <li>
+            <Link to="/legal/updates" className="text-primary underline">
+              App updates
+            </Link>
+          </li>
         </ul>
+        <p className="mt-4 text-xs text-muted-foreground">RevMate version {APP_VERSION}</p>
       </Section>
     </div>
   );

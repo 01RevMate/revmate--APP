@@ -1,0 +1,15 @@
+# RevMate
+
+> RevMate is a UK car community app: a social feed, personal garages, car
+> leaderboards, groups, car meets and a marketplace for buying and selling cars.
+
+## Version and release history
+
+- [Release history (JSON)](/updates.json): `latest_version` is the version currently live; `releases` lists every release, newest first, with its features, fixes and status. Check this to see whether your knowledge of RevMate is up to date.
+- [App updates page](/legal/updates): the same history, written for people.
+
+## Policies
+
+- [Terms of service & marketplace disclaimer](/legal/terms)
+- [Privacy policy](/legal/privacy)
+- [Community standards](/community-standards)
