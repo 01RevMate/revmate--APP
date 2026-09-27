@@ -1,16 +1,42 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Flag, Heart, Loader2, MessageCircle, Send, Settings2, ThumbsDown, Users } from "lucide-react";
+import {
+  Eye,
+  Flag,
+  Heart,
+  Loader2,
+  MessageCircle,
+  Send,
+  Settings2,
+  Star,
+  ThumbsDown,
+  Users,
+} from "lucide-react";
 import { endListing, fetchListingById, type ListingEndReason } from "@/lib/listings";
+import {
+  changeListingPrice,
+  fetchMyWatchlistIds,
+  formatPrice,
+  hasRecentPriceDrop,
+  isFeatured,
+  recordListingView,
+  rememberViewedListing,
+  setListingFeatured,
+  unwatchListing,
+  useMarketplaceFeatures,
+  watchListing,
+} from "@/lib/marketplace";
 import { fetchOrCreateConversation, sendMessage } from "@/lib/messages";
 import { reportSeller, SELLER_REPORT_REASONS, type SellerReportReason } from "@/lib/sellers";
 import { carLabel, carPath } from "@/lib/cars";
 import { Avatar } from "@/components/Avatar";
+import { ListingGallery } from "@/components/ListingGallery";
 import { displayUsername, displayUsernameWithoutAt } from "@/lib/usernames";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
+import { useProfile } from "@/hooks/useProfile";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +75,26 @@ function ListingDetailPage() {
     queryFn: () => fetchListingById(listingId),
   });
 
+  const market = useMarketplaceFeatures();
+  const { isAdmin } = useProfile();
+  const watchKey = ["watchlist-ids", user?.id];
+  const { data: watchIds } = useQuery({
+    queryKey: watchKey,
+    queryFn: () => fetchMyWatchlistIds(user!.id),
+    enabled: market && !!user,
+  });
+  const [newPrice, setNewPrice] = useState("");
+  const [savingPrice, setSavingPrice] = useState(false);
+
+  // Count the view (once a day per person) and remember it for
+  // "Pick up where you left off" on the Buy & Sell page.
+  const loadedId = listing?.id;
+  useEffect(() => {
+    if (!loadedId) return;
+    rememberViewedListing(loadedId);
+    if (market && user) void recordListingView(loadedId);
+  }, [loadedId, market, user]);
+
   if (isLoading) {
     return <p className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
   }
@@ -68,6 +114,64 @@ function ListingDetailPage() {
   }
 
   const isOwner = user?.id === listing.user_id;
+  const watched = watchIds?.has(listing.id) ?? false;
+
+  async function toggleWatch() {
+    if (!listing) return;
+    if (!user)
+      return openAuthModal("Create a free account to watch listings and get price-drop alerts.");
+    try {
+      if (watched) await unwatchListing(listing.id, user.id);
+      else {
+        await watchListing(listing.id, user.id);
+        toast.success("Watching — we'll tell you if the price drops");
+      }
+      queryClient.invalidateQueries({ queryKey: watchKey });
+      queryClient.invalidateQueries({ queryKey: ["listing", listing.id] });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't update your watchlist");
+    }
+  }
+
+  async function handleFeature(days: number | null) {
+    if (!listing) return;
+    try {
+      await setListingFeatured(listing.id, days);
+      toast.success(days ? `Featured for ${days} days` : "No longer featured");
+      queryClient.invalidateQueries({ queryKey: ["listing", listing.id] });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't change Featured");
+    }
+  }
+
+  async function handleChangePrice(e: React.FormEvent) {
+    e.preventDefault();
+    if (!listing) return;
+    const value =
+      newPrice.trim() === "" ? null : Math.round(Number(newPrice.replace(/[£,\s]/g, "")));
+    if (value !== null && (!Number.isFinite(value) || value < 0)) {
+      toast.error("Enter a price in pounds, or leave it blank for POA.");
+      return;
+    }
+    setSavingPrice(true);
+    try {
+      await changeListingPrice(listing.id, value);
+      toast.success(
+        value !== null && listing.price != null && value < Number(listing.price)
+          ? "Price dropped — watchers have been told"
+          : "Price updated",
+      );
+      setNewPrice("");
+      queryClient.invalidateQueries({ queryKey: ["listing", listing.id] });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't change the price");
+    } finally {
+      setSavingPrice(false);
+    }
+  }
 
   const carName = listing.garage_cars
     ? `${listing.garage_cars.year ? `${listing.garage_cars.year} ` : ""}${listing.garage_cars.make} ${listing.garage_cars.model}`
@@ -191,18 +295,7 @@ function ListingDetailPage() {
         )}
       </div>
 
-      {listing.photos.length > 0 && (
-        <div className="mt-4 grid grid-cols-2 gap-1 overflow-hidden rounded-lg sm:grid-cols-3">
-          {listing.photos.map((url, index) => (
-            <div
-              key={url}
-              className={`aspect-square bg-muted ${index === 0 ? "col-span-2 row-span-2 aspect-video sm:col-span-2 sm:row-span-2" : ""}`}
-            >
-              <img src={url} alt="" className="size-full object-cover" />
-            </div>
-          ))}
-        </div>
-      )}
+      <ListingGallery photos={listing.photos} title={carName} />
 
       <div className="mt-6 flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -216,10 +309,76 @@ function ListingDetailPage() {
             </p>
           )}
         </div>
-        <p className="text-3xl font-bold">
-          {listing.price != null ? `£${listing.price.toLocaleString("en-GB")}` : "POA"}
-        </p>
+        <div className="text-right">
+          <p className="text-3xl font-extrabold tracking-tight">{formatPrice(listing.price)}</p>
+          {hasRecentPriceDrop(listing) && (
+            <p className="text-sm">
+              <span className="text-muted-foreground line-through">
+                {formatPrice(listing.previous_price)}
+              </span>{" "}
+              <span className="font-bold text-red-600">
+                Save {formatPrice(Number(listing.previous_price) - Number(listing.price))}
+              </span>
+            </p>
+          )}
+          {market && (
+            <p className="mt-0.5 flex items-center justify-end gap-2 text-xs text-muted-foreground">
+              {listing.views_count > 0 && (
+                <span className="flex items-center gap-0.5">
+                  <Eye className="size-3.5" /> {listing.views_count} views
+                </span>
+              )}
+              {listing.saves_count > 0 && (
+                <span className="flex items-center gap-0.5">
+                  <Heart className="size-3.5" /> {listing.saves_count} watching
+                </span>
+              )}
+            </p>
+          )}
+        </div>
       </div>
+
+      {market && !isOwner && (
+        <button
+          type="button"
+          onClick={() => void toggleWatch()}
+          className={`mt-3 flex w-full items-center justify-center gap-2 rounded-lg border py-2.5 text-sm font-semibold transition-colors ${watched ? "border-red-500/40 bg-red-500/10 text-red-600" : "border-input hover:bg-accent"}`}
+        >
+          <Heart className="size-4" fill={watched ? "currentColor" : "none"} />
+          {watched
+            ? "Watching — we'll alert you if the price drops"
+            : "Watch this — get price-drop alerts"}
+        </button>
+      )}
+      {market && isAdmin && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-amber-400/50 bg-amber-400/10 p-2 text-xs">
+          <span className="font-semibold">Admin · Featured:</span>
+          {isFeatured(listing) ? (
+            <>
+              <span>until {new Date(listing.featured_until!).toLocaleDateString("en-GB")}</span>
+              <button type="button" onClick={() => void handleFeature(null)} className="underline">
+                Remove
+              </button>
+            </>
+          ) : (
+            [7, 14, 30].map((days) => (
+              <button
+                key={days}
+                type="button"
+                onClick={() => void handleFeature(days)}
+                className="rounded-full border border-amber-500/60 px-2 py-0.5 font-semibold hover:bg-amber-400/20"
+              >
+                {days} days
+              </button>
+            ))
+          )}
+        </div>
+      )}
+      {isOwner && isFeatured(listing) && (
+        <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-amber-600">
+          <Star className="size-4" fill="currentColor" /> Featured — pinned to the top of Buy & Sell
+        </p>
+      )}
 
       {listing.show_car_stats && listing.garage_cars && (
         <div className="mt-3 flex items-center gap-4 rounded-md bg-muted px-4 py-3 text-sm text-muted-foreground">
@@ -287,10 +446,7 @@ function ListingDetailPage() {
         </div>
       )}
 
-      <Dialog
-        open={messageOpen}
-        onOpenChange={(open) => !sendingMessage && setMessageOpen(open)}
-      >
+      <Dialog open={messageOpen} onOpenChange={(open) => !sendingMessage && setMessageOpen(open)}>
         <DialogContent className="max-w-[calc(100%-2rem)] rounded-2xl sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
@@ -380,7 +536,11 @@ function ListingDetailPage() {
             disabled={sendingReport}
             className="flex w-full items-center justify-center gap-2 rounded-md bg-destructive px-4 py-2.5 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
           >
-            {sendingReport ? <Loader2 className="size-4 animate-spin" /> : <Flag className="size-4" />}
+            {sendingReport ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Flag className="size-4" />
+            )}
             {sendingReport ? "Sending…" : "Send report"}
           </button>
         </DialogContent>
@@ -388,6 +548,29 @@ function ListingDetailPage() {
 
       <Dialog open={manageOpen} onOpenChange={(open) => !endingReason && setManageOpen(open)}>
         <DialogContent className="max-w-[calc(100%-2rem)] rounded-2xl sm:max-w-md">
+          <form onSubmit={handleChangePrice} className="space-y-2 border-b border-border pb-4">
+            <p className="text-sm font-semibold">Change price</p>
+            <div className="flex gap-2">
+              <input
+                value={newPrice}
+                onChange={(e) => setNewPrice(e.target.value)}
+                inputMode="numeric"
+                placeholder={
+                  listing.price != null ? `Now ${formatPrice(listing.price)}` : "e.g. 12500"
+                }
+                className="min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+              <button
+                disabled={savingPrice}
+                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                {savingPrice ? "Saving…" : "Save"}
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Lower it and it shows as a price drop, and everyone watching gets an alert.
+            </p>
+          </form>
           <DialogHeader>
             <DialogTitle>End this advert</DialogTitle>
             <DialogDescription>

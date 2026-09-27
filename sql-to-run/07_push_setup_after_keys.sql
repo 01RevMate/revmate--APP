@@ -1,5 +1,5 @@
--- STEP 6 (only if you want phone notifications) — run LAST, after:
---   * 05_push_notifications.sql has run
+-- STEP 7 (only if you want phone notifications) — run LAST, after:
+--   * 06_push_notifications.sql has run
 --   * the edge function secrets VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY,
 --     VAPID_SUBJECT and PUSH_WEBHOOK_SECRET are set
 --   * the edge function supabase/functions/send-push is deployed

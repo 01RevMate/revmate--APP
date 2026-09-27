@@ -132,6 +132,7 @@ export async function createListing(input: {
   mileage?: number | null;
   photos?: string[];
   headline?: string | null;
+  locationArea?: string | null;
 }): Promise<string> {
   const { data, error } = await supabase
     .from("listings")
@@ -147,6 +148,9 @@ export async function createListing(input: {
       mileage: input.mileage ?? null,
       photos: input.photos ?? [],
       headline: input.headline || null,
+      // Only sent when filled in, so listing still works before the
+      // marketplace SQL has run.
+      ...(input.locationArea?.trim() ? { location_area: input.locationArea.trim() } : {}),
     })
     .select("id")
     .single();

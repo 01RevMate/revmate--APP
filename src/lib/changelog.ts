@@ -24,6 +24,26 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.8.0",
+    date: "2026-09-28",
+    title: "Marketplace upgrade",
+    status: "needs_database_update",
+    highlights: [
+      "Buy & Sell redesigned as a photo grid (4 across on desktop, 2 on phones) with the price front and centre",
+      "Search, price-range filters and sorting (newest, cheapest, most expensive, most watched)",
+      "'New today' and 'new since your last visit' so fresh listings stand out",
+      "Pick up where you left off: listings you recently looked at",
+      "Watchlist: tap the heart to watch a listing and get an alert if the price drops",
+      "Price drops show the old price crossed out and how much you save",
+      "Sellers can change their price from Manage advert",
+      "View and watcher counts on listings",
+      "Featured listings pinned to the top, set by admins",
+      "Sponsored partner tiles and banners, run from Admin → Partners, with click counts",
+      "Sellers can add their town so buyers can find things nearby",
+    ],
+    requiredSql: ["drizzle/migrations/0035_marketplace.sql"],
+  },
+  {
     version: "1.7.0",
     date: "2026-09-27",
     title: "Essentials",

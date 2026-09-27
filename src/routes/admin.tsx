@@ -11,6 +11,7 @@ import {
   Trash2,
   UserCog,
   Trophy,
+  Handshake,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +34,8 @@ import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { sendAppUpdate } from "@/lib/notifications";
 import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import { AdminChallenges } from "@/components/AdminChallenges";
+import { AdminPartners } from "@/components/AdminPartners";
+import { useMarketplaceFeatures } from "@/lib/marketplace";
 import { setVerifiedType, type VerifiedType } from "@/lib/social";
 import { useVerifiedProfiles } from "@/components/VerifiedBadge";
 
@@ -69,7 +72,8 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type AdminSection = "reports" | "people" | "protect" | "updates" | "cars" | "challenges";
+type AdminSection =
+  "reports" | "people" | "protect" | "updates" | "cars" | "challenges" | "partners";
 
 function AdminPage() {
   const { user } = useAuth();
@@ -84,6 +88,7 @@ function AdminPage() {
   const [sendingUpdate, setSendingUpdate] = useState(false);
   const social = useSocialFeatures();
   const engagement = useEngagementFeatures();
+  const market = useMarketplaceFeatures();
   const verifiedProfiles = useVerifiedProfiles();
 
   async function changeVerified(userId: string, username: string, value: VerifiedType | null) {
@@ -266,6 +271,7 @@ function AdminPage() {
             ["updates", "App Updates", Megaphone],
             ["cars", "Car pages", Car],
             ...(engagement ? ([["challenges", "Challenges", Trophy]] as const) : []),
+            ...(market ? ([["partners", "Partners", Handshake]] as const) : []),
           ] as const
         ).map(([id, label, Icon]) => (
           <button
@@ -508,6 +514,7 @@ function AdminPage() {
       )}
 
       {section === "challenges" && engagement && user && <AdminChallenges userId={user.id} />}
+      {section === "partners" && market && user && <AdminPartners userId={user.id} />}
 
       {section === "protect" && (
         <section className="mt-6">

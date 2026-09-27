@@ -21,6 +21,7 @@ const KINDS: { id: string; label: string }[] = [
   { id: "meet_reminder", label: "Meet reminders" },
   { id: "weekly_recap", label: "Weekly recap" },
   { id: "rank_up", label: "Leaderboard rank changes" },
+  { id: "price_drop", label: "Price drops on your watchlist" },
 ];
 
 export function NotificationSettingsForm({ userId }: { userId: string }) {

@@ -6,6 +6,7 @@ import {
   BarChart3,
   Bell,
   Crown,
+  TrendingDown,
   TrendingUp,
   Trophy,
   CalendarClock,
@@ -141,6 +142,11 @@ function notificationDetails(notification: NotificationWithContext, actorLabel?:
       return { Icon: TrendingUp, text: notification.message ?? "Your car moved up the rankings" };
     case "challenge":
       return { Icon: Trophy, text: notification.message ?? "You won a challenge!" };
+    case "price_drop":
+      return {
+        Icon: TrendingDown,
+        text: notification.message ?? "Something on your watchlist dropped in price",
+      };
     default:
       return { Icon: Bell, text: "You have a new RevMate notification" };
   }

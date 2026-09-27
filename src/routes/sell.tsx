@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useMarketplaceFeatures } from "@/lib/marketplace";
 import { Car, Loader2, Package, Upload, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -155,6 +156,8 @@ function SellCarForm({
   const [price, setPrice] = useState("");
   const [mileage, setMileage] = useState("");
   const [headline, setHeadline] = useState("");
+  const [area, setArea] = useState("");
+  const market = useMarketplaceFeatures();
   const [description, setDescription] = useState("");
   const [showCarStats, setShowCarStats] = useState(true);
   const [pushToFeed, setPushToFeed] = useState(true);
@@ -266,6 +269,7 @@ function SellCarForm({
         mileage: Number(mileage),
         photos: allPhotos,
         headline: headline.trim() || null,
+        locationArea: market ? area : null,
       });
       if (pushToFeed) {
         try {
@@ -370,6 +374,8 @@ function SellCarForm({
               A short line to grab attention — shown with the price.
             </span>
           </Field>
+
+          {market && <AreaField value={area} onChange={setArea} />}
 
           <Field label="Price (£)">
             <input
@@ -541,6 +547,8 @@ function SellSomethingElseForm({
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [saving, setSaving] = useState(false);
+  const [area, setArea] = useState("");
+  const market = useMarketplaceFeatures();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -554,6 +562,7 @@ function SellSomethingElseForm({
         title,
         description,
         price: price ? Number(price) : null,
+        locationArea: market ? area : null,
       });
       toast.success("Listing created");
       navigate({ to: "/marketplace" });
@@ -582,6 +591,8 @@ function SellSomethingElseForm({
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </Field>
+        {market && <AreaField value={area} onChange={setArea} />}
+
         <Field label="Price (£)">
           <input
             type="number"
@@ -608,6 +619,23 @@ function SellSomethingElseForm({
         </button>
       </form>
     </div>
+  );
+}
+
+function AreaField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  return (
+    <Field label="Area (optional)">
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        maxLength={60}
+        placeholder="Town or city, e.g. Leeds"
+        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+      />
+      <span className="block text-xs text-muted-foreground">
+        Buyers look for things near them. Just the town — never your address.
+      </span>
+    </Field>
   );
 }
 

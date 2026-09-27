@@ -88,6 +88,8 @@ function describe(kind: string, actor: string, message: string | null, group: st
       return message ?? "Your car moved up the rankings";
     case "challenge":
       return message ?? "You won a challenge!";
+    case "price_drop":
+      return message ?? "Something on your watchlist dropped in price";
     default:
       return "You have a new RevMate notification";
   }

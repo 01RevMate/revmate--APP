@@ -13,71 +13,22 @@ Lovable prompts that run them all.
 
 ## Pending
 
-### 1. Garage car removal reason (`ownership_end_reason`)
+### 1. Marketplace pack
 
-- File: `drizzle/migrations/0030_garage_car_ownership_end_reason.sql`
+- File: `drizzle/migrations/0035_marketplace.sql` (`sql-to-run/05_marketplace.sql`)
 - Added: 2026-09-27
-- Needed by: saving *why* a car left the garage (Sold / Scrapped / Written
-  off / Other). Until this runs the car still moves to Previously owned,
-  but the reason isn't saved and its badge just says "Previously owned".
-- Safe: adds one optional column, deletes or changes nothing, fine to run
-  more than once.
+- Switches on: the watchlist (heart on listings), price-drop tracking with
+  "was £X" and alerts to watchers, honest view and watcher counts, Featured
+  listings (set by admins on the listing page), sponsored partner tiles and
+  banners (Admin → Partners), and an optional seller area on listings.
+- Until this runs: the new Buy & Sell grid, filters, search, sorting and
+  "new since your last visit" all work already; the features above stay hidden.
+- Safe: only adds columns, tables, triggers and functions. Tested against a
+  copy of the full database schema (14 behaviour checks).
 
-```sql
-ALTER TABLE public.garage_cars
-  ADD COLUMN IF NOT EXISTS ownership_end_reason text
-  CHECK (ownership_end_reason IN ('sold', 'scrapped', 'written_off', 'other'));
-```
+### 2. Phone push notifications (optional, needs a few setup steps)
 
-### 2. Social features pack
-
-- File: `drizzle/migrations/0031_social_features.sql` (run the **whole
-  file** — it's long, so paste it from the repo rather than retyping)
-- Added: 2026-09-27
-- Switches on, all at once:
-  - Car meets & events (Going / Interested, reminder the day before)
-  - Replies and likes on comments
-  - Notifications when someone @mentions you
-  - Video posts (raises the post upload limit to 50MB and allows MP4/MOV/WebM)
-  - Saved posts
-  - Reposts
-  - Polls
-  - The "Spotted" category, linking a photo to the owner's car
-  - Verified badges (club / trader / creator), set by admins in Admin → People
-- Safe: only adds tables, columns and rules. No posts, comments, cars or
-  profiles are deleted or changed. It was tested against a copy of the
-  full database schema before being committed.
-- Lovable prompt you can paste: *"Please run the SQL migration
-  `drizzle/migrations/0031_social_features.sql` exactly as committed. Run
-  the first line (`ALTER TYPE … ADD VALUE 'spotted'`) on its own first,
-  then the rest of the file."*
-
-### 3. Engagement pack
-
-- File: `drizzle/migrations/0033_engagement.sql` (`sql-to-run/03_engagement.sql`)
-  — run the whole file after item 2.
-- Added: 2026-09-27
-- Switches on: the For You feed and first-run onboarding (pick makes, people
-  to follow), Car Battles and Car of the Week, weekly recap and rank-up
-  alerts, daily streaks and levels, Revs (full-screen video feed), Stories
-  ("Pit Stops"), weekly challenges (run from Admin → Challenges), Near you,
-  🔥 😍 🤯 😂 reactions, and notification settings (quiet hours, mute types).
-- Safe: only adds tables, columns, functions and rules; existing likes are
-  copied into the new reaction counts. Tested against a copy of the full
-  database schema (44 behaviour checks).
-
-### 4. Update existing profiles
-
-- File: `sql-to-run/04_update_existing_profiles.sql` — run after item 3.
-- Added: 2026-09-27
-- One-off update so everyone already on RevMate gets the new features
-  straight away: favourite makes filled from their garage cars (For You
-  feed), a starting leaderboard rank for every car (rank-up alerts), and
-  default notification settings. Only fills blanks; safe to re-run.
-
-### 5. Phone push notifications (optional, needs a few setup steps)
-
-- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/05_push_notifications.sql`) — run after item 2.
+- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/06_push_notifications.sql`).
 - Added: 2026-09-27
 - Needed by: the "Phone notifications" switch in Settings. Until this runs
   (and the steps below are done) the switch doesn't appear and everything
@@ -92,7 +43,7 @@ ALTER TABLE public.garage_cars
      - `VAPID_SUBJECT` — `mailto:` followed by your email
      - `PUSH_WEBHOOK_SECRET` — any long random password you make up
   4. Deploy the edge function `supabase/functions/send-push`.
-  5. Tell the database where the function is — `sql-to-run/06_push_setup_after_keys.sql`,
+  5. Tell the database where the function is — `sql-to-run/07_push_setup_after_keys.sql`,
      with the same random password as step 3:
      ```sql
      SELECT vault.create_secret('https://<project-ref>.supabase.co/functions/v1/send-push', 'push_function_url');
@@ -103,4 +54,5 @@ ALTER TABLE public.garage_cars
 
 ## Applied
 
-- 2026-09-27: items 1–4 (removal reason, social features, engagement, existing profiles). Items 2–3 were already in the database.
+- 2026-09-27: removal reason (0030/0034), social features (0031), engagement
+  (0033) and the existing-profiles update — `sql-to-run/01`–`04`.
