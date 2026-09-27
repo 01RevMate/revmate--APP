@@ -7,6 +7,10 @@ to the "Applied" section with the date.
 The app is built to keep working before each item runs — new features
 simply stay hidden until their SQL is in place.
 
+**Quickest way:** every file below is ready to run, numbered in order, in the
+`sql-to-run/` folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste
+Lovable prompts that run them all.
+
 ## Pending
 
 ### 1. Garage car removal reason (`ownership_end_reason`)

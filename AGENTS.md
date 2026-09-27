@@ -16,3 +16,10 @@ updates page (`/legal/updates`) and the machine-readable `/updates.json`.
 Read it to see which version is current and what has shipped. When you ship
 a user-facing change, add it to the newest release or start a new one at the
 top, and list any SQL it needs under `requiredSql` (plus in `PENDING_SQL.md`).
+
+## SQL that hasn't been run yet
+
+`PENDING_SQL.md` lists migrations that are committed but not yet applied to
+the live database, and `sql-to-run/` holds ready-to-run numbered copies with
+Lovable prompts in `LOVABLE_PENDING_SQL_PROMPT.md`. When you add a new
+migration, add it to all three.
