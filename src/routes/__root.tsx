@@ -18,6 +18,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AuthModalProvider } from "@/hooks/useAuthModal";
 import { AuthPromptModal } from "@/components/AuthPromptModal";
+import { SplashScreen } from "@/components/SplashScreen";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -176,6 +177,7 @@ function RootComponent() {
             <BottomNav />
             <Toaster />
             <AuthPromptModal />
+            <SplashScreen />
           </TooltipProvider>
         </AuthModalProvider>
       </AuthProvider>
