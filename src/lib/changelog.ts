@@ -24,6 +24,19 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.7.0",
+    date: "2026-09-27",
+    title: "Essentials",
+    status: "live",
+    highlights: [
+      "New Essentials home for the practical side of RevMate: buy a car, buy parts, sell, get help, research cars",
+      "Switch between Community and Essentials at the top of Home or in Settings",
+      "The first-run setup asks what you'll use RevMate for, and starts you on Essentials if you're not here for the community side",
+      "Buy & Sell can now be filtered to just cars or just parts",
+      "Space ready for fuel prices, EV chargers, MOT & tax reminders and a running cost calculator (coming soon)",
+    ],
+  },
+  {
     version: "1.6.0",
     date: "2026-09-27",
     title: "Engagement pack",

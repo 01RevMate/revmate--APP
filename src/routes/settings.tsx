@@ -10,6 +10,7 @@ import { carLabel, carPath, type Car } from "@/lib/cars";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { PushNotificationToggle } from "@/components/PushNotificationToggle";
+import { HomeModeSwitch } from "@/components/HomeModeSwitch";
 import { useEngagementFeatures, usePushFeature } from "@/lib/features";
 import { NotificationSettingsForm } from "@/components/NotificationSettingsForm";
 import { APP_VERSION } from "@/lib/changelog";
@@ -166,6 +167,14 @@ function SettingsPage() {
           <NotificationSettingsForm userId={user.id} />
         </Section>
       )}
+
+      <Section title="Home screen">
+        <HomeModeSwitch />
+        <p className="mt-2 text-xs text-muted-foreground">
+          Community shows the feed, battles and stories. Essentials shows the practical side: buying
+          and selling, parts, help and research.
+        </p>
+      </Section>
 
       <Section title="Username">
         <form onSubmit={handleUsernameSave} className="flex gap-2">

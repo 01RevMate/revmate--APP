@@ -16,6 +16,7 @@ import {
   Swords,
   Clapperboard,
   MapPin,
+  Wrench,
 } from "lucide-react";
 import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import { useAuth } from "@/hooks/useAuth";
@@ -112,6 +113,7 @@ export function Sidebar() {
       <nav className="space-y-1">
         <NavLink to="/" icon={Home} label="Home" collapsed={collapsed} exact />
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
+        <NavLink to="/essentials" icon={Wrench} label="Essentials" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
         <NavLink to="/leaderboard" icon={Trophy} label="Leaderboard" collapsed={collapsed} />
         {engagement && (

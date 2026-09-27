@@ -10,6 +10,9 @@ import { useEngagementFeatures } from "@/lib/features";
 import { StoriesRow } from "@/components/Stories";
 import { FeedHighlights } from "@/components/FeedHighlights";
 import { NewPostsPill } from "@/components/NewPostsPill";
+import { HomeModeSwitch } from "@/components/HomeModeSwitch";
+import { EssentialsHome } from "@/components/EssentialsHome";
+import { useHomeMode } from "@/hooks/useHomeMode";
 import { fetchGarage } from "@/lib/garage";
 import { fetchFollowing } from "@/lib/follows";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -59,6 +62,7 @@ function Home() {
   const { data: profile } = useProfile();
   const queryClient = useQueryClient();
   const engagement = useEngagementFeatures();
+  const [homeMode] = useHomeMode();
   const [scope, setScope] = useState<FeedScope>("all");
   // Once the personalised feed exists, start people on it (once per visit).
   const [scopeTouched, setScopeTouched] = useState(false);
@@ -150,130 +154,138 @@ function Home() {
     <div className="flex">
       <Sidebar />
       <main className="min-w-0 flex-1">
-        <PullToRefresh onRefresh={refreshFeed}>
-          <div className="mx-auto max-w-2xl py-4 sm:px-4 sm:py-6">
-            <div className="space-y-4 px-3 sm:px-0">
-              {engagement && <StoriesRow />}
-              <FeedScopeBar
-                scope={scope}
-                onScopeChange={changeScope}
-                hasGarageCars={hasGarageCars}
-                isAuthenticated={!!user}
-                showForYou={engagement}
-              />
-              <CategoryFilterBar category={category} onCategoryChange={setCategory} />
-              {engagement && <FeedHighlights />}
-
-              {scope === "my_groups" ? (
-                <Link
-                  to="/groups"
-                  className="block rounded-lg border bg-card p-4 text-sm text-primary"
-                >
-                  Explore your groups or choose a group to post in →
-                </Link>
-              ) : (
-                <PostComposer
-                  onPosted={refreshFeed}
-                  requiredCarIdentity={scope === "my_car" || scope === "same_brand"}
-                  garageCars={currentCars}
-                  preferredGarageCarId={filterCarId}
-                  onGarageCarSelected={setSessionFilterCarId}
-                  audience={scope === "friends" ? "friends" : "public"}
+        {homeMode === "essentials" ? (
+          <div className="mx-auto max-w-2xl space-y-4 px-3 py-4 sm:px-4 sm:py-6">
+            <HomeModeSwitch />
+            <EssentialsHome />
+          </div>
+        ) : (
+          <PullToRefresh onRefresh={refreshFeed}>
+            <div className="mx-auto max-w-2xl py-4 sm:px-4 sm:py-6">
+              <div className="space-y-4 px-3 sm:px-0">
+                <HomeModeSwitch />
+                {engagement && <StoriesRow />}
+                <FeedScopeBar
+                  scope={scope}
+                  onScopeChange={changeScope}
+                  hasGarageCars={hasGarageCars}
+                  isAuthenticated={!!user}
+                  showForYou={engagement}
                 />
-              )}
+                <CategoryFilterBar category={category} onCategoryChange={setCategory} />
+                {engagement && <FeedHighlights />}
 
-              {user && !hasGarageCars && (
-                <Link
-                  to="/garage"
-                  className="flex items-center gap-3 rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 hover:border-primary/60"
-                >
-                  <Car className="size-5 shrink-0 text-primary" />
-                  <div>
-                    <p className="text-sm font-semibold">Add a car to unlock the My Car feed</p>
-                    <p className="text-xs text-muted-foreground">
-                      See posts from people with the same car as you.
+                {scope === "my_groups" ? (
+                  <Link
+                    to="/groups"
+                    className="block rounded-lg border bg-card p-4 text-sm text-primary"
+                  >
+                    Explore your groups or choose a group to post in →
+                  </Link>
+                ) : (
+                  <PostComposer
+                    onPosted={refreshFeed}
+                    requiredCarIdentity={scope === "my_car" || scope === "same_brand"}
+                    garageCars={currentCars}
+                    preferredGarageCarId={filterCarId}
+                    onGarageCarSelected={setSessionFilterCarId}
+                    audience={scope === "friends" ? "friends" : "public"}
+                  />
+                )}
+
+                {user && !hasGarageCars && (
+                  <Link
+                    to="/garage"
+                    className="flex items-center gap-3 rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 hover:border-primary/60"
+                  >
+                    <Car className="size-5 shrink-0 text-primary" />
+                    <div>
+                      <p className="text-sm font-semibold">Add a car to unlock the My Car feed</p>
+                      <p className="text-xs text-muted-foreground">
+                        See posts from people with the same car as you.
+                      </p>
+                    </div>
+                  </Link>
+                )}
+
+                {feedError && (
+                  <p role="alert" className="rounded-lg border p-4 text-sm">
+                    Could not load discussions.{" "}
+                    <button
+                      className="text-primary"
+                      onClick={() => {
+                        refreshFeed();
+                        queryClient.invalidateQueries({ queryKey: ["groups"] });
+                      }}
+                    >
+                      Try again
+                    </button>
+                  </p>
+                )}
+              </div>
+
+              <NewPostsPill
+                newestCreatedAt={newestCreatedAt}
+                enabled={scope === "all" || scope === "for_you" || scope === "popular"}
+                onShow={() => {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                  void refreshFeed();
+                }}
+              />
+              <div className="mt-4 space-y-1 bg-muted/60 sm:space-y-4 sm:bg-transparent">
+                {isLoading &&
+                  Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} immersive />)}
+
+                {!isLoading && !feedError && filteredPosts.length === 0 && (
+                  <div className="mx-3 rounded-lg border border-dashed border-border bg-background p-8 text-center text-sm text-muted-foreground sm:mx-0">
+                    {scope === "my_car"
+                      ? "No posts about your car yet — be the first."
+                      : scope === "friends" && following?.length === 0
+                        ? "You are not following anyone yet — visit a profile and tap Follow."
+                        : scope === "friends"
+                          ? "No posts from people you follow in this category yet."
+                          : "No posts here yet — try a different filter."}
+                  </div>
+                )}
+
+                {filteredPosts.map((post: PostWithAuthor) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    liked={likedIds?.has(post.id) ?? false}
+                    onDeleted={refreshFeed}
+                    immersive
+                  />
+                ))}
+                {hasNextPage && (
+                  <div className="bg-background px-3 py-3 sm:p-0">
+                    <button
+                      disabled={isFetchingNextPage}
+                      onClick={() => fetchNextPage()}
+                      className="w-full rounded-lg border p-3 text-sm"
+                    >
+                      {isFetchingNextPage ? "Loading…" : "Load more discussions"}
+                    </button>
+                  </div>
+                )}
+                {!isLoading && !feedError && filteredPosts.length > 0 && hasNextPage === false && (
+                  <div className="bg-background px-4 py-8 text-center sm:rounded-lg sm:border sm:border-border">
+                    <span
+                      aria-hidden="true"
+                      className="mx-auto flex size-11 items-center justify-center rounded-full border border-border bg-muted font-mono text-sm font-semibold text-muted-foreground"
+                    >
+                      •ᴗ•
+                    </span>
+                    <p className="mt-3 text-sm font-semibold">You’re all caught up</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      That’s everything in this feed for now.
                     </p>
                   </div>
-                </Link>
-              )}
-
-              {feedError && (
-                <p role="alert" className="rounded-lg border p-4 text-sm">
-                  Could not load discussions.{" "}
-                  <button
-                    className="text-primary"
-                    onClick={() => {
-                      refreshFeed();
-                      queryClient.invalidateQueries({ queryKey: ["groups"] });
-                    }}
-                  >
-                    Try again
-                  </button>
-                </p>
-              )}
+                )}
+              </div>
             </div>
-
-            <NewPostsPill
-              newestCreatedAt={newestCreatedAt}
-              enabled={scope === "all" || scope === "for_you" || scope === "popular"}
-              onShow={() => {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-                void refreshFeed();
-              }}
-            />
-            <div className="mt-4 space-y-1 bg-muted/60 sm:space-y-4 sm:bg-transparent">
-              {isLoading &&
-                Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} immersive />)}
-
-              {!isLoading && !feedError && filteredPosts.length === 0 && (
-                <div className="mx-3 rounded-lg border border-dashed border-border bg-background p-8 text-center text-sm text-muted-foreground sm:mx-0">
-                  {scope === "my_car"
-                    ? "No posts about your car yet — be the first."
-                    : scope === "friends" && following?.length === 0
-                      ? "You are not following anyone yet — visit a profile and tap Follow."
-                      : scope === "friends"
-                        ? "No posts from people you follow in this category yet."
-                        : "No posts here yet — try a different filter."}
-                </div>
-              )}
-
-              {filteredPosts.map((post: PostWithAuthor) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  liked={likedIds?.has(post.id) ?? false}
-                  onDeleted={refreshFeed}
-                  immersive
-                />
-              ))}
-              {hasNextPage && (
-                <div className="bg-background px-3 py-3 sm:p-0">
-                  <button
-                    disabled={isFetchingNextPage}
-                    onClick={() => fetchNextPage()}
-                    className="w-full rounded-lg border p-3 text-sm"
-                  >
-                    {isFetchingNextPage ? "Loading…" : "Load more discussions"}
-                  </button>
-                </div>
-              )}
-              {!isLoading && !feedError && filteredPosts.length > 0 && hasNextPage === false && (
-                <div className="bg-background px-4 py-8 text-center sm:rounded-lg sm:border sm:border-border">
-                  <span
-                    aria-hidden="true"
-                    className="mx-auto flex size-11 items-center justify-center rounded-full border border-border bg-muted font-mono text-sm font-semibold text-muted-foreground"
-                  >
-                    •ᴗ•
-                  </span>
-                  <p className="mt-3 text-sm font-semibold">You’re all caught up</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    That’s everything in this feed for now.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </PullToRefresh>
+          </PullToRefresh>
+        )}
       </main>
     </div>
   );

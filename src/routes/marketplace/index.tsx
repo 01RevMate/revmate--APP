@@ -6,7 +6,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { carLabel, carPath } from "@/lib/cars";
 import { fetchActiveListings } from "@/lib/listings";
 
+type ListingFilter = "car" | "part";
+
 export const Route = createFileRoute("/marketplace/")({
+  // ?type=part lets other pages (like Essentials) link straight to parts.
+  validateSearch: (search: Record<string, unknown>): { type?: ListingFilter } =>
+    search["type"] === "car" || search["type"] === "part" ? { type: search["type"] } : {},
   head: () => ({
     meta: [
       { title: "Buy & Sell — RevMate" },
@@ -26,11 +31,13 @@ export const Route = createFileRoute("/marketplace/")({
 function MarketplacePage() {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
+  const { type } = Route.useSearch();
 
-  const { data: listings, isLoading } = useQuery({
+  const { data: allListings, isLoading } = useQuery({
     queryKey: ["listings"],
     queryFn: fetchActiveListings,
   });
+  const listings = type ? allListings?.filter((listing) => listing.type === type) : allListings;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
@@ -59,10 +66,33 @@ function MarketplacePage() {
         )}
       </div>
 
+      <div className="mt-5 flex gap-2">
+        {(
+          [
+            [undefined, "All"],
+            ["car", "Cars"],
+            ["part", "Parts"],
+          ] as const
+        ).map(([value, label]) => (
+          <Link
+            key={label}
+            to="/marketplace"
+            search={value ? { type: value } : {}}
+            className={`rounded-full border px-4 py-1.5 text-sm font-medium ${type === value ? "border-transparent bg-foreground text-background" : "border-border hover:bg-accent"}`}
+          >
+            {label}
+          </Link>
+        ))}
+      </div>
+
       {isLoading && <p className="mt-6 text-sm text-muted-foreground">Loading listings…</p>}
       {!isLoading && listings?.length === 0 && (
         <div className="mt-6 rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-          No listings yet — be the first to list a car or part.
+          {type === "part"
+            ? "No parts listed yet — got something in the shed? List it."
+            : type === "car"
+              ? "No cars listed yet — be the first."
+              : "No listings yet — be the first to list a car or part."}
         </div>
       )}
 

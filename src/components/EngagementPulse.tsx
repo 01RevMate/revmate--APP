@@ -4,6 +4,7 @@ import { Flame } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useEngagementFeatures } from "@/lib/features";
 import { runDailyPulse } from "@/lib/engagement";
+import { useHomeMode } from "@/hooks/useHomeMode";
 
 /**
  * Once per app open: records today's visit (streak), and lets the database
@@ -42,7 +43,10 @@ export function StreakBadge() {
     enabled: false,
     staleTime: Infinity,
   });
-  if (!user || !enabled || !data || data.current_streak < 1) return null;
+  const [homeMode] = useHomeMode();
+  // Essentials users are here for the practical side — skip the game bits.
+  if (!user || !enabled || !data || data.current_streak < 1 || homeMode === "essentials")
+    return null;
   const days = data.current_streak;
   return (
     <span

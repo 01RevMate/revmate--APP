@@ -1,6 +1,14 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Search } from "lucide-react";
+import {
+  BadgePoundSterling,
+  Check,
+  Fuel,
+  MessageCircleQuestion,
+  Search,
+  Users,
+} from "lucide-react";
+import { setHomeMode } from "@/hooks/useHomeMode";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -37,6 +45,33 @@ const POPULAR_MAKES = [
   "Tesla",
 ];
 
+const USES = [
+  {
+    id: "community",
+    label: "Show off my car & chat",
+    hint: "The feed, battles, stories and meets",
+    icon: Users,
+  },
+  {
+    id: "marketplace",
+    label: "Buy & sell cars and parts",
+    hint: "The marketplace",
+    icon: BadgePoundSterling,
+  },
+  {
+    id: "help",
+    label: "Get help and research cars",
+    hint: "Faults, fixes and specs",
+    icon: MessageCircleQuestion,
+  },
+  {
+    id: "running_costs",
+    label: "Save on running costs",
+    hint: "Fuel prices and EV chargers — coming soon",
+    icon: Fuel,
+  },
+];
+
 /**
  * First-run setup: pick the makes you're into, then follow a few people so
  * the feed is full from day one. Shown once (Skip counts as done).
@@ -46,7 +81,8 @@ export function OnboardingDialog() {
   const { data: profile } = useProfile();
   const enabled = useEngagementFeatures();
   const queryClient = useQueryClient();
-  const [step, setStep] = useState<"makes" | "people">("makes");
+  const [step, setStep] = useState<"uses" | "makes" | "people">("uses");
+  const [uses, setUses] = useState<string[]>([]);
   const [makes, setMakes] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [followed, setFollowed] = useState<Set<string>>(new Set());
@@ -113,7 +149,68 @@ export function OnboardingDialog() {
   return (
     <Dialog open={open} onOpenChange={(next) => !next && !saving && void finish(true)}>
       <DialogContent className="max-h-[90vh] max-w-[calc(100%-2rem)] overflow-y-auto rounded-2xl sm:max-w-lg">
-        {step === "makes" ? (
+        {step === "uses" ? (
+          <>
+            <DialogHeader className="text-left">
+              <DialogTitle>What will you use RevMate for?</DialogTitle>
+              <DialogDescription>
+                Pick as many as you like — you can change this any time.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-2">
+              {USES.map((use) => {
+                const selected = uses.includes(use.id);
+                return (
+                  <button
+                    key={use.id}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() =>
+                      setUses((prev) =>
+                        prev.includes(use.id)
+                          ? prev.filter((id) => id !== use.id)
+                          : [...prev, use.id],
+                      )
+                    }
+                    className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${selected ? "border-primary bg-primary/5" : "border-border hover:bg-accent"}`}
+                  >
+                    <use.icon className="size-5 shrink-0 text-primary" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold">{use.label}</span>
+                      <span className="block text-xs text-muted-foreground">{use.hint}</span>
+                    </span>
+                    {selected && <Check className="size-4 text-primary" />}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex items-center justify-between pt-2">
+              <button
+                type="button"
+                onClick={() => void finish(true)}
+                disabled={saving}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Skip
+              </button>
+              <button
+                type="button"
+                disabled={uses.length === 0 || saving}
+                onClick={() => {
+                  // Not here for the community side? Start them on Essentials
+                  // and skip the "follow people" step.
+                  const community = uses.includes("community");
+                  setHomeMode(community ? "community" : "essentials");
+                  if (community) setStep("makes");
+                  else void finish(false);
+                }}
+                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </>
+        ) : step === "makes" ? (
           <>
             <DialogHeader className="text-left">
               <DialogTitle>What are you into?</DialogTitle>

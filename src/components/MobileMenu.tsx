@@ -15,6 +15,7 @@ import {
   Swords,
   Clapperboard,
   MapPin,
+  Wrench,
 } from "lucide-react";
 import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import { useAuth } from "@/hooks/useAuth";
@@ -91,6 +92,7 @@ export function MobileMenu() {
         <nav className="mt-4 space-y-1">
           <MenuLink to="/" icon={Home} label="Home" onNavigate={close} />
           <MenuLink to="/cars" icon={Car} label="Browse Cars" onNavigate={close} />
+          <MenuLink to="/essentials" icon={Wrench} label="Essentials" onNavigate={close} />
           <MenuLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" onNavigate={close} />
           <MenuLink to="/leaderboard" icon={Trophy} label="Leaderboard" onNavigate={close} />
           {engagement && (

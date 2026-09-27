@@ -15,6 +15,7 @@ import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AskRouteImport } from './routes/ask'
 import { Route as BattlesRouteImport } from './routes/battles'
 import { Route as CommunityStandardsRouteImport } from './routes/community-standards'
+import { Route as EssentialsRouteImport } from './routes/essentials'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as GarageRouteImport } from './routes/garage'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
@@ -72,6 +73,11 @@ const BattlesRoute = BattlesRouteImport.update({
 const CommunityStandardsRoute = CommunityStandardsRouteImport.update({
   id: '/community-standards',
   path: '/community-standards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EssentialsRoute = EssentialsRouteImport.update({
+  id: '/essentials',
+  path: '/essentials',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/ask': typeof AskRoute
   '/battles': typeof BattlesRoute
   '/community-standards': typeof CommunityStandardsRoute
+  '/essentials': typeof EssentialsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
   '/leaderboard': typeof LeaderboardRoute
@@ -258,6 +265,7 @@ export interface FileRoutesByTo {
   '/ask': typeof AskRoute
   '/battles': typeof BattlesRoute
   '/community-standards': typeof CommunityStandardsRoute
+  '/essentials': typeof EssentialsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
   '/leaderboard': typeof LeaderboardRoute
@@ -295,6 +303,7 @@ export interface FileRoutesById {
   '/ask': typeof AskRoute
   '/battles': typeof BattlesRoute
   '/community-standards': typeof CommunityStandardsRoute
+  '/essentials': typeof EssentialsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
   '/leaderboard': typeof LeaderboardRoute
@@ -333,6 +342,7 @@ export interface FileRouteTypes {
     | '/ask'
     | '/battles'
     | '/community-standards'
+    | '/essentials'
     | '/forgot-password'
     | '/garage'
     | '/leaderboard'
@@ -369,6 +379,7 @@ export interface FileRouteTypes {
     | '/ask'
     | '/battles'
     | '/community-standards'
+    | '/essentials'
     | '/forgot-password'
     | '/garage'
     | '/leaderboard'
@@ -405,6 +416,7 @@ export interface FileRouteTypes {
     | '/ask'
     | '/battles'
     | '/community-standards'
+    | '/essentials'
     | '/forgot-password'
     | '/garage'
     | '/leaderboard'
@@ -442,6 +454,7 @@ export interface RootRouteChildren {
   AskRoute: typeof AskRoute
   BattlesRoute: typeof BattlesRoute
   CommunityStandardsRoute: typeof CommunityStandardsRoute
+  EssentialsRoute: typeof EssentialsRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   GarageRoute: typeof GarageRoute
   LeaderboardRoute: typeof LeaderboardRoute
@@ -513,6 +526,13 @@ declare module '@tanstack/react-router' {
       path: '/community-standards'
       fullPath: '/community-standards'
       preLoaderRoute: typeof CommunityStandardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/essentials': {
+      id: '/essentials'
+      path: '/essentials'
+      fullPath: '/essentials'
+      preLoaderRoute: typeof EssentialsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -733,6 +753,7 @@ const rootRouteChildren: RootRouteChildren = {
   AskRoute: AskRoute,
   BattlesRoute: BattlesRoute,
   CommunityStandardsRoute: CommunityStandardsRoute,
+  EssentialsRoute: EssentialsRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   GarageRoute: GarageRoute,
   LeaderboardRoute: LeaderboardRoute,
