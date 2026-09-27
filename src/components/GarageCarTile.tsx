@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Trophy, Tag } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { CarLogo } from "@/components/CarLogo";
-import type { GarageCar } from "@/lib/garage";
+import { previousOwnershipLabel, type GarageCar } from "@/lib/garage";
 
 export function GarageCarTile({
   username,
@@ -44,7 +44,7 @@ export function GarageCarTile({
       />
       {isPrevious && (
         <span className="absolute right-1.5 top-1.5 z-10 rounded-full bg-foreground/80 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-background">
-          Sold
+          {previousOwnershipLabel(car)}
         </span>
       )}
       <div className="relative">

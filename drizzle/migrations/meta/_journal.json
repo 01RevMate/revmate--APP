@@ -211,6 +211,13 @@
       "when": 1790298856495,
       "tag": "0029_seller_reports_and_score",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1790298956495,
+      "tag": "0030_garage_car_ownership_end_reason",
+      "breakpoints": true
     }
   ]
 }

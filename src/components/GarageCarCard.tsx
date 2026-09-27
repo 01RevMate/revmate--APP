@@ -14,11 +14,14 @@ import {
   Trophy,
   Tag,
   Loader2,
-  KeyRound,
   Undo2,
   Image,
+  BadgePoundSterling,
+  Recycle,
+  CarFront,
+  HelpCircle,
 } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   addCarPhoto,
   addMod,
@@ -39,11 +42,13 @@ import {
   unfollowGarageCar,
   updateGarageCar,
   unlikeGarageCar,
+  previousOwnershipLabel,
   FUEL_TYPE_LABELS,
   MOD_CATEGORY_LABELS,
   TRANSMISSION_LABELS,
   type GarageCar,
   type GarageMod,
+  type OwnershipEndReason,
 } from "@/lib/garage";
 import { fetchListingsForGarageCar } from "@/lib/listings";
 import { createPost } from "@/lib/posts";
@@ -53,6 +58,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { Avatar } from "@/components/Avatar";
 import { CarLogo } from "@/components/CarLogo";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export function GarageCarCard({
   car,
@@ -75,6 +87,8 @@ export function GarageCarCard({
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [mainPhotoBusy, setMainPhotoBusy] = useState<string | null>(null);
   const [statusBusy, setStatusBusy] = useState(false);
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const navigate = useNavigate();
   const photoInputRef = useRef<HTMLInputElement>(null);
   const isPrevious = car.ownership_status === "previous";
 
@@ -275,16 +289,17 @@ export function GarageCarCard({
     }
   }
 
-  async function handleRemoveCar() {
+  async function handleDeleteCar() {
     if (
       !confirm(
-        "Remove this car for good? This can't be undone — if you just sold it, mark it as previously owned instead.",
+        "Delete this car for good? Its photos, mods and likes will be lost. This can't be undone.",
       )
     ) {
       return;
     }
     try {
       await removeGarageCar(car.id);
+      setRemoveDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["garage"] });
       onRemoved?.();
     } catch (err) {
@@ -292,17 +307,29 @@ export function GarageCarCard({
     }
   }
 
-  async function handleToggleOwnershipStatus() {
+  async function updateOwnershipStatus(
+    status: GarageCar["ownership_status"],
+    endReason: OwnershipEndReason | null = null,
+  ) {
     setStatusBusy(true);
     try {
-      const nextStatus = isPrevious ? "current" : "previous";
-      await setGarageCarOwnershipStatus(car.id, nextStatus);
+      await setGarageCarOwnershipStatus(car.id, status, endReason);
+      setRemoveDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["garage"] });
       queryClient.invalidateQueries({ queryKey: ["garage-car", car.id] });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't update car");
     } finally {
       setStatusBusy(false);
+    }
+  }
+
+  function handleForSale() {
+    setRemoveDialogOpen(false);
+    if (activeListing?.[0]) {
+      navigate({ to: "/marketplace/$listingId", params: { listingId: activeListing[0].id } });
+    } else {
+      navigate({ to: "/sell", search: { garageCarId: car.id } });
     }
   }
 
@@ -337,7 +364,7 @@ export function GarageCarCard({
             </p>
             {isPrevious && (
               <span className="mt-1 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                Previously owned
+                {previousOwnershipLabel(car)}
               </span>
             )}
             {car.spec && <p className="mt-1 text-sm text-muted-foreground">{car.spec}</p>}
@@ -380,18 +407,20 @@ export function GarageCarCard({
           )}
           {isOwner && (
             <>
+              {isPrevious && (
+                <button
+                  onClick={() => updateOwnershipStatus("current")}
+                  disabled={statusBusy}
+                  className="text-muted-foreground hover:text-foreground disabled:opacity-50"
+                  title="Mark as currently owned"
+                >
+                  <Undo2 className="size-4" />
+                </button>
+              )}
               <button
-                onClick={handleToggleOwnershipStatus}
-                disabled={statusBusy}
-                className="text-muted-foreground hover:text-foreground disabled:opacity-50"
-                title={isPrevious ? "Mark as currently owned" : "Mark as sold / previously owned"}
-              >
-                {isPrevious ? <Undo2 className="size-4" /> : <KeyRound className="size-4" />}
-              </button>
-              <button
-                onClick={handleRemoveCar}
+                onClick={() => setRemoveDialogOpen(true)}
                 className="text-muted-foreground hover:text-destructive"
-                title="Remove from garage permanently"
+                title="Remove from garage"
               >
                 <Trash2 className="size-4" />
               </button>
@@ -616,7 +645,99 @@ export function GarageCarCard({
           )}
         </div>
       )}
+
+      {isOwner && (
+        <Dialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle>What happened to {car.nickname}?</DialogTitle>
+              <DialogDescription>
+                Sold, scrapped and written-off cars move to Previously owned, so you keep their
+                photos, mods and likes.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-2">
+              {!isPrevious && (
+                <RemoveReasonButton
+                  icon={Tag}
+                  label="It's for sale"
+                  description={forSale ? "Manage your listing" : "List it on the marketplace"}
+                  onClick={handleForSale}
+                  disabled={statusBusy}
+                />
+              )}
+              <RemoveReasonButton
+                icon={BadgePoundSterling}
+                label="Sold"
+                selected={isPrevious && car.ownership_end_reason === "sold"}
+                onClick={() => updateOwnershipStatus("previous", "sold")}
+                disabled={statusBusy}
+              />
+              <RemoveReasonButton
+                icon={Recycle}
+                label="Scrapped"
+                selected={isPrevious && car.ownership_end_reason === "scrapped"}
+                onClick={() => updateOwnershipStatus("previous", "scrapped")}
+                disabled={statusBusy}
+              />
+              <RemoveReasonButton
+                icon={CarFront}
+                label="Written off"
+                selected={isPrevious && car.ownership_end_reason === "written_off"}
+                onClick={() => updateOwnershipStatus("previous", "written_off")}
+                disabled={statusBusy}
+              />
+              <RemoveReasonButton
+                icon={HelpCircle}
+                label="Other"
+                description="No longer mine"
+                selected={isPrevious && car.ownership_end_reason === "other"}
+                onClick={() => updateOwnershipStatus("previous", "other")}
+                disabled={statusBusy}
+              />
+            </div>
+            <button
+              onClick={handleDeleteCar}
+              disabled={statusBusy}
+              className="mt-1 flex items-center justify-center gap-1.5 text-xs font-medium text-destructive hover:underline disabled:opacity-50"
+            >
+              <Trash2 className="size-3.5" />
+              Added by mistake? Delete permanently
+            </button>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
+  );
+}
+
+function RemoveReasonButton({
+  icon: Icon,
+  label,
+  description,
+  selected,
+  disabled,
+  onClick,
+}: {
+  icon: typeof Zap;
+  label: string;
+  description?: string;
+  selected?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors hover:bg-accent disabled:opacity-50 ${selected ? "border-primary ring-1 ring-primary" : "border-border"}`}
+    >
+      <Icon className="size-4 shrink-0 text-primary" />
+      <span>
+        <span className="block text-sm font-medium">{label}</span>
+        {description && <span className="block text-xs text-muted-foreground">{description}</span>}
+      </span>
+    </button>
   );
 }
 

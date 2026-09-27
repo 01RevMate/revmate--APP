@@ -154,13 +154,34 @@ export async function removeGarageCar(id: string) {
   if (error) throw error;
 }
 
+export type OwnershipEndReason = "sold" | "scrapped" | "written_off" | "other";
+
+export const OWNERSHIP_END_REASON_LABELS: Record<OwnershipEndReason, string> = {
+  sold: "Sold",
+  scrapped: "Scrapped",
+  written_off: "Written off",
+  other: "Previously owned",
+};
+
+/** Short badge label for a previously owned car, based on why it left the garage. */
+export function previousOwnershipLabel(car: Pick<GarageCar, "ownership_end_reason">): string {
+  const reason = car.ownership_end_reason as OwnershipEndReason | null;
+  return reason && reason in OWNERSHIP_END_REASON_LABELS
+    ? OWNERSHIP_END_REASON_LABELS[reason]
+    : "Previously owned";
+}
+
 export async function setGarageCarOwnershipStatus(
   id: string,
   status: GarageCar["ownership_status"],
+  endReason: OwnershipEndReason | null = null,
 ) {
   const { error } = await supabase
     .from("garage_cars")
-    .update({ ownership_status: status })
+    .update({
+      ownership_status: status,
+      ownership_end_reason: status === "previous" ? endReason : null,
+    })
     .eq("id", id);
   if (error) throw error;
 }

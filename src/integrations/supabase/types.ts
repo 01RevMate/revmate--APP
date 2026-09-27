@@ -521,6 +521,7 @@ export type Database = {
           mileage: number | null
           model: string
           nickname: string
+          ownership_end_reason: string | null
           ownership_status: Database["public"]["Enums"]["garage_car_ownership_status"]
           photo_url: string | null
           spec: string | null
@@ -550,6 +551,7 @@ export type Database = {
           mileage?: number | null
           model: string
           nickname: string
+          ownership_end_reason?: string | null
           ownership_status?: Database["public"]["Enums"]["garage_car_ownership_status"]
           photo_url?: string | null
           spec?: string | null
@@ -579,6 +581,7 @@ export type Database = {
           mileage?: number | null
           model?: string
           nickname?: string
+          ownership_end_reason?: string | null
           ownership_status?: Database["public"]["Enums"]["garage_car_ownership_status"]
           photo_url?: string | null
           spec?: string | null

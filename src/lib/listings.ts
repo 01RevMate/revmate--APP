@@ -180,7 +180,7 @@ export async function endListing(input: {
   if (input.garageCarId && (input.reason === "sold_revmate" || input.reason === "sold_elsewhere")) {
     const { error: garageError } = await supabase
       .from("garage_cars")
-      .update({ ownership_status: "previous" })
+      .update({ ownership_status: "previous", ownership_end_reason: "sold" })
       .eq("id", input.garageCarId)
       .eq("user_id", input.userId);
     if (garageError) warnings.push("The car could not be moved to previously owned yet.");
