@@ -26,6 +26,8 @@ import { displayUsernameWithoutAt } from "@/lib/usernames";
 import {
   dislikeGarageCar,
   fetchGarageCarRank,
+  hasDislikedGarageCar,
+  hasLikedGarageCar,
   likeGarageCar,
   undislikeGarageCar,
   unlikeGarageCar,
@@ -45,8 +47,6 @@ import { blockProfile, reportPost, type ReportReason } from "@/lib/moderation";
 export function PostCard({
   post,
   liked: initiallyLiked,
-  carLiked: initiallyCarLiked = false,
-  carDisliked: initiallyCarDisliked = false,
   onDeleted,
   canModerate = false,
   onHide,
@@ -54,8 +54,6 @@ export function PostCard({
 }: {
   post: PostWithAuthor;
   liked: boolean;
-  carLiked?: boolean;
-  carDisliked?: boolean;
   onDeleted?: () => void;
   canModerate?: boolean;
   onHide?: () => void;
@@ -75,9 +73,25 @@ export function PostCard({
     queryFn: () => fetchGarageCarRank(post.posted_as_garage_car!.id),
     enabled: isCarLike,
   });
-  const [carLiked, setCarLiked] = useState(initiallyCarLiked);
+  // A car's like/dislike is one global reaction per user, shared with every
+  // other place that car shows up (other posts, its garage card, profile),
+  // so read it from the shared query cache instead of per-page props.
+  const reactionCarId = post.posted_as_garage_car?.id;
+  const { data: serverCarLiked = false } = useQuery({
+    queryKey: ["garage-car-liked", reactionCarId, user?.id],
+    queryFn: () => hasLikedGarageCar(reactionCarId!, user!.id),
+    enabled: isCarLike && !!user,
+    staleTime: 30_000,
+  });
+  const { data: serverCarDisliked = false } = useQuery({
+    queryKey: ["garage-car-disliked", reactionCarId, user?.id],
+    queryFn: () => hasDislikedGarageCar(reactionCarId!, user!.id),
+    enabled: isCarLike && !!user,
+    staleTime: 30_000,
+  });
+  const [carLiked, setCarLiked] = useState(serverCarLiked);
   const [carLikesCount, setCarLikesCount] = useState(post.posted_as_garage_car?.likes_count ?? 0);
-  const [carDisliked, setCarDisliked] = useState(initiallyCarDisliked);
+  const [carDisliked, setCarDisliked] = useState(serverCarDisliked);
   const [carDislikesCount, setCarDislikesCount] = useState(
     post.posted_as_garage_car?.dislikes_count ?? 0,
   );
@@ -109,12 +123,12 @@ export function PostCard({
   useEffect(() => setLiked(initiallyLiked), [initiallyLiked, post.id]);
   useEffect(() => setLikesCount(post.likes_count), [post.likes_count, post.id]);
   useEffect(() => setCommentsCount(post.comments_count), [post.comments_count, post.id]);
-  useEffect(() => setCarLiked(initiallyCarLiked), [initiallyCarLiked, post.id]);
+  useEffect(() => setCarLiked(serverCarLiked), [serverCarLiked, post.id]);
   useEffect(
     () => setCarLikesCount(post.posted_as_garage_car?.likes_count ?? 0),
     [post.posted_as_garage_car?.likes_count, post.id],
   );
-  useEffect(() => setCarDisliked(initiallyCarDisliked), [initiallyCarDisliked, post.id]);
+  useEffect(() => setCarDisliked(serverCarDisliked), [serverCarDisliked, post.id]);
   useEffect(
     () => setCarDislikesCount(post.posted_as_garage_car?.dislikes_count ?? 0),
     [post.posted_as_garage_car?.dislikes_count, post.id],
@@ -142,6 +156,26 @@ export function PostCard({
     }
   }
 
+  // Push the new reaction to every view of this car and refresh the counts
+  // shown on other posts, the garage card and the rankings.
+  function syncCarReaction(garageCarId: string, nowLiked: boolean, nowDisliked: boolean) {
+    queryClient.setQueryData(["garage-car-liked", garageCarId, user?.id], nowLiked);
+    queryClient.setQueryData(["garage-car-disliked", garageCarId, user?.id], nowDisliked);
+    queryClient.invalidateQueries({ queryKey: ["garage-car-rank", garageCarId] });
+    queryClient.invalidateQueries({ queryKey: ["garage-car", garageCarId] });
+    for (const key of [
+      "garage",
+      "feed",
+      "posts-by-user",
+      "posts-by-garage-car",
+      "posts-by-car",
+      "post",
+      "groups",
+    ]) {
+      queryClient.invalidateQueries({ queryKey: [key] });
+    }
+  }
+
   async function toggleCarLike() {
     if (liking || !post.posted_as_garage_car) return;
     if (!user) {
@@ -161,9 +195,7 @@ export function PostCard({
     try {
       if (next) await likeGarageCar(garageCarId, user.id);
       else await unlikeGarageCar(garageCarId, user.id);
-      queryClient.invalidateQueries({ queryKey: ["garage-car-rank", garageCarId] });
-      queryClient.invalidateQueries({ queryKey: ["feed", "liked-cars"] });
-      queryClient.invalidateQueries({ queryKey: ["feed", "disliked-cars"] });
+      syncCarReaction(garageCarId, next, clearedDislike ? false : carDisliked);
     } catch (err) {
       setCarLiked(!next);
       setCarLikesCount((n) => n + (next ? -1 : 1));
@@ -196,9 +228,7 @@ export function PostCard({
     try {
       if (next) await dislikeGarageCar(garageCarId, user.id);
       else await undislikeGarageCar(garageCarId, user.id);
-      queryClient.invalidateQueries({ queryKey: ["garage-car-rank", garageCarId] });
-      queryClient.invalidateQueries({ queryKey: ["feed", "liked-cars"] });
-      queryClient.invalidateQueries({ queryKey: ["feed", "disliked-cars"] });
+      syncCarReaction(garageCarId, clearedLike ? false : carLiked, next);
     } catch (err) {
       setCarDisliked(!next);
       setCarDislikesCount((n) => n + (next ? -1 : 1));
