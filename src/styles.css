@@ -230,3 +230,18 @@
     font-size: 16px;
   }
 }
+
+/* Launch splash safety net: if the app's JavaScript never loads, the
+   server-rendered splash still gets out of the way instead of leaving a
+   black screen. Normally React removes it well before this kicks in. */
+.splash-failsafe {
+  animation: splash-failsafe 0.4s ease 10s forwards;
+}
+
+@keyframes splash-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
