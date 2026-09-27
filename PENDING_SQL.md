@@ -66,9 +66,18 @@ ALTER TABLE public.garage_cars
   copied into the new reaction counts. Tested against a copy of the full
   database schema (44 behaviour checks).
 
-### 4. Phone push notifications (optional, needs a few setup steps)
+### 4. Update existing profiles
 
-- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/04_push_notifications.sql`) — run after item 2.
+- File: `sql-to-run/04_update_existing_profiles.sql` — run after item 3.
+- Added: 2026-09-27
+- One-off update so everyone already on RevMate gets the new features
+  straight away: favourite makes filled from their garage cars (For You
+  feed), a starting leaderboard rank for every car (rank-up alerts), and
+  default notification settings. Only fills blanks; safe to re-run.
+
+### 5. Phone push notifications (optional, needs a few setup steps)
+
+- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/05_push_notifications.sql`) — run after item 2.
 - Added: 2026-09-27
 - Needed by: the "Phone notifications" switch in Settings. Until this runs
   (and the steps below are done) the switch doesn't appear and everything
@@ -83,7 +92,7 @@ ALTER TABLE public.garage_cars
      - `VAPID_SUBJECT` — `mailto:` followed by your email
      - `PUSH_WEBHOOK_SECRET` — any long random password you make up
   4. Deploy the edge function `supabase/functions/send-push`.
-  5. Tell the database where the function is — `sql-to-run/05_push_setup_after_keys.sql`,
+  5. Tell the database where the function is — `sql-to-run/06_push_setup_after_keys.sql`,
      with the same random password as step 3:
      ```sql
      SELECT vault.create_secret('https://<project-ref>.supabase.co/functions/v1/send-push', 'push_function_url');
