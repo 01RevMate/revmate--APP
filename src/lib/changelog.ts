@@ -51,7 +51,7 @@ export const RELEASES: Release[] = [
       "Daily streaks and levels, from Learner to Legend",
       "Weekly challenges like #StanceSunday, with winners picked by admins",
       "Near you: meets and posts from your area",
-      "React with 🔥 😍 🤯 😂 as well as like",
+      "Press and hold the like button to react with 🔥 😍 🤯 😂",
       "A 'new posts' button when fresh posts arrive while you scroll",
       "Share cards for Instagram and TikTok showing your car's UK rank",
       "Notifications are bundled, with quiet hours and per-type muting in Settings",

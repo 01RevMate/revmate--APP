@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Heart, SmilePlus } from "lucide-react";
+import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -11,7 +11,7 @@ const LONG_PRESS_MS = 450;
 
 /**
  * The post like button. Tap to like/unlike as before; once the engagement
- * SQL is live, press and hold (or tap the smiley) to pick 🔥 😍 🤯 😂.
+ * SQL is live, press and hold the heart to pick 🔥 😍 🤯 😂.
  */
 export function ReactionButton({
   postId,
@@ -70,17 +70,28 @@ export function ReactionButton({
     }
   }
 
-  function startPress() {
+  const pressStart = useRef<{ x: number; y: number } | null>(null);
+
+  function startPress(e: React.PointerEvent) {
     if (!enabled) return;
     longPressed.current = false;
+    pressStart.current = { x: e.clientX, y: e.clientY };
     pressTimer.current = window.setTimeout(() => {
       longPressed.current = true;
       setPickerOpen(true);
+      // A little buzz so people feel the hold worked (Android; ignored elsewhere).
+      navigator.vibrate?.(15);
     }, LONG_PRESS_MS);
+  }
+  // Scrolling the feed with a finger on the heart shouldn't open the picker.
+  function movePress(e: React.PointerEvent) {
+    const start = pressStart.current;
+    if (start && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) endPress();
   }
   function endPress() {
     if (pressTimer.current) window.clearTimeout(pressTimer.current);
     pressTimer.current = null;
+    pressStart.current = null;
   }
 
   return (
@@ -96,14 +107,21 @@ export function ReactionButton({
           onToggleLike();
         }}
         onPointerDown={startPress}
+        onPointerMove={movePress}
         onPointerUp={endPress}
         onPointerLeave={endPress}
+        onPointerCancel={endPress}
         onContextMenu={(e) => {
+          // Phones fire this on a long press too — use it for the picker
+          // instead of the browser's own menu.
           if (!enabled) return;
           e.preventDefault();
+          longPressed.current = true;
           setPickerOpen(true);
         }}
         disabled={busy}
+        title={enabled ? "Tap to like · press and hold for more reactions" : undefined}
+        style={{ WebkitTouchCallout: "none", touchAction: "manipulation" }}
         className={`flex select-none items-center gap-1.5 hover:text-foreground ${liked ? "text-red-500 hover:text-red-500" : ""}`}
       >
         {mine && mine.id !== "like" ? (
@@ -119,17 +137,6 @@ export function ReactionButton({
         )}
         {likesCount > 0 ? likesCount : "Like"}
       </button>
-      {enabled && (
-        <button
-          type="button"
-          onClick={() => setPickerOpen((open) => !open)}
-          aria-label="Choose a reaction"
-          title="React"
-          className="text-muted-foreground/70 hover:text-foreground"
-        >
-          <SmilePlus className="size-3.5" />
-        </button>
-      )}
       {pickerOpen && (
         <>
           <button
