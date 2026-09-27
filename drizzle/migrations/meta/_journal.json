@@ -218,6 +218,20 @@
       "when": 1790298956495,
       "tag": "0030_garage_car_ownership_end_reason",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1790299056495,
+      "tag": "0031_social_features",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1790299156495,
+      "tag": "0032_push_notifications",
+      "breakpoints": true
     }
   ]
 }

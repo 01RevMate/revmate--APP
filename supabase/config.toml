@@ -1,1 +1,5 @@
 project_id = "gtackixgmvfrxqelrato"
+# Called by the database trigger (authenticated by the x-push-secret header)
+# and by the app to fetch the public key, so it doesn't require a user JWT.
+[functions.send-push]
+verify_jwt = false

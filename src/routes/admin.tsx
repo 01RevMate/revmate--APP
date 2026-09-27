@@ -30,6 +30,9 @@ import {
 } from "@/lib/moderation";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { sendAppUpdate } from "@/lib/notifications";
+import { useSocialFeatures } from "@/lib/features";
+import { setVerifiedType, type VerifiedType } from "@/lib/social";
+import { useVerifiedProfiles } from "@/components/VerifiedBadge";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async () => {
@@ -77,6 +80,22 @@ function AdminPage() {
   const [updateMessage, setUpdateMessage] = useState("");
   const [updateUrl, setUpdateUrl] = useState("/");
   const [sendingUpdate, setSendingUpdate] = useState(false);
+  const social = useSocialFeatures();
+  const verifiedProfiles = useVerifiedProfiles();
+
+  async function changeVerified(userId: string, username: string, value: VerifiedType | null) {
+    try {
+      await setVerifiedType(userId, value);
+      await queryClient.invalidateQueries({ queryKey: ["verified-profiles"] });
+      toast.success(
+        value
+          ? `${displayUsernameWithoutAt(username)} is now a verified ${value}`
+          : `Removed ${displayUsernameWithoutAt(username)}'s badge`,
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't update the badge");
+    }
+  }
 
   const reportsQuery = useQuery({ queryKey: ["admin", "reports"], queryFn: fetchAdminReports });
   const profilesQuery = useQuery({ queryKey: ["admin", "profiles"], queryFn: fetchAdminProfiles });
@@ -435,6 +454,25 @@ function AdminPage() {
                     <ShieldCheck className="size-3.5" />{" "}
                     {profile.role === "admin" ? "Remove admin" : "Make admin"}
                   </button>
+                  {social && (
+                    <select
+                      value={verifiedProfiles?.get(profile.user_id) ?? ""}
+                      onChange={(e) =>
+                        void changeVerified(
+                          profile.user_id,
+                          profile.username,
+                          (e.target.value || null) as VerifiedType | null,
+                        )
+                      }
+                      aria-label={`Verified badge for ${displayUsernameWithoutAt(profile.username)}`}
+                      className="rounded-md border border-input bg-background px-2 py-2 text-xs"
+                    >
+                      <option value="">No badge</option>
+                      <option value="club">Verified club</option>
+                      <option value="trader">Verified trader</option>
+                      <option value="creator">Verified creator</option>
+                    </select>
+                  )}
                   {profile.account_status === "active" ? (
                     <>
                       <button

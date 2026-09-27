@@ -3,10 +3,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import {
+  Bookmark,
   Flag,
   Flame,
   Heart,
   MessageCircle,
+  Repeat2,
   Share2,
   Tag,
   ThumbsUp,
@@ -21,6 +23,15 @@ import { useAuthModal } from "@/hooks/useAuthModal";
 import { Avatar } from "@/components/Avatar";
 import { CarLogo } from "@/components/CarLogo";
 import { PostImageViewer } from "@/components/PostImageViewer";
+import { PostComments } from "@/components/PostComments";
+import { PostPoll } from "@/components/PostPoll";
+import { RepostedPost } from "@/components/RepostedPost";
+import { RichText } from "@/components/RichText";
+import { SpottedCarLink } from "@/components/SpottedCarLink";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { useMyRepostedIds, useMySavedPostIds } from "@/hooks/useSocialState";
+import { useSocialFeatures } from "@/lib/features";
+import { createRepost, isVideoUrl, savePost, undoRepost, unsavePost } from "@/lib/social";
 import { carLabel, carPath } from "@/lib/cars";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import {
@@ -33,7 +44,6 @@ import {
   unlikeGarageCar,
 } from "@/lib/garage";
 import {
-  addComment,
   deletePost,
   fetchComments,
   likePost,
@@ -99,7 +109,6 @@ export function PostCard({
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [comments, setComments] = useState<CommentWithAuthor[] | null>(null);
   const [commentsLoading, setCommentsLoading] = useState(false);
-  const [commentBody, setCommentBody] = useState("");
   const [commentsCount, setCommentsCount] = useState(post.comments_count);
   const [deleted, setDeleted] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
@@ -108,10 +117,28 @@ export function PostCard({
   const [safetySaving, setSafetySaving] = useState(false);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   const commentsRef = useRef<HTMLDivElement>(null);
-  const postImages = post.post_images
+  const social = useSocialFeatures();
+  const savedIds = useMySavedPostIds();
+  const repostedIds = useMyRepostedIds();
+  const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
+  const [repostOpen, setRepostOpen] = useState(false);
+  const [repostCaption, setRepostCaption] = useState("");
+  const [reposting, setReposting] = useState(false);
+  const saved = savedOverride ?? savedIds?.has(post.id) ?? false;
+  // Reposting a repost shares the original, so track state on the original.
+  const repostTargetId = post.repost_of_id ?? post.id;
+  const reposted = repostedIds?.has(repostTargetId) ?? false;
+  const canRepost =
+    social &&
+    !post.group_id &&
+    post.audience === "public" &&
+    (post.repost_of_id ? true : post.user_id !== user?.id);
+  const sortedMedia = post.post_images
     .filter((image) => image.image_url)
     .slice()
     .sort((a, b) => a.position - b.position);
+  const postVideos = sortedMedia.filter((media) => isVideoUrl(media.image_url));
+  const postImages = sortedMedia.filter((media) => !isVideoUrl(media.image_url));
   // Cap the feed grid at 4 tiles — the last one shows a "+N" overlay for the
   // rest, instead of every photo bloating the card. Full set stays viewable
   // in PostImageViewer, which the "+N" tile still opens into.
@@ -264,29 +291,74 @@ export function PostCard({
     else void openComments();
   }
 
-  async function handleAddComment(e: React.FormEvent) {
-    e.preventDefault();
-    if (!commentBody.trim() || commentSaving) return;
-    if (!user) {
-      openAuthModal("Create a free account to comment.");
-      return;
-    }
-    const body = commentBody.trim();
-    setCommentSaving(true);
+  async function handleCommentsChanged(delta: number) {
+    setCommentsCount((n) => Math.max(0, n + delta));
+    setComments(await fetchComments(post.id));
+  }
+
+  async function toggleSave() {
+    if (!user) return openAuthModal("Create a free account to save posts.");
+    const next = !saved;
+    setSavedOverride(next);
     try {
-      await addComment(post.id, user.id, body);
-      setCommentBody("");
-      setCommentsCount((n) => n + 1);
-      setComments(await fetchComments(post.id));
+      if (next) await savePost(post.id, user.id);
+      else await unsavePost(post.id, user.id);
+      await queryClient.invalidateQueries({ queryKey: ["saved-post-ids", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["saved-posts", user.id] });
+      setSavedOverride(null);
+      toast.success(next ? "Saved — find it under Saved on your profile" : "Removed from saved");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't post comment");
+      setSavedOverride(null);
+      toast.error(err instanceof Error ? err.message : "Couldn't update saved posts");
+    }
+  }
+
+  async function handleRepost(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user) return openAuthModal("Create a free account to repost.");
+    setReposting(true);
+    try {
+      await createRepost(user.id, repostTargetId, repostCaption);
+      setRepostOpen(false);
+      setRepostCaption("");
+      toast.success("Reposted to your followers");
+      afterRepostChange();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't repost");
     } finally {
-      setCommentSaving(false);
+      setReposting(false);
+    }
+  }
+
+  async function handleUndoRepost() {
+    if (!user) return;
+    if (!window.confirm("Remove your repost?")) return;
+    try {
+      await undoRepost(repostTargetId, user.id);
+      toast.success("Repost removed");
+      afterRepostChange();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't remove repost");
+    }
+  }
+
+  function afterRepostChange() {
+    for (const key of ["reposted-ids", "feed", "posts-by-user", "post"]) {
+      queryClient.invalidateQueries({ queryKey: [key] });
     }
   }
 
   async function handleShare() {
     const url = `${window.location.origin}/posts/${post.id}`;
+    // Phones get the native share sheet (WhatsApp, Instagram, Messages…).
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title: "RevMate", url });
+        return;
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+      }
+    }
     try {
       await navigator.clipboard.writeText(url);
       toast.success("Link copied");
@@ -376,7 +448,10 @@ export function PostCard({
                 />
               </div>
               <div>
-                <p className="text-sm font-medium">{post.posted_as_garage_car.nickname}</p>
+                <p className="flex items-center gap-1 text-sm font-medium">
+                  {post.posted_as_garage_car.nickname}
+                  <VerifiedBadge userId={post.user_id} />
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
                 </p>
@@ -390,8 +465,9 @@ export function PostCard({
             >
               <Avatar photoUrl={post.profiles?.avatar_url} fallback={post.profiles?.username} />
               <div>
-                <p className="text-sm font-medium">
+                <p className="flex items-center gap-1 text-sm font-medium">
                   {displayUsernameWithoutAt(post.profiles?.username)}
+                  <VerifiedBadge userId={post.user_id} />
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
@@ -410,13 +486,20 @@ export function PostCard({
               #{carRank}
             </Link>
           )}
-          <span
-            className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${isForSale ? "bg-blue-500 text-white" : isCarLike ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm" : "bg-accent text-accent-foreground"}`}
-          >
-            {isForSale && <Tag className="size-2.5" />}
-            {isCarLike && <Flame className="size-2.5" fill="currentColor" />}
-            {POST_CATEGORY_LABELS[post.category]}
-          </span>
+          {post.repost_of_id ? (
+            <span className="flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent-foreground">
+              <Repeat2 className="size-3" />
+              Repost
+            </span>
+          ) : (
+            <span
+              className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${isForSale ? "bg-blue-500 text-white" : isCarLike ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm" : "bg-accent text-accent-foreground"}`}
+            >
+              {isForSale && <Tag className="size-2.5" />}
+              {isCarLike && <Flame className="size-2.5" fill="currentColor" />}
+              {POST_CATEGORY_LABELS[post.category]}
+            </span>
+          )}
           {user?.id === post.user_id && (
             <button
               onClick={handleDelete}
@@ -472,7 +555,28 @@ export function PostCard({
         </Link>
       )}
 
-      <p className="mt-3 whitespace-pre-wrap text-sm">{post.body}</p>
+      {post.body && (
+        <p className="mt-3 whitespace-pre-wrap text-sm">
+          <RichText text={post.body} />
+        </p>
+      )}
+
+      {social && post.spotted_garage_car_id && (
+        <SpottedCarLink garageCarId={post.spotted_garage_car_id} />
+      )}
+
+      {post.repost_of_id && <RepostedPost postId={post.repost_of_id} />}
+
+      {postVideos.map((video) => (
+        <video
+          key={video.id}
+          src={video.image_url}
+          controls
+          playsInline
+          preload="metadata"
+          className={`mt-3 max-h-[70vh] w-full bg-black object-contain ${immersive ? "-mx-3 w-[calc(100%+1.5rem)] sm:mx-0 sm:w-full sm:rounded-md" : "rounded-md"}`}
+        />
+      ))}
 
       {postImages.length > 0 && (
         <div
@@ -510,6 +614,8 @@ export function PostCard({
           })}
         </div>
       )}
+
+      {social && post.has_poll && <PostPoll postId={post.id} />}
 
       {isForSale && post.listings && (
         <div
@@ -615,6 +721,33 @@ export function PostCard({
         >
           <Share2 className="size-4" />
         </button>
+        {canRepost && (
+          <button
+            onClick={() =>
+              !user
+                ? openAuthModal("Create a free account to repost.")
+                : reposted
+                  ? void handleUndoRepost()
+                  : setRepostOpen((open) => !open)
+            }
+            aria-label={reposted ? "Remove repost" : "Repost to your followers"}
+            title={reposted ? "Remove repost" : "Repost to your followers"}
+            className={`flex items-center gap-1.5 hover:text-foreground ${reposted ? "text-emerald-600 hover:text-emerald-600" : ""}`}
+          >
+            <Repeat2 className="size-4" />
+            {!post.repost_of_id && post.reposts_count > 0 ? post.reposts_count : null}
+          </button>
+        )}
+        {social && (
+          <button
+            onClick={toggleSave}
+            aria-label={saved ? "Remove from saved" : "Save post"}
+            title={saved ? "Remove from saved" : "Save post"}
+            className={`flex items-center hover:text-foreground ${saved ? "text-primary hover:text-primary" : ""}`}
+          >
+            <Bookmark className="size-4" fill={saved ? "currentColor" : "none"} />
+          </button>
+        )}
         {user?.id !== post.user_id && (
           <div className="ml-auto flex items-center gap-1">
             <button
@@ -643,6 +776,38 @@ export function PostCard({
           </div>
         )}
       </div>
+
+      {repostOpen && (
+        <form
+          onSubmit={handleRepost}
+          className="mt-3 space-y-2 rounded-md border border-border bg-muted/30 p-3"
+        >
+          <p className="text-sm font-semibold">Repost to your followers</p>
+          <textarea
+            value={repostCaption}
+            onChange={(e) => setRepostCaption(e.target.value)}
+            maxLength={500}
+            rows={2}
+            placeholder="Add your own caption (optional)"
+            className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setRepostOpen(false)}
+              className="rounded-md px-3 py-1.5 text-xs hover:bg-accent"
+            >
+              Cancel
+            </button>
+            <button
+              disabled={reposting}
+              className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+            >
+              {reposting ? "Reposting…" : "Repost"}
+            </button>
+          </div>
+        </form>
+      )}
 
       {reportOpen && (
         <form
@@ -691,40 +856,13 @@ export function PostCard({
       )}
 
       {commentsOpen && (
-        <div ref={commentsRef} className="mt-3 space-y-3 border-t border-border pt-3">
-          {commentsLoading && <p className="text-xs text-muted-foreground">Loading comments…</p>}
-          {comments?.map((comment) => (
-            <div key={comment.id} className="flex gap-2 text-sm">
-              <Avatar
-                photoUrl={comment.profiles?.avatar_url}
-                fallback={comment.profiles?.username}
-                className="size-7"
-              />
-              <div className="rounded-md bg-muted px-3 py-1.5">
-                <p className="text-xs font-medium">
-                  {displayUsernameWithoutAt(comment.profiles?.username)}
-                </p>
-                <p>{comment.body}</p>
-              </div>
-            </div>
-          ))}
-          <form onSubmit={handleAddComment} className="flex gap-2">
-            <input
-              value={commentBody}
-              onChange={(e) => setCommentBody(e.target.value)}
-              onFocus={() => !user && openAuthModal("Create a free account to comment.")}
-              placeholder="Write a comment…"
-              className="min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-            />
-            <button
-              type="submit"
-              disabled={commentSaving || !commentBody.trim()}
-              className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            >
-              Post
-            </button>
-          </form>
-        </div>
+        <PostComments
+          ref={commentsRef}
+          postId={post.id}
+          comments={comments}
+          loading={commentsLoading}
+          onChanged={handleCommentsChanged}
+        />
       )}
 
       {viewerIndex !== null && (

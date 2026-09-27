@@ -30,8 +30,11 @@ import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace/index'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace/$listingId'
+import { Route as MeetsIndexRouteImport } from './routes/meets/index'
+import { Route as MeetsMeetIdRouteImport } from './routes/meets/$meetId'
 import { Route as MessagesUsernameRouteImport } from './routes/messages.$username'
 import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
+import { Route as TagsTagRouteImport } from './routes/tags.$tag'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as CarsMakeModelGenerationRouteImport } from './routes/cars/$make.$model.$generation'
 import { Route as UUsernameCarsCarIdRouteImport } from './routes/u.$username_.cars.$carId'
@@ -141,6 +144,16 @@ const MarketplaceListingIdRoute = MarketplaceListingIdRouteImport.update({
   path: '/marketplace/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MeetsIndexRoute = MeetsIndexRouteImport.update({
+  id: '/meets/',
+  path: '/meets/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeetsMeetIdRoute = MeetsMeetIdRouteImport.update({
+  id: '/meets/$meetId',
+  path: '/meets/$meetId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MessagesUsernameRoute = MessagesUsernameRouteImport.update({
   id: '/$username',
   path: '/$username',
@@ -149,6 +162,11 @@ const MessagesUsernameRoute = MessagesUsernameRouteImport.update({
 const PostsPostIdRoute = PostsPostIdRouteImport.update({
   id: '/posts/$postId',
   path: '/posts/$postId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TagsTagRoute = TagsTagRouteImport.update({
+  id: '/tags/$tag',
+  path: '/tags/$tag',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UUsernameRoute = UUsernameRouteImport.update({
@@ -186,12 +204,15 @@ export interface FileRoutesByFullPath {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/meets/$meetId': typeof MeetsMeetIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
   '/cars/': typeof CarsIndexRoute
   '/groups/': typeof GroupsIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/meets/': typeof MeetsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
@@ -214,12 +235,15 @@ export interface FileRoutesByTo {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/meets/$meetId': typeof MeetsMeetIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
   '/cars': typeof CarsIndexRoute
   '/groups': typeof GroupsIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
+  '/meets': typeof MeetsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
@@ -243,12 +267,15 @@ export interface FileRoutesById {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/meets/$meetId': typeof MeetsMeetIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
   '/cars/': typeof CarsIndexRoute
   '/groups/': typeof GroupsIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
+  '/meets/': typeof MeetsIndexRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username_/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
@@ -273,12 +300,15 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/terms'
     | '/marketplace/$listingId'
+    | '/meets/$meetId'
     | '/messages/$username'
     | '/posts/$postId'
+    | '/tags/$tag'
     | '/u/$username'
     | '/cars/'
     | '/groups/'
     | '/marketplace/'
+    | '/meets/'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
   fileRoutesByTo: FileRoutesByTo
@@ -301,12 +331,15 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/terms'
     | '/marketplace/$listingId'
+    | '/meets/$meetId'
     | '/messages/$username'
     | '/posts/$postId'
+    | '/tags/$tag'
     | '/u/$username'
     | '/cars'
     | '/groups'
     | '/marketplace'
+    | '/meets'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
   id:
@@ -329,12 +362,15 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/terms'
     | '/marketplace/$listingId'
+    | '/meets/$meetId'
     | '/messages/$username'
     | '/posts/$postId'
+    | '/tags/$tag'
     | '/u/$username'
     | '/cars/'
     | '/groups/'
     | '/marketplace/'
+    | '/meets/'
     | '/cars/$make/$model/$generation'
     | '/u/$username_/cars/$carId'
   fileRoutesById: FileRoutesById
@@ -358,11 +394,14 @@ export interface RootRouteChildren {
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
+  MeetsMeetIdRoute: typeof MeetsMeetIdRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
+  TagsTagRoute: typeof TagsTagRoute
   UUsernameRoute: typeof UUsernameRoute
   CarsIndexRoute: typeof CarsIndexRoute
   GroupsIndexRoute: typeof GroupsIndexRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
+  MeetsIndexRoute: typeof MeetsIndexRoute
   CarsMakeModelGenerationRoute: typeof CarsMakeModelGenerationRoute
   UUsernameCarsCarIdRoute: typeof UUsernameCarsCarIdRoute
 }
@@ -516,6 +555,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/meets/': {
+      id: '/meets/'
+      path: '/meets'
+      fullPath: '/meets/'
+      preLoaderRoute: typeof MeetsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meets/$meetId': {
+      id: '/meets/$meetId'
+      path: '/meets/$meetId'
+      fullPath: '/meets/$meetId'
+      preLoaderRoute: typeof MeetsMeetIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/messages/$username': {
       id: '/messages/$username'
       path: '/$username'
@@ -528,6 +581,13 @@ declare module '@tanstack/react-router' {
       path: '/posts/$postId'
       fullPath: '/posts/$postId'
       preLoaderRoute: typeof PostsPostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tags/$tag': {
+      id: '/tags/$tag'
+      path: '/tags/$tag'
+      fullPath: '/tags/$tag'
+      preLoaderRoute: typeof TagsTagRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/u/$username': {
@@ -585,11 +645,14 @@ const rootRouteChildren: RootRouteChildren = {
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   MarketplaceListingIdRoute: MarketplaceListingIdRoute,
+  MeetsMeetIdRoute: MeetsMeetIdRoute,
   PostsPostIdRoute: PostsPostIdRoute,
+  TagsTagRoute: TagsTagRoute,
   UUsernameRoute: UUsernameRoute,
   CarsIndexRoute: CarsIndexRoute,
   GroupsIndexRoute: GroupsIndexRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,
+  MeetsIndexRoute: MeetsIndexRoute,
   CarsMakeModelGenerationRoute: CarsMakeModelGenerationRoute,
   UUsernameCarsCarIdRoute: UUsernameCarsCarIdRoute,
 }

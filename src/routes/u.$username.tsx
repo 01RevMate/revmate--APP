@@ -25,6 +25,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { GarageCarTile } from "@/components/GarageCarTile";
 import { PostCard } from "@/components/PostCard";
+import { RichText } from "@/components/RichText";
+import { useVerifiedProfiles, VerifiedBadge } from "@/components/VerifiedBadge";
+import { useSocialFeatures } from "@/lib/features";
+import { fetchSavedPosts, VERIFIED_LABELS } from "@/lib/social";
 import { SocialLinksDisplay, SocialLinksEditor } from "@/components/SocialLinks";
 import { AchievementBadges } from "@/components/AchievementBadges";
 import { SellerScoreBadge } from "@/components/SellerScoreBadge";
@@ -110,6 +114,24 @@ function GarageProfilePage() {
         posts!.map((p) => p.id),
       ),
     enabled: !!user && !!posts && posts.length > 0,
+  });
+
+  const social = useSocialFeatures();
+  const verifiedType = useVerifiedProfiles()?.get(profile?.user_id ?? "");
+  const [activityTab, setActivityTab] = useState<"posts" | "saved">("posts");
+  const { data: savedPosts } = useQuery({
+    queryKey: ["saved-posts", user?.id],
+    queryFn: () => fetchSavedPosts(user!.id),
+    enabled: isOwner && social && activityTab === "saved",
+  });
+  const { data: savedLikedIds } = useQuery({
+    queryKey: ["saved-posts", "liked", user?.id, savedPosts?.map((p) => p.id)],
+    queryFn: () =>
+      fetchMyLikedPostIds(
+        user!.id,
+        savedPosts!.map((p) => p.id),
+      ),
+    enabled: !!user && !!savedPosts && savedPosts.length > 0,
   });
 
   const { data: questions } = useQuery({
@@ -291,12 +313,18 @@ function GarageProfilePage() {
           )}
         </div>
 
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+        <h1 className="mt-2 flex items-center gap-1.5 text-2xl font-semibold tracking-tight">
           {displayUsername(profile.username)}
+          <VerifiedBadge userId={profile.user_id} className="size-5" />
         </h1>
-        <p className="text-sm text-muted-foreground">{PERSONA_LABELS[profile.persona]}</p>
+        <p className="text-sm text-muted-foreground">
+          {PERSONA_LABELS[profile.persona]}
+          {verifiedType && ` · ${VERIFIED_LABELS[verifiedType]}`}
+        </p>
         {profile.bio && (
-          <p className="mt-2 max-w-2xl whitespace-pre-wrap break-words text-sm">{profile.bio}</p>
+          <p className="mt-2 max-w-2xl whitespace-pre-wrap break-words text-sm">
+            <RichText text={profile.bio} />
+          </p>
         )}
 
         <div className="mt-3">
@@ -431,12 +459,41 @@ function GarageProfilePage() {
         )}
 
         <Section title="Activity">
-          <div className="space-y-4">
-            {posts?.map((post) => (
-              <PostCard key={post.id} post={post} liked={likedPostIds?.has(post.id) ?? false} />
-            ))}
-            {posts?.length === 0 && <p className="text-sm text-muted-foreground">No posts yet.</p>}
-          </div>
+          {isOwner && social && (
+            <div className="mb-4 inline-flex rounded-full border border-border p-0.5 text-sm">
+              {(["posts", "saved"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setActivityTab(tab)}
+                  className={`rounded-full px-4 py-1 font-medium transition-colors ${activityTab === tab ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  {tab === "posts" ? "Posts" : "Saved"}
+                </button>
+              ))}
+            </div>
+          )}
+          {activityTab === "saved" && isOwner && social ? (
+            <div className="space-y-4">
+              {savedPosts?.map((post) => (
+                <PostCard key={post.id} post={post} liked={savedLikedIds?.has(post.id) ?? false} />
+              ))}
+              {savedPosts?.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Nothing saved yet. Tap the bookmark on any post to keep it here.
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {posts?.map((post) => (
+                <PostCard key={post.id} post={post} liked={likedPostIds?.has(post.id) ?? false} />
+              ))}
+              {posts?.length === 0 && (
+                <p className="text-sm text-muted-foreground">No posts yet.</p>
+              )}
+            </div>
+          )}
         </Section>
 
         <Section title="Questions asked">

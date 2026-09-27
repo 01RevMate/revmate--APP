@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
+  BarChart3,
+  Eye,
   Gauge,
   ImagePlus,
   MessagesSquare,
@@ -8,6 +10,7 @@ import {
   Sparkles,
   Stethoscope,
   UserRoundCheck,
+  Video,
   Wrench,
   X,
 } from "lucide-react";
@@ -25,6 +28,21 @@ import {
   type Post,
 } from "@/lib/posts";
 import { validateImageFile } from "@/lib/uploads";
+import { useSocialFeatures } from "@/lib/features";
+import {
+  createPollOptions,
+  MAX_POLL_OPTIONS,
+  searchGarageCarsForSpotting,
+  uploadPostVideo,
+  validateVideoFile,
+} from "@/lib/social";
+import { displayUsernameWithoutAt } from "@/lib/usernames";
+import {
+  activeMentionQuery,
+  insertMention,
+  MentionSuggestions,
+} from "@/components/MentionSuggestions";
+import { useQuery } from "@tanstack/react-query";
 import { CarPicker } from "@/components/CarPicker";
 import { CarLogo } from "@/components/CarLogo";
 import {
@@ -47,6 +65,7 @@ const CATEGORY_DETAILS = {
   bodywork: { icon: Paintbrush, description: "Paint, dents and body repairs" },
   maintenance: { icon: Gauge, description: "Servicing, upkeep and how-tos" },
   showcase: { icon: Sparkles, description: "Show everyone your car or build" },
+  spotted: { icon: Eye, description: "A great car you saw out and about" },
 } satisfies Record<ComposerCategory, { icon: typeof MessagesSquare; description: string }>;
 
 export function PostComposer({
@@ -78,6 +97,23 @@ export function PostComposer({
   const [images, setImages] = useState<{ file: File; previewUrl: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const social = useSocialFeatures();
+  const [video, setVideo] = useState<{ file: File; previewUrl: string } | null>(null);
+  const [pollOptions, setPollOptions] = useState<string[] | null>(null);
+  const [spotting, setSpotting] = useState(false);
+  const [spotSearch, setSpotSearch] = useState("");
+  const [spottedCar, setSpottedCar] = useState<{ id: string; label: string } | null>(null);
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  // Videos go to the public bucket, so they're only offered on public posts.
+  const canAddVideo = social && !lockedGroup && audience === "public";
+  const { data: spotResults } = useQuery({
+    queryKey: ["spot-search", spotSearch],
+    queryFn: () => searchGarageCarsForSpotting(spotSearch),
+    enabled: spotting && spotSearch.trim().length >= 2,
+    staleTime: 30_000,
+  });
 
   useEffect(() => {
     if (!requiredCarIdentity) return;
@@ -136,12 +172,50 @@ export function PostComposer({
     });
   }
 
+  function handleVideoSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const problem = validateVideoFile(file);
+    if (problem) {
+      toast.error(problem);
+      return;
+    }
+    if (video) URL.revokeObjectURL(video.previewUrl);
+    setVideo({ file, previewUrl: URL.createObjectURL(file) });
+  }
+
+  function handleBodyChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setBody(e.target.value);
+    setMentionQuery(activeMentionQuery(e.target.value, e.target.selectionStart));
+  }
+
+  function pickMention(handle: string) {
+    const caret = textareaRef.current?.selectionStart ?? body.length;
+    const next = insertMention(body, caret, handle);
+    setBody(next.text);
+    setMentionQuery(null);
+    requestAnimationFrame(() => {
+      textareaRef.current?.focus();
+      textareaRef.current?.setSelectionRange(next.caret, next.caret);
+    });
+  }
+
+  const pollReady = !pollOptions || pollOptions.filter((option) => option.trim()).length >= 2;
+
   function resetForm() {
     images.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+    if (video) URL.revokeObjectURL(video.previewUrl);
     setBody("");
     setCarId("");
     setTagging(false);
     setImages([]);
+    setVideo(null);
+    setPollOptions(null);
+    setSpotting(false);
+    setSpotSearch("");
+    setSpottedCar(null);
+    setMentionQuery(null);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -153,6 +227,15 @@ export function PostComposer({
     }
     if (requiredCarIdentity && !postingAs) {
       toast.error("Choose one of your cars before posting here.");
+      return;
+    }
+    if (!pollReady) {
+      toast.error("Give your poll at least two options.");
+      return;
+    }
+    // A linked spotted car already says what kind of post this is.
+    if (spottedCar) {
+      void publishPost("spotted");
       return;
     }
     setCategoryOpen(true);
@@ -171,8 +254,9 @@ export function PostComposer({
         category,
         groupId: lockedGroup?.id,
         audience,
+        spottedGarageCarId: category === "spotted" ? spottedCar?.id : undefined,
       });
-      if (images.length > 0) {
+      if (images.length > 0 || video || pollOptions) {
         try {
           const urls = await Promise.all(
             images.map((img) =>
@@ -181,7 +265,14 @@ export function PostComposer({
                 : uploadPostImage(user.id, img.file),
             ),
           );
-          await attachImagesToPost(postId, urls);
+          if (video && canAddVideo) urls.unshift(await uploadPostVideo(user.id, video.file));
+          if (urls.length > 0) await attachImagesToPost(postId, urls);
+          if (pollOptions) {
+            await createPollOptions(
+              postId,
+              pollOptions.map((label) => ({ label })),
+            );
+          }
         } catch (error) {
           // Remove the incomplete post so retrying cannot publish duplicates.
           await deletePost(postId);
@@ -221,14 +312,21 @@ export function PostComposer({
         </div>
       )}
       <textarea
+        ref={textareaRef}
         value={body}
-        onChange={(e) => setBody(e.target.value)}
+        onChange={handleBodyChange}
+        onBlur={() => setMentionQuery(null)}
         onFocus={() => !user && openAuthModal("Create a free account to post to the feed.")}
-        placeholder="What are you working on?"
+        placeholder={
+          pollOptions
+            ? "Ask your question…"
+            : "What are you working on? Use @ to mention and # to tag"
+        }
         maxLength={10000}
         rows={3}
         className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
       />
+      <MentionSuggestions query={mentionQuery} onPick={pickMention} />
       {requiredCarIdentity && (
         <div className="rounded-md border border-primary/25 bg-primary/5 p-3">
           <p className="text-sm font-semibold">Which car are you posting as?</p>
@@ -266,6 +364,139 @@ export function PostComposer({
       )}
       {tagging && !requiredCarIdentity && (
         <CarPicker value={carId} onChange={setCarId} id="composer-car" />
+      )}
+
+      {video && (
+        <div className="relative overflow-hidden rounded-md bg-black">
+          <video
+            src={video.previewUrl}
+            controls
+            playsInline
+            className="max-h-64 w-full object-contain"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              URL.revokeObjectURL(video.previewUrl);
+              setVideo(null);
+            }}
+            aria-label="Remove video"
+            title="Remove video"
+            className="absolute right-1.5 top-1.5 flex size-8 items-center justify-center rounded-full border border-white/70 bg-black/75 text-white shadow-md backdrop-blur hover:bg-destructive"
+          >
+            <X className="size-4" strokeWidth={3} />
+          </button>
+        </div>
+      )}
+
+      {pollOptions && (
+        <div className="space-y-2 rounded-md border border-border p-3">
+          <p className="text-xs font-semibold text-muted-foreground">Poll options</p>
+          {pollOptions.map((option, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <input
+                value={option}
+                onChange={(e) =>
+                  setPollOptions((prev) =>
+                    prev ? prev.map((o, i) => (i === index ? e.target.value : o)) : prev,
+                  )
+                }
+                maxLength={80}
+                placeholder={`Option ${index + 1}`}
+                className="min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+              />
+              {pollOptions.length > 2 && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPollOptions((prev) => (prev ? prev.filter((_, i) => i !== index) : prev))
+                  }
+                  aria-label={`Remove option ${index + 1}`}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
+            </div>
+          ))}
+          <div className="flex items-center justify-between">
+            {pollOptions.length < MAX_POLL_OPTIONS ? (
+              <button
+                type="button"
+                onClick={() => setPollOptions((prev) => (prev ? [...prev, ""] : prev))}
+                className="text-xs font-medium text-primary"
+              >
+                + Add option
+              </button>
+            ) : (
+              <span />
+            )}
+            <button
+              type="button"
+              onClick={() => setPollOptions(null)}
+              className="text-xs text-muted-foreground hover:text-destructive"
+            >
+              Remove poll
+            </button>
+          </div>
+        </div>
+      )}
+
+      {spotting && (
+        <div className="space-y-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-3">
+          <p className="text-xs font-semibold">Spotted a car? Link the owner's car (optional)</p>
+          {spottedCar ? (
+            <div className="flex items-center justify-between gap-2 text-sm">
+              <span className="font-medium">{spottedCar.label}</span>
+              <button
+                type="button"
+                onClick={() => setSpottedCar(null)}
+                className="text-xs text-muted-foreground hover:text-destructive"
+              >
+                Change
+              </button>
+            </div>
+          ) : (
+            <>
+              <input
+                value={spotSearch}
+                onChange={(e) => setSpotSearch(e.target.value)}
+                placeholder="Search by car name, make or model"
+                className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+              />
+              {spotResults && spotResults.length > 0 && (
+                <ul className="max-h-48 overflow-y-auto rounded-md border border-border bg-background">
+                  {spotResults.map((car) => (
+                    <li key={car.id}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSpottedCar({
+                            id: car.id,
+                            label: `${displayUsernameWithoutAt(car.profiles?.username)}'s ${car.nickname} (${car.make} ${car.model})`,
+                          })
+                        }
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent"
+                      >
+                        <CarLogo make={car.make} className="size-4" />
+                        <span>
+                          {car.nickname}{" "}
+                          <span className="text-muted-foreground">
+                            · {car.make} {car.model} ·{" "}
+                            {displayUsernameWithoutAt(car.profiles?.username)}
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          )}
+          <p className="text-[11px] text-muted-foreground">
+            The owner gets a notification and your post links to their garage.
+          </p>
+        </div>
       )}
 
       {images.length > 0 && (
@@ -325,9 +556,64 @@ export function PostComposer({
         >
           <ImagePlus className="size-4" />
         </button>
+        {canAddVideo && (
+          <>
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/mp4,video/quicktime,video/webm"
+              className="hidden"
+              onChange={handleVideoSelected}
+            />
+            <button
+              type="button"
+              onClick={() =>
+                user
+                  ? videoInputRef.current?.click()
+                  : openAuthModal("Create a free account to post to the feed.")
+              }
+              disabled={!!video}
+              title="Add a video (up to 50MB)"
+              aria-label="Add a video"
+              className="text-muted-foreground hover:text-foreground disabled:opacity-40"
+            >
+              <Video className="size-4" />
+            </button>
+          </>
+        )}
+        {social && (
+          <button
+            type="button"
+            onClick={() =>
+              user
+                ? setPollOptions((prev) => (prev ? null : ["", ""]))
+                : openAuthModal("Create a free account to post to the feed.")
+            }
+            title="Add a poll"
+            aria-label="Add a poll"
+            className={`hover:text-foreground ${pollOptions ? "text-primary" : "text-muted-foreground"}`}
+          >
+            <BarChart3 className="size-4" />
+          </button>
+        )}
+        {social && !lockedGroup && audience === "public" && (
+          <button
+            type="button"
+            onClick={() =>
+              user
+                ? setSpotting((v) => !v)
+                : openAuthModal("Create a free account to post to the feed.")
+            }
+            title="Spotted a car"
+            aria-label="Spotted a car"
+            className={`hover:text-foreground ${spotting ? "text-amber-600" : "text-muted-foreground"}`}
+          >
+            <Eye className="size-4" />
+          </button>
+        )}
         <button
           type="submit"
-          disabled={saving || !body.trim() || (requiredCarIdentity && !postingAs)}
+          disabled={saving || !body.trim() || !pollReady || (requiredCarIdentity && !postingAs)}
           className="ml-auto rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {saving ? "Posting…" : "Post"}
@@ -347,10 +633,9 @@ export function PostComposer({
           </DialogHeader>
           <div className="grid gap-2">
             {(
-              Object.entries(POST_CATEGORY_LABELS).filter(([id]) => id !== "for_sale") as [
-                ComposerCategory,
-                string,
-              ][]
+              Object.entries(POST_CATEGORY_LABELS).filter(
+                ([id]) => id !== "for_sale" && (social || id !== "spotted"),
+              ) as [ComposerCategory, string][]
             ).map(([value, label]) => {
               const Icon = CATEGORY_DETAILS[value].icon;
               const isPublishing = saving && publishingCategory === value;

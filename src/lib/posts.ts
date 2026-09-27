@@ -41,6 +41,7 @@ export const POST_CATEGORY_LABELS: Record<Post["category"], string> = {
   maintenance: "Maintenance",
   showcase: "Build Showcase",
   for_sale: "For Sale",
+  spotted: "Spotted",
 };
 
 export const POST_SELECT =
@@ -117,6 +118,7 @@ export async function createPost(input: {
   groupId?: string | undefined;
   audience?: Post["audience"] | undefined;
   listingId?: string | undefined;
+  spottedGarageCarId?: string | undefined;
 }) {
   // Generate the id client-side and skip RETURNING: the visibility policy
   // can't see a brand-new row inside the insert, which made some posts fail.
@@ -131,6 +133,8 @@ export async function createPost(input: {
     category: input.category || "discussion",
     audience: input.groupId ? "public" : (input.audience ?? "public"),
     listing_id: input.listingId || null,
+    // Only sent when used, so posting still works before the spotted SQL runs.
+    ...(input.spottedGarageCarId ? { spotted_garage_car_id: input.spottedGarageCarId } : {}),
   });
   if (error) throw error;
   return id;

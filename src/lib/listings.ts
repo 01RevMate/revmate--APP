@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { isMissingEndReasonColumn } from "@/lib/garage";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type Listing = Tables<"listings">;
@@ -178,11 +179,18 @@ export async function endListing(input: {
   if (postError) warnings.push("Its linked feed post could not be removed yet.");
 
   if (input.garageCarId && (input.reason === "sold_revmate" || input.reason === "sold_elsewhere")) {
-    const { error: garageError } = await supabase
+    let { error: garageError } = await supabase
       .from("garage_cars")
       .update({ ownership_status: "previous", ownership_end_reason: "sold" })
       .eq("id", input.garageCarId)
       .eq("user_id", input.userId);
+    if (garageError && isMissingEndReasonColumn(garageError)) {
+      ({ error: garageError } = await supabase
+        .from("garage_cars")
+        .update({ ownership_status: "previous" })
+        .eq("id", input.garageCarId)
+        .eq("user_id", input.userId));
+    }
     if (garageError) warnings.push("The car could not be moved to previously owned yet.");
   }
 

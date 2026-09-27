@@ -183,7 +183,21 @@ export async function setGarageCarOwnershipStatus(
       ownership_end_reason: status === "previous" ? endReason : null,
     })
     .eq("id", id);
+  if (error && isMissingEndReasonColumn(error)) {
+    // The reason column's SQL (0030) hasn't been run yet — still move the car.
+    const { error: retryError } = await supabase
+      .from("garage_cars")
+      .update({ ownership_status: status })
+      .eq("id", id);
+    if (retryError) throw retryError;
+    return;
+  }
   if (error) throw error;
+}
+
+/** PostgREST's "column not in schema cache" error for ownership_end_reason. */
+export function isMissingEndReasonColumn(error: { code?: string; message?: string }) {
+  return error.code === "PGRST204" || !!error.message?.includes("ownership_end_reason");
 }
 
 export async function fetchMods(garageCarId: string): Promise<GarageMod[]> {

@@ -2,13 +2,19 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import {
+  AtSign,
   Bell,
+  CalendarClock,
+  CalendarDays,
   Car,
   CheckCircle2,
+  Eye,
   Heart,
   HelpCircle,
   Megaphone,
   MessageCircle,
+  Repeat2,
+  Reply,
   ShieldCheck,
   UserPlus,
   Users,
@@ -19,6 +25,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
+import { useSocialFeatures } from "@/lib/features";
 import type { Tables } from "@/integrations/supabase/types";
 
 type NotificationWithContext = Tables<"notifications"> & {
@@ -65,6 +72,26 @@ function notificationDetails(notification: NotificationWithContext) {
       };
     case "app_update":
       return { Icon: Megaphone, text: notification.message ?? "There is a new RevMate update" };
+    case "mention":
+      return { Icon: AtSign, text: `${actor} mentioned you` };
+    case "comment_reply":
+      return { Icon: Reply, text: `${actor} replied to your comment` };
+    case "comment_like":
+      return { Icon: Heart, text: `${actor} liked your comment` };
+    case "repost":
+      return { Icon: Repeat2, text: `${actor} reposted your post` };
+    case "spotted":
+      return { Icon: Eye, text: `${actor} spotted your car` };
+    case "meet_rsvp":
+      return {
+        Icon: CalendarDays,
+        text: `${actor} ${notification.message ?? "is going to your meet"}`,
+      };
+    case "meet_reminder":
+      return {
+        Icon: CalendarClock,
+        text: notification.message ?? "A meet you're going to is coming up soon",
+      };
     default:
       return { Icon: Bell, text: "You have a new RevMate notification" };
   }
@@ -96,6 +123,13 @@ export function NotificationCenter() {
       return data;
     },
   });
+  // Meet reminders have no scheduler: whoever opens the app first nudges the
+  // database to send any that are due (it only ever sends each one once).
+  const social = useSocialFeatures();
+  useEffect(() => {
+    if (!user || !social) return;
+    void supabase.rpc("send_due_meet_reminders");
+  }, [user, social]);
   useEffect(() => {
     if (!user) return;
     const channel = supabase

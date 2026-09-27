@@ -11,7 +11,9 @@ import {
   Settings,
   ShieldCheck,
   Trophy,
+  CalendarDays,
 } from "lucide-react";
+import { useSocialFeatures } from "@/lib/features";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
@@ -62,6 +64,7 @@ function MenuLink({
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
   const { isAdmin } = useProfile();
+  const social = useSocialFeatures();
 
   function close() {
     setOpen(false);
@@ -86,6 +89,9 @@ export function MobileMenu() {
           <MenuLink to="/cars" icon={Car} label="Browse Cars" onNavigate={close} />
           <MenuLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" onNavigate={close} />
           <MenuLink to="/leaderboard" icon={Trophy} label="Leaderboard" onNavigate={close} />
+          {social && (
+            <MenuLink to="/meets" icon={CalendarDays} label="Meets & Events" onNavigate={close} />
+          )}
           <MenuLink to="/groups" icon={Users} label="Groups" requireAuth onNavigate={close} />
           <MenuLink to="/ask" icon={MessageCircle} label="Ask for help" onNavigate={close} />
           <MenuLink

@@ -9,6 +9,8 @@ import { updateProfile } from "@/lib/profiles";
 import { carLabel, carPath, type Car } from "@/lib/cars";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
+import { PushNotificationToggle } from "@/components/PushNotificationToggle";
+import { usePushFeature } from "@/lib/features";
 import { fetchBlockedProfiles, unblockProfile } from "@/lib/moderation";
 import { displayUsernameWithoutAt, normalizeUsername } from "@/lib/usernames";
 
@@ -40,6 +42,7 @@ function SettingsPage() {
   const [savingUsername, setSavingUsername] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
+  const pushAvailable = usePushFeature();
 
   useEffect(() => {
     if (profile) setUsername(profile.username);
@@ -147,6 +150,12 @@ function SettingsPage() {
         >
           View my public profile
         </Link>
+      )}
+
+      {pushAvailable && (
+        <Section title="Phone notifications">
+          <PushNotificationToggle userId={user.id} />
+        </Section>
       )}
 
       <Section title="Username">

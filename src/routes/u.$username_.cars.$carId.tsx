@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -5,6 +6,7 @@ import { fetchGarageCar } from "@/lib/garage";
 import { fetchMyLikedPostIds, fetchPostsByGarageCar } from "@/lib/posts";
 import { GarageCarCard } from "@/components/GarageCarCard";
 import { PostCard } from "@/components/PostCard";
+import { BuildTimeline } from "@/components/BuildTimeline";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
 export const Route = createFileRoute("/u/$username_/cars/$carId")({
@@ -30,6 +32,7 @@ function CarProfilePage() {
   const { username, carId } = Route.useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [view, setView] = useState<"posts" | "timeline">("posts");
 
   const { data: car, isLoading } = useQuery({
     queryKey: ["garage-car", carId],
@@ -73,7 +76,7 @@ function CarProfilePage() {
         params={{ username }}
         className="text-sm text-muted-foreground hover:text-foreground"
       >
-         ← Back to {displayUsernameWithoutAt(username)}'s garage
+        ← Back to {displayUsernameWithoutAt(username)}'s garage
       </Link>
 
       <div className="mt-4">
@@ -85,15 +88,30 @@ function CarProfilePage() {
       </div>
 
       <section className="mt-8 border-t border-border pt-6">
-        <h2 className="mb-3 text-lg font-semibold">Posts as {car.nickname}</h2>
-        <div className="space-y-4">
-          {posts?.map((post) => (
-            <PostCard key={post.id} post={post} liked={likedIds?.has(post.id) ?? false} />
+        <div className="mb-4 inline-flex rounded-full border border-border p-0.5 text-sm">
+          {(["posts", "timeline"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setView(value)}
+              className={`rounded-full px-4 py-1 font-medium transition-colors ${view === value ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              {value === "posts" ? `Posts as ${car.nickname}` : "Build timeline"}
+            </button>
           ))}
-          {posts?.length === 0 && (
-            <p className="text-sm text-muted-foreground">No posts made as {car.nickname} yet.</p>
-          )}
         </div>
+        {view === "timeline" ? (
+          <BuildTimeline car={car} posts={posts ?? []} />
+        ) : (
+          <div className="space-y-4">
+            {posts?.map((post) => (
+              <PostCard key={post.id} post={post} liked={likedIds?.has(post.id) ?? false} />
+            ))}
+            {posts?.length === 0 && (
+              <p className="text-sm text-muted-foreground">No posts made as {car.nickname} yet.</p>
+            )}
+          </div>
+        )}
       </section>
     </div>
   );

@@ -12,7 +12,9 @@ import {
   Settings,
   MessageCircle,
   Trophy,
+  CalendarDays,
 } from "lucide-react";
+import { useSocialFeatures } from "@/lib/features";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
@@ -74,6 +76,7 @@ function NavLink({
 
 export function Sidebar() {
   const { isAdmin } = useProfile();
+  const social = useSocialFeatures();
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -107,6 +110,9 @@ export function Sidebar() {
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
         <NavLink to="/leaderboard" icon={Trophy} label="Leaderboard" collapsed={collapsed} />
+        {social && (
+          <NavLink to="/meets" icon={CalendarDays} label="Meets & Events" collapsed={collapsed} />
+        )}
         <NavLink to="/groups" icon={Users} label="Groups" collapsed={collapsed} requireAuth />
         <NavLink to="/ask" icon={MessageCircle} label="Ask for help" collapsed={collapsed} />
         <NavLink
