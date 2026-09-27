@@ -119,6 +119,7 @@ export async function createPost(input: {
   audience?: Post["audience"] | undefined;
   listingId?: string | undefined;
   spottedGarageCarId?: string | undefined;
+  location?: { lat: number; lng: number } | undefined;
 }) {
   // Generate the id client-side and skip RETURNING: the visibility policy
   // can't see a brand-new row inside the insert, which made some posts fail.
@@ -135,6 +136,7 @@ export async function createPost(input: {
     listing_id: input.listingId || null,
     // Only sent when used, so posting still works before the spotted SQL runs.
     ...(input.spottedGarageCarId ? { spotted_garage_car_id: input.spottedGarageCarId } : {}),
+    ...(input.location ? { latitude: input.location.lat, longitude: input.location.lng } : {}),
   });
   if (error) throw error;
   return id;

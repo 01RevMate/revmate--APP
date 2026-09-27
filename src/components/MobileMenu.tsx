@@ -12,8 +12,11 @@ import {
   ShieldCheck,
   Trophy,
   CalendarDays,
+  Swords,
+  Clapperboard,
+  MapPin,
 } from "lucide-react";
-import { useSocialFeatures } from "@/lib/features";
+import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
@@ -65,6 +68,7 @@ export function MobileMenu() {
   const [open, setOpen] = useState(false);
   const { isAdmin } = useProfile();
   const social = useSocialFeatures();
+  const engagement = useEngagementFeatures();
 
   function close() {
     setOpen(false);
@@ -89,6 +93,13 @@ export function MobileMenu() {
           <MenuLink to="/cars" icon={Car} label="Browse Cars" onNavigate={close} />
           <MenuLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" onNavigate={close} />
           <MenuLink to="/leaderboard" icon={Trophy} label="Leaderboard" onNavigate={close} />
+          {engagement && (
+            <>
+              <MenuLink to="/battles" icon={Swords} label="Car Battles" onNavigate={close} />
+              <MenuLink to="/revs" icon={Clapperboard} label="Revs" onNavigate={close} />
+              <MenuLink to="/near-you" icon={MapPin} label="Near you" onNavigate={close} />
+            </>
+          )}
           {social && (
             <MenuLink to="/meets" icon={CalendarDays} label="Meets & Events" onNavigate={close} />
           )}

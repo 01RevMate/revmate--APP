@@ -5,6 +5,11 @@ import { Car } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { fetchFeed, fetchMyLikedPostIds, type PostWithAuthor } from "@/lib/posts";
+import { fetchForYouFeed } from "@/lib/engagement";
+import { useEngagementFeatures } from "@/lib/features";
+import { StoriesRow } from "@/components/Stories";
+import { FeedHighlights } from "@/components/FeedHighlights";
+import { NewPostsPill } from "@/components/NewPostsPill";
 import { fetchGarage } from "@/lib/garage";
 import { fetchFollowing } from "@/lib/follows";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -53,7 +58,17 @@ function Home() {
   const { user } = useAuth();
   const { data: profile } = useProfile();
   const queryClient = useQueryClient();
+  const engagement = useEngagementFeatures();
   const [scope, setScope] = useState<FeedScope>("all");
+  // Once the personalised feed exists, start people on it (once per visit).
+  const [scopeTouched, setScopeTouched] = useState(false);
+  useEffect(() => {
+    if (engagement && !scopeTouched) setScope("for_you");
+  }, [engagement, scopeTouched]);
+  function changeScope(next: FeedScope) {
+    setScopeTouched(true);
+    setScope(next);
+  }
   const [category, setCategory] = useState<CategoryFilter>("all");
   // A car chosen in the composer also focuses My Car/Same Brand on that car.
   // Until then, the feed can show matches for every current car in the garage.
@@ -94,7 +109,10 @@ function Home() {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ["feed", user?.id, scope, category, filterCarId],
-    queryFn: ({ pageParam }) => fetchFeed(scope, filterCarId, category, pageParam),
+    queryFn: ({ pageParam }) =>
+      scope === "for_you"
+        ? fetchForYouFeed(category, pageParam)
+        : fetchFeed(scope, filterCarId, category, pageParam),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length === 30 ? allPages.length * 30 : undefined,
@@ -114,6 +132,16 @@ function Home() {
     enabled: !!user && filteredPosts.length > 0,
   });
 
+  // The For You feed is ranked, so the newest post isn't necessarily first.
+  const newestCreatedAt = useMemo(
+    () =>
+      filteredPosts.reduce<string | null>(
+        (newest, post) => (!newest || post.created_at > newest ? post.created_at : newest),
+        null,
+      ),
+    [filteredPosts],
+  );
+
   function refreshFeed() {
     return queryClient.invalidateQueries({ queryKey: ["feed"] });
   }
@@ -125,13 +153,16 @@ function Home() {
         <PullToRefresh onRefresh={refreshFeed}>
           <div className="mx-auto max-w-2xl py-4 sm:px-4 sm:py-6">
             <div className="space-y-4 px-3 sm:px-0">
+              {engagement && <StoriesRow />}
               <FeedScopeBar
                 scope={scope}
-                onScopeChange={setScope}
+                onScopeChange={changeScope}
                 hasGarageCars={hasGarageCars}
                 isAuthenticated={!!user}
+                showForYou={engagement}
               />
               <CategoryFilterBar category={category} onCategoryChange={setCategory} />
+              {engagement && <FeedHighlights />}
 
               {scope === "my_groups" ? (
                 <Link
@@ -182,6 +213,14 @@ function Home() {
               )}
             </div>
 
+            <NewPostsPill
+              newestCreatedAt={newestCreatedAt}
+              enabled={scope === "all" || scope === "for_you" || scope === "popular"}
+              onShow={() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                void refreshFeed();
+              }}
+            />
             <div className="mt-4 space-y-1 bg-muted/60 sm:space-y-4 sm:bg-transparent">
               {isLoading &&
                 Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} immersive />)}

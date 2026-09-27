@@ -8,7 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { MeetsComingSoon } from "@/components/MeetsComingSoon";
-import { useSocialFeaturesStatus } from "@/lib/features";
+import { useEngagementFeatures, useSocialFeaturesStatus } from "@/lib/features";
+import { geocodeAddress, setMeetLocation } from "@/lib/engagement";
 import {
   createMeet,
   fetchMyMeets,
@@ -198,6 +199,7 @@ function CreateMeetForm({ userId, onDone }: { userId: string; onDone: () => void
   const [address, setAddress] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
   const [saving, setSaving] = useState(false);
+  const engagement = useEngagementFeatures();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -232,6 +234,12 @@ function CreateMeetForm({ userId, onDone }: { userId: string; onDone: () => void
         address: address || null,
         coverUrl: coverUrl || null,
       });
+      // Put the meet on the Near you map (best effort — a failed lookup just
+      // leaves it off the map).
+      if (engagement) {
+        const spot = await geocodeAddress([locationName, address].filter(Boolean).join(", "));
+        if (spot) await setMeetLocation(id, spot.lat, spot.lng).catch(() => {});
+      }
       toast.success("Meet posted");
       queryClient.invalidateQueries({ queryKey: ["meets"] });
       onDone();

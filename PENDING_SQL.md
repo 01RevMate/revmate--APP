@@ -52,9 +52,23 @@ ALTER TABLE public.garage_cars
   the first line (`ALTER TYPE … ADD VALUE 'spotted'`) on its own first,
   then the rest of the file."*
 
-### 3. Phone push notifications (optional, needs a few setup steps)
+### 3. Engagement pack
 
-- File: `drizzle/migrations/0032_push_notifications.sql` — run after item 2.
+- File: `drizzle/migrations/0033_engagement.sql` (`sql-to-run/03_engagement.sql`)
+  — run the whole file after item 2.
+- Added: 2026-09-27
+- Switches on: the For You feed and first-run onboarding (pick makes, people
+  to follow), Car Battles and Car of the Week, weekly recap and rank-up
+  alerts, daily streaks and levels, Revs (full-screen video feed), Stories
+  ("Pit Stops"), weekly challenges (run from Admin → Challenges), Near you,
+  🔥 😍 🤯 😂 reactions, and notification settings (quiet hours, mute types).
+- Safe: only adds tables, columns, functions and rules; existing likes are
+  copied into the new reaction counts. Tested against a copy of the full
+  database schema (44 behaviour checks).
+
+### 4. Phone push notifications (optional, needs a few setup steps)
+
+- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/04_push_notifications.sql`) — run after item 2.
 - Added: 2026-09-27
 - Needed by: the "Phone notifications" switch in Settings. Until this runs
   (and the steps below are done) the switch doesn't appear and everything
@@ -69,8 +83,8 @@ ALTER TABLE public.garage_cars
      - `VAPID_SUBJECT` — `mailto:` followed by your email
      - `PUSH_WEBHOOK_SECRET` — any long random password you make up
   4. Deploy the edge function `supabase/functions/send-push`.
-  5. Tell the database where the function is (SQL editor), using your own
-     project URL and the same random password as step 3:
+  5. Tell the database where the function is — `sql-to-run/05_push_setup_after_keys.sql`,
+     with the same random password as step 3:
      ```sql
      SELECT vault.create_secret('https://<project-ref>.supabase.co/functions/v1/send-push', 'push_function_url');
      SELECT vault.create_secret('<the PUSH_WEBHOOK_SECRET value>', 'push_webhook_secret');

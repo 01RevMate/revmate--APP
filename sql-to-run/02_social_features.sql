@@ -1,4 +1,4 @@
--- STEP 2 of 3 — Social features pack (meets, comment replies & likes,
+-- STEP 2 — Social features pack (meets, comment replies & likes,
 -- mentions, video, saved posts, reposts, polls, spotted, verified badges)
 -- Copy of drizzle/migrations/0031_social_features.sql
 -- Run the WHOLE file, once. Run step 1 first.

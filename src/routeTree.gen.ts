@@ -13,13 +13,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AskRouteImport } from './routes/ask'
+import { Route as BattlesRouteImport } from './routes/battles'
 import { Route as CommunityStandardsRouteImport } from './routes/community-standards'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as GarageRouteImport } from './routes/garage'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as NearYouRouteImport } from './routes/near-you'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as RevsRouteImport } from './routes/revs'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
@@ -61,6 +64,11 @@ const AskRoute = AskRouteImport.update({
   path: '/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BattlesRoute = BattlesRouteImport.update({
+  id: '/battles',
+  path: '/battles',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CommunityStandardsRoute = CommunityStandardsRouteImport.update({
   id: '/community-standards',
   path: '/community-standards',
@@ -91,9 +99,19 @@ const MessagesRoute = MessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NearYouRoute = NearYouRouteImport.update({
+  id: '/near-you',
+  path: '/near-you',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RevsRoute = RevsRouteImport.update({
+  id: '/revs',
+  path: '/revs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellRoute = SellRouteImport.update({
@@ -202,13 +220,16 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/analytics': typeof AnalyticsRoute
   '/ask': typeof AskRoute
+  '/battles': typeof BattlesRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/near-you': typeof NearYouRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/revs': typeof RevsRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
@@ -235,13 +256,16 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/analytics': typeof AnalyticsRoute
   '/ask': typeof AskRoute
+  '/battles': typeof BattlesRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/near-you': typeof NearYouRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/revs': typeof RevsRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
@@ -269,13 +293,16 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/analytics': typeof AnalyticsRoute
   '/ask': typeof AskRoute
+  '/battles': typeof BattlesRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/near-you': typeof NearYouRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/revs': typeof RevsRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
@@ -304,13 +331,16 @@ export interface FileRouteTypes {
     | '/admin'
     | '/analytics'
     | '/ask'
+    | '/battles'
     | '/community-standards'
     | '/forgot-password'
     | '/garage'
     | '/leaderboard'
     | '/login'
     | '/messages'
+    | '/near-you'
     | '/reset-password'
+    | '/revs'
     | '/sell'
     | '/settings'
     | '/signup'
@@ -337,13 +367,16 @@ export interface FileRouteTypes {
     | '/admin'
     | '/analytics'
     | '/ask'
+    | '/battles'
     | '/community-standards'
     | '/forgot-password'
     | '/garage'
     | '/leaderboard'
     | '/login'
     | '/messages'
+    | '/near-you'
     | '/reset-password'
+    | '/revs'
     | '/sell'
     | '/settings'
     | '/signup'
@@ -370,13 +403,16 @@ export interface FileRouteTypes {
     | '/admin'
     | '/analytics'
     | '/ask'
+    | '/battles'
     | '/community-standards'
     | '/forgot-password'
     | '/garage'
     | '/leaderboard'
     | '/login'
     | '/messages'
+    | '/near-you'
     | '/reset-password'
+    | '/revs'
     | '/sell'
     | '/settings'
     | '/signup'
@@ -404,13 +440,16 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AnalyticsRoute: typeof AnalyticsRoute
   AskRoute: typeof AskRoute
+  BattlesRoute: typeof BattlesRoute
   CommunityStandardsRoute: typeof CommunityStandardsRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   GarageRoute: typeof GarageRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRouteWithChildren
+  NearYouRoute: typeof NearYouRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  RevsRoute: typeof RevsRoute
   SellRoute: typeof SellRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
@@ -462,6 +501,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AskRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/battles': {
+      id: '/battles'
+      path: '/battles'
+      fullPath: '/battles'
+      preLoaderRoute: typeof BattlesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/community-standards': {
       id: '/community-standards'
       path: '/community-standards'
@@ -504,11 +550,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/near-you': {
+      id: '/near-you'
+      path: '/near-you'
+      fullPath: '/near-you'
+      preLoaderRoute: typeof NearYouRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/revs': {
+      id: '/revs'
+      path: '/revs'
+      fullPath: '/revs'
+      preLoaderRoute: typeof RevsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sell': {
@@ -671,13 +731,16 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AnalyticsRoute: AnalyticsRoute,
   AskRoute: AskRoute,
+  BattlesRoute: BattlesRoute,
   CommunityStandardsRoute: CommunityStandardsRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   GarageRoute: GarageRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   MessagesRoute: MessagesRouteWithChildren,
+  NearYouRoute: NearYouRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  RevsRoute: RevsRoute,
   SellRoute: SellRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,

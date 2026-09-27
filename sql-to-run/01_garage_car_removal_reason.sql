@@ -1,4 +1,4 @@
--- STEP 1 of 3 — Garage car removal reason
+-- STEP 1 — Garage car removal reason
 -- Copy of drizzle/migrations/0030_garage_car_ownership_end_reason.sql
 -- Safe to run more than once.
 

@@ -10,7 +10,8 @@ import { carLabel, carPath, type Car } from "@/lib/cars";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { PushNotificationToggle } from "@/components/PushNotificationToggle";
-import { usePushFeature } from "@/lib/features";
+import { useEngagementFeatures, usePushFeature } from "@/lib/features";
+import { NotificationSettingsForm } from "@/components/NotificationSettingsForm";
 import { APP_VERSION } from "@/lib/changelog";
 import { fetchBlockedProfiles, unblockProfile } from "@/lib/moderation";
 import { displayUsernameWithoutAt, normalizeUsername } from "@/lib/usernames";
@@ -44,6 +45,7 @@ function SettingsPage() {
   const [newPassword, setNewPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
   const pushAvailable = usePushFeature();
+  const engagement = useEngagementFeatures();
 
   useEffect(() => {
     if (profile) setUsername(profile.username);
@@ -156,6 +158,12 @@ function SettingsPage() {
       {pushAvailable && (
         <Section title="Phone notifications">
           <PushNotificationToggle userId={user.id} />
+        </Section>
+      )}
+
+      {engagement && (
+        <Section title="Notifications">
+          <NotificationSettingsForm userId={user.id} />
         </Section>
       )}
 

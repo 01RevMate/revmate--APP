@@ -19,6 +19,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { AuthModalProvider } from "@/hooks/useAuthModal";
 import { AuthPromptModal } from "@/components/AuthPromptModal";
 import { SplashScreen } from "@/components/SplashScreen";
+import { EngagementPulse } from "@/components/EngagementPulse";
+import { OnboardingDialog } from "@/components/OnboardingDialog";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -177,6 +179,8 @@ function RootComponent() {
             <BottomNav />
             <Toaster />
             <AuthPromptModal />
+            <EngagementPulse />
+            <OnboardingDialog />
             <SplashScreen />
           </TooltipProvider>
         </AuthModalProvider>

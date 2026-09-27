@@ -6,7 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 // has landed, so the UI simply hides a feature until the database supports
 // it instead of showing buttons that error.
 
-async function tableExists(table: "car_meets" | "push_subscriptions"): Promise<boolean> {
+async function tableExists(
+  table: "car_meets" | "push_subscriptions" | "stories",
+): Promise<boolean> {
   const { error } = await supabase.from(table).select("id").limit(1);
   return !error;
 }
@@ -41,4 +43,24 @@ export function usePushFeature(): boolean {
     retry: false,
   });
   return data === true;
+}
+
+/**
+ * True once 0033_engagement.sql has been applied: For You feed, onboarding,
+ * Car Battles, recaps, streaks & levels, Revs, Stories, challenges, Near
+ * you, reactions and notification settings all ship in that transaction.
+ */
+export function useEngagementFeatures(): boolean {
+  return useEngagementFeaturesStatus() === "on";
+}
+
+export function useEngagementFeaturesStatus(): "checking" | "on" | "off" {
+  const { data } = useQuery({
+    queryKey: ["feature", "engagement-pack"],
+    queryFn: () => tableExists("stories"),
+    staleTime: Infinity,
+    retry: false,
+  });
+  if (data === undefined) return "checking";
+  return data ? "on" : "off";
 }

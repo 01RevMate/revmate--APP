@@ -24,6 +24,28 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.6.0",
+    date: "2026-09-27",
+    title: "Engagement pack",
+    status: "needs_database_update",
+    highlights: [
+      "For You feed, ranked around the makes you like and the people you follow",
+      "Pick your favourite makes and people to follow when you join",
+      "Car Battles: tap the car you'd rather have — the weekly winner is crowned Car of the Week",
+      "Revs: a full-screen video feed you swipe through",
+      "Pit Stops: photos and clips that disappear after 24 hours",
+      "Weekly recap and alerts when your car climbs the leaderboard",
+      "Daily streaks and levels, from Learner to Legend",
+      "Weekly challenges like #StanceSunday, with winners picked by admins",
+      "Near you: meets and posts from your area",
+      "React with 🔥 😍 🤯 😂 as well as like",
+      "A 'new posts' button when fresh posts arrive while you scroll",
+      "Share cards for Instagram and TikTok showing your car's UK rank",
+      "Notifications are bundled, with quiet hours and per-type muting in Settings",
+    ],
+    requiredSql: ["drizzle/migrations/0033_engagement.sql"],
+  },
+  {
     version: "1.5.0",
     date: "2026-09-27",
     title: "Social pack",

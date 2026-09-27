@@ -58,6 +58,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { Avatar } from "@/components/Avatar";
 import { CarLogo } from "@/components/CarLogo";
+import { ShareCarCardButton } from "@/components/ShareCarCardButton";
 import {
   Dialog,
   DialogContent,
@@ -448,6 +449,12 @@ export function GarageCarCard({
             List this car for sale
           </Link>
         ))}
+
+      {!isPrevious && (
+        <div className="mt-2">
+          <ShareCarCardButton car={car} rank={rank} />
+        </div>
+      )}
 
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         <SpecTile icon={Zap} label="Power" value={car.horsepower ? `${car.horsepower} hp` : "—"} />

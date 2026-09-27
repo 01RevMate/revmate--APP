@@ -80,6 +80,14 @@ function describe(kind: string, actor: string, message: string | null, group: st
       return `${actor} ${message ?? "is going to your meet"}`;
     case "meet_reminder":
       return message ?? "A meet you're going to is coming up soon";
+    case "car_of_week":
+      return message ?? "Your car is Car of the Week!";
+    case "weekly_recap":
+      return message ?? "Your weekly recap is ready";
+    case "rank_up":
+      return message ?? "Your car moved up the rankings";
+    case "challenge":
+      return message ?? "You won a challenge!";
     default:
       return "You have a new RevMate notification";
   }
@@ -109,6 +117,23 @@ Deno.serve(async (req) => {
     .eq("id", notification_id)
     .maybeSingle();
   if (!notification) return json({ sent: 0 });
+
+  // Quiet hours (10pm–8am UK): leave it in the app, don't buzz the phone.
+  const { data: settings } = await admin
+    .from("notification_settings")
+    .select("quiet_hours")
+    .eq("user_id", notification.user_id)
+    .maybeSingle();
+  if (settings?.quiet_hours) {
+    const ukHour = Number(
+      new Intl.DateTimeFormat("en-GB", {
+        hour: "numeric",
+        hour12: false,
+        timeZone: "Europe/London",
+      }).format(new Date()),
+    );
+    if (ukHour >= 22 || ukHour < 8) return json({ sent: 0, reason: "quiet_hours" });
+  }
 
   const actor = String(
     (notification.actor as { username?: string } | null)?.username ?? "A member",

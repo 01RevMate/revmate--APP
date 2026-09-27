@@ -3,7 +3,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import {
   AtSign,
+  BarChart3,
   Bell,
+  Crown,
+  TrendingUp,
+  Trophy,
   CalendarClock,
   CalendarDays,
   Car,
@@ -33,8 +37,45 @@ type NotificationWithContext = Tables<"notifications"> & {
   community_groups: Pick<Tables<"community_groups">, "slug" | "name"> | null;
 };
 
-function notificationDetails(notification: NotificationWithContext) {
-  const actor = displayUsernameWithoutAt(notification.actor?.username, "A member");
+// Kinds that pile up ("liked your post" ×12) and read better as one line.
+const BUNDLED_KINDS = new Set([
+  "like",
+  "comment_like",
+  "car_like",
+  "car_follow",
+  "profile_follow",
+  "repost",
+  "meet_rsvp",
+]);
+
+type NotificationGroup = { key: string; items: NotificationWithContext[] };
+
+/** Bundle same-kind notifications about the same thing into one entry. */
+function groupNotifications(list: NotificationWithContext[]): NotificationGroup[] {
+  const groups = new Map<string, NotificationGroup>();
+  for (const n of list) {
+    const key = BUNDLED_KINDS.has(n.kind)
+      ? `${n.kind}:${n.post_id ?? n.garage_car_id ?? n.action_url ?? ""}:${n.read_at ? "read" : "unread"}`
+      : n.id;
+    const group = groups.get(key);
+    if (group) group.items.push(n);
+    else groups.set(key, { key, items: [n] });
+  }
+  return [...groups.values()];
+}
+
+function actorSummary(items: NotificationWithContext[]) {
+  const names = [
+    ...new Set(items.map((n) => displayUsernameWithoutAt(n.actor?.username, "A member"))),
+  ];
+  if (names.length <= 1) return names[0] ?? "A member";
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  const others = names.length - 1;
+  return `${names[0]} and ${others} others`;
+}
+
+function notificationDetails(notification: NotificationWithContext, actorLabel?: string) {
+  const actor = actorLabel ?? displayUsernameWithoutAt(notification.actor?.username, "A member");
   const group = notification.community_groups?.name ?? "the group";
   switch (notification.kind) {
     case "comment":
@@ -92,6 +133,14 @@ function notificationDetails(notification: NotificationWithContext) {
         Icon: CalendarClock,
         text: notification.message ?? "A meet you're going to is coming up soon",
       };
+    case "car_of_week":
+      return { Icon: Crown, text: notification.message ?? "Your car is Car of the Week!" };
+    case "weekly_recap":
+      return { Icon: BarChart3, text: notification.message ?? "Your weekly recap is ready" };
+    case "rank_up":
+      return { Icon: TrendingUp, text: notification.message ?? "Your car moved up the rankings" };
+    case "challenge":
+      return { Icon: Trophy, text: notification.message ?? "You won a challenge!" };
     default:
       return { Icon: Bell, text: "You have a new RevMate notification" };
   }
@@ -149,21 +198,24 @@ export function NotificationCenter() {
       void supabase.removeChannel(channel);
     };
   }, [client, user]);
-  const unread = notifications.filter((n) => !n.read_at).length;
-  async function markRead(id?: string) {
+  // Count bundles, not raw rows, so 12 likes on one post is one badge tick.
+  const unread = groupNotifications(notifications as NotificationWithContext[]).filter(
+    (group) => !group.items[0]!.read_at,
+  ).length;
+  async function markRead(ids?: string[]) {
     let query = supabase
       .from("notifications")
       .update({ read_at: new Date().toISOString() })
       .eq("user_id", user!.id)
       .is("read_at", null);
-    if (id) query = query.eq("id", id);
+    if (ids) query = query.in("id", ids);
     const { error } = await query;
     if (error) toast.error("Could not mark notifications as read.");
     else await client.invalidateQueries({ queryKey: ["notifications"] });
   }
-  async function remove(id: string) {
+  async function remove(ids: string[]) {
     setBusy(true);
-    const { error } = await supabase.from("notifications").delete().eq("id", id);
+    const { error } = await supabase.from("notifications").delete().in("id", ids);
     if (error) toast.error("Could not remove notification.");
     else await client.invalidateQueries({ queryKey: ["notifications"] });
     setBusy(false);
@@ -209,17 +261,22 @@ export function NotificationCenter() {
               Messages, replies, likes and group updates will appear here.
             </p>
           )}
-          {(notifications as NotificationWithContext[]).map((n) => {
-            const { Icon, text } = notificationDetails(n);
+          {groupNotifications(notifications as NotificationWithContext[]).map((group) => {
+            const n = group.items[0]!;
+            const ids = group.items.map((item) => item.id);
+            const { Icon, text } = notificationDetails(
+              n,
+              group.items.length > 1 ? actorSummary(group.items) : undefined,
+            );
             return (
               <div
-                key={n.id}
+                key={group.key}
                 className={`flex items-center border-b p-3 ${n.read_at ? "" : "bg-primary/5"}`}
               >
                 <a
                   href={n.action_url ?? "/"}
                   onClick={() => {
-                    void markRead(n.id);
+                    void markRead(ids);
                     setOpen(false);
                   }}
                   className="flex min-w-0 flex-1 items-start gap-2.5 text-sm"
@@ -235,7 +292,7 @@ export function NotificationCenter() {
                   </span>
                 </a>
                 <button
-                  onClick={() => remove(n.id)}
+                  onClick={() => remove(ids)}
                   disabled={busy}
                   aria-label="Dismiss notification"
                   className="ml-2 rounded p-2 hover:bg-accent"

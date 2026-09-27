@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Trash2,
   UserCog,
+  Trophy,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,7 +31,8 @@ import {
 } from "@/lib/moderation";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { sendAppUpdate } from "@/lib/notifications";
-import { useSocialFeatures } from "@/lib/features";
+import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
+import { AdminChallenges } from "@/components/AdminChallenges";
 import { setVerifiedType, type VerifiedType } from "@/lib/social";
 import { useVerifiedProfiles } from "@/components/VerifiedBadge";
 
@@ -67,7 +69,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type AdminSection = "reports" | "people" | "protect" | "updates" | "cars";
+type AdminSection = "reports" | "people" | "protect" | "updates" | "cars" | "challenges";
 
 function AdminPage() {
   const { user } = useAuth();
@@ -81,6 +83,7 @@ function AdminPage() {
   const [updateUrl, setUpdateUrl] = useState("/");
   const [sendingUpdate, setSendingUpdate] = useState(false);
   const social = useSocialFeatures();
+  const engagement = useEngagementFeatures();
   const verifiedProfiles = useVerifiedProfiles();
 
   async function changeVerified(userId: string, username: string, value: VerifiedType | null) {
@@ -262,6 +265,7 @@ function AdminPage() {
             ["protect", "Protect Posts", Shield],
             ["updates", "App Updates", Megaphone],
             ["cars", "Car pages", Car],
+            ...(engagement ? ([["challenges", "Challenges", Trophy]] as const) : []),
           ] as const
         ).map(([id, label, Icon]) => (
           <button
@@ -502,6 +506,8 @@ function AdminPage() {
           </div>
         </section>
       )}
+
+      {section === "challenges" && engagement && user && <AdminChallenges userId={user.id} />}
 
       {section === "protect" && (
         <section className="mt-6">

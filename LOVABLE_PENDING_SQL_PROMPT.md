@@ -17,15 +17,17 @@ files as they are.
 
 1. sql-to-run/01_garage_car_removal_reason.sql
 2. sql-to-run/02_social_features.sql
+3. sql-to-run/03_engagement.sql
 
 Notes:
 - File 2 is long. Its very first statement (ALTER TYPE public.post_category
   ADD VALUE IF NOT EXISTS 'spotted') sits outside the BEGIN/COMMIT block on
   purpose. If your tool complains about running it inside a transaction, run
   that one line on its own first, then run the rest of the file.
-- Both files only add things (tables, columns, triggers, policies). They must
-  not delete or change any existing posts, comments, cars, profiles or
-  notifications.
+- All three files only add things (tables, columns, triggers, policies,
+  functions). They must not delete any existing posts, comments, cars,
+  profiles or notifications. (File 3 fills in a new reaction_counts column on
+  existing posts from their like counts — that's expected.)
 
 When they've finished, please confirm:
 - public.garage_cars has an ownership_end_reason column
@@ -39,6 +41,15 @@ When they've finished, please confirm:
 - the post_category enum includes 'spotted'
 - the post-images storage bucket now allows video/mp4, video/quicktime and
   video/webm with a 50MB limit
+- these tables exist with row level security enabled: stories, story_views,
+  car_battle_votes, car_of_the_week, weekly_recaps, challenges,
+  notification_settings
+- these functions exist: for_you_feed, suggested_profiles, next_car_battle,
+  vote_car_battle, crown_car_of_the_week, send_my_weekly_recap,
+  check_my_rank_changes, record_daily_activity, profile_level, revs_feed,
+  nearby_meets, nearby_posts
+- public.post_likes has a reaction column, and public.posts has
+  reaction_counts, latitude and longitude columns
 
 Then regenerate the Supabase TypeScript types.
 ```
@@ -52,7 +63,7 @@ Only send this after Prompt 1 has worked.
 ```
 Please set up web push notifications for RevMate:
 
-1. Run sql-to-run/03_push_notifications.sql on the connected Supabase
+1. Run sql-to-run/04_push_notifications.sql on the connected Supabase
    database, exactly as committed (it enables the pg_net extension and adds
    a push_subscriptions table and a trigger on notifications).
 2. Generate a VAPID key pair for web push.
@@ -61,10 +72,10 @@ Please set up web push notifications for RevMate:
    - VAPID_PRIVATE_KEY = the generated private key
    - VAPID_SUBJECT     = mailto:<my email address>
    - PUSH_WEBHOOK_SECRET = a new long random string
-4. Deploy the existing edge function in supabase/functions/send-push
+4. Deploy (or redeploy) the edge function in supabase/functions/send-push
    (it must allow calls without a user JWT — supabase/config.toml already
    sets verify_jwt = false for it).
-5. Run sql-to-run/04_push_setup_after_keys.sql, replacing
+5. Run sql-to-run/05_push_setup_after_keys.sql, replacing
    <PUSH_WEBHOOK_SECRET> with the same value used in step 3.
 
 Then confirm the send-push function returns a publicKey on a GET request.

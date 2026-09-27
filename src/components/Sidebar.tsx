@@ -13,8 +13,11 @@ import {
   MessageCircle,
   Trophy,
   CalendarDays,
+  Swords,
+  Clapperboard,
+  MapPin,
 } from "lucide-react";
-import { useSocialFeatures } from "@/lib/features";
+import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
@@ -77,6 +80,7 @@ function NavLink({
 export function Sidebar() {
   const { isAdmin } = useProfile();
   const social = useSocialFeatures();
+  const engagement = useEngagementFeatures();
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -110,6 +114,13 @@ export function Sidebar() {
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
         <NavLink to="/leaderboard" icon={Trophy} label="Leaderboard" collapsed={collapsed} />
+        {engagement && (
+          <>
+            <NavLink to="/battles" icon={Swords} label="Car Battles" collapsed={collapsed} />
+            <NavLink to="/revs" icon={Clapperboard} label="Revs" collapsed={collapsed} />
+            <NavLink to="/near-you" icon={MapPin} label="Near you" collapsed={collapsed} />
+          </>
+        )}
         {social && (
           <NavLink to="/meets" icon={CalendarDays} label="Meets & Events" collapsed={collapsed} />
         )}

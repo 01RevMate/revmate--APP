@@ -26,6 +26,7 @@ import { Avatar } from "@/components/Avatar";
 import { GarageCarTile } from "@/components/GarageCarTile";
 import { PostCard } from "@/components/PostCard";
 import { RichText } from "@/components/RichText";
+import { LevelBadge } from "@/components/LevelBadge";
 import { useVerifiedProfiles, VerifiedBadge } from "@/components/VerifiedBadge";
 import { useSocialFeatures } from "@/lib/features";
 import { fetchSavedPosts, VERIFIED_LABELS } from "@/lib/social";
@@ -321,6 +322,7 @@ function GarageProfilePage() {
           {PERSONA_LABELS[profile.persona]}
           {verifiedType && ` · ${VERIFIED_LABELS[verifiedType]}`}
         </p>
+        <LevelBadge userId={profile.user_id} streak={profile.current_streak} />
         {profile.bio && (
           <p className="mt-2 max-w-2xl whitespace-pre-wrap break-words text-sm">
             <RichText text={profile.bio} />

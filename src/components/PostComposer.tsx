@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import {
   BarChart3,
   Eye,
+  MapPin,
   Gauge,
   ImagePlus,
   MessagesSquare,
@@ -28,7 +29,8 @@ import {
   type Post,
 } from "@/lib/posts";
 import { validateImageFile } from "@/lib/uploads";
-import { useSocialFeatures } from "@/lib/features";
+import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
+import { getApproximateLocation } from "@/lib/engagement";
 import {
   createPollOptions,
   MAX_POLL_OPTIONS,
@@ -106,6 +108,25 @@ export function PostComposer({
   const [spotSearch, setSpotSearch] = useState("");
   const [spottedCar, setSpottedCar] = useState<{ id: string; label: string } | null>(null);
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const engagement = useEngagementFeatures();
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+  const canAddLocation = engagement && !lockedGroup && audience === "public";
+
+  async function toggleLocation() {
+    if (location) {
+      setLocation(null);
+      return;
+    }
+    setLocating(true);
+    try {
+      setLocation(await getApproximateLocation());
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't get your location");
+    } finally {
+      setLocating(false);
+    }
+  }
   // Videos go to the public bucket, so they're only offered on public posts.
   const canAddVideo = social && !lockedGroup && audience === "public";
   const { data: spotResults } = useQuery({
@@ -216,6 +237,7 @@ export function PostComposer({
     setSpotSearch("");
     setSpottedCar(null);
     setMentionQuery(null);
+    setLocation(null);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -255,6 +277,7 @@ export function PostComposer({
         groupId: lockedGroup?.id,
         audience,
         spottedGarageCarId: category === "spotted" ? spottedCar?.id : undefined,
+        location: canAddLocation && location ? location : undefined,
       });
       if (images.length > 0 || video || pollOptions) {
         try {
@@ -609,6 +632,23 @@ export function PostComposer({
             className={`hover:text-foreground ${spotting ? "text-amber-600" : "text-muted-foreground"}`}
           >
             <Eye className="size-4" />
+          </button>
+        )}
+        {canAddLocation && (
+          <button
+            type="button"
+            onClick={() =>
+              user
+                ? void toggleLocation()
+                : openAuthModal("Create a free account to post to the feed.")
+            }
+            disabled={locating}
+            title={location ? "Remove location" : "Add your area (shows in Near you)"}
+            aria-label={location ? "Remove location" : "Add your area"}
+            className={`flex items-center gap-1 text-xs hover:text-foreground disabled:opacity-50 ${location ? "text-emerald-600" : "text-muted-foreground"}`}
+          >
+            <MapPin className="size-4" />
+            {location ? "Area added" : null}
           </button>
         )}
         <button

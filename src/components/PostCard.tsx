@@ -6,7 +6,6 @@ import {
   Bookmark,
   Flag,
   Flame,
-  Heart,
   MessageCircle,
   Repeat2,
   Share2,
@@ -24,6 +23,7 @@ import { Avatar } from "@/components/Avatar";
 import { CarLogo } from "@/components/CarLogo";
 import { PostImageViewer } from "@/components/PostImageViewer";
 import { PostComments } from "@/components/PostComments";
+import { ReactionButton } from "@/components/ReactionButton";
 import { PostPoll } from "@/components/PostPoll";
 import { RepostedPost } from "@/components/RepostedPost";
 import { RichText } from "@/components/RichText";
@@ -694,17 +694,20 @@ export function PostCard({
             </p>
           </div>
         ) : (
-          <button
-            onClick={toggleLike}
-            disabled={liking}
-            className={`flex items-center gap-1.5 hover:text-foreground ${liked ? "text-red-500 hover:text-red-500" : ""}`}
-          >
-            <Heart
-              className={`size-4 transition-transform duration-200 ${liked ? "scale-110" : "scale-100"}`}
-              fill={liked ? "currentColor" : "none"}
-            />
-            {likesCount > 0 ? likesCount : "Like"}
-          </button>
+          <ReactionButton
+            postId={post.id}
+            reactionCounts={post.reaction_counts}
+            liked={liked}
+            likesCount={likesCount}
+            busy={liking}
+            onToggleLike={() => void toggleLike()}
+            onReacted={(wasLiked) => {
+              if (!wasLiked) {
+                setLiked(true);
+                setLikesCount((n) => n + 1);
+              }
+            }}
+          />
         )}
         <button
           onClick={toggleComments}
