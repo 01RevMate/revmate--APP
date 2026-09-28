@@ -42,7 +42,7 @@ export const RELEASES: Release[] = [
       "Set your area in Settings for local offers (only you can see it)",
     ],
     fixes: [
-      "Diagnostic posts now show their resolved status beside the category, with a cleaner issue summary below",
+      "Diagnostic posts now keep their category, resolved status and problem type together in a mobile-safe header, with only useful fix details below",
     ],
     requiredSql: [
       "drizzle/migrations/0045_car_care_diagnostics_feed.sql",

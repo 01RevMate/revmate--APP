@@ -37,6 +37,7 @@ import { useMyRepostedIds, useMySavedPostIds } from "@/hooks/useSocialState";
 import { useSocialFeatures } from "@/lib/features";
 import { createRepost, isVideoUrl, savePost, undoRepost, unsavePost } from "@/lib/social";
 import { carLabel, carPath } from "@/lib/cars";
+import { issueSystemLabel } from "@/lib/diagnostics";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import {
   dislikeGarageCar,
@@ -434,7 +435,7 @@ export function PostCard({
       }
     >
       <header className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex items-center gap-3">
+        <div className="min-w-0 flex flex-1 items-center gap-3">
           {post.posted_as_garage_car ? (
             <Link
               to="/u/$username/cars/$carId"
@@ -483,7 +484,7 @@ export function PostCard({
             </Link>
           )}
         </div>
-        <div className="flex max-w-[60%] shrink-0 flex-wrap items-center justify-end gap-1.5">
+        <div className="flex shrink-0 items-center justify-end gap-1.5">
           {isCarLike && carRank != null && (
             <Link
               to="/leaderboard"
@@ -507,7 +508,21 @@ export function PostCard({
               {POST_CATEGORY_LABELS[post.category]}
             </span>
           )}
-          {!post.repost_of_id && post.category === "diagnostics" && issueStatus && (
+          {user?.id === post.user_id && (
+            <button
+              onClick={handleDelete}
+              className="text-muted-foreground hover:text-destructive"
+              title="Delete post"
+            >
+              <Trash2 className="size-4" />
+            </button>
+          )}
+        </div>
+      </header>
+
+      {!post.repost_of_id && post.category === "diagnostics" && (
+        <div className="mt-1 flex flex-col items-end gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-1.5">
+          {issueStatus && (
             <span
               className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
                 issueStatus === "resolved"
@@ -523,17 +538,13 @@ export function PostCard({
               {issueStatus === "resolved" ? "Resolved" : "Unresolved"}
             </span>
           )}
-          {user?.id === post.user_id && (
-            <button
-              onClick={handleDelete}
-              className="text-muted-foreground hover:text-destructive"
-              title="Delete post"
-            >
-              <Trash2 className="size-4" />
-            </button>
+          {post.issue_system && (
+            <span className="inline-flex max-w-full items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              {issueSystemLabel(post.issue_system)}
+            </span>
           )}
         </div>
-      </header>
+      )}
 
       {post.audience === "friends" && (
         <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-white">
@@ -597,7 +608,6 @@ export function PostCard({
       {post.issue_status && (
         <IssueStatusBar
           postId={post.id}
-          system={post.issue_system}
           status={post.issue_status}
           fix={post.issue_fix}
           isAuthor={user?.id === post.user_id}

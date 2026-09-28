@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { issueSystemLabel, setIssueStatus } from "@/lib/diagnostics";
+import { setIssueStatus } from "@/lib/diagnostics";
 
 /**
  * On diagnostic posts: which part of the car, whether it's fixed, and the
@@ -11,14 +11,12 @@ import { issueSystemLabel, setIssueStatus } from "@/lib/diagnostics";
  */
 export function IssueStatusBar({
   postId,
-  system,
   status,
   fix,
   isAuthor,
   onStatusChange,
 }: {
   postId: string;
-  system: string | null;
   status: string | null;
   fix: string | null;
   isAuthor: boolean;
@@ -31,6 +29,8 @@ export function IssueStatusBar({
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const resolved = current === "resolved";
+
+  if (!isAuthor && !(resolved && currentFix)) return null;
 
   async function mark(next: "resolved" | "unresolved", fixText?: string) {
     setBusy(true);
@@ -56,11 +56,8 @@ export function IssueStatusBar({
   return (
     <div className="mt-2 text-sm">
       <div className="flex flex-wrap items-center gap-2">
-        {system && (
-          <span className="text-xs text-muted-foreground">{issueSystemLabel(system)}</span>
-        )}
         {isAuthor && !writingFix && (
-          <div className="ml-auto flex gap-1.5">
+          <div className="flex gap-1.5">
             {resolved ? (
               <button
                 type="button"
