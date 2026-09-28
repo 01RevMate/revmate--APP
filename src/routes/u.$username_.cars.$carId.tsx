@@ -86,7 +86,7 @@ function CarProfilePage() {
 
       {isOwner && careOn && car.ownership_status === "current" && (
         <div className="mt-4">
-          <CarCarePanel car={car} />
+          <CarCarePanel key={car.id} car={car} />
         </div>
       )}
 
