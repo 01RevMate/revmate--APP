@@ -40,10 +40,14 @@ export function CarCarePanel({
   const name = car.nickname || `${car.make} ${car.model}`;
 
   async function save(fields: Parameters<typeof saveCarDates>[1], message: string) {
+    const carId = car.id;
     setSaving(true);
     try {
-      await saveCarDates(car.id, fields);
-      await queryClient.invalidateQueries();
+      await saveCarDates(carId, fields);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["garage-car", carId] }),
+        queryClient.invalidateQueries({ queryKey: ["garage"] }),
+      ]);
       toast.success(message);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't save");
