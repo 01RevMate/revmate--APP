@@ -316,6 +316,20 @@
       "when": 1790557904462,
       "tag": "0044_revmate_news",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1790558004462,
+      "tag": "0045_car_care_diagnostics_feed",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1790558104462,
+      "tag": "0046_businesses_and_ads",
+      "breakpoints": true
     }
   ]
 }

@@ -48,6 +48,13 @@ import {
 } from "@/components/MentionSuggestions";
 import { useQuery } from "@tanstack/react-query";
 import { CarPicker } from "@/components/CarPicker";
+import { CarTagFields, EMPTY_CAR_TAG, type CarTag } from "@/components/CarTagFields";
+import {
+  activeHashtagQuery,
+  HashtagSuggestions,
+  insertHashtag,
+} from "@/components/HashtagSuggestions";
+import { ISSUE_SYSTEMS, useDiagnosticsFeature } from "@/lib/diagnostics";
 import { CarLogo } from "@/components/CarLogo";
 import {
   Dialog,
@@ -113,6 +120,11 @@ export function PostComposer({
   const [spotSearch, setSpotSearch] = useState("");
   const [spottedCar, setSpottedCar] = useState<{ id: string; label: string } | null>(null);
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [hashtagQuery, setHashtagQuery] = useState<string | null>(null);
+  const diagnosticsOn = useDiagnosticsFeature();
+  const [issueStep, setIssueStep] = useState(false);
+  const [carTag, setCarTag] = useState<CarTag>(EMPTY_CAR_TAG);
+  const mirrorRef = useRef<HTMLDivElement>(null);
   const engagement = useEngagementFeatures();
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
@@ -216,6 +228,18 @@ export function PostComposer({
   function handleBodyChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setBody(e.target.value);
     setMentionQuery(activeMentionQuery(e.target.value, e.target.selectionStart));
+    setHashtagQuery(activeHashtagQuery(e.target.value, e.target.selectionStart));
+  }
+
+  function pickHashtag(tag: string) {
+    const caret = textareaRef.current?.selectionStart ?? body.length;
+    const next = insertHashtag(body, caret, tag);
+    setBody(next.text);
+    setHashtagQuery(null);
+    requestAnimationFrame(() => {
+      textareaRef.current?.focus();
+      textareaRef.current?.setSelectionRange(next.caret, next.caret);
+    });
   }
 
   function pickMention(handle: string) {
@@ -235,6 +259,9 @@ export function PostComposer({
     images.forEach((img) => URL.revokeObjectURL(img.previewUrl));
     if (video) URL.revokeObjectURL(video.previewUrl);
     setBody("");
+    setCarTag(EMPTY_CAR_TAG);
+    setIssueStep(false);
+    setHashtagQuery(null);
     setCarId("");
     setTagging(false);
     setImages([]);
@@ -270,7 +297,7 @@ export function PostComposer({
     setCategoryOpen(true);
   }
 
-  async function publishPost(category: Post["category"]) {
+  async function publishPost(category: Post["category"], issueSystem?: string) {
     if (saving || !user || !body.trim()) return;
     setPublishingCategory(category);
     setSaving(true);
@@ -285,6 +312,8 @@ export function PostComposer({
         audience,
         spottedGarageCarId: category === "spotted" ? spottedCar?.id : undefined,
         location: canAddLocation && location ? location : undefined,
+        issueSystem: category === "diagnostics" ? issueSystem : undefined,
+        carTag: tagging && diagnosticsOn && carTag.make ? carTag : undefined,
       });
       if (images.length > 0 || video || pollOptions) {
         try {
@@ -341,22 +370,39 @@ export function PostComposer({
           Followers only — only people who follow you can see this post.
         </div>
       )}
-      <textarea
-        ref={textareaRef}
-        value={body}
-        onChange={handleBodyChange}
-        onBlur={() => setMentionQuery(null)}
-        onFocus={() => !user && openAuthModal("Create a free account to post to the feed.")}
-        placeholder={
-          pollOptions
-            ? "Ask your question…"
-            : "What are you working on? Use @ to mention and # to tag"
-        }
-        maxLength={10000}
-        rows={3}
-        className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
-      />
+      <div className="relative rounded-md border border-input bg-background">
+        {/* Highlights #tags and @mentions behind the text as it's typed. */}
+        <div
+          ref={mirrorRef}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 overflow-hidden whitespace-pre-wrap break-words px-3 py-2 text-sm text-transparent"
+        >
+          {highlightTags(body)}
+        </div>
+        <textarea
+          ref={textareaRef}
+          value={body}
+          onChange={handleBodyChange}
+          onScroll={(e) => {
+            if (mirrorRef.current) mirrorRef.current.scrollTop = e.currentTarget.scrollTop;
+          }}
+          onBlur={() => {
+            setMentionQuery(null);
+            setHashtagQuery(null);
+          }}
+          onFocus={() => !user && openAuthModal("Create a free account to post to the feed.")}
+          placeholder={
+            pollOptions
+              ? "Ask your question…"
+              : "What are you working on? Use @ to mention and # to tag"
+          }
+          maxLength={10000}
+          rows={3}
+          className="relative block w-full resize-none rounded-md bg-transparent px-3 py-2 text-sm outline-none"
+        />
+      </div>
       <MentionSuggestions query={mentionQuery} onPick={pickMention} />
+      <HashtagSuggestions query={mentionQuery ? null : hashtagQuery} onPick={pickHashtag} />
       {requiredCarIdentity && (
         <div className="rounded-md border border-primary/25 bg-primary/5 p-3">
           <p className="text-sm font-semibold">Which car are you posting as?</p>
@@ -392,9 +438,13 @@ export function PostComposer({
           </div>
         </div>
       )}
-      {tagging && !requiredCarIdentity && (
-        <CarPicker value={carId} onChange={setCarId} id="composer-car" />
-      )}
+      {tagging &&
+        !requiredCarIdentity &&
+        (diagnosticsOn ? (
+          <CarTagFields value={carTag} onChange={setCarTag} />
+        ) : (
+          <CarPicker value={carId} onChange={setCarId} id="composer-car" />
+        ))}
 
       {video && (
         <div className="relative overflow-hidden rounded-md bg-black">
@@ -670,47 +720,110 @@ export function PostComposer({
       <Dialog
         open={categoryOpen}
         onOpenChange={(open) => {
-          if (!saving) setCategoryOpen(open);
+          if (saving) return;
+          setCategoryOpen(open);
+          if (!open) setIssueStep(false);
         }}
       >
         <DialogContent className="max-w-[calc(100%-2rem)] rounded-2xl p-4 sm:max-w-md sm:p-6">
-          <DialogHeader className="pr-7 text-left">
-            <DialogTitle>Choose a category</DialogTitle>
-            <DialogDescription>Where should this post appear?</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-2">
-            {(
-              Object.entries(POST_CATEGORY_LABELS).filter(
-                ([id]) => id !== "for_sale" && (social || id !== "spotted"),
-              ) as [ComposerCategory, string][]
-            ).map(([value, label]) => {
-              const Icon = CATEGORY_DETAILS[value].icon;
-              const isPublishing = saving && publishingCategory === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  disabled={saving}
-                  onClick={() => void publishPost(value)}
-                  className="flex items-center gap-3 rounded-xl border border-border p-3 text-left transition-colors hover:border-primary hover:bg-accent disabled:opacity-50"
-                >
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Icon className="size-5" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold">
-                      {isPublishing ? "Posting…" : label}
-                    </span>
-                    <span className="block text-xs text-muted-foreground">
-                      {CATEGORY_DETAILS[value].description}
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          {issueStep ? (
+            <>
+              <DialogHeader className="pr-7 text-left">
+                <DialogTitle>Which part of the car?</DialogTitle>
+                <DialogDescription>
+                  One tap — it helps owners with the same problem find your post and its fix.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-2 gap-2">
+                {ISSUE_SYSTEMS.map((system) => (
+                  <button
+                    key={system.id}
+                    type="button"
+                    disabled={saving}
+                    onClick={() => void publishPost("diagnostics", system.id)}
+                    className="flex items-center gap-2 rounded-xl border border-border p-3 text-left text-sm font-medium transition-colors hover:border-primary hover:bg-accent disabled:opacity-50"
+                  >
+                    <span className="text-lg leading-none">{system.emoji}</span>
+                    {system.label}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => setIssueStep(false)}
+                className="text-left text-xs text-muted-foreground underline"
+              >
+                ← Back to categories
+              </button>
+            </>
+          ) : (
+            <>
+              <DialogHeader className="pr-7 text-left">
+                <DialogTitle>Choose a category</DialogTitle>
+                <DialogDescription>Where should this post appear?</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-2">
+                {(
+                  Object.entries(POST_CATEGORY_LABELS).filter(
+                    ([id]) => id !== "for_sale" && (social || id !== "spotted"),
+                  ) as [ComposerCategory, string][]
+                ).map(([value, label]) => {
+                  const Icon = CATEGORY_DETAILS[value].icon;
+                  const isPublishing = saving && publishingCategory === value;
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      disabled={saving}
+                      onClick={() =>
+                        value === "diagnostics" && diagnosticsOn
+                          ? setIssueStep(true)
+                          : void publishPost(value)
+                      }
+                      className="flex items-center gap-3 rounded-xl border border-border p-3 text-left transition-colors hover:border-primary hover:bg-accent disabled:opacity-50"
+                    >
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <Icon className="size-5" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold">
+                          {isPublishing ? "Posting…" : label}
+                        </span>
+                        <span className="block text-xs text-muted-foreground">
+                          {CATEGORY_DETAILS[value].description}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </form>
   );
+}
+
+/** Text with #tags and @mentions wrapped in highlight marks (for the mirror layer). */
+function highlightTags(text: string) {
+  const parts: React.ReactNode[] = [];
+  const pattern = /(^|[^A-Za-z0-9_&])([#@][A-Za-z0-9_.]{1,40})/g;
+  let last = 0;
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(text))) {
+    const start = match.index + match[1]!.length;
+    parts.push(text.slice(last, start));
+    parts.push(
+      <mark key={start} className="rounded bg-primary/15 text-transparent">
+        {match[2]}
+      </mark>,
+    );
+    last = start + match[2]!.length;
+  }
+  parts.push(text.slice(last));
+  // A trailing newline needs a character after it to take up space.
+  parts.push("\u200b");
+  return parts;
 }

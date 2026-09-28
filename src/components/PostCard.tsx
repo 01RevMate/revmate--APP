@@ -28,6 +28,7 @@ import { PostPoll } from "@/components/PostPoll";
 import { RepostedPost } from "@/components/RepostedPost";
 import { RichText } from "@/components/RichText";
 import { FeedVideo } from "@/components/FeedVideo";
+import { IssueStatusBar } from "@/components/IssueStatusBar";
 import { SpottedCarLink } from "@/components/SpottedCarLink";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useMyRepostedIds, useMySavedPostIds } from "@/hooks/useSocialState";
@@ -557,10 +558,28 @@ export function PostCard({
         </Link>
       )}
 
+      {post.tagged_make && (
+        <p className="mt-3 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-xs font-medium text-accent-foreground">
+          <CarLogo make={post.tagged_make} className="size-3.5" />
+          {[post.tagged_year, post.tagged_make, post.tagged_model].filter(Boolean).join(" ")}
+          {post.tagged_engine && <span className="text-muted-foreground">· {post.tagged_engine}</span>}
+        </p>
+      )}
+
       {post.body && (
         <p className="mt-3 whitespace-pre-wrap text-sm">
           <RichText text={post.body} />
         </p>
+      )}
+
+      {post.issue_status && (
+        <IssueStatusBar
+          postId={post.id}
+          system={post.issue_system}
+          status={post.issue_status}
+          fix={post.issue_fix}
+          isAuthor={user?.id === post.user_id}
+        />
       )}
 
       {social && post.spotted_garage_car_id && (

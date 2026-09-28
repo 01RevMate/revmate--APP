@@ -120,6 +120,10 @@ export async function createPost(input: {
   listingId?: string | undefined;
   spottedGarageCarId?: string | undefined;
   location?: { lat: number; lng: number } | undefined;
+  /** Diagnostics: which part of the car (0045). */
+  issueSystem?: string | undefined;
+  /** "What car is this about?" tag (0045). */
+  carTag?: { make: string; model: string; engine: string; year: string } | undefined;
 }) {
   // Generate the id client-side and skip RETURNING: the visibility policy
   // can't see a brand-new row inside the insert, which made some posts fail.
@@ -137,6 +141,15 @@ export async function createPost(input: {
     // Only sent when used, so posting still works before the spotted SQL runs.
     ...(input.spottedGarageCarId ? { spotted_garage_car_id: input.spottedGarageCarId } : {}),
     ...(input.location ? { latitude: input.location.lat, longitude: input.location.lng } : {}),
+    ...(input.issueSystem ? { issue_system: input.issueSystem } : {}),
+    ...(input.carTag?.make
+      ? {
+          tagged_make: input.carTag.make,
+          tagged_model: input.carTag.model || null,
+          tagged_engine: input.carTag.engine.trim() || null,
+          tagged_year: input.carTag.year ? Number(input.carTag.year) : null,
+        }
+      : {}),
   });
   if (error) throw error;
   return id;

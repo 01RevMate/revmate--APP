@@ -9,8 +9,10 @@ been run live in `applied/` for reference.
 | 8 | `08_announcements.sql` | Pop-up announcements with admin controls | **To run** |
 | 9 | `09_listing_details.sql` | Full vehicle details on listings + Buy & Sell filters | **To run** |
 | 10 | `10_revmate_news.sql` | RevMate News posts in feeds, with admin controls | **To run** |
-| 11 | `11_push_notifications.sql` | Phone push notifications | Optional |
-| 12 | `12_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 11, after the keys are set up |
+| 11 | `11_car_care_diagnostics_feed.sql` | MOT & tax reminders, smart diagnostics, car tags, smarter For You, hashtag suggestions | **To run** |
+| 12 | `12_businesses_and_ads.sql` | Local businesses, reviews, reports, ads manager, member area | **To run** |
+| 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
+| 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 
 Already applied (in `applied/`): 1–4 on 27 Sep 2026 (removal reason, social
 features, engagement, existing profiles) and 5–7 on 28 Sep 2026
@@ -33,5 +35,5 @@ schema before being committed.
 The app already works without them: each feature simply stays hidden until
 its SQL has run, then appears on its own.
 
-Files 8–11 are copies of the originals in `drizzle/migrations/`
-(0042, 0043, 0044 and 0032) with a short header added.
+Files 8–13 are copies of the originals in `drizzle/migrations/`
+(0042–0046 and 0032) with a short header added.

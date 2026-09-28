@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import { EssentialsCarCare } from "@/components/EssentialsCarCare";
+import { useCarCareFeature } from "@/lib/carCare";
 import { Link } from "@tanstack/react-router";
 import {
   BadgePoundSterling,
@@ -13,6 +15,8 @@ import {
   Puzzle,
   Warehouse,
   type LucideIcon,
+  Stethoscope,
+  Store,
 } from "lucide-react";
 import { useSocialFeatures } from "@/lib/features";
 import { fetchActiveListings } from "@/lib/listings";
@@ -24,7 +28,7 @@ type Tile = {
   colour: string;
   link:
     | { to: "/marketplace"; search: { type?: "car" | "part" } }
-    | { to: "/sell" | "/ask" | "/cars" | "/garage" | "/meets" };
+    | { to: "/sell" | "/ask" | "/cars" | "/garage" | "/meets" | "/issues" | "/businesses" };
 };
 
 // Planned tools, shown honestly as "coming soon" so the space is ready for
@@ -43,10 +47,26 @@ const COMING_SOON: { label: string; hint: string; icon: LucideIcon }[] = [
  */
 export function EssentialsHome() {
   const social = useSocialFeatures();
+  const careOn = useCarCareFeature();
+  const comingSoon = COMING_SOON.filter((item) => !careOn || !item.label.startsWith("MOT"));
   const { data: listings } = useQuery({ queryKey: ["listings"], queryFn: fetchActiveListings });
   const latest = (listings ?? []).slice(0, 6);
 
   const tiles: Tile[] = [
+    {
+      label: "Problems & fixes",
+      hint: "Faults other owners fixed",
+      icon: Stethoscope,
+      colour: "bg-rose-600",
+      link: { to: "/issues" },
+    },
+    {
+      label: "Local businesses",
+      hint: "Mechanics, bodywork, EV & more",
+      icon: Store,
+      colour: "bg-teal-600",
+      link: { to: "/businesses" },
+    },
     {
       label: "Buy a car",
       hint: "Cars for sale",
@@ -129,6 +149,8 @@ export function EssentialsHome() {
         ))}
       </div>
 
+      {careOn && <EssentialsCarCare />}
+
       <section>
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-base font-semibold">Latest for sale</h2>
@@ -172,7 +194,7 @@ export function EssentialsHome() {
       <section>
         <h2 className="mb-2 text-base font-semibold">Coming soon</h2>
         <div className="grid grid-cols-2 gap-2">
-          {COMING_SOON.map((item) => (
+          {comingSoon.map((item) => (
             <div
               key={item.label}
               className="flex items-center gap-3 rounded-lg border border-dashed border-border p-3 opacity-80"

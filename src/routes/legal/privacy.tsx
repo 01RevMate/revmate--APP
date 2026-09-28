@@ -71,6 +71,17 @@ function PrivacyPage() {
             blocks, and moderation decisions.
           </li>
           <li>
+            <strong>Car care:</strong> MOT and road tax due dates you add, so we can remind you.
+          </li>
+          <li>
+            <strong>Your area — only if you add it:</strong> the first half of your postcode (e.g.
+            LS6), used to show local businesses and offers. Only you can see it.
+          </li>
+          <li>
+            <strong>Business reviews and reports</strong> you write. Reviews are public; reports are
+            only seen by RevMate's team.
+          </li>
+          <li>
             <strong>Consents:</strong> which version of our Terms and this policy you agreed to,
             when, and your marketing choice.
           </li>
@@ -98,6 +109,12 @@ function PrivacyPage() {
             <strong>To personalise your feed</strong> ("For You" ranks posts using the makes you
             follow and what you engage with) and to improve RevMate — <em>legitimate interests</em>.
             You can always switch to another feed tab, such as Following, instead.
+          </li>
+          <li>
+            <strong>Sponsored posts</strong>: we choose which ones to show you using your area (if
+            you've added it) and the type of car in your garage (for example electric) —{" "}
+            <em>legitimate interests</em>. Advertisers never receive your personal data; they only
+            see how many people saw and tapped their ad.
           </li>
           <li>
             <strong>Marketing emails</strong> — only if you tick the box, and you can withdraw at

@@ -50,6 +50,72 @@ export type Database = {
         }
         Relationships: []
       }
+      ad_campaigns: {
+        Row: {
+          active: boolean
+          body: string
+          business_id: string | null
+          clicks: number
+          created_at: string
+          created_by: string | null
+          cta_label: string
+          cta_url: string
+          ends_at: string | null
+          headline: string
+          id: string
+          image_url: string | null
+          impressions: number
+          name: string
+          placement: string
+          starts_at: string
+          target_areas: string[]
+          target_fuel: string | null
+          target_segment: string | null
+        }
+        Insert: {
+          active?: boolean
+          body?: string
+          business_id?: string | null
+          clicks?: number
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string
+          cta_url: string
+          ends_at?: string | null
+          headline: string
+          id?: string
+          image_url?: string | null
+          impressions?: number
+          name: string
+          placement?: string
+          starts_at?: string
+          target_areas?: string[]
+          target_fuel?: string | null
+          target_segment?: string | null
+        }
+        Update: {
+          active?: boolean
+          body?: string
+          business_id?: string | null
+          clicks?: number
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string
+          cta_url?: string
+          ends_at?: string | null
+          headline?: string
+          id?: string
+          image_url?: string | null
+          impressions?: number
+          name?: string
+          placement?: string
+          starts_at?: string
+          target_areas?: string[]
+          target_fuel?: string | null
+          target_segment?: string | null
+        }
+        Relationships: []
+      }
       announcement_views: {
         Row: {
           announcement_id: string
@@ -189,6 +255,126 @@ export type Database = {
         Update: {
           name?: string
           sort_order?: number
+        }
+        Relationships: []
+      }
+      business_reports: {
+        Row: {
+          business_id: string
+          created_at: string
+          details: string
+          id: string
+          reason: string
+          reporter_id: string
+          status: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          details?: string
+          id?: string
+          reason: string
+          reporter_id: string
+          status?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          details?: string
+          id?: string
+          reason?: string
+          reporter_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      business_reviews: {
+        Row: {
+          body: string
+          business_id: string
+          created_at: string
+          id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          business_id: string
+          created_at?: string
+          id?: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          business_id?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      businesses: {
+        Row: {
+          category: string
+          covers_areas: string[]
+          created_at: string
+          description: string
+          id: string
+          logo_url: string | null
+          name: string
+          owner_user_id: string | null
+          phone: string | null
+          postcode_district: string | null
+          rating_avg: number
+          reports_count: number
+          reviews_count: number
+          status: string
+          town: string | null
+          verified: boolean
+          website: string | null
+        }
+        Insert: {
+          category: string
+          covers_areas?: string[]
+          created_at?: string
+          description?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          owner_user_id?: string | null
+          phone?: string | null
+          postcode_district?: string | null
+          rating_avg?: number
+          reports_count?: number
+          reviews_count?: number
+          status?: string
+          town?: string | null
+          verified?: boolean
+          website?: string | null
+        }
+        Update: {
+          category?: string
+          covers_areas?: string[]
+          created_at?: string
+          description?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          owner_user_id?: string | null
+          phone?: string | null
+          postcode_district?: string | null
+          rating_avg?: number
+          reports_count?: number
+          reviews_count?: number
+          status?: string
+          town?: string | null
+          verified?: boolean
+          website?: string | null
         }
         Relationships: []
       }
@@ -845,6 +1031,9 @@ export type Database = {
       }
       garage_cars: {
         Row: {
+          mot_due: string | null
+          tax_due: string | null
+          reminders_enabled: boolean
           battle_losses: number
           battle_wins: number
           bio: string | null
@@ -878,6 +1067,9 @@ export type Database = {
           year: number | null
         }
         Insert: {
+          mot_due?: string | null
+          tax_due?: string | null
+          reminders_enabled?: boolean
           battle_losses?: number
           battle_wins?: number
           bio?: string | null
@@ -911,6 +1103,9 @@ export type Database = {
           year?: number | null
         }
         Update: {
+          mot_due?: string | null
+          tax_due?: string | null
+          reminders_enabled?: boolean
           battle_losses?: number
           battle_wins?: number
           bio?: string | null
@@ -1177,6 +1372,7 @@ export type Database = {
       }
       listings: {
         Row: {
+          business_id: string | null
           body_type: string | null
           colour: string | null
           doors: number | null
@@ -1217,6 +1413,7 @@ export type Database = {
           views_count: number
         }
         Insert: {
+          business_id?: string | null
           body_type?: string | null
           colour?: string | null
           doors?: number | null
@@ -1257,6 +1454,7 @@ export type Database = {
           views_count?: number
         }
         Update: {
+          business_id?: string | null
           body_type?: string | null
           colour?: string | null
           doors?: number | null
@@ -1390,6 +1588,24 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      member_areas: {
+        Row: {
+          home_area: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          home_area: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          home_area?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -1893,6 +2109,16 @@ export type Database = {
       }
       posts: {
         Row: {
+          issue_system: string | null
+          issue_status: string | null
+          issue_fix: string | null
+          resolved_at: string | null
+          resolve_prompts: number
+          last_resolve_prompt_at: string | null
+          tagged_make: string | null
+          tagged_model: string | null
+          tagged_engine: string | null
+          tagged_year: number | null
           audience: Database["public"]["Enums"]["post_audience"]
           body: string
           car_id: string | null
@@ -1916,6 +2142,16 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          issue_system?: string | null
+          issue_status?: string | null
+          issue_fix?: string | null
+          resolved_at?: string | null
+          resolve_prompts?: number
+          last_resolve_prompt_at?: string | null
+          tagged_make?: string | null
+          tagged_model?: string | null
+          tagged_engine?: string | null
+          tagged_year?: number | null
           audience?: Database["public"]["Enums"]["post_audience"]
           body: string
           car_id?: string | null
@@ -1939,6 +2175,16 @@ export type Database = {
           user_id: string
         }
         Update: {
+          issue_system?: string | null
+          issue_status?: string | null
+          issue_fix?: string | null
+          resolved_at?: string | null
+          resolve_prompts?: number
+          last_resolve_prompt_at?: string | null
+          tagged_make?: string | null
+          tagged_model?: string | null
+          tagged_engine?: string | null
+          tagged_year?: number | null
           audience?: Database["public"]["Enums"]["post_audience"]
           body?: string
           car_id?: string | null
@@ -2575,6 +2821,21 @@ export type Database = {
           },
         ]
       }
+      vehicle_make_segments: {
+        Row: {
+          make: string
+          segment: string
+        }
+        Insert: {
+          make: string
+          segment: string
+        }
+        Update: {
+          make?: string
+          segment?: string
+        }
+        Relationships: []
+      }
       vehicle_makes: {
         Row: {
           created_at: string
@@ -2715,6 +2976,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ads_for_me: {
+        Args: { for_placement?: string; result_limit?: number }
+        Returns: {
+          id: string
+          headline: string
+          body: string
+          image_url: string | null
+          cta_label: string
+          cta_url: string
+          business_id: string | null
+          business_name: string | null
+          business_rating: number | null
+          business_reviews: number | null
+          business_verified: boolean | null
+        }[]
+      }
+      common_issues: {
+        Args: { for_make: string; for_model?: string }
+        Returns: { issue_system: string; reports: number; resolved: number; latest_post_id: string }[]
+      }
+      record_ad_event: { Args: { target_ad: string; event: string }; Returns: undefined }
+      send_my_car_reminders: { Args: never; Returns: number }
+      send_my_resolve_prompts: { Args: never; Returns: number }
+      trending_hashtags: {
+        Args: { prefix?: string; result_limit?: number }
+        Returns: { tag: string; uses: number }[]
+      }
       announcement_stats: {
         Args: never
         Returns: { announcement_id: string; seen: number; clicked: number }[]

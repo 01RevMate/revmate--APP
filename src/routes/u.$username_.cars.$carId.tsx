@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { CarCarePanel } from "@/components/CarCarePanel";
+import { CommonIssuesPanel } from "@/components/CommonIssuesPanel";
+import { useCarCareFeature } from "@/lib/carCare";
+import { useDiagnosticsFeature } from "@/lib/diagnostics";
 import { fetchGarageCarSeo } from "@/lib/seoData";
 import { garageCarHead } from "@/lib/seoHeads";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -44,6 +48,9 @@ function CarProfilePage() {
     enabled: !!user && !!posts && posts.length > 0,
   });
 
+  const careOn = useCarCareFeature();
+  const diagnosticsOn = useDiagnosticsFeature();
+
   if (isLoading) {
     return <p className="mx-auto max-w-2xl px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
   }
@@ -76,6 +83,18 @@ function CarProfilePage() {
           onRemoved={() => navigate({ to: "/u/$username", params: { username } })}
         />
       </div>
+
+      {isOwner && careOn && car.ownership_status === "current" && (
+        <div className="mt-4">
+          <CarCarePanel car={car} />
+        </div>
+      )}
+
+      {diagnosticsOn && (
+        <div className="mt-4">
+          <CommonIssuesPanel make={car.make} model={car.model} />
+        </div>
+      )}
 
       <section className="mt-8 border-t border-border pt-6">
         <div className="mb-4 inline-flex rounded-full border border-border p-0.5 text-sm">

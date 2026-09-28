@@ -18,6 +18,7 @@ import { Route as CommunityStandardsRouteImport } from './routes/community-stand
 import { Route as EssentialsRouteImport } from './routes/essentials'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as GarageRouteImport } from './routes/garage'
+import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MessagesRouteImport } from './routes/messages'
@@ -25,11 +26,14 @@ import { Route as NearYouRouteImport } from './routes/near-you'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RevsRouteImport } from './routes/revs'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as UpdatesDotjsonRouteImport } from './routes/updates[.]json'
+import { Route as BusinessesIndexRouteImport } from './routes/businesses/index'
+import { Route as BusinessesBusinessIdRouteImport } from './routes/businesses/$businessId'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
 import { Route as GroupsIndexRouteImport } from './routes/groups/index'
 import { Route as GroupsSlugRouteImport } from './routes/groups/$slug'
@@ -94,6 +98,11 @@ const GarageRoute = GarageRouteImport.update({
   path: '/garage',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IssuesRoute = IssuesRouteImport.update({
+  id: '/issues',
+  path: '/issues',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
@@ -129,6 +138,11 @@ const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
@@ -152,6 +166,16 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const UpdatesDotjsonRoute = UpdatesDotjsonRouteImport.update({
   id: '/updates.json',
   path: '/updates.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessesIndexRoute = BusinessesIndexRouteImport.update({
+  id: '/businesses/',
+  path: '/businesses/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessesBusinessIdRoute = BusinessesBusinessIdRouteImport.update({
+  id: '/businesses/$businessId',
+  path: '/businesses/$businessId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CarsIndexRoute = CarsIndexRouteImport.update({
@@ -255,6 +279,7 @@ export interface FileRoutesByFullPath {
   '/essentials': typeof EssentialsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
+  '/issues': typeof IssuesRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -262,11 +287,13 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/revs': typeof RevsRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/search': typeof SearchRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
+  '/businesses/$businessId': typeof BusinessesBusinessIdRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/cookies': typeof LegalCookiesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -279,6 +306,7 @@ export interface FileRoutesByFullPath {
   '/posts/$postId': typeof PostsPostIdRoute
   '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
+  '/businesses/': typeof BusinessesIndexRoute
   '/cars/': typeof CarsIndexRoute
   '/groups/': typeof GroupsIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
@@ -296,6 +324,7 @@ export interface FileRoutesByTo {
   '/essentials': typeof EssentialsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
+  '/issues': typeof IssuesRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -303,11 +332,13 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/revs': typeof RevsRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/search': typeof SearchRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
+  '/businesses/$businessId': typeof BusinessesBusinessIdRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/cookies': typeof LegalCookiesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -320,6 +351,7 @@ export interface FileRoutesByTo {
   '/posts/$postId': typeof PostsPostIdRoute
   '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
+  '/businesses': typeof BusinessesIndexRoute
   '/cars': typeof CarsIndexRoute
   '/groups': typeof GroupsIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
@@ -338,6 +370,7 @@ export interface FileRoutesById {
   '/essentials': typeof EssentialsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/garage': typeof GarageRoute
+  '/issues': typeof IssuesRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -345,11 +378,13 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/revs': typeof RevsRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/search': typeof SearchRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
+  '/businesses/$businessId': typeof BusinessesBusinessIdRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/cookies': typeof LegalCookiesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -362,6 +397,7 @@ export interface FileRoutesById {
   '/posts/$postId': typeof PostsPostIdRoute
   '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
+  '/businesses/': typeof BusinessesIndexRoute
   '/cars/': typeof CarsIndexRoute
   '/groups/': typeof GroupsIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
@@ -381,6 +417,7 @@ export interface FileRouteTypes {
     | '/essentials'
     | '/forgot-password'
     | '/garage'
+    | '/issues'
     | '/leaderboard'
     | '/login'
     | '/messages'
@@ -388,11 +425,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/revs'
     | '/robots.txt'
+    | '/search'
     | '/sell'
     | '/settings'
     | '/signup'
     | '/sitemap.xml'
     | '/updates.json'
+    | '/businesses/$businessId'
     | '/groups/$slug'
     | '/legal/cookies'
     | '/legal/privacy'
@@ -405,6 +444,7 @@ export interface FileRouteTypes {
     | '/posts/$postId'
     | '/tags/$tag'
     | '/u/$username'
+    | '/businesses/'
     | '/cars/'
     | '/groups/'
     | '/marketplace/'
@@ -422,6 +462,7 @@ export interface FileRouteTypes {
     | '/essentials'
     | '/forgot-password'
     | '/garage'
+    | '/issues'
     | '/leaderboard'
     | '/login'
     | '/messages'
@@ -429,11 +470,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/revs'
     | '/robots.txt'
+    | '/search'
     | '/sell'
     | '/settings'
     | '/signup'
     | '/sitemap.xml'
     | '/updates.json'
+    | '/businesses/$businessId'
     | '/groups/$slug'
     | '/legal/cookies'
     | '/legal/privacy'
@@ -446,6 +489,7 @@ export interface FileRouteTypes {
     | '/posts/$postId'
     | '/tags/$tag'
     | '/u/$username'
+    | '/businesses'
     | '/cars'
     | '/groups'
     | '/marketplace'
@@ -463,6 +507,7 @@ export interface FileRouteTypes {
     | '/essentials'
     | '/forgot-password'
     | '/garage'
+    | '/issues'
     | '/leaderboard'
     | '/login'
     | '/messages'
@@ -470,11 +515,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/revs'
     | '/robots.txt'
+    | '/search'
     | '/sell'
     | '/settings'
     | '/signup'
     | '/sitemap.xml'
     | '/updates.json'
+    | '/businesses/$businessId'
     | '/groups/$slug'
     | '/legal/cookies'
     | '/legal/privacy'
@@ -487,6 +534,7 @@ export interface FileRouteTypes {
     | '/posts/$postId'
     | '/tags/$tag'
     | '/u/$username'
+    | '/businesses/'
     | '/cars/'
     | '/groups/'
     | '/marketplace/'
@@ -505,6 +553,7 @@ export interface RootRouteChildren {
   EssentialsRoute: typeof EssentialsRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   GarageRoute: typeof GarageRoute
+  IssuesRoute: typeof IssuesRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRouteWithChildren
@@ -512,11 +561,13 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   RevsRoute: typeof RevsRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SearchRoute: typeof SearchRoute
   SellRoute: typeof SellRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UpdatesDotjsonRoute: typeof UpdatesDotjsonRoute
+  BusinessesBusinessIdRoute: typeof BusinessesBusinessIdRoute
   GroupsSlugRoute: typeof GroupsSlugRoute
   LegalCookiesRoute: typeof LegalCookiesRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
@@ -528,6 +579,7 @@ export interface RootRouteChildren {
   PostsPostIdRoute: typeof PostsPostIdRoute
   TagsTagRoute: typeof TagsTagRoute
   UUsernameRoute: typeof UUsernameRoute
+  BusinessesIndexRoute: typeof BusinessesIndexRoute
   CarsIndexRoute: typeof CarsIndexRoute
   GroupsIndexRoute: typeof GroupsIndexRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
@@ -601,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GarageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/issues': {
+      id: '/issues'
+      path: '/issues'
+      fullPath: '/issues'
+      preLoaderRoute: typeof IssuesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leaderboard': {
       id: '/leaderboard'
       path: '/leaderboard'
@@ -650,6 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sell': {
       id: '/sell'
       path: '/sell'
@@ -683,6 +749,20 @@ declare module '@tanstack/react-router' {
       path: '/updates.json'
       fullPath: '/updates.json'
       preLoaderRoute: typeof UpdatesDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/businesses/': {
+      id: '/businesses/'
+      path: '/businesses'
+      fullPath: '/businesses/'
+      preLoaderRoute: typeof BusinessesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/businesses/$businessId': {
+      id: '/businesses/$businessId'
+      path: '/businesses/$businessId'
+      fullPath: '/businesses/$businessId'
+      preLoaderRoute: typeof BusinessesBusinessIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cars/': {
@@ -836,6 +916,7 @@ const rootRouteChildren: RootRouteChildren = {
   EssentialsRoute: EssentialsRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   GarageRoute: GarageRoute,
+  IssuesRoute: IssuesRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   MessagesRoute: MessagesRouteWithChildren,
@@ -843,11 +924,13 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   RevsRoute: RevsRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
+  SearchRoute: SearchRoute,
   SellRoute: SellRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UpdatesDotjsonRoute: UpdatesDotjsonRoute,
+  BusinessesBusinessIdRoute: BusinessesBusinessIdRoute,
   GroupsSlugRoute: GroupsSlugRoute,
   LegalCookiesRoute: LegalCookiesRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
@@ -859,6 +942,7 @@ const rootRouteChildren: RootRouteChildren = {
   PostsPostIdRoute: PostsPostIdRoute,
   TagsTagRoute: TagsTagRoute,
   UUsernameRoute: UUsernameRoute,
+  BusinessesIndexRoute: BusinessesIndexRoute,
   CarsIndexRoute: CarsIndexRoute,
   GroupsIndexRoute: GroupsIndexRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,

@@ -7,6 +7,8 @@ import {
   FileWarning,
   Megaphone,
   Newspaper,
+  Store,
+  BadgePercent,
   Shield,
   ShieldCheck,
   Trash2,
@@ -43,6 +45,9 @@ import { AdminChallenges } from "@/components/AdminChallenges";
 import { AdminPartners } from "@/components/AdminPartners";
 import { AdminAnnouncements } from "@/components/AdminAnnouncements";
 import { AdminNews } from "@/components/AdminNews";
+import { AdminBusinesses } from "@/components/AdminBusinesses";
+import { AdminAds } from "@/components/AdminAds";
+import { useBusinessesFeature } from "@/lib/businesses";
 import { useNewsFeature } from "@/lib/news";
 import { useMarketplaceFeatures } from "@/lib/marketplace";
 import { setVerifiedType, type VerifiedType } from "@/lib/social";
@@ -91,6 +96,8 @@ type AdminSection =
   | "protect"
   | "updates"
   | "news"
+  | "businesses"
+  | "ads"
   | "cars"
   | "challenges"
   | "partners";
@@ -123,6 +130,7 @@ function AdminPage() {
   const [section, setSection] = useState<AdminSection>("reports");
   const announcementsOn = useAnnouncementsFeature();
   const newsOn = useNewsFeature();
+  const businessesOn = useBusinessesFeature();
   const [reportFilter, setReportFilter] = useState<"open" | "all">("open");
   const [peopleSearch, setPeopleSearch] = useState("");
   const [newTerm, setNewTerm] = useState("");
@@ -314,6 +322,12 @@ function AdminPage() {
             ["protect", "Protect Posts", Shield],
             ["updates", "App Updates", Megaphone],
             ...(newsOn ? ([["news", "RevMate News", Newspaper]] as const) : []),
+            ...(businessesOn
+              ? ([
+                  ["businesses", "Businesses", Store],
+                  ["ads", "Ads", BadgePercent],
+                ] as const)
+              : []),
             ["cars", "Car pages", Car],
             ...(engagement ? ([["challenges", "Challenges", Trophy]] as const) : []),
             ...(market ? ([["partners", "Partners", Handshake]] as const) : []),
@@ -638,6 +652,8 @@ function AdminPage() {
       )}
 
       {section === "news" && newsOn && user && <AdminNews userId={user.id} />}
+      {section === "businesses" && businessesOn && user && <AdminBusinesses userId={user.id} />}
+      {section === "ads" && businessesOn && user && <AdminAds userId={user.id} />}
 
       {section === "updates" && announcementsOn && user && (
         <AdminAnnouncements userId={user.id} />

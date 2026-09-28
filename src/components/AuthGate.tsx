@@ -23,6 +23,7 @@ const PUBLIC_PATHS: RegExp[] = [
   /^\/(login|signup|forgot-password|reset-password)\/?$/,
   /^\/legal\/.+/,
   /^\/community-standards\/?$/,
+  /^\/businesses(\/[^/]+)?\/?$/,
 ];
 
 // What people were trying to open, so the join screen can sell exactly that.

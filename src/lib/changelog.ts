@@ -24,6 +24,29 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.13.0",
+    date: "2026-09-28",
+    title: "Car care, smart diagnostics, search & local businesses",
+    status: "needs_database_update",
+    highlights: [
+      "MOT and road tax reminders: add the dates to your car and get reminders 30, 7 and 1 day before, with GOV.UK links and add-to-calendar",
+      "Diagnostic posts ask which part of the car the problem is in, and the author can mark it fixed with one tap and say what fixed it",
+      "When a problem is fixed, everyone who liked or commented is told; authors get a nudge if they haven't updated it",
+      "Known issues on every car page, plus a Problems & fixes page to find faults other owners have fixed",
+      "Search now works: people, cars, posts, listings, groups, hashtags and businesses",
+      "Tag the car a post is about by make, model, engine and year, perfect for asking what a car is like to own",
+      "Hashtags light up as you type, with popular tags suggested like on TikTok",
+      "A smarter For You feed that learns what you're into from your cars (brand, EV, modified or standard) and what you like",
+      "Local businesses: mechanics, bodywork, EV installers, detailers and dealers, rated and reviewed by members, with trust badges and reporting",
+      "Admin ads manager for local sponsored posts targeted by area and car type, always labelled Sponsored",
+      "Set your area in Settings for local offers (only you can see it)",
+    ],
+    requiredSql: [
+      "drizzle/migrations/0045_car_care_diagnostics_feed.sql",
+      "drizzle/migrations/0046_businesses_and_ads.sql",
+    ],
+  },
+  {
     version: "1.12.0",
     date: "2026-09-28",
     title: "Smoother videos, car specs & RevMate News",

@@ -33,6 +33,7 @@ import { reportSeller, SELLER_REPORT_REASONS, type SellerReportReason } from "@/
 import { carLabel, carPath } from "@/lib/cars";
 import { Avatar } from "@/components/Avatar";
 import { ListingGallery } from "@/components/ListingGallery";
+import { ListingBusinessCard } from "@/components/ListingBusinessCard";
 import { ListingSpecHighlights, ListingSpecSheet } from "@/components/ListingSpecSheet";
 import { displayUsername, displayUsernameWithoutAt } from "@/lib/usernames";
 import { useAuth } from "@/hooks/useAuth";
@@ -408,6 +409,8 @@ function ListingDetailPage() {
       {listing.description && (
         <p className="mt-6 whitespace-pre-wrap text-sm">{listing.description}</p>
       )}
+
+      {listing.business_id && <ListingBusinessCard businessId={listing.business_id} />}
 
       {listing.type === "car" && <ListingSpecSheet specs={listing} />}
 

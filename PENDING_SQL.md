@@ -51,9 +51,36 @@ Lovable prompts.
 - Safe: only adds two tables, triggers and security rules. Tested against a
   copy of the full database schema (10 behaviour checks).
 
-### 4. Phone push notifications (optional, needs a few setup steps)
+### 4. Car care, smart diagnostics and a smarter For You
 
-- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/11_push_notifications.sql`).
+- File: `drizzle/migrations/0045_car_care_diagnostics_feed.sql` (`sql-to-run/11_car_care_diagnostics_feed.sql`)
+- Added: 2026-09-28
+- Switches on: MOT and road tax dates with reminders (30, 7 and 1 day
+  before, and if missed), diagnostic posts with the part of the car and
+  resolved/unresolved plus the fix (likers and commenters are told when it's
+  fixed; authors are nudged to update), Known issues per car and the
+  Problems & fixes page, "what car is this about?" tags, a For You feed that
+  learns from people's cars (brand tier, EV, modified or standard), and
+  trending hashtag suggestions.
+- Until this runs: none of these show; hashtag suggestions use a starter list.
+- Safe: only adds columns, tables, triggers and functions, and replaces the
+  For You feed function. Tested against a copy of the full database schema.
+
+### 5. Local businesses and ads manager
+
+- File: `drizzle/migrations/0046_businesses_and_ads.sql` (`sql-to-run/12_businesses_and_ads.sql`)
+- Added: 2026-09-28
+- Switches on: the business directory and pages with member reviews,
+  reports and trust badges, Admin → Businesses and Admin → Ads (targeted
+  sponsored cards in the feed with impressions and clicks), the "Your area"
+  setting, and linking dealer listings to their business.
+- Until this runs: nothing changes; the pages and admin tabs stay hidden.
+- Safe: only adds tables, a column on listings, triggers and functions.
+  Tested against a copy of the full database schema (30 checks with step 11).
+
+### 6. Phone push notifications (optional, needs a few setup steps)
+
+- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27
 - Needed by: the "Phone notifications" switch in Settings. Until this runs
   (and the steps below are done) the switch doesn't appear and everything
@@ -68,7 +95,7 @@ Lovable prompts.
      - `VAPID_SUBJECT` — `mailto:` followed by your email
      - `PUSH_WEBHOOK_SECRET` — any long random password you make up
   4. Deploy the edge function `supabase/functions/send-push`.
-  5. Tell the database where the function is — `sql-to-run/12_push_setup_after_keys.sql`,
+  5. Tell the database where the function is — `sql-to-run/14_push_setup_after_keys.sql`,
      with the same random password as step 3:
      ```sql
      SELECT vault.create_secret('https://<project-ref>.supabase.co/functions/v1/send-push', 'push_function_url');

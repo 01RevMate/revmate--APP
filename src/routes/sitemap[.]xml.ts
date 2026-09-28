@@ -8,6 +8,7 @@ import { absoluteUrl, pickShareImage } from "@/lib/seo";
 const STATIC_PAGES: { path: string; changefreq: string; priority: string }[] = [
   { path: "/", changefreq: "hourly", priority: "1.0" },
   { path: "/marketplace", changefreq: "hourly", priority: "0.9" },
+  { path: "/businesses", changefreq: "daily", priority: "0.7" },
   { path: "/signup", changefreq: "monthly", priority: "0.5" },
   { path: "/community-standards", changefreq: "monthly", priority: "0.3" },
   { path: "/legal/terms", changefreq: "monthly", priority: "0.2" },
@@ -34,6 +35,12 @@ export const Route = createFileRoute("/sitemap.xml")({
           .order("created_at", { ascending: false })
           .limit(5000);
 
+        const { data: businesses } = await supabase
+          .from("businesses")
+          .select("id, created_at")
+          .eq("status", "active")
+          .limit(5000);
+
         const urls = [
           ...STATIC_PAGES.map(
             (page) =>
@@ -50,6 +57,10 @@ export const Route = createFileRoute("/sitemap.xml")({
               .join("");
             return `<url><loc>${escapeXml(absoluteUrl(`/marketplace/${listing.id}`))}</loc><lastmod>${listing.created_at.slice(0, 10)}</lastmod><changefreq>daily</changefreq><priority>0.8</priority>${images}</url>`;
           }),
+          ...(businesses ?? []).map(
+            (b) =>
+              `<url><loc>${escapeXml(absoluteUrl(`/businesses/${b.id}`))}</loc><lastmod>${b.created_at.slice(0, 10)}</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>`,
+          ),
         ];
 
         return new Response(

@@ -21,6 +21,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { PostComposer } from "@/components/PostComposer";
 import { PostCard } from "@/components/PostCard";
 import { NewsCard } from "@/components/NewsCard";
+import { AdCard } from "@/components/AdCard";
+import { fetchAdsForMe, useBusinessesFeature, type AdForMe } from "@/lib/businesses";
 import { fetchLiveNews, fetchMyNewsLikes, mergeNewsIntoFeed, useNewsFeature } from "@/lib/news";
 import { PostCardSkeleton } from "@/components/PostCardSkeleton";
 import { FeedScopeBar, type FeedScope } from "@/components/FeedScopeBar";
@@ -138,6 +140,27 @@ function Home() {
     [filteredPosts, news, newsOn, category, hasNextPage],
   );
 
+  // Sponsored cards from the ads manager: one every 8 items, matched to the
+  // member's area and cars by the database.
+  const businessesOn = useBusinessesFeature();
+  const { data: ads } = useQuery({
+    queryKey: ["ads", "feed", user?.id],
+    queryFn: () => fetchAdsForMe("feed"),
+    enabled: businessesOn && !!user,
+    staleTime: 10 * 60_000,
+  });
+  const feedWithAds = useMemo(() => {
+    type Item = (typeof feedItems)[number] | { kind: "ad"; ad: AdForMe };
+    if (!ads?.length) return feedItems as Item[];
+    const out: Item[] = [];
+    let next = 0;
+    feedItems.forEach((item, i) => {
+      out.push(item);
+      if ((i + 1) % 8 === 0 && next < ads.length) out.push({ kind: "ad", ad: ads[next++]! });
+    });
+    return out;
+  }, [feedItems, ads]);
+
   // The For You feed is ranked, so the newest post isn't necessarily first.
   const newestCreatedAt = useMemo(
     () =>
@@ -250,8 +273,10 @@ function Home() {
                   </div>
                 )}
 
-                {feedItems.map((item) =>
-                  item.kind === "news" ? (
+                {feedWithAds.map((item) =>
+                  item.kind === "ad" ? (
+                    <AdCard key={`ad-${item.ad.id}`} ad={item.ad} />
+                  ) : item.kind === "news" ? (
                     <NewsCard
                       key={`news-${item.news.id}`}
                       news={item.news}

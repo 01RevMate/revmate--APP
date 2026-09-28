@@ -24,6 +24,9 @@ import {
   UserPlus,
   Users,
   X,
+  ClipboardCheck,
+  Landmark,
+  Stethoscope,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -147,6 +150,17 @@ function notificationDetails(notification: NotificationWithContext, actorLabel?:
         Icon: TrendingDown,
         text: notification.message ?? "Something on your watchlist dropped in price",
       };
+    case "mot_reminder":
+      return { Icon: ClipboardCheck, text: notification.message ?? "Your MOT is due soon" };
+    case "tax_reminder":
+      return { Icon: Landmark, text: notification.message ?? "Your road tax is due soon" };
+    case "issue_resolved":
+      return {
+        Icon: CheckCircle2,
+        text: notification.message ?? "A problem you followed was fixed",
+      };
+    case "resolve_prompt":
+      return { Icon: Stethoscope, text: notification.message ?? "Did you fix your car problem?" };
     default:
       return { Icon: Bell, text: "You have a new RevMate notification" };
   }
@@ -185,6 +199,13 @@ export function NotificationCenter() {
     if (!user || !social) return;
     void supabase.rpc("send_due_meet_reminders");
   }, [user, social]);
+  // Same for MOT/tax reminders and "did you fix it?" nudges (0045). Before
+  // that SQL runs these calls just fail quietly.
+  useEffect(() => {
+    if (!user) return;
+    void supabase.rpc("send_my_car_reminders").then(() => undefined);
+    void supabase.rpc("send_my_resolve_prompts").then(() => undefined);
+  }, [user]);
   useEffect(() => {
     if (!user) return;
     const channel = supabase

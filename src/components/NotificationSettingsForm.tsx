@@ -22,6 +22,10 @@ const KINDS: { id: string; label: string }[] = [
   { id: "weekly_recap", label: "Weekly recap" },
   { id: "rank_up", label: "Leaderboard rank changes" },
   { id: "price_drop", label: "Price drops on your watchlist" },
+  { id: "mot_reminder", label: "MOT reminders" },
+  { id: "tax_reminder", label: "Road tax reminders" },
+  { id: "issue_resolved", label: "Problems you followed get fixed" },
+  { id: "resolve_prompt", label: "Reminders to update your problems" },
 ];
 
 export function NotificationSettingsForm({ userId }: { userId: string }) {

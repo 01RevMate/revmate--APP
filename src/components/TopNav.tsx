@@ -72,15 +72,14 @@ export function TopNav() {
           <div className="ml-auto flex items-center gap-3">
             <StreakBadge />
             <NotificationCenter />
-            {/* Visual placeholder only — search will be connected later. */}
-            <button
-              type="button"
-              aria-label="Search — coming soon"
-              title="Search — coming soon"
+            <Link
+              to="/search"
+              aria-label="Search"
+              title="Search"
               className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
             >
               <Search className="size-5" />
-            </button>
+            </Link>
             <PostingIdentitySwitcher
               userId={user.id}
               username={profile.username}
