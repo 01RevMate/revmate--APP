@@ -5,6 +5,42 @@ below (everything inside the box) and paste it into Lovable.
 
 ---
 
+## All-in-one — run steps 5, 6 and 7 together (easiest)
+
+```
+Please run these three files from the repo's sql-to-run folder on the
+connected Supabase database, one at a time and in this order, exactly as
+committed. Don't rewrite, merge or simplify them, and don't recreate their
+functions in your own words — use each file as it is. Wait for each to
+finish before starting the next, and stop and tell me if any of them fails.
+
+1. sql-to-run/05_marketplace.sql
+2. sql-to-run/06_group_rules.sql
+3. sql-to-run/07_age_and_consent.sql
+
+They only add columns, tables, triggers, functions and security rules. No
+existing posts, cars, profiles, listings or messages are deleted.
+
+When all three have finished, please confirm:
+- public.listings has previous_price, price_changed_at, views_count,
+  saves_count, featured_until and location_area
+- saved_listings, listing_views, marketplace_partners, group_questions,
+  group_join_answers and account_consents exist with row level security on
+- public.community_groups has entry_rule, allow_sales and
+  require_rules_agreement
+- these functions exist: record_listing_view, record_partner_click,
+  join_group, group_entry_eligibility, record_consents,
+  set_marketing_consent, delete_my_account
+- the triggers enforce_group_post_rules (on public.posts) and
+  on_auth_user_created_consents (on auth.users) exist
+
+Then regenerate the Supabase TypeScript types.
+```
+
+Or run them one by one with Prompts 1–3 below.
+
+---
+
 ## Prompt 1 — marketplace update (do this one)
 
 ```
