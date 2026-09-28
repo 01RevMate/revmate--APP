@@ -43,6 +43,7 @@ export const RELEASES: Release[] = [
     ],
     fixes: [
       "Diagnostic posts now keep their category in the standard header position, with status, problem type and selected car grouped neatly below",
+      "Message threads now fit phone screens without page-level scrolling, keeping the chat header and composer visible while messages scroll independently",
     ],
     requiredSql: [
       "drizzle/migrations/0045_car_care_diagnostics_feed.sql",

@@ -30,7 +30,7 @@ export const Route = createFileRoute("/messages/$username")({
     const description = `Message ${handle} privately on RevMate.`;
     return {
       meta: [
-      { name: "robots", content: "noindex, nofollow" },
+        { name: "robots", content: "noindex, nofollow" },
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
@@ -59,7 +59,7 @@ function MessageThreadPageContent() {
   const [pendingImage, setPendingImage] = useState<{ file: File; previewUrl: string } | null>(null);
   const [openImage, setOpenImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesViewportRef = useRef<HTMLDivElement>(null);
 
   const { data: otherProfile } = useQuery({
     queryKey: ["profile-by-username", username],
@@ -123,7 +123,9 @@ function MessageThreadPageContent() {
   }, [conversationId, messages, queryClient, user]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    const viewport = messagesViewportRef.current;
+    if (!viewport) return;
+    viewport.scrollTo({ top: viewport.scrollHeight, behavior: "smooth" });
   }, [messages?.length]);
 
   useEffect(() => {
@@ -177,7 +179,7 @@ function MessageThreadPageContent() {
     .find((message) => message.sender_id === user?.id)?.id;
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-8rem)] max-w-2xl flex-col bg-background md:h-[calc(100dvh-4.5rem)] md:border-x md:border-border">
+    <div className="mx-auto flex h-[calc(100dvh-8rem-env(safe-area-inset-top))] min-h-0 max-w-2xl flex-col overflow-hidden bg-background md:h-[calc(100dvh-4.5rem)] md:border-x md:border-border">
       <header className="flex shrink-0 items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur">
         <Link
           to="/messages"
@@ -205,7 +207,10 @@ function MessageThreadPageContent() {
         </Link>
       </header>
 
-      <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5">
+      <div
+        ref={messagesViewportRef}
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5"
+      >
         {user &&
           messages?.map((message, index) => {
             const isMine = message.sender_id === user.id;
@@ -315,7 +320,6 @@ function MessageThreadPageContent() {
             Sign in to see your conversation with {displayUsernameWithoutAt(otherProfile.username)}.
           </p>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       <form
@@ -326,7 +330,7 @@ function MessageThreadPageContent() {
             `Create a free account to message ${displayUsernameWithoutAt(otherProfile.username)}.`,
           )
         }
-        className="shrink-0 border-t border-border bg-background px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 md:px-4"
+        className="shrink-0 border-t border-border bg-background px-3 pb-3 pt-3 md:px-4"
       >
         {pendingImage && (
           <div className="relative mb-3 w-fit overflow-hidden rounded-xl border border-border bg-muted p-1">
