@@ -122,6 +122,17 @@ export async function sendMessage(
   if (error) throw error;
 }
 
+/** Messages sent to me that I haven't opened. RLS limits this to my own conversations. */
+export async function fetchUnreadMessageCount(userId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from("messages")
+    .select("id", { count: "exact", head: true })
+    .neq("sender_id", userId)
+    .is("read_at", null);
+  if (error) throw error;
+  return count ?? 0;
+}
+
 export async function markConversationRead(conversationId: string, userId: string) {
   const { error } = await supabase
     .from("messages")

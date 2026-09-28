@@ -40,6 +40,7 @@ export const RELEASES: Release[] = [
       "Local businesses: mechanics, bodywork, EV installers, detailers and dealers, rated and reviewed by members, with trust badges and reporting",
       "Admin ads manager for local sponsored posts targeted by area and car type, always labelled Sponsored",
       "Set your area in Settings for local offers (only you can see it)",
+      "Unread messages now show as a red number on Messages in the bottom bar, the menu button and the menu, and update live",
     ],
     fixes: [
       "Diagnostic posts now keep their category in the standard header position, with status, problem type and selected car grouped neatly below",

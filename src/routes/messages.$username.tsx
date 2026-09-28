@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isSameDay } from "date-fns";
 import { useEffect, useRef, useState } from "react";
+import { unreadMessagesKey } from "@/hooks/useUnreadMessages";
 import { toast } from "sonner";
 import { ArrowLeft, Check, CheckCheck, ImagePlus, Loader2, Send, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -118,6 +119,7 @@ function MessageThreadPageContent() {
           ),
         );
         void queryClient.invalidateQueries({ queryKey: ["conversations", user.id] });
+        void queryClient.invalidateQueries({ queryKey: unreadMessagesKey(user.id) });
       })
       .catch(() => toast.error("Couldn't mark these messages as seen"));
   }, [conversationId, messages, queryClient, user]);

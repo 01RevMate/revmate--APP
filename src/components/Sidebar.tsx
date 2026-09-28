@@ -22,6 +22,8 @@ import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { CountBadge } from "@/components/CountBadge";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 const STORAGE_KEY = "revmate:sidebarCollapsed";
@@ -38,6 +40,7 @@ function NavLink({
   collapsed,
   exact,
   requireAuth,
+  badge = 0,
 }: {
   to: string;
   icon: typeof Home;
@@ -45,6 +48,7 @@ function NavLink({
   collapsed: boolean;
   exact?: boolean;
   requireAuth?: boolean;
+  badge?: number;
 }) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
@@ -63,8 +67,12 @@ function NavLink({
       activeProps={{ className: `${item} ${collapsed ? itemCollapsed : ""} ${activeItem}` }}
       {...linkProps}
     >
-      <Icon className="size-5 shrink-0" />
+      <span className="relative">
+        <Icon className="size-5 shrink-0" />
+        {collapsed && <CountBadge count={badge} className="absolute -right-2.5 -top-2" />}
+      </span>
       {!collapsed && label}
+      {!collapsed && <CountBadge count={badge} className="ml-auto" />}
     </Link>
   );
 
@@ -82,6 +90,7 @@ export function Sidebar() {
   const { isAdmin } = useProfile();
   const social = useSocialFeatures();
   const engagement = useEngagementFeatures();
+  const unread = useUnreadMessages();
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -147,6 +156,7 @@ export function Sidebar() {
           label="Messages"
           collapsed={collapsed}
           requireAuth
+          badge={unread}
         />
         <NavLink
           to="/settings"

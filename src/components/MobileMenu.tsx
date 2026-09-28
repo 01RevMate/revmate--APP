@@ -21,6 +21,8 @@ import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { CountBadge } from "@/components/CountBadge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const item =
@@ -32,12 +34,14 @@ function MenuLink({
   label,
   requireAuth,
   onNavigate,
+  badge = 0,
 }: {
   to: string;
   icon: typeof Home;
   label: string;
   requireAuth?: boolean;
   onNavigate: () => void;
+  badge?: number;
 }) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
@@ -58,6 +62,7 @@ function MenuLink({
     >
       <Icon className="size-5 shrink-0" />
       {label}
+      <CountBadge count={badge} className="ml-auto" />
     </Link>
   );
 }
@@ -70,6 +75,7 @@ export function MobileMenu() {
   const { isAdmin } = useProfile();
   const social = useSocialFeatures();
   const engagement = useEngagementFeatures();
+  const unread = useUnreadMessages();
 
   function close() {
     setOpen(false);
@@ -79,10 +85,11 @@ export function MobileMenu() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <button
-          aria-label="Open menu"
-          className="flex size-9 shrink-0 items-center justify-center rounded-md text-foreground hover:bg-accent md:hidden"
+          aria-label={unread > 0 ? `Open menu, ${unread} unread messages` : "Open menu"}
+          className="relative flex size-9 shrink-0 items-center justify-center rounded-md text-foreground hover:bg-accent md:hidden"
         >
           <Menu className="size-5" />
+          <CountBadge count={unread} className="absolute -right-1 -top-1" />
         </button>
       </SheetTrigger>
       <SheetContent side="left" className="w-72">
@@ -126,6 +133,7 @@ export function MobileMenu() {
             label="Messages"
             requireAuth
             onNavigate={close}
+            badge={unread}
           />
           <MenuLink
             to="/settings"

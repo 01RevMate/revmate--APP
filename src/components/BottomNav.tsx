@@ -5,6 +5,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 import { CreatePostModal } from "@/components/CreatePostModal";
+import { CountBadge } from "@/components/CountBadge";
+import { useUnreadMessages, useUnreadMessagesSync } from "@/hooks/useUnreadMessages";
 
 const item =
   "flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium text-muted-foreground transition-colors hover:text-foreground";
@@ -16,12 +18,14 @@ function NavItem({
   label,
   exact,
   requireAuth,
+  badge = 0,
 }: {
   to: string;
   icon: typeof Home;
   label: string;
   exact?: boolean;
   requireAuth?: boolean;
+  badge?: number;
 }) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
@@ -46,7 +50,10 @@ function NavItem({
       activeProps={{ className: `${item} ${activeItem}` }}
       {...linkProps}
     >
-      <Icon className="size-5 shrink-0" />
+      <span className="relative">
+        <Icon className="size-5 shrink-0" />
+        <CountBadge count={badge} className="absolute -right-2.5 -top-2" />
+      </span>
       {label}
     </Link>
   );
@@ -85,6 +92,8 @@ function ComposeButton() {
 // click and open the sign-in prompt instead of navigating when logged out.
 export function BottomNav() {
   const hidden = useHideOnScroll();
+  useUnreadMessagesSync();
+  const unread = useUnreadMessages();
 
   return (
     <nav
@@ -100,7 +109,7 @@ export function BottomNav() {
       <ComposeButton />
       <div className="flex flex-1">
         <NavItem to="/garage" icon={Warehouse} label="Garage" requireAuth />
-        <NavItem to="/messages" icon={MessageCircle} label="Messages" requireAuth />
+        <NavItem to="/messages" icon={MessageCircle} label="Messages" requireAuth badge={unread} />
       </div>
     </nav>
   );
