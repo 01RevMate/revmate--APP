@@ -55,11 +55,12 @@ export const RELEASES: Release[] = [
       "Reactions now work properly on phones: hold the heart without the page trying to select or copy, or tap the like count to pick a reaction",
       "Videos in the feed play silently on their own as you scroll, one at a time, with a slim progress bar and a sound button",
       "Tap a video for a full-screen player with sound, a seek bar and tap-to-pause",
-      "Car adverts get a full spec sheet: year, fuel, gearbox, body, engine, power, owners, MOT, service history, ULEZ and more",
+      "Car adverts get an Overview card with icons for the key details (mileage, year, fuel, body, gearbox, engine, doors, seats) and a View all details button for owners, MOT, service history, ULEZ and more",
       "Buy & Sell filters for make, model, year, mileage, gearbox, fuel, body type, seller and ULEZ, plus sorting by mileage or age",
       "A 'Before you buy' checklist on every car advert, with a link to the free GOV.UK MOT history check",
       "RevMate News: official posts from the RevMate team in your feed, covering app updates, news, fuel prices and partner offers",
     ],
+    fixes: ["Opening the admin page directly by its web address now works for admins"],
     requiredSql: [
       "drizzle/migrations/0043_listing_details.sql",
       "drizzle/migrations/0044_revmate_news.sql",
