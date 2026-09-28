@@ -7,8 +7,10 @@ been run live in `applied/` for reference.
 | # | File | What it does | Status |
 |---|------|--------------|--------|
 | 8 | `08_announcements.sql` | Pop-up announcements with admin controls | **To run** |
-| 9 | `09_push_notifications.sql` | Phone push notifications | Optional |
-| 10 | `10_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 9, after the keys are set up |
+| 9 | `09_listing_details.sql` | Full vehicle details on listings + Buy & Sell filters | **To run** |
+| 10 | `10_revmate_news.sql` | RevMate News posts in feeds, with admin controls | **To run** |
+| 11 | `11_push_notifications.sql` | Phone push notifications | Optional |
+| 12 | `12_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 11, after the keys are set up |
 
 Already applied (in `applied/`): 1–4 on 27 Sep 2026 (removal reason, social
 features, engagement, existing profiles) and 5–7 on 28 Sep 2026
@@ -17,8 +19,8 @@ features, engagement, existing profiles) and 5–7 on 28 Sep 2026
 ## Two ways to run them
 
 **Easiest — ask Lovable.** Open `LOVABLE_PENDING_SQL_PROMPT.md` (in the main
-folder), copy Prompt 1 and paste it into Lovable. Prompt 2 does the phone
-notifications.
+folder), copy the all-in-one prompt and paste it into Lovable. Prompt 4 does
+the phone notifications.
 
 **Or run them yourself** in the Supabase SQL editor (Lovable Cloud → Database
 → SQL editor): open each file here in order, copy the whole file, paste,
@@ -31,5 +33,5 @@ schema before being committed.
 The app already works without them: each feature simply stays hidden until
 its SQL has run, then appears on its own.
 
-Files 8 and 9 are copies of the originals in `drizzle/migrations/`
-(0042 and 0032) with a short header added.
+Files 8–11 are copies of the originals in `drizzle/migrations/`
+(0042, 0043, 0044 and 0032) with a short header added.

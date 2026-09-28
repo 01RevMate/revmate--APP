@@ -8,6 +8,7 @@ import {
   isNewToday,
   type MarketListing,
 } from "@/lib/marketplace";
+import { isAutomatic } from "@/lib/vehicleSpecs";
 
 /**
  * A marketplace tile built to be scanned fast: photo first, price as the
@@ -38,14 +39,21 @@ export function MarketListingCard({
     drop && listing.previous_price != null && listing.price != null
       ? Number(listing.previous_price) - Number(listing.price)
       : 0;
-  const make = car?.make ?? catalog?.make;
-  const model = car?.model ?? catalog?.model;
+  const make = listing.make ?? car?.make ?? catalog?.make;
+  const model = listing.model ?? car?.model ?? catalog?.model;
   const facts =
     listing.type === "car"
       ? [
-          car?.year,
+          listing.year ?? car?.year,
           [make, model].filter(Boolean).join(" ") || null,
           listing.mileage != null ? `${listing.mileage.toLocaleString("en-GB")} mi` : null,
+          listing.transmission
+            ? isAutomatic(listing.transmission)
+              ? "Auto"
+              : listing.transmission === "manual"
+                ? "Manual"
+                : null
+            : null,
         ]
       : ["Part", make ? `fits ${[make, model].filter(Boolean).join(" ")}` : null];
   const photoCount = listing.photos?.length ?? 0;

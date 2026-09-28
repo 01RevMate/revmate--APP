@@ -20,6 +20,8 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { Sidebar } from "@/components/Sidebar";
 import { PostComposer } from "@/components/PostComposer";
 import { PostCard } from "@/components/PostCard";
+import { NewsCard } from "@/components/NewsCard";
+import { fetchLiveNews, fetchMyNewsLikes, mergeNewsIntoFeed, useNewsFeature } from "@/lib/news";
 import { PostCardSkeleton } from "@/components/PostCardSkeleton";
 import { FeedScopeBar, type FeedScope } from "@/components/FeedScopeBar";
 import { CategoryFilterBar, type CategoryFilter } from "@/components/CategoryFilterBar";
@@ -112,6 +114,29 @@ function Home() {
       ),
     enabled: !!user && filteredPosts.length > 0,
   });
+
+  // RevMate News sits in every feed at its publish time (not in category filters).
+  const newsOn = useNewsFeature();
+  const { data: news } = useQuery({
+    queryKey: ["news", "live"],
+    queryFn: fetchLiveNews,
+    enabled: newsOn,
+    refetchInterval: 240000,
+  });
+  const { data: newsLikes } = useQuery({
+    queryKey: ["news", "liked", user?.id],
+    queryFn: () => fetchMyNewsLikes(user!.id),
+    enabled: newsOn && !!user,
+  });
+  const feedItems = useMemo(
+    () =>
+      mergeNewsIntoFeed(
+        filteredPosts,
+        newsOn && category === "all" ? (news ?? []) : [],
+        hasNextPage === false,
+      ),
+    [filteredPosts, news, newsOn, category, hasNextPage],
+  );
 
   // The For You feed is ranked, so the newest post isn't necessarily first.
   const newestCreatedAt = useMemo(
@@ -225,15 +250,23 @@ function Home() {
                   </div>
                 )}
 
-                {filteredPosts.map((post: PostWithAuthor) => (
-                  <PostCard
-                    key={post.id}
-                    post={post}
-                    liked={likedIds?.has(post.id) ?? false}
-                    onDeleted={refreshFeed}
-                    immersive
-                  />
-                ))}
+                {feedItems.map((item) =>
+                  item.kind === "news" ? (
+                    <NewsCard
+                      key={`news-${item.news.id}`}
+                      news={item.news}
+                      liked={newsLikes?.has(item.news.id) ?? false}
+                    />
+                  ) : (
+                    <PostCard
+                      key={item.post.id}
+                      post={item.post}
+                      liked={likedIds?.has(item.post.id) ?? false}
+                      onDeleted={refreshFeed}
+                      immersive
+                    />
+                  ),
+                )}
                 {hasNextPage && (
                   <div className="bg-background px-3 py-3 sm:p-0">
                     <button

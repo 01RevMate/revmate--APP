@@ -27,6 +27,7 @@ import { ReactionButton } from "@/components/ReactionButton";
 import { PostPoll } from "@/components/PostPoll";
 import { RepostedPost } from "@/components/RepostedPost";
 import { RichText } from "@/components/RichText";
+import { FeedVideo } from "@/components/FeedVideo";
 import { SpottedCarLink } from "@/components/SpottedCarLink";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useMyRepostedIds, useMySavedPostIds } from "@/hooks/useSocialState";
@@ -569,13 +570,10 @@ export function PostCard({
       {post.repost_of_id && <RepostedPost postId={post.repost_of_id} />}
 
       {postVideos.map((video) => (
-        <video
+        <FeedVideo
           key={video.id}
           src={video.image_url}
-          controls
-          playsInline
-          preload="metadata"
-          className={`mt-3 max-h-[70vh] w-full bg-black object-contain ${immersive ? "-mx-3 w-[calc(100%+1.5rem)] sm:mx-0 sm:w-full sm:rounded-md" : "rounded-md"}`}
+          className={`mt-3 ${immersive ? "-mx-3 w-[calc(100%+1.5rem)] sm:mx-0 sm:w-full sm:rounded-md" : "w-full rounded-md"}`}
         />
       ))}
 

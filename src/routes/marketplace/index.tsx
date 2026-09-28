@@ -1,7 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, BadgePoundSterling, Heart, History, Search, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BadgePoundSterling,
+  Heart,
+  History,
+  Search,
+  SlidersHorizontal,
+  Sparkles,
+  X,
+} from "lucide-react";
+import { CarFiltersSheet } from "@/components/CarFiltersSheet";
+import {
+  activeFilterCount,
+  filterChips,
+  listingYear,
+  matchesCarFilters,
+  NO_CAR_FILTERS,
+  type CarFilters,
+} from "@/lib/carFilters";
+import { useListingDetailsFeature } from "@/lib/vehicleSpecs";
 import { toast } from "sonner";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,7 +46,7 @@ import {
 } from "@/lib/marketplace";
 
 type ListingFilter = "car" | "part";
-type Sort = "newest" | "price_low" | "price_high" | "watched";
+type Sort = "newest" | "price_low" | "price_high" | "watched" | "mileage_low" | "year_new";
 
 const PRICE_BANDS: { id: string; label: string; min: number; max: number }[] = [
   { id: "any", label: "Any price", min: 0, max: Infinity },
@@ -64,6 +83,10 @@ function MarketplacePage() {
   const [sort, setSort] = useState<Sort>("newest");
   const [band, setBand] = useState("any");
   const [watchlistOnly, setWatchlistOnly] = useState(false);
+  const [carFilters, setCarFilters] = useState<CarFilters>(NO_CAR_FILTERS);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const detailsOn = useListingDetailsFeature();
+  const filterCount = activeFilterCount(carFilters);
   // Captured once per visit, then updated, so "new since you were last here"
   // stays put while you browse.
   const [lastVisit, setLastVisit] = useState<number | null>(null);
@@ -100,6 +123,7 @@ function MarketplacePage() {
     const list = (listings ?? []).filter((listing) => {
       if (type && listing.type !== type) return false;
       if (watchlistOnly && !watchIds?.has(listing.id)) return false;
+      if (!matchesCarFilters(listing, carFilters)) return false;
       if (band !== "any") {
         if (listing.price == null) return false;
         const price = Number(listing.price);
@@ -128,11 +152,13 @@ function MarketplacePage() {
       if (sort === "price_low") return (price(a) ?? Infinity) - (price(b) ?? Infinity);
       if (sort === "price_high") return (price(b) ?? -1) - (price(a) ?? -1);
       if (sort === "watched") return (b.saves_count ?? 0) - (a.saves_count ?? 0);
+      if (sort === "mileage_low") return (a.mileage ?? Infinity) - (b.mileage ?? Infinity);
+      if (sort === "year_new") return (listingYear(b) ?? 0) - (listingYear(a) ?? 0);
       // Newest, with paid Featured listings pinned to the top.
       const featured = Number(isFeatured(b)) - Number(isFeatured(a));
       return featured || b.created_at.localeCompare(a.created_at);
     });
-  }, [listings, type, watchlistOnly, watchIds, band, query, sort]);
+  }, [listings, type, watchlistOnly, watchIds, band, query, sort, carFilters]);
 
   const newToday = (listings ?? []).filter(isNewToday).length;
   const newSinceVisit = lastVisit
@@ -244,6 +270,14 @@ function MarketplacePage() {
               {watchIds && watchIds.size > 0 && ` (${watchIds.size})`}
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => setFiltersOpen(true)}
+            className={chip(filterCount > 0)}
+          >
+            <SlidersHorizontal className="size-3.5" /> Filters
+            {filterCount > 0 && ` (${filterCount})`}
+          </button>
           <span className="mx-0.5 w-px shrink-0 bg-border" />
           {PRICE_BANDS.map((b) => (
             <button
@@ -256,6 +290,34 @@ function MarketplacePage() {
             </button>
           ))}
         </div>
+        {filterCount > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {filterChips(carFilters).map((c) => (
+              <button
+                key={c.key}
+                type="button"
+                onClick={() =>
+                  setCarFilters((f) => ({
+                    ...f,
+                    [c.key]: NO_CAR_FILTERS[c.key],
+                    ...(c.key === "make" ? { model: "" } : {}),
+                  }))
+                }
+                className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
+                aria-label={`Remove filter ${c.label}`}
+              >
+                {c.label} <X className="size-3" />
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setCarFilters(NO_CAR_FILTERS)}
+              className="px-1 text-xs text-muted-foreground underline"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>
             {visible.length} {visible.length === 1 ? "result" : "results"}
@@ -274,10 +336,21 @@ function MarketplacePage() {
             <option value="newest">Newest first</option>
             <option value="price_low">Price: low to high</option>
             <option value="price_high">Price: high to low</option>
+            <option value="mileage_low">Mileage: lowest first</option>
+            <option value="year_new">Age: newest first</option>
             {market && <option value="watched">Most watched</option>}
           </select>
         </div>
       </div>
+
+      <CarFiltersSheet
+        open={filtersOpen}
+        onOpenChange={setFiltersOpen}
+        listings={listings ?? []}
+        value={carFilters}
+        onApply={setCarFilters}
+        detailed={detailsOn}
+      />
 
       {bannerPartner && <PartnerBanner partner={bannerPartner} />}
 
@@ -326,7 +399,7 @@ function MarketplacePage() {
         <div className="mt-6 rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
           {watchlistOnly
             ? "Nothing on your watchlist yet — tap the heart on a listing to watch it and get price-drop alerts."
-            : query || band !== "any"
+            : query || band !== "any" || filterCount > 0
               ? "Nothing matches that yet. Try a wider search — new listings land every day."
               : type === "part"
                 ? "No parts listed yet — got something in the shed? List it."

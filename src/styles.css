@@ -245,3 +245,12 @@
     pointer-events: none;
   }
 }
+
+/* Press-and-hold controls: no text selection, magnifier or copy bubble. */
+.no-callout,
+.no-callout * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}

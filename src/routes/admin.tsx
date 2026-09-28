@@ -6,6 +6,7 @@ import {
   Car,
   FileWarning,
   Megaphone,
+  Newspaper,
   Shield,
   ShieldCheck,
   Trash2,
@@ -41,6 +42,8 @@ import {
 import { AdminChallenges } from "@/components/AdminChallenges";
 import { AdminPartners } from "@/components/AdminPartners";
 import { AdminAnnouncements } from "@/components/AdminAnnouncements";
+import { AdminNews } from "@/components/AdminNews";
+import { useNewsFeature } from "@/lib/news";
 import { useMarketplaceFeatures } from "@/lib/marketplace";
 import { setVerifiedType, type VerifiedType } from "@/lib/social";
 import { useVerifiedProfiles } from "@/components/VerifiedBadge";
@@ -83,7 +86,14 @@ export const Route = createFileRoute("/admin")({
 });
 
 type AdminSection =
-  "reports" | "people" | "protect" | "updates" | "cars" | "challenges" | "partners";
+  | "reports"
+  | "people"
+  | "protect"
+  | "updates"
+  | "news"
+  | "cars"
+  | "challenges"
+  | "partners";
 
 /** Shows the admin tools only once the signed-in account is confirmed as an active admin. */
 function AdminAccess() {
@@ -112,6 +122,7 @@ function AdminPage() {
   const queryClient = useQueryClient();
   const [section, setSection] = useState<AdminSection>("reports");
   const announcementsOn = useAnnouncementsFeature();
+  const newsOn = useNewsFeature();
   const [reportFilter, setReportFilter] = useState<"open" | "all">("open");
   const [peopleSearch, setPeopleSearch] = useState("");
   const [newTerm, setNewTerm] = useState("");
@@ -302,6 +313,7 @@ function AdminPage() {
             ["people", "People", UserCog],
             ["protect", "Protect Posts", Shield],
             ["updates", "App Updates", Megaphone],
+            ...(newsOn ? ([["news", "RevMate News", Newspaper]] as const) : []),
             ["cars", "Car pages", Car],
             ...(engagement ? ([["challenges", "Challenges", Trophy]] as const) : []),
             ...(market ? ([["partners", "Partners", Handshake]] as const) : []),
@@ -624,6 +636,8 @@ function AdminPage() {
           </div>
         </section>
       )}
+
+      {section === "news" && newsOn && user && <AdminNews userId={user.id} />}
 
       {section === "updates" && announcementsOn && user && (
         <AdminAnnouncements userId={user.id} />

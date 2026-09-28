@@ -1177,6 +1177,24 @@ export type Database = {
       }
       listings: {
         Row: {
+          body_type: string | null
+          colour: string | null
+          doors: number | null
+          engine_size_cc: number | null
+          fuel_type: string | null
+          make: string | null
+          model: string | null
+          modified: boolean | null
+          mot_expiry: string | null
+          power_bhp: number | null
+          previous_owners: number | null
+          seats: number | null
+          seller_type: string
+          service_history: string | null
+          transmission: string | null
+          ulez_compliant: boolean | null
+          v5c_present: boolean | null
+          year: number | null
           car_id: string | null
           created_at: string
           description: string | null
@@ -1199,6 +1217,24 @@ export type Database = {
           views_count: number
         }
         Insert: {
+          body_type?: string | null
+          colour?: string | null
+          doors?: number | null
+          engine_size_cc?: number | null
+          fuel_type?: string | null
+          make?: string | null
+          model?: string | null
+          modified?: boolean | null
+          mot_expiry?: string | null
+          power_bhp?: number | null
+          previous_owners?: number | null
+          seats?: number | null
+          seller_type?: string
+          service_history?: string | null
+          transmission?: string | null
+          ulez_compliant?: boolean | null
+          v5c_present?: boolean | null
+          year?: number | null
           car_id?: string | null
           created_at?: string
           description?: string | null
@@ -1221,6 +1257,24 @@ export type Database = {
           views_count?: number
         }
         Update: {
+          body_type?: string | null
+          colour?: string | null
+          doors?: number | null
+          engine_size_cc?: number | null
+          fuel_type?: string | null
+          make?: string | null
+          model?: string | null
+          modified?: boolean | null
+          mot_expiry?: string | null
+          power_bhp?: number | null
+          previous_owners?: number | null
+          seats?: number | null
+          seller_type?: string
+          service_history?: string | null
+          transmission?: string | null
+          ulez_compliant?: boolean | null
+          v5c_present?: boolean | null
+          year?: number | null
           car_id?: string | null
           created_at?: string
           description?: string | null
@@ -1381,6 +1435,72 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      news_likes: {
+        Row: {
+          created_at: string
+          news_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          news_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          news_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      news_posts: {
+        Row: {
+          active: boolean
+          body: string
+          created_at: string
+          created_by: string | null
+          cta_label: string | null
+          cta_url: string | null
+          id: string
+          likes_count: number
+          media: string[]
+          published_at: string
+          sponsored: boolean
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          body: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          id?: string
+          likes_count?: number
+          media?: string[]
+          published_at?: string
+          sponsored?: boolean
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          id?: string
+          likes_count?: number
+          media?: string[]
+          published_at?: string
+          sponsored?: boolean
+          topic?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       notification_settings: {
         Row: {

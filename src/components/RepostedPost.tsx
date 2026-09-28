@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { Avatar } from "@/components/Avatar";
 import { RichText } from "@/components/RichText";
+import { FeedVideo } from "@/components/FeedVideo";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { fetchOriginalPost, isVideoUrl } from "@/lib/social";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
@@ -67,13 +68,15 @@ export function RepostedPost({ postId }: { postId: string }) {
       </div>
       {media &&
         (isVideoUrl(media.image_url) ? (
-          <video
-            src={media.image_url}
-            muted
-            playsInline
-            preload="metadata"
-            className="max-h-72 w-full bg-black object-contain"
-          />
+          // The embed is itself a link to the original post, so the video
+          // plays in the full-screen player instead of inline.
+          <div
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            role="presentation"
+          >
+            <FeedVideo src={media.image_url} className="max-h-72 w-full" />
+          </div>
         ) : (
           <img src={media.image_url} alt="" className="max-h-72 w-full object-cover" />
         ))}

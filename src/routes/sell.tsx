@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { useMarketplaceFeatures } from "@/lib/marketplace";
 import { Car, Loader2, Package, Upload, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { VehicleSpecsFields } from "@/components/VehicleSpecsFields";
+import { EMPTY_SPECS, useListingDetailsFeature, type ListingSpecs } from "@/lib/vehicleSpecs";
 import { AGE_LIMITS, useOldEnough } from "@/lib/legal";
 import { AgeLimitNotice } from "@/components/AgeLimitNotice";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -165,6 +167,8 @@ function SellCarForm({
   const market = useMarketplaceFeatures();
   const [description, setDescription] = useState("");
   const [showCarStats, setShowCarStats] = useState(true);
+  const detailsOn = useListingDetailsFeature();
+  const [specs, setSpecs] = useState<ListingSpecs>(EMPTY_SPECS);
   const [pushToFeed, setPushToFeed] = useState(true);
   const [saving, setSaving] = useState(false);
   const savingRef = useRef(false);
@@ -178,6 +182,17 @@ function SellCarForm({
     setGarageCarId(id);
     const car = cars?.find((c) => c.id === id);
     if (car?.mileage != null) setMileage(String(car.mileage));
+    // Start the spec sheet from what the garage already knows.
+    setSpecs({
+      ...EMPTY_SPECS,
+      make: car?.make ?? null,
+      model: car?.model ?? null,
+      year: car?.year ?? null,
+      fuel_type: car?.fuel_type ?? null,
+      transmission: car?.transmission ?? null,
+      colour: car?.color ? car.color.slice(0, 30) : null,
+      power_bhp: car?.horsepower ?? null,
+    });
     setSelectedPhotos(car?.photo_url ? [car.photo_url] : []);
     setUploadedPhotos([]);
   }
@@ -275,6 +290,7 @@ function SellCarForm({
         photos: allPhotos,
         headline: headline.trim() || null,
         locationArea: market ? area : null,
+        specs: detailsOn ? specs : undefined,
       });
       if (pushToFeed) {
         try {
@@ -403,6 +419,8 @@ function SellCarForm({
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             />
           </Field>
+
+          {detailsOn && <VehicleSpecsFields value={specs} onChange={setSpecs} />}
 
           <div className="space-y-2">
             <p className="text-sm font-medium">

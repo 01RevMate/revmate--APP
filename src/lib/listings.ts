@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { ListingSpecs } from "@/lib/vehicleSpecs";
 import { isMissingEndReasonColumn } from "@/lib/garage";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -111,7 +112,7 @@ export async function fetchMySellableGarageCars(userId: string) {
   const { data, error } = await supabase
     .from("garage_cars")
     .select(
-      "id, nickname, make, model, generation, year, mileage, photo_url, car_id, likes_count, dislikes_count, followers_count",
+      "id, nickname, make, model, generation, year, mileage, photo_url, car_id, likes_count, dislikes_count, followers_count, fuel_type, transmission, color, horsepower",
     )
     .eq("user_id", userId)
     .eq("ownership_status", "current")
@@ -133,6 +134,8 @@ export async function createListing(input: {
   photos?: string[];
   headline?: string | null;
   locationArea?: string | null;
+  /** Vehicle details (0043); only passed once that SQL has run. */
+  specs?: Partial<ListingSpecs> | undefined;
 }): Promise<string> {
   const { data, error } = await supabase
     .from("listings")
@@ -151,6 +154,7 @@ export async function createListing(input: {
       // Only sent when filled in, so listing still works before the
       // marketplace SQL has run.
       ...(input.locationArea?.trim() ? { location_area: input.locationArea.trim() } : {}),
+      ...(input.specs ?? {}),
     })
     .select("id")
     .single();

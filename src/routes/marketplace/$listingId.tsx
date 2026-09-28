@@ -33,6 +33,7 @@ import { reportSeller, SELLER_REPORT_REASONS, type SellerReportReason } from "@/
 import { carLabel, carPath } from "@/lib/cars";
 import { Avatar } from "@/components/Avatar";
 import { ListingGallery } from "@/components/ListingGallery";
+import { ListingSpecHighlights, ListingSpecSheet } from "@/components/ListingSpecSheet";
 import { displayUsername, displayUsernameWithoutAt } from "@/lib/usernames";
 import { useAuth } from "@/hooks/useAuth";
 import { AGE_LIMITS, useOldEnough } from "@/lib/legal";
@@ -309,11 +310,12 @@ function ListingDetailPage() {
             <p className="text-sm font-semibold text-muted-foreground">{listing.headline}</p>
           )}
           <h1 className="text-2xl font-semibold tracking-tight">{carName}</h1>
-          {listing.mileage != null && (
+          {listing.mileage != null && !listing.year && (
             <p className="text-sm text-muted-foreground">
               {listing.mileage.toLocaleString()} miles
             </p>
           )}
+          {listing.type === "car" && <ListingSpecHighlights specs={listing} />}
         </div>
         <div className="text-right">
           <p className="text-3xl font-extrabold tracking-tight">{formatPrice(listing.price)}</p>
@@ -406,6 +408,8 @@ function ListingDetailPage() {
       {listing.description && (
         <p className="mt-6 whitespace-pre-wrap text-sm">{listing.description}</p>
       )}
+
+      {listing.type === "car" && <ListingSpecSheet specs={listing} />}
 
       {listing.cars && (
         <Link

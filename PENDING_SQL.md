@@ -24,9 +24,36 @@ Lovable prompts.
 - Safe: only adds two tables, a trigger and functions. Tested against a
   copy of the full database schema (12 behaviour checks).
 
-### 2. Phone push notifications (optional, needs a few setup steps)
+### 2. Vehicle details on listings
 
-- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/09_push_notifications.sql`).
+- File: `drizzle/migrations/0043_listing_details.sql` (`sql-to-run/09_listing_details.sql`)
+- Added: 2026-09-28
+- Switches on: the "Vehicle details" section on the sell form (fuel, gearbox,
+  body, engine, power, colour, doors, seats, owners, MOT, service history,
+  ULEZ, V5C, modified, private/trade), the spec sheet on listings, and the
+  fuel/gearbox/body/seller/ULEZ/owners filters on Buy & Sell. Existing
+  listings get make, model and year (and fuel, gearbox, colour, power where
+  known) copied from their garage car.
+- Until this runs: make, model, year and mileage filters and the new sorts
+  already work; the rest stays hidden.
+- Safe: only adds optional columns, an index and a trigger. Tested against
+  a copy of the full database schema (listing checks + backfill check).
+
+### 3. RevMate News
+
+- File: `drizzle/migrations/0044_revmate_news.sql` (`sql-to-run/10_revmate_news.sql`)
+- Added: 2026-09-28
+- Switches on: Admin → RevMate News (write posts with a topic, photos,
+  videos, optional button, sponsored label and publish time, with a live
+  preview and on/off switch) and those posts in everyone's feed, which
+  people can like.
+- Until this runs: nothing changes; the admin tab stays hidden.
+- Safe: only adds two tables, triggers and security rules. Tested against a
+  copy of the full database schema (10 behaviour checks).
+
+### 4. Phone push notifications (optional, needs a few setup steps)
+
+- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/11_push_notifications.sql`).
 - Added: 2026-09-27
 - Needed by: the "Phone notifications" switch in Settings. Until this runs
   (and the steps below are done) the switch doesn't appear and everything
@@ -41,7 +68,7 @@ Lovable prompts.
      - `VAPID_SUBJECT` — `mailto:` followed by your email
      - `PUSH_WEBHOOK_SECRET` — any long random password you make up
   4. Deploy the edge function `supabase/functions/send-push`.
-  5. Tell the database where the function is — `sql-to-run/10_push_setup_after_keys.sql`,
+  5. Tell the database where the function is — `sql-to-run/12_push_setup_after_keys.sql`,
      with the same random password as step 3:
      ```sql
      SELECT vault.create_secret('https://<project-ref>.supabase.co/functions/v1/send-push', 'push_function_url');
