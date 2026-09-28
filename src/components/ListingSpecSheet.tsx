@@ -1,4 +1,28 @@
-import { CalendarDays, Cog, Fuel, Gauge, ShieldCheck, Car } from "lucide-react";
+import { useState } from "react";
+import {
+  Armchair,
+  CalendarDays,
+  Car,
+  CarFront,
+  ChevronRight,
+  ClipboardCheck,
+  Cog,
+  DoorOpen,
+  FileText,
+  Fuel,
+  Gauge,
+  Leaf,
+  List,
+  PaintBucket,
+  Settings2,
+  ShieldCheck,
+  Sparkles,
+  Store,
+  Users,
+  Wrench,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 import {
   BODY_LABELS,
   engineLabel,
@@ -44,23 +68,77 @@ export function ListingSpecHighlights({ specs }: { specs: Specs }) {
   );
 }
 
-/** Full spec sheet plus a short buyer's checklist. */
+const SPEC_ICONS: Record<string, LucideIcon> = {
+  Mileage: Gauge,
+  Year: CalendarDays,
+  Fuel: Fuel,
+  Body: CarFront,
+  Gearbox: Cog,
+  Engine: Settings2,
+  Power: Zap,
+  Doors: DoorOpen,
+  Seats: Armchair,
+  Colour: PaintBucket,
+  Owners: Users,
+  "MOT until": ClipboardCheck,
+  History: Wrench,
+  ULEZ: Leaf,
+  "V5C logbook": FileText,
+  Modified: Sparkles,
+  Seller: Store,
+};
+// The facts buyers look for first; the rest sit behind "View all details".
+const OVERVIEW_ORDER = ["Mileage", "Year", "Fuel", "Body", "Gearbox", "Engine", "Doors", "Seats"];
+
+/** "Overview" card (icon, label, value in two columns) plus a buyer's checklist. */
 export function ListingSpecSheet({ specs }: { specs: Specs }) {
-  const rows = keySpecs(specs);
+  const [showAll, setShowAll] = useState(false);
+  const all = keySpecs(specs);
+  const rank = (label: string) => {
+    const i = OVERVIEW_ORDER.indexOf(label);
+    return i === -1 ? OVERVIEW_ORDER.length : i;
+  };
+  const ordered = [...all].sort((a, b) => rank(a.label) - rank(b.label));
+  const overview = ordered.filter((row) => OVERVIEW_ORDER.includes(row.label));
+  const primary = overview.length >= 4 ? overview : ordered.slice(0, 8);
+  const extra = ordered.filter((row) => !primary.includes(row));
+  const shown = showAll ? [...primary, ...extra] : primary;
   return (
     <section className="mt-6 space-y-4">
-      {rows.length > 1 && (
-        <div>
-          <h2 className="text-base font-semibold">Vehicle details</h2>
-          <dl className="mt-2 grid grid-cols-2 overflow-hidden rounded-lg border border-border text-sm sm:grid-cols-3">
-            {rows.map((row) => (
-              <div key={row.label} className="border-b border-r border-border p-3 last:border-r-0">
-                <dt className="text-xs text-muted-foreground">{row.label}</dt>
-                <dd className="font-medium">{row.value}</dd>
-              </div>
-            ))}
+      {all.length > 1 && (
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
+          <h2 className="text-lg font-semibold">Overview</h2>
+          <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
+            {shown.map((row) => {
+              const Icon = SPEC_ICONS[row.label] ?? Car;
+              return (
+                <div key={row.label} className="flex items-start gap-3">
+                  <Icon
+                    className="mt-0.5 size-5 shrink-0 text-muted-foreground"
+                    strokeWidth={1.75}
+                  />
+                  <div className="min-w-0">
+                    <dt className="text-sm font-semibold">{row.label}</dt>
+                    <dd className="text-sm text-muted-foreground">{row.value}</dd>
+                  </div>
+                </div>
+              );
+            })}
           </dl>
-          <p className="mt-1.5 text-xs text-muted-foreground">
+          {extra.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowAll((v) => !v)}
+              className="mt-5 flex w-full items-center gap-3 border-t border-border pt-4 text-sm font-semibold"
+            >
+              <List className="size-5 text-muted-foreground" strokeWidth={1.75} />
+              {showAll ? "Show less" : `View all details (${extra.length} more)`}
+              <ChevronRight
+                className={`ml-auto size-5 transition-transform ${showAll ? "-rotate-90" : ""}`}
+              />
+            </button>
+          )}
+          <p className="mt-3 text-xs text-muted-foreground">
             Details are supplied by the seller and haven't been checked by RevMate.
           </p>
         </div>
