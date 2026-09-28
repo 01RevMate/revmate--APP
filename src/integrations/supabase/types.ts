@@ -14,42 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      account_consents: {
-        Row: {
-          birth_date: string | null
-          created_at: string
-          marketing_opt_in: boolean
-          marketing_updated_at: string | null
-          privacy_version: string | null
-          terms_accepted_at: string | null
-          terms_version: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          birth_date?: string | null
-          created_at?: string
-          marketing_opt_in?: boolean
-          marketing_updated_at?: string | null
-          privacy_version?: string | null
-          terms_accepted_at?: string | null
-          terms_version?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          birth_date?: string | null
-          created_at?: string
-          marketing_opt_in?: boolean
-          marketing_updated_at?: string | null
-          privacy_version?: string | null
-          terms_accepted_at?: string | null
-          terms_version?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       answers: {
         Row: {
           body: string
@@ -496,10 +460,8 @@ export type Database = {
       }
       community_groups: {
         Row: {
-          allow_sales: boolean
           created_at: string
           description: string
-          entry_rule: string
           id: string
           join_policy: string
           make_name: string | null
@@ -508,16 +470,13 @@ export type Database = {
           name: string
           owner_id: string
           post_policy: string
-          require_rules_agreement: boolean
           rules: string
           slug: string
           visibility: string
         }
         Insert: {
-          allow_sales?: boolean
           created_at?: string
           description?: string
-          entry_rule?: string
           id?: string
           join_policy?: string
           make_name?: string | null
@@ -526,16 +485,13 @@ export type Database = {
           name: string
           owner_id: string
           post_policy?: string
-          require_rules_agreement?: boolean
           rules?: string
           slug: string
           visibility?: string
         }
         Update: {
-          allow_sales?: boolean
           created_at?: string
           description?: string
-          entry_rule?: string
           id?: string
           join_policy?: string
           make_name?: string | null
@@ -544,7 +500,6 @@ export type Database = {
           name?: string
           owner_id?: string
           post_policy?: string
-          require_rules_agreement?: boolean
           rules?: string
           slug?: string
           visibility?: string
@@ -951,30 +906,6 @@ export type Database = {
           },
         ]
       }
-      group_join_answers: {
-        Row: {
-          agreed_rules: boolean
-          answers: Json
-          created_at: string
-          group_id: string
-          user_id: string
-        }
-        Insert: {
-          agreed_rules?: boolean
-          answers?: Json
-          created_at?: string
-          group_id: string
-          user_id: string
-        }
-        Update: {
-          agreed_rules?: boolean
-          answers?: Json
-          created_at?: string
-          group_id?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       group_members: {
         Row: {
           group_id: string
@@ -1017,62 +948,8 @@ export type Database = {
           },
         ]
       }
-      group_questions: {
-        Row: {
-          created_at: string
-          group_id: string
-          id: string
-          kind: string
-          position: number
-          prompt: string
-          required_answer: string | null
-        }
-        Insert: {
-          created_at?: string
-          group_id: string
-          id?: string
-          kind: string
-          position?: number
-          prompt: string
-          required_answer?: string | null
-        }
-        Update: {
-          created_at?: string
-          group_id?: string
-          id?: string
-          kind?: string
-          position?: number
-          prompt?: string
-          required_answer?: string | null
-        }
-        Relationships: []
-      }
-      listing_views: {
-        Row: {
-          listing_id: string
-          viewed_on: string
-          viewer_id: string
-        }
-        Insert: {
-          listing_id: string
-          viewed_on?: string
-          viewer_id: string
-        }
-        Update: {
-          listing_id?: string
-          viewed_on?: string
-          viewer_id?: string
-        }
-        Relationships: []
-      }
       listings: {
         Row: {
-          featured_until: string | null
-          location_area: string | null
-          previous_price: number | null
-          price_changed_at: string | null
-          saves_count: number
-          views_count: number
           car_id: string | null
           created_at: string
           description: string | null
@@ -1089,12 +966,6 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          featured_until?: string | null
-          location_area?: string | null
-          previous_price?: number | null
-          price_changed_at?: string | null
-          saves_count?: number
-          views_count?: number
           car_id?: string | null
           created_at?: string
           description?: string | null
@@ -1111,12 +982,6 @@ export type Database = {
           user_id: string
         }
         Update: {
-          featured_until?: string | null
-          location_area?: string | null
-          previous_price?: number | null
-          price_changed_at?: string | null
-          saves_count?: number
-          views_count?: number
           car_id?: string | null
           created_at?: string
           description?: string | null
@@ -1148,48 +1013,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      marketplace_partners: {
-        Row: {
-          active: boolean
-          clicks_count: number
-          created_at: string
-          cta: string
-          id: string
-          image_url: string | null
-          name: string
-          placement: string
-          sort_order: number
-          tagline: string
-          url: string
-        }
-        Insert: {
-          active?: boolean
-          clicks_count?: number
-          created_at?: string
-          cta?: string
-          id?: string
-          image_url?: string | null
-          name: string
-          placement?: string
-          sort_order?: number
-          tagline?: string
-          url: string
-        }
-        Update: {
-          active?: boolean
-          clicks_count?: number
-          created_at?: string
-          cta?: string
-          id?: string
-          image_url?: string | null
-          name?: string
-          placement?: string
-          sort_order?: number
-          tagline?: string
-          url?: string
-        }
-        Relationships: []
       }
       meet_attendees: {
         Row: {
@@ -2082,32 +1905,6 @@ export type Database = {
           },
         ]
       }
-      saved_listings: {
-        Row: {
-          created_at: string
-          listing_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          listing_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          listing_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "saved_listings_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       saved_posts: {
         Row: {
           created_at: string
@@ -2478,8 +2275,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      record_listing_view: { Args: { target_listing: string }; Returns: undefined }
-      record_partner_click: { Args: { target_partner: string }; Returns: undefined }
       account_analytics: {
         Args: never
         Returns: {
@@ -2565,20 +2360,6 @@ export type Database = {
         }
       }
       is_admin: { Args: { check_user_id: string }; Returns: boolean }
-      delete_my_account: { Args: never; Returns: undefined }
-      record_consents: {
-        Args: { born: string; terms_version: string; privacy_version: string; marketing?: boolean }
-        Returns: string
-      }
-      set_marketing_consent: { Args: { opt_in: boolean }; Returns: undefined }
-      group_entry_eligibility: {
-        Args: { gid: string }
-        Returns: { eligible: boolean; reason: string | null }[]
-      }
-      join_group: {
-        Args: { gid: string; answers?: Json; agreed?: boolean }
-        Returns: string
-      }
       manage_group_member: {
         Args: { action: string; gid: string; target_user: string }
         Returns: undefined
