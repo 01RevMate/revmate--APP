@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Check, CheckCheck, ImagePlus, Loader2, Send, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { AGE_LIMITS, useOldEnough } from "@/lib/legal";
+import { AgeLimitNotice } from "@/components/AgeLimitNotice";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { fetchProfileByUsername } from "@/lib/profiles";
 import {
@@ -28,12 +30,13 @@ export const Route = createFileRoute("/messages/$username")({
     const description = `Message ${handle} privately on RevMate.`;
     return {
       meta: [
+      { name: "robots", content: "noindex, nofollow" },
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
     };
   },
@@ -41,6 +44,12 @@ export const Route = createFileRoute("/messages/$username")({
 });
 
 function MessageThreadPage() {
+  const oldEnough = useOldEnough(AGE_LIMITS.messages);
+  if (!oldEnough) return <AgeLimitNotice years={AGE_LIMITS.messages} feature="Messaging" />;
+  return <MessageThreadPageContent />;
+}
+
+function MessageThreadPageContent() {
   const { username } = Route.useParams();
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();

@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { fetchProfileSeo } from "@/lib/seoData";
+import { profileHead } from "@/lib/seoHeads";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -52,20 +54,8 @@ import {
 import { recordProfileView } from "@/lib/follows";
 
 export const Route = createFileRoute("/u/$username")({
-  head: ({ params }) => {
-    const handle = displayUsername(params.username);
-    const description = `View ${handle}'s RevMate profile, garage, posts and questions.`;
-    return {
-      meta: [
-        { title: `${handle} — RevMate` },
-        { name: "description", content: description },
-        { property: "og:title", content: `${handle} — RevMate` },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "profile" },
-        { name: "twitter:card", content: "summary" },
-      ],
-    };
-  },
+  loader: ({ params }) => fetchProfileSeo(params.username),
+  head: ({ params, loaderData }) => profileHead(params.username, loaderData ?? null),
   component: GarageProfilePage,
 });
 

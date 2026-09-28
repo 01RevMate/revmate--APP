@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { useMarketplaceFeatures } from "@/lib/marketplace";
 import { Car, Loader2, Package, Upload, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { AGE_LIMITS, useOldEnough } from "@/lib/legal";
+import { AgeLimitNotice } from "@/components/AgeLimitNotice";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { CarPicker } from "@/components/CarPicker";
 import { Avatar } from "@/components/Avatar";
@@ -37,7 +39,7 @@ export const Route = createFileRoute("/sell")({
         content: "List a car straight from your garage, or list a part for sale.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: SellPage,
@@ -59,6 +61,7 @@ function SellPage() {
   const navigate = useNavigate();
   const search = Route.useSearch();
   const [mode, setMode] = useState<"choose" | "car" | "other">("choose");
+  const oldEnough = useOldEnough(AGE_LIMITS.selling);
 
   if (!user) {
     return (
@@ -76,6 +79,8 @@ function SellPage() {
       </div>
     );
   }
+
+  if (!oldEnough) return <AgeLimitNotice years={AGE_LIMITS.selling} feature="Selling" />;
 
   if (mode === "choose" && !search.garageCarId) {
     return (

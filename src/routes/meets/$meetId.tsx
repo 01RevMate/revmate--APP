@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { fetchMeetSeo } from "@/lib/seoData";
+import { meetHead } from "@/lib/seoHeads";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -19,6 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { Avatar } from "@/components/Avatar";
 import { RichText } from "@/components/RichText";
+import { MapEmbed } from "@/components/MapEmbed";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { MeetsComingSoon } from "@/components/MeetsComingSoon";
 import { useSocialFeaturesStatus } from "@/lib/features";
@@ -36,16 +39,8 @@ import {
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
 export const Route = createFileRoute("/meets/$meetId")({
-  head: () => ({
-    meta: [
-      { title: "Car Meet — RevMate" },
-      { name: "description", content: "See the details for this car meet and who's going." },
-      { property: "og:title", content: "Car Meet — RevMate" },
-      { property: "og:description", content: "See the details for this car meet and who's going." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  loader: ({ params }) => fetchMeetSeo(params.meetId),
+  head: ({ params, loaderData }) => meetHead(params.meetId, loaderData ?? null),
   component: MeetPage,
 });
 
@@ -286,13 +281,7 @@ function MeetPage() {
             </p>
           )}
 
-          <iframe
-            title={`Map of ${meet.location_name}`}
-            src={mapsEmbedUrl(meet)}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="aspect-[16/10] w-full rounded-md border border-border"
-          />
+          <MapEmbed title={`Map of ${meet.location_name}`} src={mapsEmbedUrl(meet)} />
 
           <AttendeeList title={`Going (${meet.going_count})`} people={going} />
           {interested.length > 0 && (

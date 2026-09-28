@@ -22,7 +22,7 @@ export const Route = createFileRoute("/near-you")({
       { name: "description", content: "Car meets and posts from people near you." },
       { property: "og:title", content: "Near You — RevMate" },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: NearYouPage,

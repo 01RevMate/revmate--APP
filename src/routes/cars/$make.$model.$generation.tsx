@@ -23,7 +23,7 @@ export const Route = createFileRoute("/cars/$make/$model/$generation")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
     };
   },

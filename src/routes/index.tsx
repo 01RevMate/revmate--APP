@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { DEFAULT_DESCRIPTION, seo, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
 import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Car } from "lucide-react";
@@ -24,36 +25,12 @@ import { FeedScopeBar, type FeedScope } from "@/components/FeedScopeBar";
 import { CategoryFilterBar, type CategoryFilter } from "@/components/CategoryFilterBar";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "RevMate — UK Car Community, Research & Marketplace" },
-      {
-        name: "description",
-        content:
-          "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
-      },
-      {
-        property: "og:title",
-        content: "RevMate — UK Car Community, Research & Marketplace",
-      },
-      {
-        property: "og:description",
-        content:
-          "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      {
-        name: "twitter:title",
-        content: "RevMate — UK Car Community, Research & Marketplace",
-      },
-      {
-        name: "twitter:description",
-        content:
-          "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
-      },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+      description: DEFAULT_DESCRIPTION,
+      path: "/",
+    }),
   component: Home,
 });
 

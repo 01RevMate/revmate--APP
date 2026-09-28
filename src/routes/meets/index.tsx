@@ -5,6 +5,8 @@ import { format } from "date-fns";
 import { CalendarDays, MapPin, Plus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { AGE_LIMITS, useOldEnough } from "@/lib/legal";
+
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { MeetsComingSoon } from "@/components/MeetsComingSoon";
@@ -35,7 +37,7 @@ export const Route = createFileRoute("/meets/")({
           "Find car meets, cars & coffee mornings and track days near you, and see who's going.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: MeetsPage,
@@ -48,6 +50,7 @@ function MeetsPage() {
   const social = socialStatus === "on";
   const [tab, setTab] = useState<"upcoming" | "mine">("upcoming");
   const [creating, setCreating] = useState(false);
+  const oldEnoughToHost = useOldEnough(AGE_LIMITS.meets);
 
   const { data: upcoming, isLoading } = useQuery({
     queryKey: ["meets", "upcoming"],
@@ -84,7 +87,11 @@ function MeetsPage() {
         <button
           type="button"
           onClick={() =>
-            user ? setCreating((v) => !v) : openAuthModal("Create a free account to post a meet.")
+            !user
+              ? openAuthModal("Create a free account to post a meet.")
+              : oldEnoughToHost
+                ? setCreating((v) => !v)
+                : toast.error(`Hosting meets is for people aged ${AGE_LIMITS.meets} and over.`)
           }
           className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >

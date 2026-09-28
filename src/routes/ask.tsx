@@ -20,7 +20,7 @@ export const Route = createFileRoute("/ask")({
         content: "Post a question to the owners and enthusiasts of a specific car generation.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AskPage,

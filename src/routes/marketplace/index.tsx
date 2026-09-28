@@ -5,6 +5,7 @@ import { ArrowRight, BadgePoundSterling, Heart, History, Search, Sparkles } from
 import { toast } from "sonner";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useAuth } from "@/hooks/useAuth";
+import { seo } from "@/lib/seo";
 import { MarketListingCard } from "@/components/MarketListingCard";
 import {
   fetchMarketListings,
@@ -43,19 +44,13 @@ export const Route = createFileRoute("/marketplace/")({
   // ?type=part lets other pages (like Essentials) link straight to parts.
   validateSearch: (search: Record<string, unknown>): { type?: ListingFilter } =>
     search["type"] === "car" || search["type"] === "part" ? { type: search["type"] } : {},
-  head: () => ({
-    meta: [
-      { title: "Buy & Sell — RevMate" },
-      { name: "description", content: "Cars and parts for sale from the RevMate community." },
-      { property: "og:title", content: "Buy & Sell — RevMate" },
-      {
-        property: "og:description",
-        content: "Cars and parts for sale from the RevMate community.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Used Cars & Car Parts for Sale in the UK — RevMate Buy & Sell",
+      description:
+        "Browse used cars and car parts for sale from UK enthusiasts on RevMate. See prices, mileage, photos and price drops, and message sellers directly.",
+      path: "/marketplace",
+    }),
   component: MarketplacePage,
 });
 

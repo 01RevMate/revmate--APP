@@ -20,7 +20,7 @@ export const Route = createFileRoute("/legal/updates")({
       { name: "revmate-version", content: APP_VERSION },
       { property: "og:title", content: "App Updates — RevMate" },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "alternate", type: "application/json", href: "/updates.json" }],
   }),

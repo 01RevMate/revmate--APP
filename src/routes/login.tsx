@@ -14,12 +14,13 @@ export const Route = createFileRoute("/login")({
   },
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, nofollow" },
       { title: "Log in — RevMate" },
       { name: "description", content: "Log in to your RevMate account." },
       { property: "og:title", content: "Log in — RevMate" },
       { property: "og:description", content: "Log in to your RevMate account." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: LoginPage,

@@ -35,6 +35,10 @@ import { Avatar } from "@/components/Avatar";
 import { ListingGallery } from "@/components/ListingGallery";
 import { displayUsername, displayUsernameWithoutAt } from "@/lib/usernames";
 import { useAuth } from "@/hooks/useAuth";
+import { AGE_LIMITS, useOldEnough } from "@/lib/legal";
+
+import { absoluteUrl, breadcrumbs, pickShareImage, seo } from "@/lib/seo";
+import { fetchListingSeo, type ListingSeo } from "@/lib/seoData";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
 import {
@@ -46,18 +50,16 @@ import {
 } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
-  head: () => ({
-    meta: [
-      { title: "Listing — RevMate" },
-      { name: "description", content: "A car or part for sale on RevMate." },
-    ],
-  }),
+  // Loaded on the server so shared links show the photo, price and car.
+  loader: ({ params }) => fetchListingSeo(params.listingId),
+  head: ({ params, loaderData }) => listingHead(params.listingId, loaderData ?? null),
   component: ListingDetailPage,
 });
 
 function ListingDetailPage() {
   const { listingId } = Route.useParams();
   const { user } = useAuth();
+  const oldEnoughToBuy = useOldEnough(AGE_LIMITS.selling);
   const { open: openAuthModal } = useAuthModal();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -187,6 +189,10 @@ function ListingDetailPage() {
   function openMessageDialog() {
     if (!user) {
       openAuthModal("Create a free account to message the seller.");
+      return;
+    }
+    if (!oldEnoughToBuy) {
+      toast.error(`Buying and selling on RevMate is for people aged ${AGE_LIMITS.selling} and over.`);
       return;
     }
     setMessageBody(QUICK_QUESTIONS[0]!);
@@ -605,4 +611,93 @@ function ListingDetailPage() {
       </Dialog>
     </div>
   );
+}
+
+function listingHead(listingId: string, listing: ListingSeo | null) {
+  const path = `/marketplace/${listingId}`;
+  if (!listing) {
+    return seo({
+      title: "Listing not available — RevMate",
+      description: "This listing has sold or been removed. Browse more cars and parts on RevMate.",
+      path,
+      noindex: true,
+    });
+  }
+  const price = listing.price != null ? formatPrice(listing.price) : null;
+  const car = listing.car;
+  const facts = [
+    car?.year,
+    car ? `${car.make} ${car.model}` : null,
+    listing.mileage != null ? `${listing.mileage.toLocaleString("en-GB")} miles` : null,
+    listing.location_area,
+  ].filter(Boolean);
+  const title = `${price ? `${price} · ` : ""}${listing.title} — RevMate`;
+  const description = [
+    listing.headline || listing.description,
+    facts.length ? `${facts.join(" · ")}.` : null,
+    `For sale on RevMate${listing.seller ? ` by ${displayUsername(listing.seller)}` : ""}.`,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const images = listing.photos.filter((url) => pickShareImage(url));
+  const url = absoluteUrl(path);
+  const isCar = listing.type === "car";
+  const product = {
+    "@context": "https://schema.org",
+    "@type": isCar ? ["Product", "Car"] : "Product",
+    name: listing.title,
+    description: listing.description || listing.headline || listing.title,
+    ...(images.length ? { image: images } : {}),
+    url,
+    ...(car ? { brand: { "@type": "Brand", name: car.make }, model: car.model } : {}),
+    ...(isCar && car?.year ? { vehicleModelDate: String(car.year) } : {}),
+    ...(isCar && listing.mileage != null
+      ? {
+          mileageFromOdometer: {
+            "@type": "QuantitativeValue",
+            value: listing.mileage,
+            unitCode: "SMI",
+          },
+        }
+      : {}),
+    ...(listing.price != null
+      ? {
+          offers: {
+            "@type": "Offer",
+            price: Number(listing.price),
+            priceCurrency: "GBP",
+            availability: "https://schema.org/InStock",
+            itemCondition: "https://schema.org/UsedCondition",
+            url,
+            ...(listing.seller
+              ? { seller: { "@type": "Person", name: displayUsername(listing.seller) } }
+              : {}),
+          },
+        }
+      : {}),
+  };
+  return seo({
+    title,
+    description,
+    path,
+    image: images[0] ?? null,
+    imageAlt: listing.title,
+    type: "product",
+    extraMeta:
+      listing.price != null
+        ? [
+            { property: "product:price:amount", content: String(Number(listing.price)) },
+            { property: "product:price:currency", content: "GBP" },
+            { property: "product:availability", content: "in stock" },
+            { property: "product:condition", content: "used" },
+          ]
+        : [],
+    jsonLd: [
+      product,
+      breadcrumbs([
+        { name: "Buy & Sell", path: "/marketplace" },
+        { name: listing.title, path },
+      ]),
+    ],
+  });
 }

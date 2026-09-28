@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_consents: {
+        Row: {
+          birth_date: string | null
+          created_at: string
+          marketing_opt_in: boolean
+          marketing_updated_at: string | null
+          privacy_version: string | null
+          terms_accepted_at: string | null
+          terms_version: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string
+          marketing_opt_in?: boolean
+          marketing_updated_at?: string | null
+          privacy_version?: string | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string
+          marketing_opt_in?: boolean
+          marketing_updated_at?: string | null
+          privacy_version?: string | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       answers: {
         Row: {
           body: string
@@ -2529,6 +2565,12 @@ export type Database = {
         }
       }
       is_admin: { Args: { check_user_id: string }; Returns: boolean }
+      delete_my_account: { Args: never; Returns: undefined }
+      record_consents: {
+        Args: { born: string; terms_version: string; privacy_version: string; marketing?: boolean }
+        Returns: string
+      }
+      set_marketing_consent: { Args: { opt_in: boolean }; Returns: undefined }
       group_entry_eligibility: {
         Args: { gid: string }
         Returns: { eligible: boolean; reason: string | null }[]

@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { fetchPostSeo } from "@/lib/seoData";
+import { postHead } from "@/lib/seoHeads";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchPost, fetchMyLikedPostIds } from "@/lib/posts";
@@ -7,16 +9,8 @@ import { PostCardSkeleton } from "@/components/PostCardSkeleton";
 
 export const Route = createFileRoute("/posts/$postId")({
   component: PostPage,
-  head: () => ({
-    meta: [
-      { title: "Discussion — RevMate" },
-      { name: "description", content: "Read a RevMate community discussion, comments and photos." },
-      { property: "og:title", content: "Discussion — RevMate" },
-      { property: "og:description", content: "Read a RevMate community discussion, comments and photos." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  loader: ({ params }) => fetchPostSeo(params.postId),
+  head: ({ params, loaderData }) => postHead(params.postId, loaderData ?? null),
 });
 function PostPage() {
   const { postId } = Route.useParams();

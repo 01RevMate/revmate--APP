@@ -13,3 +13,13 @@
 - [Terms of service & marketplace disclaimer](/legal/terms)
 - [Privacy policy](/legal/privacy)
 - [Community standards](/community-standards)
+- [Cookie policy](/legal/cookies)
+- [Safety & reporting](/legal/safety)
+
+## Age requirements
+
+RevMate is for people aged 13 and over. Selling, hosting meets and adding a location to posts are 18+; direct messages are 16+.
+
+## Sitemap
+
+- [Sitemap](/sitemap.xml)

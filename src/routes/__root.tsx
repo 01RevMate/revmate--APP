@@ -22,7 +22,9 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { AuthGate } from "@/components/AuthGate";
 import { EngagementPulse } from "@/components/EngagementPulse";
 import { OnboardingDialog } from "@/components/OnboardingDialog";
+import { ConsentGate } from "@/components/ConsentGate";
 import { supabase } from "@/integrations/supabase/client";
+import { absoluteUrl, DEFAULT_DESCRIPTION, seo, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
 
 function NotFoundComponent() {
   return (
@@ -85,55 +87,53 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "RevMate — UK Car Community, Research & Marketplace" },
-      {
-        name: "description",
-        content:
-          "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
-      },
-      { name: "author", content: "RevMate" },
-      {
-        property: "og:title",
-        content: "RevMate — UK Car Community, Research & Marketplace",
-      },
-      {
-        property: "og:description",
-        content:
-          "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
-      // Home-screen install: full-screen app view with the RevMate icon.
-      { name: "theme-color", content: "#000000" },
-      { name: "mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "RevMate" },
-      {
-        name: "twitter:title",
-        content: "RevMate — UK Car Community, Research & Marketplace",
-      },
-      {
-        name: "twitter:description",
-        content:
-          "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
-      },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      { rel: "icon", href: "/favicon.png", type: "image/png" },
-      { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
-    ],
-  }),
+  head: () => {
+    const defaults = seo({
+      title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+      description: DEFAULT_DESCRIPTION,
+      jsonLd: [
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: SITE_NAME,
+          url: absoluteUrl("/"),
+          logo: absoluteUrl("/icon-512.png"),
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: SITE_NAME,
+          url: absoluteUrl("/"),
+          inLanguage: "en-GB",
+        },
+      ],
+    });
+    return {
+      meta: [
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+        ...defaults.meta,
+        { name: "author", content: SITE_NAME },
+        { name: "format-detection", content: "telephone=no" },
+        // Home-screen install: full-screen app view with the RevMate icon.
+        { name: "theme-color", content: "#000000" },
+        { name: "mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+        { name: "apple-mobile-web-app-title", content: SITE_NAME },
+      ],
+      scripts: defaults.scripts,
+      links: [
+        {
+          rel: "stylesheet",
+          href: appCss,
+        },
+        { rel: "icon", href: "/favicon.png", type: "image/png" },
+        { rel: "manifest", href: "/manifest.webmanifest" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
+      ],
+    };
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -142,7 +142,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-GB">
       <head>
         <HeadContent />
       </head>
@@ -184,6 +184,7 @@ function RootComponent() {
             <AuthPromptModal />
             <EngagementPulse />
             <OnboardingDialog />
+            <ConsentGate />
             <SplashScreen />
           </TooltipProvider>
         </AuthModalProvider>

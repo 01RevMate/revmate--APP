@@ -42,9 +42,25 @@ Lovable prompts that run them all.
   groups stay open with sales allowed. Tested against a copy of the full
   database schema (25 behaviour checks).
 
-### 3. Phone push notifications (optional, needs a few setup steps)
+### 3. Age checks, consent records and account deletion
 
-- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/07_push_notifications.sql`).
+- File: `drizzle/migrations/0037_age_and_consent.sql` (`sql-to-run/07_age_and_consent.sql`)
+- Added: 2026-09-28
+- Switches on: saving each person's date of birth and which Terms/Privacy
+  version they agreed to (from the new sign-up), refusing under-13 sign-ups
+  in the database, teen protections (18+ to sell, host meets or add a
+  location; 16+ for direct messages), the "confirm your age" prompt for
+  existing accounts, marketing opt-in, and Settings → Delete account.
+- Until this runs: the new sign-up still works (the extra details are
+  saved on the account and picked up once this runs); the age prompt,
+  age limits, marketing toggle and Delete account stay hidden.
+- Safe: only adds a table, triggers, functions and extra security rules.
+  Existing accounts keep working until they confirm their age. Tested
+  against a copy of the full database schema (18 behaviour checks).
+
+### 4. Phone push notifications (optional, needs a few setup steps)
+
+- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/08_push_notifications.sql`).
 - Added: 2026-09-27
 - Needed by: the "Phone notifications" switch in Settings. Until this runs
   (and the steps below are done) the switch doesn't appear and everything
@@ -59,7 +75,7 @@ Lovable prompts that run them all.
      - `VAPID_SUBJECT` — `mailto:` followed by your email
      - `PUSH_WEBHOOK_SECRET` — any long random password you make up
   4. Deploy the edge function `supabase/functions/send-push`.
-  5. Tell the database where the function is — `sql-to-run/08_push_setup_after_keys.sql`,
+  5. Tell the database where the function is — `sql-to-run/09_push_setup_after_keys.sql`,
      with the same random password as step 3:
      ```sql
      SELECT vault.create_secret('https://<project-ref>.supabase.co/functions/v1/send-push', 'push_function_url');

@@ -55,6 +55,7 @@ export const Route = createFileRoute("/admin")({
   },
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, nofollow" },
       { title: "Safety & Admin — RevMate" },
       {
         name: "description",
@@ -66,7 +67,7 @@ export const Route = createFileRoute("/admin")({
         content: "Moderate RevMate reports, accounts, protected terms and car pages.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AdminPage,

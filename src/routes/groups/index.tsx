@@ -33,7 +33,7 @@ export const Route = createFileRoute("/groups/")({
         content: "Find and create RevMate groups for makes, models and car communities.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: GroupsPage,

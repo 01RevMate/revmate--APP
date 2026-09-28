@@ -4,6 +4,8 @@ import { formatDistanceToNow } from "date-fns";
 import { MessageCircle } from "lucide-react";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { AGE_LIMITS, useOldEnough } from "@/lib/legal";
+import { AgeLimitNotice } from "@/components/AgeLimitNotice";
 import { fetchConversations } from "@/lib/messages";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
@@ -12,6 +14,7 @@ import { displayUsernameWithoutAt } from "@/lib/usernames";
 export const Route = createFileRoute("/messages")({
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, nofollow" },
       { title: "Messages — RevMate" },
       {
         name: "description",
@@ -23,7 +26,7 @@ export const Route = createFileRoute("/messages")({
         content: "Read and reply to private RevMate conversations with other members.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: MessagesRoute,
@@ -35,6 +38,12 @@ function MessagesRoute() {
 }
 
 function MessagesPage() {
+  const oldEnough = useOldEnough(AGE_LIMITS.messages);
+  if (!oldEnough) return <AgeLimitNotice years={AGE_LIMITS.messages} feature="Messaging" />;
+  return <MessagesPageContent />;
+}
+
+function MessagesPageContent() {
   const { user, loading } = useAuth();
   const queryClient = useQueryClient();
 

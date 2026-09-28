@@ -1,6 +1,6 @@
 -- STEP 6 — Phone push notifications (optional)
 -- Copy of drizzle/migrations/0032_push_notifications.sql
--- Run after step 2. Then do the setup in 08_push_setup_after_keys.sql.
+-- Run after step 2. Then do the setup in 09_push_setup_after_keys.sql.
 
 -- Phone push notifications. Run after 0031_social_features.sql.
 --

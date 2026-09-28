@@ -24,6 +24,25 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.10.0",
+    date: "2026-09-28",
+    title: "Safer sign-up, privacy & sharing",
+    status: "needs_database_update",
+    highlights: [
+      "New step-by-step sign-up: birthday, email and password, username, then agreeing to the Terms and Privacy Policy (marketing emails are optional and unticked)",
+      "RevMate is for people 13 and over; under-13 sign-ups are refused",
+      "Teen protections: selling on Buy & Sell, hosting meets and adding a location to posts unlock at 18, and direct messages at 16",
+      "Existing members are asked once to confirm their date of birth and agree to the updated terms",
+      "Settings → Privacy & your data: download your data, change marketing emails, or permanently delete your account",
+      "Rewritten Terms and Privacy Policy, plus new Cookie Policy and Safety & Reporting pages",
+      "Maps on meets only load from Google when you tap Show map",
+      "Shared links now show rich previews with photos: listings show the price and car, and posts, profiles, cars, groups and meets show their own details",
+      "Better Google results: product details on listings, a sitemap, canonical links, and private pages kept out of search",
+      "Extra security headers on every page",
+    ],
+    requiredSql: ["drizzle/migrations/0037_age_and_consent.sql"],
+  },
+  {
     version: "1.9.0",
     date: "2026-09-28",
     title: "Group entry rules",

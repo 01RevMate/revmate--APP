@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { fetchGarageCarSeo } from "@/lib/seoData";
+import { garageCarHead } from "@/lib/seoHeads";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,21 +12,9 @@ import { BuildTimeline } from "@/components/BuildTimeline";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
 export const Route = createFileRoute("/u/$username_/cars/$carId")({
-  head: ({ params }) => {
-    const handle = displayUsernameWithoutAt(params.username);
-    const title = `${handle}'s car — RevMate`;
-    const description = `View ${handle}'s car profile, build details and related RevMate posts.`;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary" },
-      ],
-    };
-  },
+  loader: ({ params }) => fetchGarageCarSeo(params.carId),
+  head: ({ params, loaderData }) =>
+    garageCarHead(params.username, params.carId, loaderData ?? null),
   component: CarProfilePage,
 });
 

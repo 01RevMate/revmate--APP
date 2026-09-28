@@ -24,14 +24,18 @@ import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as NearYouRouteImport } from './routes/near-you'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RevsRouteImport } from './routes/revs'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as UpdatesDotjsonRouteImport } from './routes/updates[.]json'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
 import { Route as GroupsIndexRouteImport } from './routes/groups/index'
 import { Route as GroupsSlugRouteImport } from './routes/groups/$slug'
+import { Route as LegalCookiesRouteImport } from './routes/legal/cookies'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
+import { Route as LegalSafetyRouteImport } from './routes/legal/safety'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as LegalUpdatesRouteImport } from './routes/legal/updates'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace/index'
@@ -120,6 +124,11 @@ const RevsRoute = RevsRouteImport.update({
   path: '/revs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
@@ -133,6 +142,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UpdatesDotjsonRoute = UpdatesDotjsonRouteImport.update({
@@ -155,9 +169,19 @@ const GroupsSlugRoute = GroupsSlugRouteImport.update({
   path: '/groups/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LegalCookiesRoute = LegalCookiesRouteImport.update({
+  id: '/legal/cookies',
+  path: '/legal/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
   id: '/legal/privacy',
   path: '/legal/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalSafetyRoute = LegalSafetyRouteImport.update({
+  id: '/legal/safety',
+  path: '/legal/safety',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LegalTermsRoute = LegalTermsRouteImport.update({
@@ -237,12 +261,16 @@ export interface FileRoutesByFullPath {
   '/near-you': typeof NearYouRoute
   '/reset-password': typeof ResetPasswordRoute
   '/revs': typeof RevsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
   '/groups/$slug': typeof GroupsSlugRoute
+  '/legal/cookies': typeof LegalCookiesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/safety': typeof LegalSafetyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/legal/updates': typeof LegalUpdatesRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
@@ -274,12 +302,16 @@ export interface FileRoutesByTo {
   '/near-you': typeof NearYouRoute
   '/reset-password': typeof ResetPasswordRoute
   '/revs': typeof RevsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
   '/groups/$slug': typeof GroupsSlugRoute
+  '/legal/cookies': typeof LegalCookiesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/safety': typeof LegalSafetyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/legal/updates': typeof LegalUpdatesRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
@@ -312,12 +344,16 @@ export interface FileRoutesById {
   '/near-you': typeof NearYouRoute
   '/reset-password': typeof ResetPasswordRoute
   '/revs': typeof RevsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
   '/groups/$slug': typeof GroupsSlugRoute
+  '/legal/cookies': typeof LegalCookiesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/safety': typeof LegalSafetyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/legal/updates': typeof LegalUpdatesRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
@@ -351,12 +387,16 @@ export interface FileRouteTypes {
     | '/near-you'
     | '/reset-password'
     | '/revs'
+    | '/robots.txt'
     | '/sell'
     | '/settings'
     | '/signup'
+    | '/sitemap.xml'
     | '/updates.json'
     | '/groups/$slug'
+    | '/legal/cookies'
     | '/legal/privacy'
+    | '/legal/safety'
     | '/legal/terms'
     | '/legal/updates'
     | '/marketplace/$listingId'
@@ -388,12 +428,16 @@ export interface FileRouteTypes {
     | '/near-you'
     | '/reset-password'
     | '/revs'
+    | '/robots.txt'
     | '/sell'
     | '/settings'
     | '/signup'
+    | '/sitemap.xml'
     | '/updates.json'
     | '/groups/$slug'
+    | '/legal/cookies'
     | '/legal/privacy'
+    | '/legal/safety'
     | '/legal/terms'
     | '/legal/updates'
     | '/marketplace/$listingId'
@@ -425,12 +469,16 @@ export interface FileRouteTypes {
     | '/near-you'
     | '/reset-password'
     | '/revs'
+    | '/robots.txt'
     | '/sell'
     | '/settings'
     | '/signup'
+    | '/sitemap.xml'
     | '/updates.json'
     | '/groups/$slug'
+    | '/legal/cookies'
     | '/legal/privacy'
+    | '/legal/safety'
     | '/legal/terms'
     | '/legal/updates'
     | '/marketplace/$listingId'
@@ -463,12 +511,16 @@ export interface RootRouteChildren {
   NearYouRoute: typeof NearYouRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RevsRoute: typeof RevsRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   SellRoute: typeof SellRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UpdatesDotjsonRoute: typeof UpdatesDotjsonRoute
   GroupsSlugRoute: typeof GroupsSlugRoute
+  LegalCookiesRoute: typeof LegalCookiesRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
+  LegalSafetyRoute: typeof LegalSafetyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   LegalUpdatesRoute: typeof LegalUpdatesRoute
   MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
@@ -591,6 +643,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RevsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sell': {
       id: '/sell'
       path: '/sell'
@@ -610,6 +669,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/updates.json': {
@@ -640,11 +706,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GroupsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legal/cookies': {
+      id: '/legal/cookies'
+      path: '/legal/cookies'
+      fullPath: '/legal/cookies'
+      preLoaderRoute: typeof LegalCookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/legal/privacy': {
       id: '/legal/privacy'
       path: '/legal/privacy'
       fullPath: '/legal/privacy'
       preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/safety': {
+      id: '/legal/safety'
+      path: '/legal/safety'
+      fullPath: '/legal/safety'
+      preLoaderRoute: typeof LegalSafetyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/legal/terms': {
@@ -762,12 +842,16 @@ const rootRouteChildren: RootRouteChildren = {
   NearYouRoute: NearYouRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RevsRoute: RevsRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   SellRoute: SellRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   UpdatesDotjsonRoute: UpdatesDotjsonRoute,
   GroupsSlugRoute: GroupsSlugRoute,
+  LegalCookiesRoute: LegalCookiesRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
+  LegalSafetyRoute: LegalSafetyRoute,
   LegalTermsRoute: LegalTermsRoute,
   LegalUpdatesRoute: LegalUpdatesRoute,
   MarketplaceListingIdRoute: MarketplaceListingIdRoute,

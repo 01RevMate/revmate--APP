@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { fetchGroupSeo } from "@/lib/seoData";
+import { groupHead } from "@/lib/seoHeads";
 import { useProfile } from "@/hooks/useProfile";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -43,20 +45,8 @@ import { MakeSelect } from "@/components/MakeSelect";
 import { ModelSelect } from "@/components/ModelSelect";
 
 export const Route = createFileRoute("/groups/$slug")({
-  head: ({ params }) => {
-    const title = `${params.slug} — RevMate Group`;
-    const description = `Join the ${params.slug} group on RevMate for car discussions and member posts.`;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary" },
-      ],
-    };
-  },
+  loader: ({ params }) => fetchGroupSeo(params.slug),
+  head: ({ params, loaderData }) => groupHead(params.slug, loaderData ?? null),
   component: GroupPage,
 });
 

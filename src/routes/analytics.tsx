@@ -7,7 +7,8 @@ import { useProfile } from "@/hooks/useProfile";
 import { fetchAccountAnalytics } from "@/lib/follows";
 
 export const Route = createFileRoute("/analytics")({
-  head: () => ({ meta: [{ title: "Account analytics — RevMate" }] }),
+  head: () => ({ meta: [
+      { name: "robots", content: "noindex, nofollow" },{ title: "Account analytics — RevMate" }] }),
   component: AnalyticsPage,
 });
 

@@ -7,7 +7,7 @@ export const Route = createFileRoute("/community-standards")({
       { property: "og:title", content: "Community Standards — RevMate" },
       { property: "og:description", content: "Review the RevMate rules for respectful car discussion, groups and marketplace posts." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: CommunityStandards,

@@ -25,12 +25,13 @@ export const Route = createFileRoute("/garage")({
   },
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, nofollow" },
       { title: "My Garage — RevMate" },
       { name: "description", content: "Open your RevMate garage to manage the cars linked to your profile." },
       { property: "og:title", content: "My Garage — RevMate" },
       { property: "og:description", content: "Open your RevMate garage to manage the cars linked to your profile." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: GaragePromptPage,

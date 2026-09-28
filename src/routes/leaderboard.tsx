@@ -25,7 +25,7 @@ export const Route = createFileRoute("/leaderboard")({
         content: "The highest-ranked brands, models and individual cars on RevMate.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: LeaderboardPage,

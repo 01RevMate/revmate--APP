@@ -58,12 +58,40 @@ Then regenerate the Supabase TypeScript types.
 
 ---
 
-## Prompt 3 — phone push notifications (optional)
+## Prompt 3 — age checks and account deletion (do this one, after Prompt 2)
+
+```
+Please run sql-to-run/07_age_and_consent.sql from the repo on the connected
+Supabase database, exactly as committed. Don't rewrite, merge or simplify it,
+and don't recreate its functions in your own words — use the file as it is.
+Stop and tell me if it fails.
+
+It adds a public.account_consents table (row level security: people can
+only read their own row), a trigger on auth.users that records the date of
+birth and agreed terms versions from sign-up metadata and refuses under-13
+sign-ups, the functions record_consents, set_marketing_consent and
+delete_my_account, and restrictive row level security policies that limit
+listings, car meets and post locations to 18+ and direct messages to 16+.
+No existing data is changed.
+
+When it has finished, please confirm:
+- public.account_consents exists with row level security enabled
+- the on_auth_user_created_consents trigger exists on auth.users
+- record_consents, set_marketing_consent and delete_my_account exist
+- the policies listings_adults_only, car_meets_adults_only,
+  posts_location_adults_only, conversations_16_plus and messages_16_plus exist
+
+Then regenerate the Supabase TypeScript types.
+```
+
+---
+
+## Prompt 4 — phone push notifications (optional)
 
 ```
 Please set up web push notifications for RevMate:
 
-1. Run sql-to-run/07_push_notifications.sql on the connected Supabase
+1. Run sql-to-run/08_push_notifications.sql on the connected Supabase
    database, exactly as committed (it enables the pg_net extension and adds
    a push_subscriptions table and a trigger on notifications).
 2. Generate a VAPID key pair for web push.
@@ -75,7 +103,7 @@ Please set up web push notifications for RevMate:
 4. Deploy (or redeploy) the edge function in supabase/functions/send-push
    (it must allow calls without a user JWT — supabase/config.toml already
    sets verify_jwt = false for it).
-5. Run sql-to-run/08_push_setup_after_keys.sql, replacing
+5. Run sql-to-run/09_push_setup_after_keys.sql, replacing
    <PUSH_WEBHOOK_SECRET> with the same value used in step 3.
 
 Then confirm the send-push function returns a publicKey on a GET request.

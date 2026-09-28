@@ -32,7 +32,7 @@ export const Route = createFileRoute("/revs")({
       },
       { property: "og:title", content: "Revs — RevMate" },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: RevsPage,

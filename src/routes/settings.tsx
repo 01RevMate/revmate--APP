@@ -13,6 +13,7 @@ import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 import { HomeModeSwitch } from "@/components/HomeModeSwitch";
 import { useEngagementFeatures, usePushFeature } from "@/lib/features";
 import { NotificationSettingsForm } from "@/components/NotificationSettingsForm";
+import { PrivacyDataSettings } from "@/components/PrivacyDataSettings";
 import { APP_VERSION } from "@/lib/changelog";
 import { fetchBlockedProfiles, unblockProfile } from "@/lib/moderation";
 import { displayUsernameWithoutAt, normalizeUsername } from "@/lib/usernames";
@@ -20,6 +21,7 @@ import { displayUsernameWithoutAt, normalizeUsername } from "@/lib/usernames";
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, nofollow" },
       { title: "Settings — RevMate" },
       {
         name: "description",
@@ -31,7 +33,7 @@ export const Route = createFileRoute("/settings")({
         content: "Manage your RevMate profile, password, blocked people and saved cars.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: SettingsPage,
@@ -308,6 +310,10 @@ function SettingsPage() {
         </ul>
       </Section>
 
+      <Section title="Privacy & your data">
+        <PrivacyDataSettings userId={user.id} email={user.email} />
+      </Section>
+
       <Section title="About & legal">
         <ul className="space-y-2 text-sm">
           <li>
@@ -318,6 +324,21 @@ function SettingsPage() {
           <li>
             <Link to="/legal/privacy" className="text-primary underline">
               Privacy policy
+            </Link>
+          </li>
+          <li>
+            <Link to="/legal/cookies" className="text-primary underline">
+              Cookie policy
+            </Link>
+          </li>
+          <li>
+            <Link to="/legal/safety" className="text-primary underline">
+              Safety &amp; reporting
+            </Link>
+          </li>
+          <li>
+            <Link to="/community-standards" className="text-primary underline">
+              Community standards
             </Link>
           </li>
           <li>

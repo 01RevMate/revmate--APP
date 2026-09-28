@@ -16,6 +16,8 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { AGE_LIMITS, useOldEnough } from "@/lib/legal";
+
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
 import {
@@ -114,7 +116,9 @@ export function PostComposer({
   const engagement = useEngagementFeatures();
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
-  const canAddLocation = engagement && !lockedGroup && audience === "public";
+  const oldEnoughForLocation = useOldEnough(AGE_LIMITS.location);
+  const canAddLocation =
+    engagement && !lockedGroup && audience === "public" && oldEnoughForLocation;
 
   async function toggleLocation() {
     if (location) {
