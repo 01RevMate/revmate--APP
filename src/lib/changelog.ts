@@ -24,6 +24,17 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.8.1",
+    date: "2026-09-28",
+    title: "Join to unlock",
+    status: "live",
+    highlights: [
+      "Without an account you can browse the feed and Buy & Sell; everything else shows a free sign-up screen",
+      "Liking, commenting, stories, saving, watching and messaging sellers all ask you to join first",
+      "After signing up or logging in you land straight back on what you were trying to open",
+    ],
+  },
+  {
     version: "1.8.0",
     date: "2026-09-28",
     title: "Marketplace upgrade",

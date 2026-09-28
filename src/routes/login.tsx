@@ -1,4 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { safeRedirect } from "@/lib/authRedirect";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +7,11 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/login")({
+  // ?redirect=/battles sends people back to what they were trying to open.
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => {
+    const redirect = safeRedirect(search["redirect"]);
+    return redirect ? { redirect } : {};
+  },
   head: () => ({
     meta: [
       { title: "Log in — RevMate" },
@@ -21,6 +27,12 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const router = useRouter();
+  const { redirect } = Route.useSearch();
+  function goOn() {
+    if (redirect) router.history.push(redirect);
+    else navigate({ to: "/garage" });
+  }
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
@@ -34,7 +46,7 @@ function LoginPage() {
       toast.error(error.message);
       return;
     }
-    navigate({ to: "/garage" });
+    goOn();
   }
 
   return (
@@ -58,7 +70,10 @@ function LoginPage() {
         <label className="block space-y-1.5">
           <span className="flex items-center justify-between gap-3 text-sm font-medium">
             Password
-            <Link to="/forgot-password" className="font-normal text-muted-foreground underline underline-offset-4">
+            <Link
+              to="/forgot-password"
+              className="font-normal text-muted-foreground underline underline-offset-4"
+            >
               Forgot password?
             </Link>
           </span>
@@ -71,17 +86,13 @@ function LoginPage() {
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </label>
-        <Button
-          type="submit"
-          disabled={saving}
-          className="w-full"
-        >
+        <Button type="submit" disabled={saving} className="w-full">
           {saving ? "Logging in…" : "Log in"}
         </Button>
       </form>
       <p className="mt-4 text-sm text-muted-foreground">
         No account?{" "}
-        <Link to="/signup" className="underline">
+        <Link to="/signup" search={redirect ? { redirect } : {}} className="underline">
           Sign up
         </Link>
       </p>

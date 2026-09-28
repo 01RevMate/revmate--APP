@@ -19,6 +19,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { AuthModalProvider } from "@/hooks/useAuthModal";
 import { AuthPromptModal } from "@/components/AuthPromptModal";
 import { SplashScreen } from "@/components/SplashScreen";
+import { AuthGate } from "@/components/AuthGate";
 import { EngagementPulse } from "@/components/EngagementPulse";
 import { OnboardingDialog } from "@/components/OnboardingDialog";
 import { supabase } from "@/integrations/supabase/client";
@@ -174,7 +175,9 @@ function RootComponent() {
             <div className="min-h-screen bg-background pb-16 md:pb-0">
               <TopNav />
               {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-              <Outlet />
+              <AuthGate>
+                <Outlet />
+              </AuthGate>
             </div>
             <BottomNav />
             <Toaster />

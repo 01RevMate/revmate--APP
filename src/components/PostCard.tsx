@@ -287,6 +287,7 @@ export function PostCard({
   }
 
   function toggleComments() {
+    if (!user) return openAuthModal("Create a free account to read and join the conversation.");
     if (commentsOpen) setCommentsOpen(false);
     else void openComments();
   }
@@ -881,7 +882,8 @@ export function PostCard({
           onLike={() => void (isCarLike ? toggleCarLike() : toggleLike())}
           onComment={() => {
             setViewerIndex(null);
-            void openComments();
+            if (!user) openAuthModal("Create a free account to read and join the conversation.");
+            else void openComments();
           }}
         />
       )}

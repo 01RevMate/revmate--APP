@@ -145,7 +145,11 @@ export function StoriesRow() {
             <button
               key={group.userId}
               type="button"
-              onClick={() => setViewing(index)}
+              onClick={() =>
+                user
+                  ? setViewing(index)
+                  : openAuthModal("Create a free account to watch Pit Stops from other owners.")
+              }
               className="flex w-16 shrink-0 flex-col items-center gap-1"
             >
               <span

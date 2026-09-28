@@ -1,4 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { safeRedirect } from "@/lib/authRedirect";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +8,11 @@ import { Button } from "@/components/ui/button";
 import { normalizeUsername } from "@/lib/usernames";
 
 export const Route = createFileRoute("/signup")({
+  // ?redirect=/battles sends people back to what they were trying to open.
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => {
+    const redirect = safeRedirect(search["redirect"]);
+    return redirect ? { redirect } : {};
+  },
   head: () => ({
     meta: [
       { title: "Sign up — RevMate" },
@@ -22,6 +28,12 @@ export const Route = createFileRoute("/signup")({
 
 function SignupPage() {
   const navigate = useNavigate();
+  const router = useRouter();
+  const { redirect } = Route.useSearch();
+  function goOn() {
+    if (redirect) router.history.push(redirect);
+    else navigate({ to: "/garage" });
+  }
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +47,7 @@ function SignupPage() {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: window.location.origin + (redirect ?? ""),
         data: { username: normalizeUsername(username) },
       },
     });
@@ -45,7 +57,7 @@ function SignupPage() {
       return;
     }
     if (data.session) {
-      navigate({ to: "/garage" });
+      goOn();
       return;
     }
     setSent(true);
@@ -104,17 +116,13 @@ function SignupPage() {
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </label>
-        <Button
-          type="submit"
-          disabled={saving}
-          className="w-full"
-        >
+        <Button type="submit" disabled={saving} className="w-full">
           {saving ? "Creating account…" : "Create account"}
         </Button>
       </form>
       <p className="mt-4 text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link to="/login" className="underline">
+        <Link to="/login" search={redirect ? { redirect } : {}} className="underline">
           Log in
         </Link>
       </p>
