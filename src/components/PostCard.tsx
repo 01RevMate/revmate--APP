@@ -37,7 +37,7 @@ import { useMyRepostedIds, useMySavedPostIds } from "@/hooks/useSocialState";
 import { useSocialFeatures } from "@/lib/features";
 import { createRepost, isVideoUrl, savePost, undoRepost, unsavePost } from "@/lib/social";
 import { carLabel, carPath } from "@/lib/cars";
-import { issueSystemLabel } from "@/lib/diagnostics";
+import { issueSystemName } from "@/lib/diagnostics";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import {
   dislikeGarageCar,
@@ -520,32 +520,6 @@ export function PostCard({
         </div>
       </header>
 
-      {!post.repost_of_id && post.category === "diagnostics" && (
-        <div className="mt-1 flex flex-col items-end gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-1.5">
-          {issueStatus && (
-            <span
-              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                issueStatus === "resolved"
-                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                  : "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400"
-              }`}
-            >
-              {issueStatus === "resolved" ? (
-                <CheckCircle2 className="size-3" />
-              ) : (
-                <CircleAlert className="size-3" />
-              )}
-              {issueStatus === "resolved" ? "Resolved" : "Unresolved"}
-            </span>
-          )}
-          {post.issue_system && (
-            <span className="inline-flex max-w-full items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-              {issueSystemLabel(post.issue_system)}
-            </span>
-          )}
-        </div>
-      )}
-
       {post.audience === "friends" && (
         <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-white">
           <UserRoundCheck className="size-3" />
@@ -579,24 +553,52 @@ export function PostCard({
           Hide post
         </button>
       )}
-      {post.cars && (
-        <Link
-          {...carPath(post.cars)}
-          className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-xs font-medium text-accent-foreground hover:underline"
-        >
-          <CarLogo make={post.cars.make} className="size-3.5" />
-          {carLabel(post.cars)}
-        </Link>
-      )}
-
-      {post.tagged_make && (
-        <p className="mt-3 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-xs font-medium text-accent-foreground">
-          <CarLogo make={post.tagged_make} className="size-3.5" />
-          {[post.tagged_year, post.tagged_make, post.tagged_model].filter(Boolean).join(" ")}
-          {post.tagged_engine && (
-            <span className="text-muted-foreground">· {post.tagged_engine}</span>
+      {(post.cars ||
+        post.tagged_make ||
+        (!post.repost_of_id &&
+          post.category === "diagnostics" &&
+          (issueStatus || post.issue_system))) && (
+        <div className="mt-3 flex flex-nowrap items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {!post.repost_of_id && post.category === "diagnostics" && issueStatus && (
+            <span
+              className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                issueStatus === "resolved"
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                  : "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400"
+              }`}
+            >
+              {issueStatus === "resolved" ? (
+                <CheckCircle2 className="size-3" />
+              ) : (
+                <CircleAlert className="size-3" />
+              )}
+              {issueStatus === "resolved" ? "Resolved" : "Unresolved"}
+            </span>
           )}
-        </p>
+          {!post.repost_of_id && post.category === "diagnostics" && post.issue_system && (
+            <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              {issueSystemName(post.issue_system)}
+            </span>
+          )}
+          {post.cars && (
+            <Link
+              {...carPath(post.cars)}
+              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-accent-foreground hover:underline"
+            >
+              <CarLogo make={post.cars.make} className="size-3" />
+              {carLabel(post.cars)}
+            </Link>
+          )}
+          {post.tagged_make && (
+            <p className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-accent-foreground">
+              <CarLogo make={post.tagged_make} className="size-3" />
+              {[post.tagged_year, post.tagged_make, post.tagged_model].filter(Boolean).join(" ")}
+              {post.tagged_engine && (
+                <span className="text-muted-foreground">· {post.tagged_engine}</span>
+              )}
+            </p>
+          )}
+        </div>
       )}
 
       {post.body && (

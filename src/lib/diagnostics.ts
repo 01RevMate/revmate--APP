@@ -27,6 +27,10 @@ export function issueSystemLabel(id: string | null | undefined) {
   return system ? `${system.emoji} ${system.label}` : null;
 }
 
+export function issueSystemName(id: string | null | undefined) {
+  return ISSUE_SYSTEMS.find((system) => system.id === id)?.label ?? null;
+}
+
 /** True once 0045 has been applied. */
 export function useDiagnosticsFeature(): boolean {
   const { data } = useQuery({
