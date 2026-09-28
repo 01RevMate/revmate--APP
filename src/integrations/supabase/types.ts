@@ -114,7 +114,22 @@ export type Database = {
           target_fuel?: string | null
           target_segment?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ad_campaigns_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_campaigns_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       announcement_views: {
         Row: {
@@ -135,7 +150,22 @@ export type Database = {
           seen_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "announcement_views_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcement_views_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       announcements: {
         Row: {
@@ -186,7 +216,15 @@ export type Database = {
           starts_at?: string
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "announcements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       answers: {
         Row: {
@@ -286,7 +324,22 @@ export type Database = {
           reporter_id?: string
           status?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "business_reports_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       business_reviews: {
         Row: {
@@ -316,7 +369,22 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "business_reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       businesses: {
         Row: {
@@ -376,7 +444,15 @@ export type Database = {
           verified?: boolean
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "businesses_owner_user_id_fkey"
+            columns: ["owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       car_battle_votes: {
         Row: {
@@ -607,6 +683,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "car_of_the_week_garage_car_id_fkey"
+            columns: ["garage_car_id"]
+            isOneToOne: false
+            referencedRelation: "garage_cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      car_reminders_sent: {
+        Row: {
+          due_date: string
+          garage_car_id: string
+          kind: string
+          sent_at: string
+          stage: string
+        }
+        Insert: {
+          due_date: string
+          garage_car_id: string
+          kind: string
+          sent_at?: string
+          stage: string
+        }
+        Update: {
+          due_date?: string
+          garage_car_id?: string
+          kind?: string
+          sent_at?: string
+          stage?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_reminders_sent_garage_car_id_fkey"
             columns: ["garage_car_id"]
             isOneToOne: false
             referencedRelation: "garage_cars"
@@ -1031,9 +1139,6 @@ export type Database = {
       }
       garage_cars: {
         Row: {
-          mot_due: string | null
-          tax_due: string | null
-          reminders_enabled: boolean
           battle_losses: number
           battle_wins: number
           bio: string | null
@@ -1056,20 +1161,20 @@ export type Database = {
           make: string
           mileage: number | null
           model: string
+          mot_due: string | null
           nickname: string
           ownership_end_reason: string | null
           ownership_status: Database["public"]["Enums"]["garage_car_ownership_status"]
           photo_url: string | null
+          reminders_enabled: boolean
           spec: string | null
+          tax_due: string | null
           transmission: Database["public"]["Enums"]["transmission_type"] | null
           trim: string | null
           user_id: string
           year: number | null
         }
         Insert: {
-          mot_due?: string | null
-          tax_due?: string | null
-          reminders_enabled?: boolean
           battle_losses?: number
           battle_wins?: number
           bio?: string | null
@@ -1092,20 +1197,20 @@ export type Database = {
           make: string
           mileage?: number | null
           model: string
+          mot_due?: string | null
           nickname: string
           ownership_end_reason?: string | null
           ownership_status?: Database["public"]["Enums"]["garage_car_ownership_status"]
           photo_url?: string | null
+          reminders_enabled?: boolean
           spec?: string | null
+          tax_due?: string | null
           transmission?: Database["public"]["Enums"]["transmission_type"] | null
           trim?: string | null
           user_id: string
           year?: number | null
         }
         Update: {
-          mot_due?: string | null
-          tax_due?: string | null
-          reminders_enabled?: boolean
           battle_losses?: number
           battle_wins?: number
           bio?: string | null
@@ -1128,11 +1233,14 @@ export type Database = {
           make?: string
           mileage?: number | null
           model?: string
+          mot_due?: string | null
           nickname?: string
           ownership_end_reason?: string | null
           ownership_status?: Database["public"]["Enums"]["garage_car_ownership_status"]
           photo_url?: string | null
+          reminders_enabled?: boolean
           spec?: string | null
+          tax_due?: string | null
           transmission?: Database["public"]["Enums"]["transmission_type"] | null
           trim?: string | null
           user_id?: string
@@ -1372,129 +1480,136 @@ export type Database = {
       }
       listings: {
         Row: {
-          business_id: string | null
           body_type: string | null
-          colour: string | null
-          doors: number | null
-          engine_size_cc: number | null
-          fuel_type: string | null
-          make: string | null
-          model: string | null
-          modified: boolean | null
-          mot_expiry: string | null
-          power_bhp: number | null
-          previous_owners: number | null
-          seats: number | null
-          seller_type: string
-          service_history: string | null
-          transmission: string | null
-          ulez_compliant: boolean | null
-          v5c_present: boolean | null
-          year: number | null
+          business_id: string | null
           car_id: string | null
+          colour: string | null
           created_at: string
           description: string | null
+          doors: number | null
+          engine_size_cc: number | null
           featured_until: string | null
+          fuel_type: string | null
           garage_car_id: string | null
           headline: string | null
           id: string
           location_area: string | null
+          make: string | null
           mileage: number | null
+          model: string | null
+          modified: boolean | null
+          mot_expiry: string | null
           photos: string[]
+          power_bhp: number | null
+          previous_owners: number | null
           previous_price: number | null
           price: number | null
           price_changed_at: string | null
           saves_count: number
+          seats: number | null
+          seller_type: string
+          service_history: string | null
           show_car_stats: boolean
           status: string
           title: string
+          transmission: string | null
           type: Database["public"]["Enums"]["listing_type"]
+          ulez_compliant: boolean | null
           user_id: string
+          v5c_present: boolean | null
           views_count: number
+          year: number | null
         }
         Insert: {
-          business_id?: string | null
           body_type?: string | null
-          colour?: string | null
-          doors?: number | null
-          engine_size_cc?: number | null
-          fuel_type?: string | null
-          make?: string | null
-          model?: string | null
-          modified?: boolean | null
-          mot_expiry?: string | null
-          power_bhp?: number | null
-          previous_owners?: number | null
-          seats?: number | null
-          seller_type?: string
-          service_history?: string | null
-          transmission?: string | null
-          ulez_compliant?: boolean | null
-          v5c_present?: boolean | null
-          year?: number | null
+          business_id?: string | null
           car_id?: string | null
+          colour?: string | null
           created_at?: string
           description?: string | null
+          doors?: number | null
+          engine_size_cc?: number | null
           featured_until?: string | null
+          fuel_type?: string | null
           garage_car_id?: string | null
           headline?: string | null
           id?: string
           location_area?: string | null
+          make?: string | null
           mileage?: number | null
+          model?: string | null
+          modified?: boolean | null
+          mot_expiry?: string | null
           photos?: string[]
+          power_bhp?: number | null
+          previous_owners?: number | null
           previous_price?: number | null
           price?: number | null
           price_changed_at?: string | null
           saves_count?: number
+          seats?: number | null
+          seller_type?: string
+          service_history?: string | null
           show_car_stats?: boolean
           status?: string
           title: string
+          transmission?: string | null
           type?: Database["public"]["Enums"]["listing_type"]
+          ulez_compliant?: boolean | null
           user_id: string
+          v5c_present?: boolean | null
           views_count?: number
+          year?: number | null
         }
         Update: {
-          business_id?: string | null
           body_type?: string | null
-          colour?: string | null
-          doors?: number | null
-          engine_size_cc?: number | null
-          fuel_type?: string | null
-          make?: string | null
-          model?: string | null
-          modified?: boolean | null
-          mot_expiry?: string | null
-          power_bhp?: number | null
-          previous_owners?: number | null
-          seats?: number | null
-          seller_type?: string
-          service_history?: string | null
-          transmission?: string | null
-          ulez_compliant?: boolean | null
-          v5c_present?: boolean | null
-          year?: number | null
+          business_id?: string | null
           car_id?: string | null
+          colour?: string | null
           created_at?: string
           description?: string | null
+          doors?: number | null
+          engine_size_cc?: number | null
           featured_until?: string | null
+          fuel_type?: string | null
           garage_car_id?: string | null
           headline?: string | null
           id?: string
           location_area?: string | null
+          make?: string | null
           mileage?: number | null
+          model?: string | null
+          modified?: boolean | null
+          mot_expiry?: string | null
           photos?: string[]
+          power_bhp?: number | null
+          previous_owners?: number | null
           previous_price?: number | null
           price?: number | null
           price_changed_at?: string | null
           saves_count?: number
+          seats?: number | null
+          seller_type?: string
+          service_history?: string | null
           show_car_stats?: boolean
           status?: string
           title?: string
+          transmission?: string | null
           type?: Database["public"]["Enums"]["listing_type"]
+          ulez_compliant?: boolean | null
           user_id?: string
+          v5c_present?: boolean | null
           views_count?: number
+          year?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "listings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "listings_car_id_fkey"
             columns: ["car_id"]
@@ -1605,7 +1720,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "member_areas_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       messages: {
         Row: {
@@ -1668,7 +1791,22 @@ export type Database = {
           news_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "news_likes_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       news_posts: {
         Row: {
@@ -1716,7 +1854,15 @@ export type Database = {
           topic?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "news_posts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       notification_settings: {
         Row: {
@@ -2109,16 +2255,6 @@ export type Database = {
       }
       posts: {
         Row: {
-          issue_system: string | null
-          issue_status: string | null
-          issue_fix: string | null
-          resolved_at: string | null
-          resolve_prompts: number
-          last_resolve_prompt_at: string | null
-          tagged_make: string | null
-          tagged_model: string | null
-          tagged_engine: string | null
-          tagged_year: number | null
           audience: Database["public"]["Enums"]["post_audience"]
           body: string
           car_id: string | null
@@ -2129,6 +2265,10 @@ export type Database = {
           has_poll: boolean
           id: string
           image_url: string | null
+          issue_fix: string | null
+          issue_status: string | null
+          issue_system: string | null
+          last_resolve_prompt_at: string | null
           latitude: number | null
           likes_count: number
           listing_id: string | null
@@ -2138,20 +2278,16 @@ export type Database = {
           reaction_counts: Json
           repost_of_id: string | null
           reposts_count: number
+          resolve_prompts: number
+          resolved_at: string | null
           spotted_garage_car_id: string | null
+          tagged_engine: string | null
+          tagged_make: string | null
+          tagged_model: string | null
+          tagged_year: number | null
           user_id: string
         }
         Insert: {
-          issue_system?: string | null
-          issue_status?: string | null
-          issue_fix?: string | null
-          resolved_at?: string | null
-          resolve_prompts?: number
-          last_resolve_prompt_at?: string | null
-          tagged_make?: string | null
-          tagged_model?: string | null
-          tagged_engine?: string | null
-          tagged_year?: number | null
           audience?: Database["public"]["Enums"]["post_audience"]
           body: string
           car_id?: string | null
@@ -2162,6 +2298,10 @@ export type Database = {
           has_poll?: boolean
           id?: string
           image_url?: string | null
+          issue_fix?: string | null
+          issue_status?: string | null
+          issue_system?: string | null
+          last_resolve_prompt_at?: string | null
           latitude?: number | null
           likes_count?: number
           listing_id?: string | null
@@ -2171,20 +2311,16 @@ export type Database = {
           reaction_counts?: Json
           repost_of_id?: string | null
           reposts_count?: number
+          resolve_prompts?: number
+          resolved_at?: string | null
           spotted_garage_car_id?: string | null
+          tagged_engine?: string | null
+          tagged_make?: string | null
+          tagged_model?: string | null
+          tagged_year?: number | null
           user_id: string
         }
         Update: {
-          issue_system?: string | null
-          issue_status?: string | null
-          issue_fix?: string | null
-          resolved_at?: string | null
-          resolve_prompts?: number
-          last_resolve_prompt_at?: string | null
-          tagged_make?: string | null
-          tagged_model?: string | null
-          tagged_engine?: string | null
-          tagged_year?: number | null
           audience?: Database["public"]["Enums"]["post_audience"]
           body?: string
           car_id?: string | null
@@ -2195,6 +2331,10 @@ export type Database = {
           has_poll?: boolean
           id?: string
           image_url?: string | null
+          issue_fix?: string | null
+          issue_status?: string | null
+          issue_system?: string | null
+          last_resolve_prompt_at?: string | null
           latitude?: number | null
           likes_count?: number
           listing_id?: string | null
@@ -2204,7 +2344,13 @@ export type Database = {
           reaction_counts?: Json
           repost_of_id?: string | null
           reposts_count?: number
+          resolve_prompts?: number
+          resolved_at?: string | null
           spotted_garage_car_id?: string | null
+          tagged_engine?: string | null
+          tagged_make?: string | null
+          tagged_model?: string | null
+          tagged_year?: number | null
           user_id?: string
         }
         Relationships: [
@@ -2976,37 +3122,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      ads_for_me: {
-        Args: { for_placement?: string; result_limit?: number }
-        Returns: {
-          id: string
-          headline: string
-          body: string
-          image_url: string | null
-          cta_label: string
-          cta_url: string
-          business_id: string | null
-          business_name: string | null
-          business_rating: number | null
-          business_reviews: number | null
-          business_verified: boolean | null
-        }[]
-      }
-      common_issues: {
-        Args: { for_make: string; for_model?: string }
-        Returns: { issue_system: string; reports: number; resolved: number; latest_post_id: string }[]
-      }
-      record_ad_event: { Args: { target_ad: string; event: string }; Returns: undefined }
-      send_my_car_reminders: { Args: never; Returns: number }
-      send_my_resolve_prompts: { Args: never; Returns: number }
-      trending_hashtags: {
-        Args: { prefix?: string; result_limit?: number }
-        Returns: { tag: string; uses: number }[]
-      }
-      announcement_stats: {
-        Args: never
-        Returns: { announcement_id: string; seen: number; clicked: number }[]
-      }
       account_analytics: {
         Args: never
         Returns: {
@@ -3020,7 +3135,40 @@ export type Database = {
           profile_views_7d: number
         }[]
       }
+      ads_for_me: {
+        Args: { for_placement?: string; result_limit?: number }
+        Returns: {
+          body: string
+          business_id: string
+          business_name: string
+          business_rating: number
+          business_reviews: number
+          business_verified: boolean
+          cta_label: string
+          cta_url: string
+          headline: string
+          id: string
+          image_url: string
+        }[]
+      }
+      announcement_stats: {
+        Args: never
+        Returns: {
+          announcement_id: string
+          clicked: number
+          seen: number
+        }[]
+      }
       check_my_rank_changes: { Args: never; Returns: number }
+      common_issues: {
+        Args: { for_make: string; for_model?: string }
+        Returns: {
+          issue_system: string
+          latest_post_id: string
+          reports: number
+          resolved: number
+        }[]
+      }
       community_feed: {
         Args: {
           filter_car?: string
@@ -3039,6 +3187,10 @@ export type Database = {
           has_poll: boolean
           id: string
           image_url: string | null
+          issue_fix: string | null
+          issue_status: string | null
+          issue_system: string | null
+          last_resolve_prompt_at: string | null
           latitude: number | null
           likes_count: number
           listing_id: string | null
@@ -3048,7 +3200,13 @@ export type Database = {
           reaction_counts: Json
           repost_of_id: string | null
           reposts_count: number
+          resolve_prompts: number
+          resolved_at: string | null
           spotted_garage_car_id: string | null
+          tagged_engine: string | null
+          tagged_make: string | null
+          tagged_model: string | null
+          tagged_year: number | null
           user_id: string
         }[]
         SetofOptions: {
@@ -3073,6 +3231,10 @@ export type Database = {
           has_poll: boolean
           id: string
           image_url: string | null
+          issue_fix: string | null
+          issue_status: string | null
+          issue_system: string | null
+          last_resolve_prompt_at: string | null
           latitude: number | null
           likes_count: number
           listing_id: string | null
@@ -3082,7 +3244,13 @@ export type Database = {
           reaction_counts: Json
           repost_of_id: string | null
           reposts_count: number
+          resolve_prompts: number
+          resolved_at: string | null
           spotted_garage_car_id: string | null
+          tagged_engine: string | null
+          tagged_make: string | null
+          tagged_model: string | null
+          tagged_year: number | null
           user_id: string
         }[]
         SetofOptions: {
@@ -3153,6 +3321,10 @@ export type Database = {
           has_poll: boolean
           id: string
           image_url: string | null
+          issue_fix: string | null
+          issue_status: string | null
+          issue_system: string | null
+          last_resolve_prompt_at: string | null
           latitude: number | null
           likes_count: number
           listing_id: string | null
@@ -3162,7 +3334,13 @@ export type Database = {
           reaction_counts: Json
           repost_of_id: string | null
           reposts_count: number
+          resolve_prompts: number
+          resolved_at: string | null
           spotted_garage_car_id: string | null
+          tagged_engine: string | null
+          tagged_make: string | null
+          tagged_model: string | null
+          tagged_year: number | null
           user_id: string
         }[]
         SetofOptions: {
@@ -3241,6 +3419,10 @@ export type Database = {
           username: string
         }[]
       }
+      record_ad_event: {
+        Args: { event: string; target_ad: string }
+        Returns: undefined
+      }
       record_consents: {
         Args: {
           born: string
@@ -3286,6 +3468,10 @@ export type Database = {
           has_poll: boolean
           id: string
           image_url: string | null
+          issue_fix: string | null
+          issue_status: string | null
+          issue_system: string | null
+          last_resolve_prompt_at: string | null
           latitude: number | null
           likes_count: number
           listing_id: string | null
@@ -3295,7 +3481,13 @@ export type Database = {
           reaction_counts: Json
           repost_of_id: string | null
           reposts_count: number
+          resolve_prompts: number
+          resolved_at: string | null
           spotted_garage_car_id: string | null
+          tagged_engine: string | null
+          tagged_make: string | null
+          tagged_model: string | null
+          tagged_year: number | null
           user_id: string
         }[]
         SetofOptions: {
@@ -3318,6 +3510,8 @@ export type Database = {
         Returns: number
       }
       send_due_meet_reminders: { Args: never; Returns: number }
+      send_my_car_reminders: { Args: never; Returns: number }
+      send_my_resolve_prompts: { Args: never; Returns: number }
       send_my_weekly_recap: { Args: never; Returns: boolean }
       set_marketing_consent: { Args: { opt_in: boolean }; Returns: undefined }
       suggested_profiles: {
@@ -3328,6 +3522,13 @@ export type Database = {
           reason: string
           user_id: string
           username: string
+        }[]
+      }
+      trending_hashtags: {
+        Args: { prefix?: string; result_limit?: number }
+        Returns: {
+          tag: string
+          uses: number
         }[]
       }
       vote_car_battle: {
