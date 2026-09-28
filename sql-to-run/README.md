@@ -12,13 +12,14 @@ database yet**, numbered in the order to run them.
 | 5 | `05_marketplace.sql` | Watchlist, price drops & alerts, view counts, Featured listings, sponsored partners, seller area | **To run** |
 | 6 | `06_group_rules.sql` | Group entry rules (same brand / same car), entry questions, rules agreement, no-sales setting, post-as-matching-car | **To run** |
 | 7 | `07_age_and_consent.sql` | Date of birth & consent records, under-13 block, teen protections, delete account | **To run** |
-| 8 | `08_push_notifications.sql` | Phone push notifications | Optional |
-| 9 | `09_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 8, after the keys are set up |
+| 8 | `08_announcements.sql` | Pop-up announcements with admin controls | **To run** |
+| 9 | `09_push_notifications.sql` | Phone push notifications | Optional |
+| 10 | `10_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 9, after the keys are set up |
 
 ## Two ways to run them
 
 **Easiest — ask Lovable.** Open `LOVABLE_PENDING_SQL_PROMPT.md` (in the main
-folder), copy Prompt 1 and paste it into Lovable, then Prompts 2 and 3. Prompt 4
+folder), copy Prompt 1 and paste it into Lovable, then Prompts 2, 3 and 4. Prompt 5
 does the phone notifications.
 
 **Or run them yourself** in the Supabase SQL editor (Lovable Cloud → Database
@@ -32,7 +33,7 @@ schema before being committed.
 The app already works without them: each feature simply stays hidden until
 its SQL has run, then appears on its own.
 
-Files 1, 2, 3, 5, 6, 7 and 8 are copies of the originals in `drizzle/migrations/`
-(0030, 0031, 0033, 0035, 0036, 0037, 0032) with a short header added; file 4 was a
+Files 1, 2, 3 and 5–9 are copies of the originals in `drizzle/migrations/`
+(0030, 0031, 0033, 0035, 0036, 0037, 0038, 0032) with a short header added; file 4 was a
 one-off update for existing profiles. Once they've all been run, this folder can
 be deleted.

@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 // it instead of showing buttons that error.
 
 async function tableExists(
-  table: "car_meets" | "push_subscriptions" | "stories" | "group_questions",
+  table: "car_meets" | "push_subscriptions" | "stories" | "group_questions" | "announcements",
 ): Promise<boolean> {
   const { error } = await supabase.from(table).select("id").limit(1);
   return !error;
@@ -74,6 +74,17 @@ export function useGroupRulesFeature(): boolean {
   const { data } = useQuery({
     queryKey: ["feature", "group-rules"],
     queryFn: () => tableExists("group_questions"),
+    staleTime: Infinity,
+    retry: false,
+  });
+  return data === true;
+}
+
+/** True once 0038_announcements.sql has been applied (pop-up announcements). */
+export function useAnnouncementsFeature(): boolean {
+  const { data } = useQuery({
+    queryKey: ["feature", "announcements"],
+    queryFn: () => tableExists("announcements"),
     staleTime: Infinity,
     retry: false,
   });

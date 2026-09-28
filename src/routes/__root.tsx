@@ -23,6 +23,7 @@ import { AuthGate } from "@/components/AuthGate";
 import { EngagementPulse } from "@/components/EngagementPulse";
 import { OnboardingDialog } from "@/components/OnboardingDialog";
 import { ConsentGate } from "@/components/ConsentGate";
+import { AnnouncementPopup } from "@/components/AnnouncementPopup";
 import { supabase } from "@/integrations/supabase/client";
 import { absoluteUrl, DEFAULT_DESCRIPTION, seo, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
 
@@ -185,6 +186,7 @@ function RootComponent() {
             <EngagementPulse />
             <OnboardingDialog />
             <ConsentGate />
+            <AnnouncementPopup />
             <SplashScreen />
           </TooltipProvider>
         </AuthModalProvider>

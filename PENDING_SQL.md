@@ -58,9 +58,20 @@ Lovable prompts that run them all.
   Existing accounts keep working until they confirm their age. Tested
   against a copy of the full database schema (18 behaviour checks).
 
-### 4. Phone push notifications (optional, needs a few setup steps)
+### 4. Pop-up announcements
 
-- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/08_push_notifications.sql`).
+- File: `drizzle/migrations/0038_announcements.sql` (`sql-to-run/08_announcements.sql`)
+- Added: 2026-09-28
+- Switches on: Admin → App Updates → Pop-up announcements (prefilled from
+  the latest update or a custom message, with image, button, audience and
+  start/end times) and the pop-up members see once when they open the app.
+- Until this runs: nothing changes; the admin panel and pop-up stay hidden.
+- Safe: only adds two tables, a trigger and functions. Tested against a
+  copy of the full database schema (12 behaviour checks).
+
+### 5. Phone push notifications (optional, needs a few setup steps)
+
+- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/09_push_notifications.sql`).
 - Added: 2026-09-27
 - Needed by: the "Phone notifications" switch in Settings. Until this runs
   (and the steps below are done) the switch doesn't appear and everything
@@ -75,7 +86,7 @@ Lovable prompts that run them all.
      - `VAPID_SUBJECT` — `mailto:` followed by your email
      - `PUSH_WEBHOOK_SECRET` — any long random password you make up
   4. Deploy the edge function `supabase/functions/send-push`.
-  5. Tell the database where the function is — `sql-to-run/09_push_setup_after_keys.sql`,
+  5. Tell the database where the function is — `sql-to-run/10_push_setup_after_keys.sql`,
      with the same random password as step 3:
      ```sql
      SELECT vault.create_secret('https://<project-ref>.supabase.co/functions/v1/send-push', 'push_function_url');

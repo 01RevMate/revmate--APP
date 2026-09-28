@@ -24,6 +24,19 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.11.0",
+    date: "2026-09-28",
+    title: "Announcements",
+    status: "needs_database_update",
+    highlights: [
+      "Pop-up announcements when you open the app, so you never miss what's new",
+      "Each announcement shows once, and can have a picture and a button",
+      "Admins can start from the latest update or write their own, pick who sees it (everyone, 18+ or under 18s) and schedule start and end times",
+      "Admins see how many people saw each announcement and tapped its button",
+    ],
+    requiredSql: ["drizzle/migrations/0038_announcements.sql"],
+  },
+  {
     version: "1.10.0",
     date: "2026-09-28",
     title: "Safer sign-up, privacy & sharing",

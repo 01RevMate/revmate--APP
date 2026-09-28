@@ -267,6 +267,13 @@
       "when": 1790299656495,
       "tag": "0037_age_and_consent",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1790299756495,
+      "tag": "0038_announcements",
+      "breakpoints": true
     }
   ]
 }

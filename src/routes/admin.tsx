@@ -32,9 +32,14 @@ import {
 } from "@/lib/moderation";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { sendAppUpdate } from "@/lib/notifications";
-import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
+import {
+  useAnnouncementsFeature,
+  useEngagementFeatures,
+  useSocialFeatures,
+} from "@/lib/features";
 import { AdminChallenges } from "@/components/AdminChallenges";
 import { AdminPartners } from "@/components/AdminPartners";
+import { AdminAnnouncements } from "@/components/AdminAnnouncements";
 import { useMarketplaceFeatures } from "@/lib/marketplace";
 import { setVerifiedType, type VerifiedType } from "@/lib/social";
 import { useVerifiedProfiles } from "@/components/VerifiedBadge";
@@ -80,6 +85,7 @@ function AdminPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [section, setSection] = useState<AdminSection>("reports");
+  const announcementsOn = useAnnouncementsFeature();
   const [reportFilter, setReportFilter] = useState<"open" | "all">("open");
   const [peopleSearch, setPeopleSearch] = useState("");
   const [newTerm, setNewTerm] = useState("");
@@ -593,9 +599,13 @@ function AdminPage() {
         </section>
       )}
 
+      {section === "updates" && announcementsOn && user && (
+        <AdminAnnouncements userId={user.id} />
+      )}
+
       {section === "updates" && (
-        <section className="mt-6 max-w-2xl">
-          <h2 className="text-lg font-semibold">App updates</h2>
+        <section className="mt-8 max-w-2xl">
+          <h2 className="text-lg font-semibold">Notification bell message</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Send a short announcement to every active RevMate account. It appears in the in-app
             notification bell; no email, text message, or push notification is sent.

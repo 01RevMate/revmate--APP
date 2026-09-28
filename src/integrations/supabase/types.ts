@@ -50,6 +50,78 @@ export type Database = {
         }
         Relationships: []
       }
+      announcement_views: {
+        Row: {
+          announcement_id: string
+          clicked: boolean
+          seen_at: string
+          user_id: string
+        }
+        Insert: {
+          announcement_id: string
+          clicked?: boolean
+          seen_at?: string
+          user_id: string
+        }
+        Update: {
+          announcement_id?: string
+          clicked?: boolean
+          seen_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      announcements: {
+        Row: {
+          active: boolean
+          audience: string
+          body: string
+          created_at: string
+          created_by: string | null
+          cta_label: string | null
+          cta_url: string | null
+          ends_at: string | null
+          id: string
+          image_url: string | null
+          kind: string
+          release_version: string | null
+          starts_at: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          audience?: string
+          body: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          kind?: string
+          release_version?: string | null
+          starts_at?: string
+          title: string
+        }
+        Update: {
+          active?: boolean
+          audience?: string
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          kind?: string
+          release_version?: string | null
+          starts_at?: string
+          title?: string
+        }
+        Relationships: []
+      }
       answers: {
         Row: {
           body: string
@@ -2565,6 +2637,10 @@ export type Database = {
         }
       }
       is_admin: { Args: { check_user_id: string }; Returns: boolean }
+      announcement_stats: {
+        Args: never
+        Returns: { announcement_id: string; seen: number; clicked: number }[]
+      }
       delete_my_account: { Args: never; Returns: undefined }
       record_consents: {
         Args: { born: string; terms_version: string; privacy_version: string; marketing?: boolean }

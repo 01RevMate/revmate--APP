@@ -5,10 +5,10 @@ below (everything inside the box) and paste it into Lovable.
 
 ---
 
-## All-in-one — run steps 5, 6 and 7 together (easiest)
+## All-in-one — run steps 5 to 8 together (easiest)
 
 ```
-Please run these three files from the repo's sql-to-run folder on the
+Please run these four files from the repo's sql-to-run folder on the
 connected Supabase database, one at a time and in this order, exactly as
 committed. Don't rewrite, merge or simplify them, and don't recreate their
 functions in your own words — use each file as it is. Wait for each to
@@ -17,27 +17,29 @@ finish before starting the next, and stop and tell me if any of them fails.
 1. sql-to-run/05_marketplace.sql
 2. sql-to-run/06_group_rules.sql
 3. sql-to-run/07_age_and_consent.sql
+4. sql-to-run/08_announcements.sql
 
 They only add columns, tables, triggers, functions and security rules. No
 existing posts, cars, profiles, listings or messages are deleted.
 
-When all three have finished, please confirm:
+When all four have finished, please confirm:
 - public.listings has previous_price, price_changed_at, views_count,
   saves_count, featured_until and location_area
 - saved_listings, listing_views, marketplace_partners, group_questions,
-  group_join_answers and account_consents exist with row level security on
+  group_join_answers, account_consents, announcements and
+  announcement_views exist with row level security on
 - public.community_groups has entry_rule, allow_sales and
   require_rules_agreement
 - these functions exist: record_listing_view, record_partner_click,
   join_group, group_entry_eligibility, record_consents,
-  set_marketing_consent, delete_my_account
+  set_marketing_consent, delete_my_account, announcement_stats
 - the triggers enforce_group_post_rules (on public.posts) and
   on_auth_user_created_consents (on auth.users) exist
 
 Then regenerate the Supabase TypeScript types.
 ```
 
-Or run them one by one with Prompts 1–3 below.
+Or run them one by one with Prompts 1–4 below.
 
 ---
 
@@ -122,12 +124,33 @@ Then regenerate the Supabase TypeScript types.
 
 ---
 
-## Prompt 4 — phone push notifications (optional)
+## Prompt 4 — pop-up announcements (after Prompt 3)
+
+```
+Please run sql-to-run/08_announcements.sql from the repo on the connected
+Supabase database, exactly as committed. Don't rewrite, merge or simplify it,
+and don't recreate its functions in your own words — use the file as it is.
+Stop and tell me if it fails.
+
+It adds public.announcements and public.announcement_views (row level
+security on: only admins can create or edit announcements; members only see
+live ones meant for them and only their own views), a trigger that stamps
+who created each announcement, and the admin-only function
+announcement_stats. No existing data is changed.
+
+When it has finished, please confirm both tables exist with row level
+security enabled and announcement_stats exists, then regenerate the
+Supabase TypeScript types.
+```
+
+---
+
+## Prompt 5 — phone push notifications (optional)
 
 ```
 Please set up web push notifications for RevMate:
 
-1. Run sql-to-run/08_push_notifications.sql on the connected Supabase
+1. Run sql-to-run/09_push_notifications.sql on the connected Supabase
    database, exactly as committed (it enables the pg_net extension and adds
    a push_subscriptions table and a trigger on notifications).
 2. Generate a VAPID key pair for web push.
@@ -139,7 +162,7 @@ Please set up web push notifications for RevMate:
 4. Deploy (or redeploy) the edge function in supabase/functions/send-push
    (it must allow calls without a user JWT — supabase/config.toml already
    sets verify_jwt = false for it).
-5. Run sql-to-run/09_push_setup_after_keys.sql, replacing
+5. Run sql-to-run/10_push_setup_after_keys.sql, replacing
    <PUSH_WEBHOOK_SECRET> with the same value used in step 3.
 
 Then confirm the send-push function returns a publicKey on a GET request.
