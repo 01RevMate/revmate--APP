@@ -948,54 +948,105 @@ export type Database = {
           },
         ]
       }
+      listing_views: {
+        Row: {
+          listing_id: string
+          viewed_on: string
+          viewer_id: string
+        }
+        Insert: {
+          listing_id: string
+          viewed_on?: string
+          viewer_id: string
+        }
+        Update: {
+          listing_id?: string
+          viewed_on?: string
+          viewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_views_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_views_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       listings: {
         Row: {
           car_id: string | null
           created_at: string
           description: string | null
+          featured_until: string | null
           garage_car_id: string | null
           headline: string | null
           id: string
+          location_area: string | null
           mileage: number | null
           photos: string[]
+          previous_price: number | null
           price: number | null
+          price_changed_at: string | null
+          saves_count: number
           show_car_stats: boolean
           status: string
           title: string
           type: Database["public"]["Enums"]["listing_type"]
           user_id: string
+          views_count: number
         }
         Insert: {
           car_id?: string | null
           created_at?: string
           description?: string | null
+          featured_until?: string | null
           garage_car_id?: string | null
           headline?: string | null
           id?: string
+          location_area?: string | null
           mileage?: number | null
           photos?: string[]
+          previous_price?: number | null
           price?: number | null
+          price_changed_at?: string | null
+          saves_count?: number
           show_car_stats?: boolean
           status?: string
           title: string
           type?: Database["public"]["Enums"]["listing_type"]
           user_id: string
+          views_count?: number
         }
         Update: {
           car_id?: string | null
           created_at?: string
           description?: string | null
+          featured_until?: string | null
           garage_car_id?: string | null
           headline?: string | null
           id?: string
+          location_area?: string | null
           mileage?: number | null
           photos?: string[]
+          previous_price?: number | null
           price?: number | null
+          price_changed_at?: string | null
+          saves_count?: number
           show_car_stats?: boolean
           status?: string
           title?: string
           type?: Database["public"]["Enums"]["listing_type"]
           user_id?: string
+          views_count?: number
         }
         Relationships: [
           {
@@ -1013,6 +1064,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      marketplace_partners: {
+        Row: {
+          active: boolean
+          clicks_count: number
+          created_at: string
+          cta: string
+          id: string
+          image_url: string | null
+          name: string
+          placement: string
+          sort_order: number
+          tagline: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          clicks_count?: number
+          created_at?: string
+          cta?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          placement?: string
+          sort_order?: number
+          tagline?: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          clicks_count?: number
+          created_at?: string
+          cta?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          placement?: string
+          sort_order?: number
+          tagline?: string
+          url?: string
+        }
+        Relationships: []
       }
       meet_attendees: {
         Row: {
@@ -1905,6 +1998,39 @@ export type Database = {
           },
         ]
       }
+      saved_listings: {
+        Row: {
+          created_at: string
+          listing_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          listing_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          listing_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_listings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_listings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       saved_posts: {
         Row: {
           created_at: string
@@ -2503,6 +2629,14 @@ export type Database = {
           current_streak: number
           longest_streak: number
         }[]
+      }
+      record_listing_view: {
+        Args: { target_listing: string }
+        Returns: undefined
+      }
+      record_partner_click: {
+        Args: { target_partner: string }
+        Returns: undefined
       }
       record_profile_view: {
         Args: { target_user_id: string }
