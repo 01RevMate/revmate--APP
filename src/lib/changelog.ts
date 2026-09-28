@@ -27,7 +27,7 @@ export const RELEASES: Release[] = [
     version: "1.13.0",
     date: "2026-09-28",
     title: "Car care, smart diagnostics, search & local businesses",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "MOT and road tax reminders: add the dates to your car and get reminders 30, 7 and 1 day before, with GOV.UK links and add-to-calendar",
       "Diagnostic posts ask which part of the car the problem is in, and the author can mark it fixed with one tap and say what fixed it",
@@ -50,7 +50,7 @@ export const RELEASES: Release[] = [
     version: "1.12.0",
     date: "2026-09-28",
     title: "Smoother videos, car specs & RevMate News",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "Reactions now work properly on phones: hold the heart without the page trying to select or copy, or tap the like count to pick a reaction",
       "Videos in the feed play silently on their own as you scroll, one at a time, with a slim progress bar and a sound button",
@@ -69,7 +69,7 @@ export const RELEASES: Release[] = [
     version: "1.11.0",
     date: "2026-09-28",
     title: "Announcements",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "Pop-up announcements when you open the app, so you never miss what's new",
       "Each announcement shows once, and can have a picture and a button",
