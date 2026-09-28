@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_consents: {
+        Row: {
+          birth_date: string | null
+          created_at: string
+          marketing_opt_in: boolean
+          marketing_updated_at: string | null
+          privacy_version: string | null
+          terms_accepted_at: string | null
+          terms_version: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string
+          marketing_opt_in?: boolean
+          marketing_updated_at?: string | null
+          privacy_version?: string | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string
+          marketing_opt_in?: boolean
+          marketing_updated_at?: string | null
+          privacy_version?: string | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       answers: {
         Row: {
           body: string
@@ -2539,6 +2575,7 @@ export type Database = {
         }
       }
       crown_car_of_the_week: { Args: never; Returns: string }
+      delete_my_account: { Args: never; Returns: undefined }
       for_you_feed: {
         Args: { filter_category?: string; page_offset?: number }
         Returns: {
@@ -2720,6 +2757,15 @@ export type Database = {
           username: string
         }[]
       }
+      record_consents: {
+        Args: {
+          born: string
+          marketing?: boolean
+          privacy_version: string
+          terms_version: string
+        }
+        Returns: string
+      }
       record_daily_activity: {
         Args: never
         Returns: {
@@ -2789,6 +2835,7 @@ export type Database = {
       }
       send_due_meet_reminders: { Args: never; Returns: number }
       send_my_weekly_recap: { Args: never; Returns: boolean }
+      set_marketing_consent: { Args: { opt_in: boolean }; Returns: undefined }
       suggested_profiles: {
         Args: { result_limit?: number }
         Returns: {
