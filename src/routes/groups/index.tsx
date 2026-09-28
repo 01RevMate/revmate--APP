@@ -5,18 +5,33 @@ import { Lock, Plus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
-import { createGroup, fetchGroups, fetchMyGroups } from "@/lib/groups";
+import {
+  createGroup,
+  EMPTY_GROUP_RULES,
+  fetchGroups,
+  fetchMyGroups,
+  groupRuleLabel,
+  type GroupRulesDraft,
+} from "@/lib/groups";
 import { CarLogo } from "@/components/CarLogo";
 import { MakeSelect } from "@/components/MakeSelect";
 import { ModelSelect } from "@/components/ModelSelect";
+import { GroupRulesEditor } from "@/components/GroupRulesEditor";
+import { useGroupRulesFeature } from "@/lib/features";
 
 export const Route = createFileRoute("/groups/")({
   head: () => ({
     meta: [
       { title: "Groups — RevMate" },
-      { name: "description", content: "Find and create RevMate groups for makes, models and car communities." },
+      {
+        name: "description",
+        content: "Find and create RevMate groups for makes, models and car communities.",
+      },
       { property: "og:title", content: "Groups — RevMate" },
-      { property: "og:description", content: "Find and create RevMate groups for makes, models and car communities." },
+      {
+        property: "og:description",
+        content: "Find and create RevMate groups for makes, models and car communities.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -47,6 +62,18 @@ function GroupsPage() {
   const [postPolicy, setPostPolicy] = useState<"member" | "moderated">("member");
   const [makeName, setMakeName] = useState("");
   const [modelName, setModelName] = useState("");
+  const groupRules = useGroupRulesFeature();
+  const [rules, setRules] = useState<GroupRulesDraft>(EMPTY_GROUP_RULES);
+
+  // A brand/car gate needs the make (and model) it checks against.
+  useEffect(() => {
+    if (
+      (rules.entry_rule !== "open" && !makeName) ||
+      (rules.entry_rule === "same_model" && !modelName)
+    ) {
+      setRules((current) => ({ ...current, entry_rule: makeName ? "same_brand" : "open" }));
+    }
+  }, [makeName, modelName, rules.entry_rule]);
 
   const {
     data: groups,
@@ -75,15 +102,19 @@ function GroupsPage() {
     if (!user) return openAuthModal("Create a free account to start a group.");
     setSaving(true);
     try {
-      const group = await createGroup(user.id, {
-        name,
-        description,
-        visibility,
-        join_policy: visibility === "private" ? "approval" : joinPolicy,
-        post_policy: postPolicy,
-        make_name: makeName || undefined,
-        model_name: modelName || undefined,
-      });
+      const group = await createGroup(
+        user.id,
+        {
+          name,
+          description,
+          visibility,
+          join_policy: visibility === "private" ? "approval" : joinPolicy,
+          post_policy: postPolicy,
+          make_name: makeName || undefined,
+          model_name: modelName || undefined,
+        },
+        groupRules ? rules : undefined,
+      );
       await queryClient.invalidateQueries({ queryKey: ["groups"] });
       toast.success("Group created.");
       navigate({ to: "/groups/$slug", params: { slug: group.slug } });
@@ -199,6 +230,21 @@ function GroupsPage() {
               </select>
             </label>
           </div>
+          {groupRules && (
+            <details className="rounded-lg border border-border p-4" open>
+              <summary className="cursor-pointer text-sm font-semibold">
+                Entry rules and posting
+              </summary>
+              <div className="mt-4">
+                <GroupRulesEditor
+                  value={rules}
+                  onChange={setRules}
+                  makeName={makeName || null}
+                  modelName={modelName || null}
+                />
+              </div>
+            </details>
+          )}
           <div className="flex justify-end gap-2">
             <button
               type="button"
@@ -281,6 +327,9 @@ function GroupsPage() {
             {(group.make_name || group.model_name) && (
               <p className="mt-3 text-xs font-medium text-primary">
                 {[group.make_name, group.model_name].filter(Boolean).join(" ")}
+                {groupRules && groupRuleLabel(group) && (
+                  <span className="text-muted-foreground"> · owners only</span>
+                )}
               </p>
             )}
             <p className="mt-3 text-xs text-muted-foreground">

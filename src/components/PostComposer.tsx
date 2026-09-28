@@ -74,6 +74,7 @@ export function PostComposer({
   onPosted,
   lockedGroup,
   requiredCarIdentity = false,
+  carIdentityNote,
   garageCars = [],
   preferredGarageCarId = null,
   onGarageCarSelected,
@@ -82,6 +83,8 @@ export function PostComposer({
   onPosted: () => void;
   lockedGroup?: { id: string; name: string; postPolicy: "member" | "moderated" };
   requiredCarIdentity?: boolean;
+  /** Replaces the default hint under "Which car are you posting as?". */
+  carIdentityNote?: string | undefined;
   garageCars?: GarageCar[];
   preferredGarageCarId?: string | null;
   onGarageCarSelected?: (garageCarId: string) => void;
@@ -354,7 +357,7 @@ export function PostComposer({
         <div className="rounded-md border border-primary/25 bg-primary/5 p-3">
           <p className="text-sm font-semibold">Which car are you posting as?</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            This puts your post with the right owners and car discussions.
+            {carIdentityNote ?? "This puts your post with the right owners and car discussions."}
           </p>
           <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Choose your car">
             {garageCars.map((car) => {

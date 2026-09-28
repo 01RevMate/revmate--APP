@@ -24,6 +24,22 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.9.0",
+    date: "2026-09-28",
+    title: "Group entry rules",
+    status: "needs_database_update",
+    highlights: [
+      "When making a group, choose who can join: everyone, owners of one brand, or owners of one exact car",
+      "Brand and car groups check your garage when you tap join, and tell you what car you need if you don't have it",
+      "In brand and car groups you can only post as a matching car from your garage",
+      "New 'No sales or advertising' setting blocks for-sale posts and listing links in a group",
+      "Group rules people must agree to, plus entry questions (rules to agree to, yes/no with a required answer, or written answers)",
+      "Moderators see each person's answers with their join request",
+      "Owners can change the make, model, entry rule, joining, sales setting, rules and questions at any time",
+    ],
+    requiredSql: ["drizzle/migrations/0036_group_rules.sql"],
+  },
+  {
     version: "1.8.1",
     date: "2026-09-28",
     title: "Join to unlock",

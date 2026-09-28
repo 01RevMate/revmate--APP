@@ -2,12 +2,20 @@ import { useEffect, useState } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Check, Clock3, Lock, ShieldCheck, Users, X } from "lucide-react";
+import { ArrowLeft, Ban, Car, Check, Clock3, Lock, ShieldCheck, Users, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import {
+  type CommunityGroup,
+  carMatchesGroup,
+  fetchEntryEligibility,
   fetchGroupBySlug,
+  fetchGroupQuestions,
+  fetchJoinAnswers,
+  groupRuleLabel,
+  joinGroup,
+  saveGroupQuestions,
   fetchGroupReports,
   fetchGroupMembers,
   setGroupMemberRole,
@@ -27,6 +35,12 @@ import { PostComposer } from "@/components/PostComposer";
 import { PostCard } from "@/components/PostCard";
 import { Avatar } from "@/components/Avatar";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
+import { fetchGarage } from "@/lib/garage";
+import { useGroupRulesFeature } from "@/lib/features";
+import { JoinGroupDialog } from "@/components/JoinGroupDialog";
+import { GroupRulesEditor, type GroupRulesDraft } from "@/components/GroupRulesEditor";
+import { MakeSelect } from "@/components/MakeSelect";
+import { ModelSelect } from "@/components/ModelSelect";
 
 export const Route = createFileRoute("/groups/$slug")({
   head: ({ params }) => {
@@ -106,6 +120,31 @@ function GroupPage() {
     enabled: !!group && canModerate,
     queryFn: () => fetchGroupMembers(group!.id),
   });
+  const groupRules = useGroupRulesFeature();
+  const ruleLabel = group && groupRules ? groupRuleLabel(group) : null;
+  const [joinOpen, setJoinOpen] = useState(false);
+  const { data: questions } = useQuery({
+    queryKey: ["groups", group?.id, "questions"],
+    enabled: !!group && groupRules,
+    queryFn: () => fetchGroupQuestions(group!.id),
+  });
+  const { data: eligibility } = useQuery({
+    queryKey: ["groups", group?.id, "eligibility", user?.id, group?.entry_rule],
+    enabled: !!group && !!user && !membership && !!ruleLabel,
+    queryFn: () => fetchEntryEligibility(group!.id),
+  });
+  const { data: joinAnswers } = useQuery({
+    queryKey: ["groups", group?.id, "join-answers", user?.id],
+    enabled: !!group && canModerate && groupRules && (pendingMembers?.length ?? 0) > 0,
+    queryFn: () => fetchJoinAnswers(group!.id),
+  });
+  const { data: garage } = useQuery({
+    queryKey: ["garage", user?.id],
+    enabled: !!user && approved && !!ruleLabel && !canModerate,
+    queryFn: () => fetchGarage(user!.id),
+  });
+  // In a same-brand / same-car group members post as a matching car only.
+  const matchingCars = group ? (garage ?? []).filter((car) => carMatchesGroup(car, group)) : [];
   const { data: likedIds } = useQuery({
     queryKey: ["groups", group?.id, "liked", user?.id, posts?.map((post) => post.id)],
     enabled: !!user && !!posts?.length,
@@ -125,9 +164,28 @@ function GroupPage() {
     if (busy) return;
     if (!user) return openAuthModal("Create a free account to join this group.");
     if (!group) return;
+    if (eligibility && !eligibility.eligible) {
+      toast.error(eligibility.reason ?? "You can't join this group yet.");
+      return;
+    }
+    const hasEntryForm =
+      groupRules &&
+      ((questions?.length ?? 0) > 0 || (group.require_rules_agreement && !!group.rules.trim()));
+    if (hasEntryForm) {
+      setJoinOpen(true);
+      return;
+    }
+    await submitJoin({}, false);
+  }
+
+  async function submitJoin(answers: Record<string, string>, agreed: boolean) {
+    if (!user || !group) return;
     try {
       setBusy(true);
-      const result = await requestGroupMembership(group.id, user.id);
+      const result = groupRules
+        ? await joinGroup(group.id, user.id, answers, agreed)
+        : await requestGroupMembership(group.id, user.id);
+      setJoinOpen(false);
       refresh();
       toast.success(result?.status === "approved" ? "You joined the group." : "Join request sent.");
     } catch (err) {
@@ -232,15 +290,39 @@ function GroupPage() {
               <Users className="size-3.5" /> {group.member_count}{" "}
               {group.member_count === 1 ? "member" : "members"}
             </p>
+            {groupRules && (ruleLabel || group.allow_sales === false) && (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {ruleLabel && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                    <Car className="size-3.5" /> {ruleLabel} owners only
+                  </span>
+                )}
+                {group.allow_sales === false && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+                    <Ban className="size-3.5" /> No sales posts
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           {!membership && (
-            <button
-              onClick={join}
-              disabled={busy}
-              className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-            >
-              {group.join_policy === "approval" ? "Request to join" : "Join group"}
-            </button>
+            <div className="flex flex-col items-end gap-1.5">
+              <button
+                onClick={join}
+                disabled={busy || eligibility?.eligible === false}
+                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                {group.join_policy === "approval" ? "Request to join" : "Join group"}
+              </button>
+              {eligibility?.eligible === false && (
+                <p className="max-w-60 text-right text-xs text-muted-foreground">
+                  {eligibility.reason}{" "}
+                  <Link to="/garage" className="font-medium text-primary hover:underline">
+                    Go to garage
+                  </Link>
+                </p>
+              )}
+            </div>
           )}
           {membership?.status === "pending" && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1.5 text-sm text-amber-700 dark:text-amber-300">
@@ -272,29 +354,52 @@ function GroupPage() {
             </p>
           </div>
           {pendingMembers?.map((member) => (
-            <div key={member.id} className="flex items-center gap-3 rounded-md bg-background p-3">
-              <Avatar
-                photoUrl={member.profiles?.avatar_url}
-                fallback={member.profiles?.username}
-                className="size-8"
-              />
-              <span className="flex-1 text-sm font-medium">
-                 {displayUsernameWithoutAt(member.profiles?.username, "Member")}
-              </span>
-              <button
-                onClick={() => reviewMember(member.user_id, "approved")}
-                title="Approve"
-                className="rounded-md bg-primary p-2 text-primary-foreground"
-              >
-                <Check className="size-4" />
-              </button>
-              <button
-                onClick={() => reviewMember(member.user_id, "rejected")}
-                title="Reject"
-                className="rounded-md border border-input p-2"
-              >
-                <X className="size-4" />
-              </button>
+            <div key={member.id} className="rounded-md bg-background p-3">
+              <div className="flex items-center gap-3">
+                <Avatar
+                  photoUrl={member.profiles?.avatar_url}
+                  fallback={member.profiles?.username}
+                  className="size-8"
+                />
+                <span className="flex-1 text-sm font-medium">
+                  {displayUsernameWithoutAt(member.profiles?.username, "Member")}
+                </span>
+                <button
+                  onClick={() => reviewMember(member.user_id, "approved")}
+                  title="Approve"
+                  className="rounded-md bg-primary p-2 text-primary-foreground"
+                >
+                  <Check className="size-4" />
+                </button>
+                <button
+                  onClick={() => reviewMember(member.user_id, "rejected")}
+                  title="Reject"
+                  className="rounded-md border border-input p-2"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+              {joinAnswers?.[member.user_id] && (
+                <dl className="mt-2 space-y-1.5 border-t pt-2 text-xs">
+                  {joinAnswers[member.user_id]!.agreed_rules && (
+                    <p className="text-muted-foreground">✓ Agreed to the group rules</p>
+                  )}
+                  {joinAnswers[member.user_id]!.answers.map((answer) => (
+                    <div key={answer.question_id}>
+                      <dt className="text-muted-foreground">{answer.prompt}</dt>
+                      <dd className="font-medium">
+                        {answer.kind === "agree"
+                          ? "✓ Agreed"
+                          : answer.kind === "yes_no"
+                            ? answer.answer === "yes"
+                              ? "Yes"
+                              : "No"
+                            : answer.answer}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
             </div>
           ))}
           {pendingPosts.map((post) => (
@@ -421,53 +526,7 @@ function GroupPage() {
             </p>
           )}
           {(membership?.role === "owner" || isAdmin) && (
-            <form
-              className="mt-4 space-y-3"
-              onSubmit={async (e) => {
-                e.preventDefault();
-                const form = new FormData(e.currentTarget);
-                setBusy(true);
-                try {
-                  await updateGroupSettings(group.id, {
-                    rules: String(form.get("rules")),
-                    post_policy: form.get("post_policy") === "moderated" ? "moderated" : "member",
-                  });
-                  refresh();
-                  toast.success("Rules saved.");
-                } catch {
-                  toast.error("Could not save group rules.");
-                } finally {
-                  setBusy(false);
-                }
-              }}
-            >
-              <label className="block text-sm">
-                Group rules
-                <textarea
-                  name="rules"
-                  defaultValue={group.rules}
-                  maxLength={5000}
-                  className="mt-1 w-full rounded-md border bg-background p-2"
-                />
-              </label>
-              <label className="block text-sm">
-                New posts
-                <select
-                  name="post_policy"
-                  defaultValue={group.post_policy}
-                  className="ml-2 rounded-md border bg-background p-2"
-                >
-                  <option value="member">Publish immediately</option>
-                  <option value="moderated">Approve first</option>
-                </select>
-              </label>
-              <button
-                disabled={busy}
-                className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50"
-              >
-                Save rules
-              </button>
-            </form>
+            <GroupSettingsForm group={group} groupRules={groupRules} onSaved={refresh} />
           )}
           {members
             ?.filter((m) => m.status !== "pending")
@@ -488,7 +547,8 @@ function GroupPage() {
                   className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-sm"
                 >
                   <span className="mr-auto">
-                    {displayUsernameWithoutAt(member.profiles?.username, "Member")} · {member.role} · {member.status}
+                    {displayUsernameWithoutAt(member.profiles?.username, "Member")} · {member.role}{" "}
+                    · {member.status}
                   </span>
                   {canManage &&
                     (membership?.role === "owner" || isAdmin) &&
@@ -545,7 +605,19 @@ function GroupPage() {
       {membership?.status === "rejected" && (
         <p className="mt-4 text-sm text-muted-foreground">Your join request was declined.</p>
       )}
-      {approved && (
+      {approved && ruleLabel && !canModerate && garage && matchingCars.length === 0 && (
+        <div className="mt-5 rounded-xl border border-dashed border-border p-5 text-center text-sm">
+          <Car className="mx-auto size-5 text-muted-foreground" />
+          <p className="mt-2 font-medium">Posts here are made as your {ruleLabel}</p>
+          <p className="mt-1 text-muted-foreground">
+            There's no {ruleLabel} in your garage right now.{" "}
+            <Link to="/garage" className="font-medium text-primary hover:underline">
+              Go to garage
+            </Link>
+          </p>
+        </div>
+      )}
+      {approved && (!ruleLabel || canModerate || matchingCars.length > 0) && (
         <div className="mt-5">
           <PostComposer
             onPosted={refresh}
@@ -554,8 +626,25 @@ function GroupPage() {
               name: group.name,
               postPolicy: group.post_policy as "member" | "moderated",
             }}
+            requiredCarIdentity={!!ruleLabel && !canModerate}
+            garageCars={matchingCars}
+            carIdentityNote={
+              ruleLabel
+                ? `This is a ${ruleLabel} group, so you post as your ${ruleLabel}.`
+                : undefined
+            }
           />
         </div>
+      )}
+      {joinOpen && (
+        <JoinGroupDialog
+          open={joinOpen}
+          onOpenChange={setJoinOpen}
+          group={group}
+          questions={questions ?? []}
+          busy={busy}
+          onSubmit={(answers, agreed) => void submitJoin(answers, agreed)}
+        />
       )}
       {!canViewPosts ? (
         <div className="mt-5 rounded-xl border border-dashed border-border p-10 text-center">
@@ -591,5 +680,169 @@ function GroupPage() {
         </div>
       )}
     </main>
+  );
+}
+
+function GroupSettingsForm({
+  group,
+  groupRules,
+  onSaved,
+}: {
+  group: CommunityGroup;
+  groupRules: boolean;
+  onSaved: () => void;
+}) {
+  const { data: questions } = useQuery({
+    queryKey: ["groups", group.id, "questions"],
+    enabled: groupRules,
+    queryFn: () => fetchGroupQuestions(group.id),
+  });
+  const [postPolicy, setPostPolicy] = useState(group.post_policy);
+  const [joinPolicy, setJoinPolicy] = useState(group.join_policy);
+  const [makeName, setMakeName] = useState(group.make_name ?? "");
+  const [modelName, setModelName] = useState(group.model_name ?? "");
+  const [draft, setDraft] = useState<GroupRulesDraft>({
+    entry_rule: (group.entry_rule ?? "open") as GroupRulesDraft["entry_rule"],
+    allow_sales: group.allow_sales ?? true,
+    require_rules_agreement: group.require_rules_agreement ?? false,
+    rules_text: group.rules,
+    questions: [],
+  });
+  const [questionsLoaded, setQuestionsLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!questions || questionsLoaded) return;
+    setDraft((current) => ({
+      ...current,
+      questions: questions.map((question) => ({
+        kind: question.kind as "agree" | "yes_no" | "text",
+        prompt: question.prompt,
+        required_answer: question.required_answer as "yes" | "no" | null,
+      })),
+    }));
+    setQuestionsLoaded(true);
+  }, [questions, questionsLoaded]);
+
+  useEffect(() => {
+    if (
+      (draft.entry_rule !== "open" && !makeName) ||
+      (draft.entry_rule === "same_model" && !modelName)
+    ) {
+      setDraft((current) => ({ ...current, entry_rule: makeName ? "same_brand" : "open" }));
+    }
+  }, [makeName, modelName, draft.entry_rule]);
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await updateGroupSettings(group.id, {
+        rules: draft.rules_text,
+        post_policy: postPolicy === "moderated" ? "moderated" : "member",
+        ...(groupRules
+          ? {
+              join_policy:
+                group.visibility === "private" || joinPolicy === "approval" ? "approval" : "open",
+              make_name: makeName || null,
+              model_name: makeName ? modelName || null : null,
+              entry_rule: draft.entry_rule,
+              allow_sales: draft.allow_sales,
+              require_rules_agreement: draft.require_rules_agreement,
+            }
+          : {}),
+      });
+      if (groupRules && questionsLoaded) await saveGroupQuestions(group.id, draft.questions);
+      onSaved();
+      toast.success("Group settings saved.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not save group settings.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const select = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 font-normal";
+  return (
+    <form className="mt-4 space-y-4" onSubmit={save}>
+      {groupRules && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="text-sm font-medium">Car make</label>
+            <div className="mt-1">
+              <MakeSelect
+                value={makeName}
+                onChange={(value) => {
+                  setMakeName(value);
+                  setModelName("");
+                }}
+              />
+            </div>
+          </div>
+          {makeName && (
+            <div>
+              <label className="text-sm font-medium">Model</label>
+              <div className="mt-1">
+                <ModelSelect make={makeName} value={modelName} onChange={setModelName} />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {groupRules && (
+          <label className="text-sm font-medium">
+            Joining
+            <select
+              value={group.visibility === "private" ? "approval" : joinPolicy}
+              disabled={group.visibility === "private"}
+              onChange={(e) => setJoinPolicy(e.target.value)}
+              className={`${select} disabled:opacity-60`}
+            >
+              <option value="open">Anyone who passes the rules</option>
+              <option value="approval">Moderator approval</option>
+            </select>
+          </label>
+        )}
+        <label className="text-sm font-medium">
+          New posts
+          <select
+            value={postPolicy}
+            onChange={(e) => setPostPolicy(e.target.value)}
+            className={select}
+          >
+            <option value="member">Publish immediately</option>
+            <option value="moderated">Approve first</option>
+          </select>
+        </label>
+      </div>
+      {groupRules ? (
+        <GroupRulesEditor
+          value={draft}
+          onChange={setDraft}
+          makeName={makeName || null}
+          modelName={modelName || null}
+        />
+      ) : (
+        <label className="block text-sm">
+          Group rules
+          <textarea
+            value={draft.rules_text}
+            onChange={(e) => setDraft({ ...draft, rules_text: e.target.value })}
+            maxLength={5000}
+            className="mt-1 w-full rounded-md border bg-background p-2"
+          />
+        </label>
+      )}
+      <p className="text-xs text-muted-foreground">
+        Changing the entry rule doesn't remove existing members — ban anyone who no longer fits.
+      </p>
+      <button
+        disabled={saving}
+        className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50"
+      >
+        {saving ? "Saving…" : "Save settings"}
+      </button>
+    </form>
   );
 }

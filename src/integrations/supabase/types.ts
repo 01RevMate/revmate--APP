@@ -460,8 +460,10 @@ export type Database = {
       }
       community_groups: {
         Row: {
+          allow_sales: boolean
           created_at: string
           description: string
+          entry_rule: string
           id: string
           join_policy: string
           make_name: string | null
@@ -470,13 +472,16 @@ export type Database = {
           name: string
           owner_id: string
           post_policy: string
+          require_rules_agreement: boolean
           rules: string
           slug: string
           visibility: string
         }
         Insert: {
+          allow_sales?: boolean
           created_at?: string
           description?: string
+          entry_rule?: string
           id?: string
           join_policy?: string
           make_name?: string | null
@@ -485,13 +490,16 @@ export type Database = {
           name: string
           owner_id: string
           post_policy?: string
+          require_rules_agreement?: boolean
           rules?: string
           slug: string
           visibility?: string
         }
         Update: {
+          allow_sales?: boolean
           created_at?: string
           description?: string
+          entry_rule?: string
           id?: string
           join_policy?: string
           make_name?: string | null
@@ -500,6 +508,7 @@ export type Database = {
           name?: string
           owner_id?: string
           post_policy?: string
+          require_rules_agreement?: boolean
           rules?: string
           slug?: string
           visibility?: string
@@ -906,6 +915,30 @@ export type Database = {
           },
         ]
       }
+      group_join_answers: {
+        Row: {
+          agreed_rules: boolean
+          answers: Json
+          created_at: string
+          group_id: string
+          user_id: string
+        }
+        Insert: {
+          agreed_rules?: boolean
+          answers?: Json
+          created_at?: string
+          group_id: string
+          user_id: string
+        }
+        Update: {
+          agreed_rules?: boolean
+          answers?: Json
+          created_at?: string
+          group_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       group_members: {
         Row: {
           group_id: string
@@ -947,6 +980,36 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      group_questions: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          kind: string
+          position: number
+          prompt: string
+          required_answer: string | null
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          kind: string
+          position?: number
+          prompt: string
+          required_answer?: string | null
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          kind?: string
+          position?: number
+          prompt?: string
+          required_answer?: string | null
+        }
+        Relationships: []
       }
       listing_views: {
         Row: {
@@ -2466,6 +2529,14 @@ export type Database = {
         }
       }
       is_admin: { Args: { check_user_id: string }; Returns: boolean }
+      group_entry_eligibility: {
+        Args: { gid: string }
+        Returns: { eligible: boolean; reason: string | null }[]
+      }
+      join_group: {
+        Args: { gid: string; answers?: Json; agreed?: boolean }
+        Returns: string
+      }
       manage_group_member: {
         Args: { action: string; gid: string; target_user: string }
         Returns: undefined

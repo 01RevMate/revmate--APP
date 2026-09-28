@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 // it instead of showing buttons that error.
 
 async function tableExists(
-  table: "car_meets" | "push_subscriptions" | "stories",
+  table: "car_meets" | "push_subscriptions" | "stories" | "group_questions",
 ): Promise<boolean> {
   const { error } = await supabase.from(table).select("id").limit(1);
   return !error;
@@ -63,4 +63,19 @@ export function useEngagementFeaturesStatus(): "checking" | "on" | "off" {
   });
   if (data === undefined) return "checking";
   return data ? "on" : "off";
+}
+
+/**
+ * True once 0036_group_rules.sql has been applied: group entry rules (same
+ * brand / same car), entry questions, rules agreement and the no-sales
+ * setting. Until then groups keep working exactly as before.
+ */
+export function useGroupRulesFeature(): boolean {
+  const { data } = useQuery({
+    queryKey: ["feature", "group-rules"],
+    queryFn: () => tableExists("group_questions"),
+    staleTime: Infinity,
+    retry: false,
+  });
+  return data === true;
 }

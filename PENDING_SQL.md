@@ -26,9 +26,25 @@ Lovable prompts that run them all.
 - Safe: only adds columns, tables, triggers and functions. Tested against a
   copy of the full database schema (14 behaviour checks).
 
-### 2. Phone push notifications (optional, needs a few setup steps)
+### 2. Group entry rules and posting rules
 
-- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/06_push_notifications.sql`).
+- File: `drizzle/migrations/0036_group_rules.sql` (`sql-to-run/06_group_rules.sql`)
+- Added: 2026-09-28
+- Switches on: group entry gates (Everyone / same brand / same car, checked
+  against the person's garage), posting only as a matching car in brand/car
+  groups, the "no sales or advertising" setting, rules people must agree to,
+  and Facebook-style entry questions (agree, yes/no, written) that
+  moderators see with each join request. All editable later in the group's
+  settings.
+- Until this runs: groups work exactly as before; the new settings are hidden.
+- Safe: only adds columns, tables, triggers and functions, and replaces
+  `manage_group_member` with the same logic plus the entry checks. Existing
+  groups stay open with sales allowed. Tested against a copy of the full
+  database schema (25 behaviour checks).
+
+### 3. Phone push notifications (optional, needs a few setup steps)
+
+- File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/07_push_notifications.sql`).
 - Added: 2026-09-27
 - Needed by: the "Phone notifications" switch in Settings. Until this runs
   (and the steps below are done) the switch doesn't appear and everything
@@ -43,7 +59,7 @@ Lovable prompts that run them all.
      - `VAPID_SUBJECT` — `mailto:` followed by your email
      - `PUSH_WEBHOOK_SECRET` — any long random password you make up
   4. Deploy the edge function `supabase/functions/send-push`.
-  5. Tell the database where the function is — `sql-to-run/07_push_setup_after_keys.sql`,
+  5. Tell the database where the function is — `sql-to-run/08_push_setup_after_keys.sql`,
      with the same random password as step 3:
      ```sql
      SELECT vault.create_secret('https://<project-ref>.supabase.co/functions/v1/send-push', 'push_function_url');
