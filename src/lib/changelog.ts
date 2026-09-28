@@ -41,6 +41,9 @@ export const RELEASES: Release[] = [
       "Admin ads manager for local sponsored posts targeted by area and car type, always labelled Sponsored",
       "Set your area in Settings for local offers (only you can see it)",
     ],
+    fixes: [
+      "Diagnostic posts now show their resolved status beside the category, with a cleaner issue summary below",
+    ],
     requiredSql: [
       "drizzle/migrations/0045_car_care_diagnostics_feed.sql",
       "drizzle/migrations/0046_businesses_and_ads.sql",

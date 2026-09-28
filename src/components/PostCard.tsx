@@ -4,6 +4,8 @@ import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import {
   Bookmark,
+  CheckCircle2,
+  CircleAlert,
   Flag,
   Flame,
   MessageCircle,
@@ -78,6 +80,7 @@ export function PostCard({
   const [commentSaving, setCommentSaving] = useState(false);
   const [liked, setLiked] = useState(initiallyLiked);
   const [likesCount, setLikesCount] = useState(post.likes_count);
+  const [issueStatus, setIssueStatus] = useState(post.issue_status);
   const isCarLike = post.category === "showcase" && !!post.posted_as_garage_car;
   const isForSale = post.category === "for_sale";
   const { data: carRank } = useQuery({
@@ -152,6 +155,7 @@ export function PostCard({
   useEffect(() => setLiked(initiallyLiked), [initiallyLiked, post.id]);
   useEffect(() => setLikesCount(post.likes_count), [post.likes_count, post.id]);
   useEffect(() => setCommentsCount(post.comments_count), [post.comments_count, post.id]);
+  useEffect(() => setIssueStatus(post.issue_status), [post.issue_status, post.id]);
   useEffect(() => setCarLiked(serverCarLiked), [serverCarLiked, post.id]);
   useEffect(
     () => setCarLikesCount(post.posted_as_garage_car?.likes_count ?? 0),
@@ -430,7 +434,7 @@ export function PostCard({
       }
     >
       <header className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-3">
+        <div className="min-w-0 flex items-center gap-3">
           {post.posted_as_garage_car ? (
             <Link
               to="/u/$username/cars/$carId"
@@ -479,7 +483,7 @@ export function PostCard({
             </Link>
           )}
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex max-w-[60%] shrink-0 flex-wrap items-center justify-end gap-1.5">
           {isCarLike && carRank != null && (
             <Link
               to="/leaderboard"
@@ -501,6 +505,22 @@ export function PostCard({
               {isForSale && <Tag className="size-2.5" />}
               {isCarLike && <Flame className="size-2.5" fill="currentColor" />}
               {POST_CATEGORY_LABELS[post.category]}
+            </span>
+          )}
+          {!post.repost_of_id && post.category === "diagnostics" && issueStatus && (
+            <span
+              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                issueStatus === "resolved"
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                  : "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400"
+              }`}
+            >
+              {issueStatus === "resolved" ? (
+                <CheckCircle2 className="size-3" />
+              ) : (
+                <CircleAlert className="size-3" />
+              )}
+              {issueStatus === "resolved" ? "Resolved" : "Unresolved"}
             </span>
           )}
           {user?.id === post.user_id && (
@@ -562,7 +582,9 @@ export function PostCard({
         <p className="mt-3 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-xs font-medium text-accent-foreground">
           <CarLogo make={post.tagged_make} className="size-3.5" />
           {[post.tagged_year, post.tagged_make, post.tagged_model].filter(Boolean).join(" ")}
-          {post.tagged_engine && <span className="text-muted-foreground">· {post.tagged_engine}</span>}
+          {post.tagged_engine && (
+            <span className="text-muted-foreground">· {post.tagged_engine}</span>
+          )}
         </p>
       )}
 
@@ -579,6 +601,7 @@ export function PostCard({
           status={post.issue_status}
           fix={post.issue_fix}
           isAuthor={user?.id === post.user_id}
+          onStatusChange={setIssueStatus}
         />
       )}
 

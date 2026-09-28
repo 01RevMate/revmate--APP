@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, CircleAlert, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { issueSystemLabel, setIssueStatus } from "@/lib/diagnostics";
 
@@ -15,12 +15,14 @@ export function IssueStatusBar({
   status,
   fix,
   isAuthor,
+  onStatusChange,
 }: {
   postId: string;
   system: string | null;
   status: string | null;
   fix: string | null;
   isAuthor: boolean;
+  onStatusChange?: (status: "resolved" | "unresolved") => void;
 }) {
   const queryClient = useQueryClient();
   const [current, setCurrent] = useState(status);
@@ -35,6 +37,7 @@ export function IssueStatusBar({
     try {
       await setIssueStatus(postId, next, fixText);
       setCurrent(next);
+      onStatusChange?.(next);
       if (next === "resolved") setCurrentFix(fixText?.trim() || null);
       setWritingFix(false);
       toast.success(
@@ -51,18 +54,10 @@ export function IssueStatusBar({
   }
 
   return (
-    <div
-      className={`mt-3 rounded-lg border p-3 text-sm ${resolved ? "border-emerald-500/40 bg-emerald-500/10" : "border-amber-500/40 bg-amber-500/10"}`}
-    >
+    <div className="mt-2 text-sm">
       <div className="flex flex-wrap items-center gap-2">
-        {resolved ? (
-          <CheckCircle2 className="size-4 text-emerald-600" />
-        ) : (
-          <CircleAlert className="size-4 text-amber-600" />
-        )}
-        <span className="font-semibold">{resolved ? "Fixed" : "Unresolved"}</span>
         {system && (
-          <span className="text-xs text-muted-foreground">· {issueSystemLabel(system)}</span>
+          <span className="text-xs text-muted-foreground">{issueSystemLabel(system)}</span>
         )}
         {isAuthor && !writingFix && (
           <div className="ml-auto flex gap-1.5">
@@ -71,7 +66,7 @@ export function IssueStatusBar({
                 type="button"
                 disabled={busy}
                 onClick={() => void mark("unresolved")}
-                className="rounded-full border border-input bg-background px-3 py-1 text-xs font-medium"
+                className="rounded-full border border-input bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
               >
                 It's back
               </button>
@@ -80,23 +75,18 @@ export function IssueStatusBar({
                 type="button"
                 disabled={busy}
                 onClick={() => setWritingFix(true)}
-                className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white"
+                className="rounded-full border border-emerald-600/30 px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-400"
               >
-                ✅ I fixed it
+                Mark fixed
               </button>
             )}
           </div>
         )}
       </div>
       {resolved && currentFix && (
-        <p className="mt-1.5 whitespace-pre-wrap">
-          <span className="font-semibold">The fix: </span>
+        <p className="mt-2 whitespace-pre-wrap border-l-2 border-emerald-500/50 pl-2 text-xs leading-relaxed text-muted-foreground">
+          <span className="font-semibold text-foreground">Fix: </span>
           {currentFix}
-        </p>
-      )}
-      {!resolved && !isAuthor && (
-        <p className="mt-1 text-xs text-muted-foreground">
-          Had this too? Comment with what fixed it, or like it to be told when it's sorted.
         </p>
       )}
       {writingFix && (
