@@ -274,6 +274,13 @@
       "when": 1790557186118,
       "tag": "0038_marketplace",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1790557246210,
+      "tag": "0039_group_rules",
+      "breakpoints": true
     }
   ]
 }
