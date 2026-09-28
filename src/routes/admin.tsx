@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { carLabel, carPath, fetchCars, setCarStatus, yearRange } from "@/lib/cars";
 import { deletePost } from "@/lib/posts";
 import {
@@ -45,7 +46,10 @@ import { setVerifiedType, type VerifiedType } from "@/lib/social";
 import { useVerifiedProfiles } from "@/components/VerifiedBadge";
 
 export const Route = createFileRoute("/admin")({
+  // The server can't see the login (it's stored on the device), so this only
+  // runs in the browser; AdminAccess below covers opening /admin directly.
   beforeLoad: async () => {
+    if (typeof window === "undefined") return;
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -75,11 +79,33 @@ export const Route = createFileRoute("/admin")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: AdminPage,
+  component: AdminAccess,
 });
 
 type AdminSection =
   "reports" | "people" | "protect" | "updates" | "cars" | "challenges" | "partners";
+
+/** Shows the admin tools only once the signed-in account is confirmed as an active admin. */
+function AdminAccess() {
+  const { user, loading } = useAuth();
+  const { data: profile, isLoading } = useProfile();
+  const navigate = useNavigate();
+  const allowed = profile?.role === "admin" && profile.account_status === "active";
+  const denied = !loading && (!user || (!isLoading && !allowed));
+
+  useEffect(() => {
+    if (denied) void navigate({ to: "/", replace: true });
+  }, [denied, navigate]);
+
+  if (!allowed) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">
+        Checking access…
+      </main>
+    );
+  }
+  return <AdminPage />;
+}
 
 function AdminPage() {
   const { user } = useAuth();

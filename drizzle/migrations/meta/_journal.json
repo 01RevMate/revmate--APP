@@ -271,8 +271,36 @@
     {
       "idx": 38,
       "version": "7",
-      "when": 1790299756495,
-      "tag": "0038_announcements",
+      "when": 1790557186118,
+      "tag": "0038_marketplace",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1790557246210,
+      "tag": "0039_group_rules",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1790557290223,
+      "tag": "0040_age_and_consent",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1790557604462,
+      "tag": "0041_tighten_car_and_fault_submissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1790557704462,
+      "tag": "0042_announcements",
       "breakpoints": true
     }
   ]

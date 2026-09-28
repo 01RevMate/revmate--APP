@@ -34,13 +34,13 @@ export const RELEASES: Release[] = [
       "Admins can start from the latest update or write their own, pick who sees it (everyone, 18+ or under 18s) and schedule start and end times",
       "Admins see how many people saw each announcement and tapped its button",
     ],
-    requiredSql: ["drizzle/migrations/0038_announcements.sql"],
+    requiredSql: ["drizzle/migrations/0042_announcements.sql"],
   },
   {
     version: "1.10.0",
     date: "2026-09-28",
     title: "Safer sign-up, privacy & sharing",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "New step-by-step sign-up: birthday, email and password, username, then agreeing to the Terms and Privacy Policy (marketing emails are optional and unticked)",
       "RevMate is for people 13 and over; under-13 sign-ups are refused",
@@ -59,7 +59,7 @@ export const RELEASES: Release[] = [
     version: "1.9.0",
     date: "2026-09-28",
     title: "Group entry rules",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "When making a group, choose who can join: everyone, owners of one brand, or owners of one exact car",
       "Brand and car groups check your garage when you tap join, and tell you what car you need if you don't have it",
@@ -86,7 +86,7 @@ export const RELEASES: Release[] = [
     version: "1.8.0",
     date: "2026-09-28",
     title: "Marketplace upgrade",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "Buy & Sell redesigned as a photo grid (4 across on desktop, 2 on phones) with the price front and centre",
       "Search, price-range filters and sorting (newest, cheapest, most expensive, most watched)",
@@ -119,7 +119,7 @@ export const RELEASES: Release[] = [
     version: "1.6.0",
     date: "2026-09-27",
     title: "Engagement pack",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "For You feed, ranked around the makes you like and the people you follow",
       "Pick your favourite makes and people to follow when you join",
@@ -141,7 +141,7 @@ export const RELEASES: Release[] = [
     version: "1.5.0",
     date: "2026-09-27",
     title: "Social pack",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "Car meets & events: post a meet, RSVP Going or Interested, see who's coming, get directions, add it to your calendar and get a reminder the day before",
       "Reply to comments and like them",
@@ -167,7 +167,7 @@ export const RELEASES: Release[] = [
     version: "1.4.0",
     date: "2026-09-27",
     title: "Garage tidy-up and launch screen",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "Removing a car asks what happened to it — sold, for sale, scrapped, written off or other",
       "New launch screen with the RevMate logo and a loading bar",

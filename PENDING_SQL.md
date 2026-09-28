@@ -9,58 +9,13 @@ simply stay hidden until their SQL is in place.
 
 **Quickest way:** every file below is ready to run, numbered in order, in the
 `sql-to-run/` folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste
-Lovable prompts that run them all.
+Lovable prompts.
 
 ## Pending
 
-### 1. Marketplace pack
+### 1. Pop-up announcements
 
-- File: `drizzle/migrations/0035_marketplace.sql` (`sql-to-run/05_marketplace.sql`)
-- Added: 2026-09-27
-- Switches on: the watchlist (heart on listings), price-drop tracking with
-  "was £X" and alerts to watchers, honest view and watcher counts, Featured
-  listings (set by admins on the listing page), sponsored partner tiles and
-  banners (Admin → Partners), and an optional seller area on listings.
-- Until this runs: the new Buy & Sell grid, filters, search, sorting and
-  "new since your last visit" all work already; the features above stay hidden.
-- Safe: only adds columns, tables, triggers and functions. Tested against a
-  copy of the full database schema (14 behaviour checks).
-
-### 2. Group entry rules and posting rules
-
-- File: `drizzle/migrations/0036_group_rules.sql` (`sql-to-run/06_group_rules.sql`)
-- Added: 2026-09-28
-- Switches on: group entry gates (Everyone / same brand / same car, checked
-  against the person's garage), posting only as a matching car in brand/car
-  groups, the "no sales or advertising" setting, rules people must agree to,
-  and Facebook-style entry questions (agree, yes/no, written) that
-  moderators see with each join request. All editable later in the group's
-  settings.
-- Until this runs: groups work exactly as before; the new settings are hidden.
-- Safe: only adds columns, tables, triggers and functions, and replaces
-  `manage_group_member` with the same logic plus the entry checks. Existing
-  groups stay open with sales allowed. Tested against a copy of the full
-  database schema (25 behaviour checks).
-
-### 3. Age checks, consent records and account deletion
-
-- File: `drizzle/migrations/0037_age_and_consent.sql` (`sql-to-run/07_age_and_consent.sql`)
-- Added: 2026-09-28
-- Switches on: saving each person's date of birth and which Terms/Privacy
-  version they agreed to (from the new sign-up), refusing under-13 sign-ups
-  in the database, teen protections (18+ to sell, host meets or add a
-  location; 16+ for direct messages), the "confirm your age" prompt for
-  existing accounts, marketing opt-in, and Settings → Delete account.
-- Until this runs: the new sign-up still works (the extra details are
-  saved on the account and picked up once this runs); the age prompt,
-  age limits, marketing toggle and Delete account stay hidden.
-- Safe: only adds a table, triggers, functions and extra security rules.
-  Existing accounts keep working until they confirm their age. Tested
-  against a copy of the full database schema (18 behaviour checks).
-
-### 4. Pop-up announcements
-
-- File: `drizzle/migrations/0038_announcements.sql` (`sql-to-run/08_announcements.sql`)
+- File: `drizzle/migrations/0042_announcements.sql` (`sql-to-run/08_announcements.sql`)
 - Added: 2026-09-28
 - Switches on: Admin → App Updates → Pop-up announcements (prefilled from
   the latest update or a custom message, with image, button, audience and
@@ -69,7 +24,7 @@ Lovable prompts that run them all.
 - Safe: only adds two tables, a trigger and functions. Tested against a
   copy of the full database schema (12 behaviour checks).
 
-### 5. Phone push notifications (optional, needs a few setup steps)
+### 2. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/09_push_notifications.sql`).
 - Added: 2026-09-27
@@ -97,5 +52,8 @@ Lovable prompts that run them all.
 
 ## Applied
 
+- 2026-09-28: marketplace (0035), group entry rules (0036) and age checks &
+  consent (0037) — `sql-to-run/applied/05`–`07`. Lovable also recorded these
+  as 0038–0040 and added 0041 (tighter car and fault submission rules).
 - 2026-09-27: removal reason (0030/0034), social features (0031), engagement
-  (0033) and the existing-profiles update — `sql-to-run/01`–`04`.
+  (0033) and the existing-profiles update — `sql-to-run/applied/01`–`04`.

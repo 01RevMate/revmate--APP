@@ -22,4 +22,8 @@ top, and list any SQL it needs under `requiredSql` (plus in `PENDING_SQL.md`).
 `PENDING_SQL.md` lists migrations that are committed but not yet applied to
 the live database, and `sql-to-run/` holds ready-to-run numbered copies with
 Lovable prompts in `LOVABLE_PENDING_SQL_PROMPT.md`. When you add a new
-migration, add it to all three.
+migration, add it to all three. Once a file has been run, move it into
+`sql-to-run/applied/` and its entry to "Applied" in `PENDING_SQL.md`.
+Lovable records what it runs as its own copies in `drizzle/migrations/`
+(e.g. 0038–0040 duplicate 0035–0037), so a new migration takes the next
+free number after those.

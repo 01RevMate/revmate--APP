@@ -1045,7 +1045,22 @@ export type Database = {
           group_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "group_join_answers_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_join_answers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       group_members: {
         Row: {
@@ -1117,7 +1132,15 @@ export type Database = {
           prompt?: string
           required_answer?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "group_questions_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       listing_views: {
         Row: {
@@ -1135,74 +1158,89 @@ export type Database = {
           viewed_on?: string
           viewer_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "listing_views_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_views_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       listings: {
         Row: {
-          featured_until: string | null
-          location_area: string | null
-          previous_price: number | null
-          price_changed_at: string | null
-          saves_count: number
-          views_count: number
           car_id: string | null
           created_at: string
           description: string | null
+          featured_until: string | null
           garage_car_id: string | null
           headline: string | null
           id: string
+          location_area: string | null
           mileage: number | null
           photos: string[]
+          previous_price: number | null
           price: number | null
+          price_changed_at: string | null
+          saves_count: number
           show_car_stats: boolean
           status: string
           title: string
           type: Database["public"]["Enums"]["listing_type"]
           user_id: string
+          views_count: number
         }
         Insert: {
-          featured_until?: string | null
-          location_area?: string | null
-          previous_price?: number | null
-          price_changed_at?: string | null
-          saves_count?: number
-          views_count?: number
           car_id?: string | null
           created_at?: string
           description?: string | null
+          featured_until?: string | null
           garage_car_id?: string | null
           headline?: string | null
           id?: string
+          location_area?: string | null
           mileage?: number | null
           photos?: string[]
+          previous_price?: number | null
           price?: number | null
+          price_changed_at?: string | null
+          saves_count?: number
           show_car_stats?: boolean
           status?: string
           title: string
           type?: Database["public"]["Enums"]["listing_type"]
           user_id: string
+          views_count?: number
         }
         Update: {
-          featured_until?: string | null
-          location_area?: string | null
-          previous_price?: number | null
-          price_changed_at?: string | null
-          saves_count?: number
-          views_count?: number
           car_id?: string | null
           created_at?: string
           description?: string | null
+          featured_until?: string | null
           garage_car_id?: string | null
           headline?: string | null
           id?: string
+          location_area?: string | null
           mileage?: number | null
           photos?: string[]
+          previous_price?: number | null
           price?: number | null
+          price_changed_at?: string | null
+          saves_count?: number
           show_car_stats?: boolean
           status?: string
           title?: string
           type?: Database["public"]["Enums"]["listing_type"]
           user_id?: string
+          views_count?: number
         }
         Relationships: [
           {
@@ -2178,6 +2216,13 @@ export type Database = {
             referencedRelation: "listings"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "saved_listings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       saved_posts: {
@@ -2550,8 +2595,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      record_listing_view: { Args: { target_listing: string }; Returns: undefined }
-      record_partner_click: { Args: { target_partner: string }; Returns: undefined }
+      announcement_stats: {
+        Args: never
+        Returns: { announcement_id: string; seen: number; clicked: number }[]
+      }
       account_analytics: {
         Args: never
         Returns: {
@@ -2604,6 +2651,7 @@ export type Database = {
         }
       }
       crown_car_of_the_week: { Args: never; Returns: string }
+      delete_my_account: { Args: never; Returns: undefined }
       for_you_feed: {
         Args: { filter_category?: string; page_offset?: number }
         Returns: {
@@ -2636,23 +2684,16 @@ export type Database = {
           isSetofReturn: true
         }
       }
-      is_admin: { Args: { check_user_id: string }; Returns: boolean }
-      announcement_stats: {
-        Args: never
-        Returns: { announcement_id: string; seen: number; clicked: number }[]
-      }
-      delete_my_account: { Args: never; Returns: undefined }
-      record_consents: {
-        Args: { born: string; terms_version: string; privacy_version: string; marketing?: boolean }
-        Returns: string
-      }
-      set_marketing_consent: { Args: { opt_in: boolean }; Returns: undefined }
       group_entry_eligibility: {
         Args: { gid: string }
-        Returns: { eligible: boolean; reason: string | null }[]
+        Returns: {
+          eligible: boolean
+          reason: string
+        }[]
       }
+      is_admin: { Args: { check_user_id: string }; Returns: boolean }
       join_group: {
-        Args: { gid: string; answers?: Json; agreed?: boolean }
+        Args: { agreed?: boolean; answers?: Json; gid: string }
         Returns: string
       }
       manage_group_member: {
@@ -2792,12 +2833,29 @@ export type Database = {
           username: string
         }[]
       }
+      record_consents: {
+        Args: {
+          born: string
+          marketing?: boolean
+          privacy_version: string
+          terms_version: string
+        }
+        Returns: string
+      }
       record_daily_activity: {
         Args: never
         Returns: {
           current_streak: number
           longest_streak: number
         }[]
+      }
+      record_listing_view: {
+        Args: { target_listing: string }
+        Returns: undefined
+      }
+      record_partner_click: {
+        Args: { target_partner: string }
+        Returns: undefined
       }
       record_profile_view: {
         Args: { target_user_id: string }
@@ -2853,6 +2911,7 @@ export type Database = {
       }
       send_due_meet_reminders: { Args: never; Returns: number }
       send_my_weekly_recap: { Args: never; Returns: boolean }
+      set_marketing_consent: { Args: { opt_in: boolean }; Returns: undefined }
       suggested_profiles: {
         Args: { result_limit?: number }
         Returns: {

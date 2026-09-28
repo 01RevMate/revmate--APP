@@ -1,7 +1,7 @@
 -- STEP 8 — Pop-up announcements (admin messages shown when members open
 -- the app)
--- Copy of drizzle/migrations/0038_announcements.sql
--- Run the whole file once, after step 7.
+-- Copy of drizzle/migrations/0042_announcements.sql
+-- Run the whole file once. Steps 1–7 are already applied.
 
 -- Pop-up announcements shown to signed-in members when they open the app.
 -- Run after 0037_age_and_consent.sql.
