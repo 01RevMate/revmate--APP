@@ -49,6 +49,7 @@ export const RELEASES: Release[] = [
     requiredSql: [
       "drizzle/migrations/0045_car_care_diagnostics_feed.sql",
       "drizzle/migrations/0046_businesses_and_ads.sql",
+      "drizzle/migrations/0047_live_messages.sql",
     ],
   },
   {

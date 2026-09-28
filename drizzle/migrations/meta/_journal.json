@@ -330,6 +330,13 @@
       "when": 1790558104462,
       "tag": "0046_businesses_and_ads",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1790558164462,
+      "tag": "0047_live_messages",
+      "breakpoints": true
     }
   ]
 }

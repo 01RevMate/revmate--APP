@@ -13,6 +13,15 @@ Lovable prompts.
 
 ## Pending
 
+### Live unread-message badge (recommended, quick)
+
+- File: `drizzle/migrations/0047_live_messages.sql` (`sql-to-run/15_live_messages.sql`).
+- Added: 2026-09-28
+- Needed by: the red unread count on Messages. It already works without this
+  (it re-checks every 30 seconds); after it runs, the count and open chats
+  update instantly. Adds `messages` to Supabase Realtime and an index for
+  counting unread messages. Safe to run more than once; doesn't touch any data.
+
 ### 1. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
