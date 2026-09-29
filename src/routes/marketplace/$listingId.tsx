@@ -58,6 +58,28 @@ export const Route = createFileRoute("/marketplace/$listingId")({
   component: ListingDetailPage,
 });
 
+/** Dealer forecourt "flip sign" price — each character gets its own tile. */
+function PriceTiles({ price }: { price: number | string | null | undefined }) {
+  if (price == null) {
+    return <p className="text-4xl font-extrabold tracking-tight">POA</p>;
+  }
+  const chars = Array.from(
+    `£${Number(price).toLocaleString("en-GB", { maximumFractionDigits: 0 })}`.replace(/,/g, ""),
+  );
+  return (
+    <div className="flex gap-0.5">
+      {chars.map((char, index) => (
+        <span
+          key={index}
+          className="flex h-11 w-7 items-center justify-center rounded-sm border-2 border-neutral-800 bg-white text-xl font-extrabold text-neutral-900 sm:h-12 sm:w-8 sm:text-2xl"
+        >
+          {char}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function ListingDetailPage() {
   const { listingId } = Route.useParams();
   const { user } = useAuth();
@@ -320,7 +342,7 @@ function ListingDetailPage() {
         </div>
         <div className="flex items-center gap-3">
           <div className="rounded-lg border-2 border-border bg-white px-5 py-3 text-right shadow-md dark:bg-neutral-900">
-            <p className="text-4xl font-extrabold tracking-tight">{formatPrice(listing.price)}</p>
+            <PriceTiles price={listing.price} />
             {hasRecentPriceDrop(listing) && (
               <p className="mt-1 text-sm">
                 <span className="text-muted-foreground line-through">
