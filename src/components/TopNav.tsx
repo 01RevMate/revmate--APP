@@ -67,6 +67,17 @@ export function TopNav() {
         <Link to="/" aria-label="RevMate home" className="block">
           <BrandLogo className="h-8 w-auto" />
         </Link>
+        {pathname !== "/" && (
+          <button
+            type="button"
+            onClick={() => window.history.back()}
+            aria-label="Go back"
+            title="Go back"
+            className="hidden size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground md:flex"
+          >
+            <ArrowLeft className="size-5" />
+          </button>
+        )}
         <MobileMenu />
         {user && profile && (
           <div className="ml-auto flex items-center gap-3">
