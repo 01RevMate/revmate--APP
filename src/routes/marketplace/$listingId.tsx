@@ -71,7 +71,7 @@ function PriceTiles({ price }: { price: number | string | null | undefined }) {
       {chars.map((char, index) => (
         <span
           key={index}
-          className="flex h-11 w-7 items-center justify-center rounded-sm border-2 border-neutral-800 bg-white text-xl font-extrabold text-neutral-900 sm:h-12 sm:w-8 sm:text-2xl"
+          className="flex h-12 w-7 items-center justify-center rounded-sm border border-neutral-800 bg-white text-xl font-extrabold text-neutral-900 shadow-[0_2px_3px_rgba(0,0,0,0.25)] sm:h-14 sm:w-8 sm:text-2xl"
         >
           {char}
         </span>
