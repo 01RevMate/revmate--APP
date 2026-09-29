@@ -105,41 +105,37 @@ export function StoriesRow() {
   return (
     <>
       <div className="-mx-3 flex gap-3 overflow-x-auto px-3 pb-1 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
-        <div className="flex w-16 shrink-0 flex-col items-center gap-1">
-          <button
-            type="button"
-            onClick={() =>
-              !user
-                ? openAuthModal("Create a free account to post a Pit Stop.")
-                : myGroupIndex >= 0
-                  ? setViewing(myGroupIndex)
-                  : fileRef.current?.click()
-            }
-            disabled={uploading}
-            className={`relative rounded-full p-0.5 ${myGroupIndex >= 0 ? "bg-gradient-to-tr from-orange-500 to-fuchsia-500" : ""}`}
-            aria-label={myGroupIndex >= 0 ? "View your Pit Stop" : "Add a Pit Stop"}
-          >
-            <Avatar
-              photoUrl={profile?.avatar_url}
-              fallback={profile?.username ?? "You"}
-              className={`size-14 border-2 border-background ${uploading ? "animate-pulse" : ""}`}
-            />
-            <span
-              role="button"
-              tabIndex={-1}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (user) fileRef.current?.click();
-              }}
-              className="absolute -bottom-0.5 -right-0.5 flex size-5 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground"
+        {user && (
+          <div className="flex w-16 shrink-0 flex-col items-center gap-1">
+            <button
+              type="button"
+              onClick={() => (myGroupIndex >= 0 ? setViewing(myGroupIndex) : fileRef.current?.click())}
+              disabled={uploading}
+              className={`relative rounded-full p-0.5 ${myGroupIndex >= 0 ? "bg-gradient-to-tr from-orange-500 to-fuchsia-500" : ""}`}
+              aria-label={myGroupIndex >= 0 ? "View your Pit Stop" : "Add a Pit Stop"}
             >
-              <Plus className="size-3" strokeWidth={3} />
+              <Avatar
+                photoUrl={profile?.avatar_url}
+                fallback={profile?.username ?? "You"}
+                className={`size-14 border-2 border-background ${uploading ? "animate-pulse" : ""}`}
+              />
+              <span
+                role="button"
+                tabIndex={-1}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileRef.current?.click();
+                }}
+                className="absolute -bottom-0.5 -right-0.5 flex size-5 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground"
+              >
+                <Plus className="size-3" strokeWidth={3} />
+              </span>
+            </button>
+            <span className="w-full truncate text-center text-[11px] text-muted-foreground">
+              {uploading ? "Uploading…" : "Your stop"}
             </span>
-          </button>
-          <span className="w-full truncate text-center text-[11px] text-muted-foreground">
-            {uploading ? "Uploading…" : "Your stop"}
-          </span>
-        </div>
+          </div>
+        )}
         {groups.map((group, index) =>
           group.userId === user?.id ? null : (
             <button

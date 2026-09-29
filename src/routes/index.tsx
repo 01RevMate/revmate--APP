@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { DEFAULT_DESCRIPTION, seo, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
 import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { Car } from "lucide-react";
+import { Car, Plus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { fetchFeed, fetchMyLikedPostIds, type PostWithAuthor } from "@/lib/posts";
@@ -45,6 +46,9 @@ function Home() {
   const engagement = useEngagementFeatures();
   const [homeMode] = useHomeMode();
   const [scope, setScope] = useState<FeedScope>("all");
+  // Mobile posts via the bottom-nav compose button; desktop opens the same
+  // composer from a compact trigger bar instead of showing it inline.
+  const [composerOpen, setComposerOpen] = useState(false);
   // Once the personalised feed exists, start people on it (once per visit).
   const [scopeTouched, setScopeTouched] = useState(false);
   useEffect(() => {
@@ -208,14 +212,38 @@ function Home() {
                     Explore your groups or choose a group to post in →
                   </Link>
                 ) : (
-                  <PostComposer
-                    onPosted={refreshFeed}
-                    requiredCarIdentity={scope === "my_car" || scope === "same_brand"}
-                    garageCars={currentCars}
-                    preferredGarageCarId={filterCarId}
-                    onGarageCarSelected={setSessionFilterCarId}
-                    audience={scope === "friends" ? "friends" : "public"}
-                  />
+                  <>
+                    {/* Mobile already has the bottom-nav "+" for composing —
+                        this compact trigger is desktop-only. */}
+                    <button
+                      type="button"
+                      onClick={() => setComposerOpen(true)}
+                      className="hidden w-full items-center gap-3 rounded-lg border border-border bg-card p-3 text-left text-sm text-muted-foreground hover:bg-accent md:flex"
+                    >
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                        <Plus className="size-4" />
+                      </span>
+                      Write something…
+                    </button>
+                    <Dialog open={composerOpen} onOpenChange={setComposerOpen}>
+                      <DialogContent className="sm:max-w-lg">
+                        <DialogHeader>
+                          <DialogTitle>New post</DialogTitle>
+                        </DialogHeader>
+                        <PostComposer
+                          onPosted={() => {
+                            refreshFeed();
+                            setComposerOpen(false);
+                          }}
+                          requiredCarIdentity={scope === "my_car" || scope === "same_brand"}
+                          garageCars={currentCars}
+                          preferredGarageCarId={filterCarId}
+                          onGarageCarSelected={setSessionFilterCarId}
+                          audience={scope === "friends" ? "friends" : "public"}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </>
                 )}
 
                 {user && !hasGarageCars && (
