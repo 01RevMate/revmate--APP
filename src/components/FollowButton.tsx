@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, UserPlus } from "lucide-react";
+import { Check, Plus, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { fetchIsFollowing, followProfile, unfollowProfile } from "@/lib/follows";
 
@@ -51,8 +51,9 @@ export function FollowButton({
           void toggle();
         }}
         disabled={busy}
-        className="text-xs font-medium text-primary hover:underline disabled:opacity-50"
+        className="ml-1 flex items-center gap-0.5 text-xs font-medium text-sky-500 hover:underline disabled:opacity-50"
       >
+        {following ? <Check className="size-3" /> : <Plus className="size-3" />}
         {following ? "Following" : "Follow"}
       </button>
     );
