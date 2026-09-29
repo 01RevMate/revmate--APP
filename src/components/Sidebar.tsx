@@ -17,6 +17,7 @@ import {
   Clapperboard,
   MapPin,
   Wrench,
+  Megaphone,
 } from "lucide-react";
 import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import { useAuth } from "@/hooks/useAuth";
@@ -138,9 +139,9 @@ export function Sidebar() {
         <NavLink to="/groups" icon={Users} label="Groups" collapsed={collapsed} requireAuth />
         <NavLink to="/ask" icon={MessageCircle} label="Ask for help" collapsed={collapsed} />
         <NavLink
-          to="/community-standards"
-          icon={ShieldCheck}
-          label="Community standards"
+          to="/legal/updates"
+          icon={Megaphone}
+          label="App updates"
           collapsed={collapsed}
         />
         <NavLink
