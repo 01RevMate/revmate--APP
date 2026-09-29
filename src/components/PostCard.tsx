@@ -84,6 +84,11 @@ export function PostCard({
   const [liked, setLiked] = useState(initiallyLiked);
   const [likesCount, setLikesCount] = useState(post.likes_count);
   const [issueStatus, setIssueStatus] = useState(post.issue_status);
+  // Long posts collapse behind a Facebook-style "See more" instead of
+  // pushing the rest of the card (photos, actions) far down the feed.
+  const BODY_TRUNCATE_LENGTH = 320;
+  const [bodyExpanded, setBodyExpanded] = useState(false);
+  const bodyIsLong = (post.body?.length ?? 0) > BODY_TRUNCATE_LENGTH;
   const isCarLike = post.category === "showcase" && !!post.posted_as_garage_car;
   const isForSale = post.category === "for_sale";
   const { data: carRank } = useQuery({
@@ -610,9 +615,20 @@ export function PostCard({
       )}
 
       {post.body && (
-        <p className="mt-3 whitespace-pre-wrap text-sm">
-          <RichText text={post.body} />
-        </p>
+        <div className="mt-3 text-[15px]">
+          <p className="whitespace-pre-wrap">
+            <RichText text={bodyExpanded || !bodyIsLong ? post.body : `${post.body.slice(0, BODY_TRUNCATE_LENGTH)}…`} />
+          </p>
+          {bodyIsLong && (
+            <button
+              type="button"
+              onClick={() => setBodyExpanded((v) => !v)}
+              className="mt-0.5 text-sm font-semibold text-muted-foreground hover:text-foreground"
+            >
+              {bodyExpanded ? "See less" : "See more"}
+            </button>
+          )}
+        </div>
       )}
 
       {post.issue_status && (

@@ -314,7 +314,7 @@ function GarageProfilePage() {
         </p>
         <LevelBadge userId={profile.user_id} streak={profile.current_streak} />
         {profile.bio && (
-          <p className="mt-2 max-w-2xl whitespace-pre-wrap break-words text-sm">
+          <p className="mt-2 max-w-2xl whitespace-pre-wrap break-words text-[15px]">
             <RichText text={profile.bio} />
           </p>
         )}
