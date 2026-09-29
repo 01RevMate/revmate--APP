@@ -407,7 +407,10 @@ function ListingDetailPage() {
       )}
 
       {listing.description && (
-        <p className="mt-6 whitespace-pre-wrap text-sm">{listing.description}</p>
+        <section className="mt-6 rounded-xl border border-border bg-card p-4 sm:p-5">
+          <h2 className="text-lg font-semibold">Description</h2>
+          <p className="mt-3 whitespace-pre-wrap text-sm">{listing.description}</p>
+        </section>
       )}
 
       {listing.business_id && <ListingBusinessCard businessId={listing.business_id} />}
