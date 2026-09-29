@@ -4,7 +4,16 @@ import { Check, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { fetchIsFollowing, followProfile, unfollowProfile } from "@/lib/follows";
 
-export function FollowButton({ myId, otherId }: { myId: string; otherId: string }) {
+export function FollowButton({
+  myId,
+  otherId,
+  variant = "button",
+}: {
+  myId: string;
+  otherId: string;
+  /** "link" is a small blue text link — for inline use like a post header. */
+  variant?: "button" | "link";
+}) {
   const client = useQueryClient();
   const [busy, setBusy] = useState(false);
   const { data: following = false } = useQuery({
@@ -30,6 +39,23 @@ export function FollowButton({ myId, otherId }: { myId: string; otherId: string 
     } finally {
       setBusy(false);
     }
+  }
+
+  if (variant === "link") {
+    return (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          void toggle();
+        }}
+        disabled={busy}
+        className="text-xs font-medium text-primary hover:underline disabled:opacity-50"
+      >
+        {following ? "Following" : "Follow"}
+      </button>
+    );
   }
 
   return (

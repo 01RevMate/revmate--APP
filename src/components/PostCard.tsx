@@ -34,6 +34,7 @@ import { FeedVideo } from "@/components/FeedVideo";
 import { IssueStatusBar } from "@/components/IssueStatusBar";
 import { SpottedCarLink } from "@/components/SpottedCarLink";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { FollowButton } from "@/components/FollowButton";
 import { useMyRepostedIds, useMySavedPostIds } from "@/hooks/useSocialState";
 import { useSocialFeatures } from "@/lib/features";
 import { createRepost, isVideoUrl, savePost, undoRepost, unsavePost } from "@/lib/social";
@@ -457,9 +458,12 @@ export function PostCard({
                 />
               </div>
               <div>
-                <p className="flex items-center gap-1 text-sm font-medium">
+                <p className="flex items-center gap-1.5 text-sm font-medium">
                   {post.posted_as_garage_car.nickname}
                   <VerifiedBadge userId={post.user_id} />
+                  {user && user.id !== post.user_id && (
+                    <FollowButton myId={user.id} otherId={post.user_id} variant="link" />
+                  )}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
@@ -474,9 +478,12 @@ export function PostCard({
             >
               <Avatar photoUrl={post.profiles?.avatar_url} fallback={post.profiles?.username} />
               <div>
-                <p className="flex items-center gap-1 text-sm font-medium">
+                <p className="flex items-center gap-1.5 text-sm font-medium">
                   {displayUsernameWithoutAt(post.profiles?.username)}
                   <VerifiedBadge userId={post.user_id} />
+                  {user && user.id !== post.user_id && (
+                    <FollowButton myId={user.id} otherId={post.user_id} variant="link" />
+                  )}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
