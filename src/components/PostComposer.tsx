@@ -632,9 +632,9 @@ export function PostComposer({
           }
           disabled={images.length >= MAX_IMAGES_PER_POST}
           title="Add photos"
-          className="text-muted-foreground hover:text-foreground disabled:opacity-40"
+          className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40"
         >
-          <ImagePlus className="size-4" />
+          <ImagePlus className="size-5" />
         </button>
         {canAddVideo && (
           <>
@@ -655,9 +655,9 @@ export function PostComposer({
               disabled={!!video}
               title="Add a video (up to 50MB)"
               aria-label="Add a video"
-              className="text-muted-foreground hover:text-foreground disabled:opacity-40"
+              className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40"
             >
-              <Video className="size-4" />
+              <Video className="size-5" />
             </button>
           </>
         )}
@@ -671,9 +671,9 @@ export function PostComposer({
             }
             title="Add a poll"
             aria-label="Add a poll"
-            className={`hover:text-foreground ${pollOptions ? "text-primary" : "text-muted-foreground"}`}
+            className={`flex size-9 items-center justify-center rounded-full hover:bg-accent hover:text-foreground ${pollOptions ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}
           >
-            <BarChart3 className="size-4" />
+            <BarChart3 className="size-5" />
           </button>
         )}
         {social && !lockedGroup && audience === "public" && (
@@ -686,9 +686,9 @@ export function PostComposer({
             }
             title="Spotted a car"
             aria-label="Spotted a car"
-            className={`hover:text-foreground ${spotting ? "text-amber-600" : "text-muted-foreground"}`}
+            className={`flex size-9 items-center justify-center rounded-full hover:bg-accent hover:text-foreground ${spotting ? "bg-amber-600/10 text-amber-600" : "text-muted-foreground"}`}
           >
-            <Eye className="size-4" />
+            <Eye className="size-5" />
           </button>
         )}
         {canAddLocation && (
@@ -702,9 +702,9 @@ export function PostComposer({
             disabled={locating}
             title={location ? "Remove location" : "Add your area (shows in Near you)"}
             aria-label={location ? "Remove location" : "Add your area"}
-            className={`flex items-center gap-1 text-xs hover:text-foreground disabled:opacity-50 ${location ? "text-emerald-600" : "text-muted-foreground"}`}
+            className={`flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-medium hover:bg-accent hover:text-foreground disabled:opacity-50 ${location ? "bg-emerald-600/10 text-emerald-600" : "text-muted-foreground"}`}
           >
-            <MapPin className="size-4" />
+            <MapPin className="size-5" />
             {location ? "Area added" : null}
           </button>
         )}
