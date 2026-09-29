@@ -318,10 +318,10 @@ function ListingDetailPage() {
           )}
           {listing.type === "car" && <ListingSpecHighlights specs={listing} />}
         </div>
-        <div className="text-right">
-          <p className="text-3xl font-extrabold tracking-tight">{formatPrice(listing.price)}</p>
+        <div className="rounded-lg border-2 border-border bg-white px-5 py-3 text-right shadow-md dark:bg-neutral-900">
+          <p className="text-4xl font-extrabold tracking-tight">{formatPrice(listing.price)}</p>
           {hasRecentPriceDrop(listing) && (
-            <p className="text-sm">
+            <p className="mt-1 text-sm">
               <span className="text-muted-foreground line-through">
                 {formatPrice(listing.previous_price)}
               </span>{" "}
@@ -331,7 +331,7 @@ function ListingDetailPage() {
             </p>
           )}
           {market && (
-            <p className="mt-0.5 flex items-center justify-end gap-2 text-xs text-muted-foreground">
+            <p className="mt-1 flex items-center justify-end gap-2 text-xs text-muted-foreground">
               {listing.views_count > 0 && (
                 <span className="flex items-center gap-0.5">
                   <Eye className="size-3.5" /> {listing.views_count} views
@@ -407,9 +407,9 @@ function ListingDetailPage() {
       )}
 
       {listing.description && (
-        <section className="mt-6 rounded-xl border border-border bg-card p-4 sm:p-5">
+        <section className="mt-6">
           <h2 className="text-lg font-semibold">Description</h2>
-          <p className="mt-3 whitespace-pre-wrap text-sm">{listing.description}</p>
+          <p className="mt-2 whitespace-pre-wrap text-sm">{listing.description}</p>
         </section>
       )}
 
