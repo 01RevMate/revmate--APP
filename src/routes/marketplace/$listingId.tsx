@@ -318,31 +318,33 @@ function ListingDetailPage() {
           )}
           {listing.type === "car" && <ListingSpecHighlights specs={listing} />}
         </div>
-        <div className="rounded-lg border-2 border-border bg-white px-5 py-3 text-right shadow-md dark:bg-neutral-900">
-          <p className="text-4xl font-extrabold tracking-tight">{formatPrice(listing.price)}</p>
-          {hasRecentPriceDrop(listing) && (
-            <p className="mt-1 text-sm">
-              <span className="text-muted-foreground line-through">
-                {formatPrice(listing.previous_price)}
-              </span>{" "}
-              <span className="font-bold text-red-600">
-                Save {formatPrice(Number(listing.previous_price) - Number(listing.price))}
-              </span>
-            </p>
-          )}
+        <div className="flex items-center gap-3">
+          <div className="rounded-lg border-2 border-border bg-white px-5 py-3 text-right shadow-md dark:bg-neutral-900">
+            <p className="text-4xl font-extrabold tracking-tight">{formatPrice(listing.price)}</p>
+            {hasRecentPriceDrop(listing) && (
+              <p className="mt-1 text-sm">
+                <span className="text-muted-foreground line-through">
+                  {formatPrice(listing.previous_price)}
+                </span>{" "}
+                <span className="font-bold text-red-600">
+                  Save {formatPrice(Number(listing.previous_price) - Number(listing.price))}
+                </span>
+              </p>
+            )}
+          </div>
           {market && (
-            <p className="mt-1 flex items-center justify-end gap-2 text-xs text-muted-foreground">
+            <div className="flex flex-col gap-1 text-xs text-muted-foreground">
               {listing.views_count > 0 && (
-                <span className="flex items-center gap-0.5">
+                <span className="flex items-center gap-1">
                   <Eye className="size-3.5" /> {listing.views_count} views
                 </span>
               )}
               {listing.saves_count > 0 && (
-                <span className="flex items-center gap-0.5">
+                <span className="flex items-center gap-1">
                   <Heart className="size-3.5" /> {listing.saves_count} watching
                 </span>
               )}
-            </p>
+            </div>
           )}
         </div>
       </div>
