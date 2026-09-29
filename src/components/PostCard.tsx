@@ -27,6 +27,7 @@ import { PostImageViewer } from "@/components/PostImageViewer";
 import { PostComments } from "@/components/PostComments";
 import { ReactionButton } from "@/components/ReactionButton";
 import { PostPoll } from "@/components/PostPoll";
+import { ForSaleListingBox } from "@/components/ForSaleListingBox";
 import { RepostedPost } from "@/components/RepostedPost";
 import { RichText } from "@/components/RichText";
 import { FeedVideo } from "@/components/FeedVideo";
@@ -670,44 +671,12 @@ export function PostCard({
 
       {social && post.has_poll && <PostPoll postId={post.id} />}
 
-      {isForSale && post.listings && (
-        <div
-          className={`mt-3 flex items-center justify-between gap-3 bg-muted px-4 py-3 ${immersive ? "-mx-3 sm:-mx-4" : "-mx-4"}`}
-        >
-          <div>
-            {user?.id === post.user_id && (
-              <span className="mb-1 inline-block rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
-                This is your ad
-              </span>
-            )}
-            {post.posted_as_garage_car && (
-              <p className="text-sm font-semibold text-foreground">
-                {post.posted_as_garage_car.year ? `${post.posted_as_garage_car.year} ` : ""}
-                {post.posted_as_garage_car.make} {post.posted_as_garage_car.model}
-              </p>
-            )}
-            <p className="text-2xl font-bold text-foreground">
-              {post.listings.price != null
-                ? `£${post.listings.price.toLocaleString("en-GB")}`
-                : "POA"}
-            </p>
-          </div>
-          {post.listings.headline && (
-            <p className="max-w-[55%] text-right text-sm font-medium italic text-foreground/80">
-              {post.listings.headline}
-            </p>
-          )}
-        </div>
-      )}
-
-      {isForSale && post.listings && (
-        <Link
-          to="/marketplace/$listingId"
-          params={{ listingId: post.listings.id }}
-          className={`block bg-blue-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-blue-600 ${immersive ? "-mx-3 sm:-mx-4" : "-mx-4"}`}
-        >
-          View full listing →
-        </Link>
+      {isForSale && (
+        <ForSaleListingBox
+          post={post}
+          viewerId={user?.id}
+          edgeClassName={immersive ? "-mx-3 sm:-mx-4" : "-mx-4"}
+        />
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">

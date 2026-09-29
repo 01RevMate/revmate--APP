@@ -4,13 +4,16 @@ import { formatDistanceToNow } from "date-fns";
 import { Avatar } from "@/components/Avatar";
 import { RichText } from "@/components/RichText";
 import { FeedVideo } from "@/components/FeedVideo";
+import { ForSaleListingBox } from "@/components/ForSaleListingBox";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { fetchOriginalPost, isVideoUrl } from "@/lib/social";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
+import { useAuth } from "@/hooks/useAuth";
 
 /** The original post shown inside a repost, credited to its author. */
 export function RepostedPost({ postId }: { postId: string }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data: original, isLoading } = useQuery({
     queryKey: ["post", postId, "original"],
     queryFn: () => fetchOriginalPost(postId),
@@ -32,6 +35,7 @@ export function RepostedPost({ postId }: { postId: string }) {
     original.posted_as_garage_car?.nickname ??
     displayUsernameWithoutAt(original.profiles?.username);
   const media = original.post_images.slice().sort((a, b) => a.position - b.position)[0];
+  const isForSale = original.category === "for_sale";
 
   return (
     // A clickable card rather than a <Link>: the caption's @mentions and
@@ -80,6 +84,7 @@ export function RepostedPost({ postId }: { postId: string }) {
         ) : (
           <img src={media.image_url} alt="" className="max-h-72 w-full object-cover" />
         ))}
+      {isForSale && <ForSaleListingBox post={original} viewerId={user?.id} edgeClassName="" />}
     </div>
   );
 }
