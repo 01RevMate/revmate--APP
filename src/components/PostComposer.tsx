@@ -88,6 +88,7 @@ export function PostComposer({
   preferredGarageCarId = null,
   onGarageCarSelected,
   audience = "public",
+  bare = false,
 }: {
   onPosted: () => void;
   lockedGroup?: { id: string; name: string; postPolicy: "member" | "moderated" };
@@ -98,6 +99,9 @@ export function PostComposer({
   preferredGarageCarId?: string | null;
   onGarageCarSelected?: (garageCarId: string) => void;
   audience?: Post["audience"];
+  /** Drops the card chrome (border/background/padding) — for when it's
+   * already inside its own container, like a dialog. */
+  bare?: boolean;
 }) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
@@ -357,7 +361,10 @@ export function PostComposer({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-border bg-card p-4">
+    <form
+      onSubmit={handleSubmit}
+      className={bare ? "space-y-3" : "space-y-3 rounded-lg border border-border bg-card p-4"}
+    >
       {lockedGroup && (
         <p className="text-xs font-medium text-primary">
           Posting in {lockedGroup.name} ·{" "}

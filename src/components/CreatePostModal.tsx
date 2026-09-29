@@ -18,6 +18,7 @@ export function CreatePostModal({
           <DialogTitle>New post</DialogTitle>
         </DialogHeader>
         <PostComposer
+          bare
           onPosted={() => {
             queryClient.invalidateQueries({ queryKey: ["feed"] });
             onOpenChange(false);

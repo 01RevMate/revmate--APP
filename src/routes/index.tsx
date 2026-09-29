@@ -231,6 +231,7 @@ function Home() {
                           <DialogTitle>New post</DialogTitle>
                         </DialogHeader>
                         <PostComposer
+                          bare
                           onPosted={() => {
                             refreshFeed();
                             setComposerOpen(false);
