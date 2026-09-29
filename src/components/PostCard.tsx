@@ -86,7 +86,7 @@ export function PostCard({
   const [issueStatus, setIssueStatus] = useState(post.issue_status);
   // Long posts collapse behind a Facebook-style "See more" instead of
   // pushing the rest of the card (photos, actions) far down the feed.
-  const BODY_TRUNCATE_LENGTH = 320;
+  const BODY_TRUNCATE_LENGTH = 600;
   const [bodyExpanded, setBodyExpanded] = useState(false);
   const bodyIsLong = (post.body?.length ?? 0) > BODY_TRUNCATE_LENGTH;
   const isCarLike = post.category === "showcase" && !!post.posted_as_garage_car;
