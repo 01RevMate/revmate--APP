@@ -13,6 +13,15 @@ Lovable prompts.
 
 ## Pending
 
+### Speakers / Sound diagnostics category (quick)
+
+- File: `drizzle/migrations/0048_diagnostics_audio_category.sql` (`sql-to-run/16_diagnostics_audio_category.sql`).
+- Added: 2026-09-29
+- Needed by: the "Speakers / Sound" option in the diagnostics post composer's
+  "Which part of the car?" picker. Until this runs, picking it fails to save
+  (the database rejects it); everything else works normally. Just widens a
+  CHECK constraint — doesn't touch any data.
+
 ### Live unread-message badge (recommended, quick)
 
 - File: `drizzle/migrations/0047_live_messages.sql` (`sql-to-run/15_live_messages.sql`).

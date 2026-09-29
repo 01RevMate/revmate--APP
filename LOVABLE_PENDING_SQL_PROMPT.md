@@ -7,6 +7,18 @@ notifications setup below.
 
 ---
 
+## Prompt 0a — Speakers / Sound diagnostics category
+
+```
+Please run sql-to-run/16_diagnostics_audio_category.sql on the connected
+Supabase database, exactly as committed. It widens the
+posts_issue_system_check constraint to also allow 'audio', so the
+"Speakers / Sound" option in the diagnostics post picker can be saved.
+It doesn't change any existing data.
+```
+
+---
+
 ## Prompt 0 — live unread-message badge (recommended)
 
 ```

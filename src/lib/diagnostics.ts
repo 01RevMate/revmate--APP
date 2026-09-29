@@ -19,6 +19,7 @@ export const ISSUE_SYSTEMS: { id: string; label: string; emoji: string }[] = [
   { id: "tyres_wheels", label: "Tyres / wheels", emoji: "⭕" },
   { id: "interior", label: "Interior", emoji: "💺" },
   { id: "software", label: "Software / infotainment", emoji: "📱" },
+  { id: "audio", label: "Speakers / Sound", emoji: "🔊" },
   { id: "other", label: "Something else", emoji: "❓" },
 ];
 

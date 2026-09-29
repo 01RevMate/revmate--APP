@@ -601,6 +601,10 @@ export function PostComposer({
         </div>
       )}
 
+      <p className="text-xs text-muted-foreground">
+        Tap Post to choose where this appears — Discussion, Diagnostics, Showcase and more.
+      </p>
+
       <div className="flex flex-wrap items-center gap-2">
         {!requiredCarIdentity && (
           <button
@@ -741,9 +745,8 @@ export function PostComposer({
                     type="button"
                     disabled={saving}
                     onClick={() => void publishPost("diagnostics", system.id)}
-                    className="flex items-center gap-2 rounded-xl border border-border p-3 text-left text-sm font-medium transition-colors hover:border-primary hover:bg-accent disabled:opacity-50"
+                    className="flex items-center rounded-xl border border-border p-3 text-left text-sm font-medium transition-colors hover:border-primary hover:bg-accent disabled:opacity-50"
                   >
-                    <span className="text-lg leading-none">{system.emoji}</span>
                     {system.label}
                   </button>
                 ))}
