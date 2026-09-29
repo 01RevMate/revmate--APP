@@ -16,7 +16,6 @@ import {
   Clapperboard,
   MapPin,
   Wrench,
-  Megaphone,
 } from "lucide-react";
 import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import { useAuth } from "@/hooks/useAuth";
@@ -115,12 +114,6 @@ export function MobileMenu() {
           )}
           <MenuLink to="/groups" icon={Users} label="Groups" requireAuth onNavigate={close} />
           <MenuLink to="/ask" icon={MessageCircle} label="Ask for help" onNavigate={close} />
-          <MenuLink
-            to="/legal/updates"
-            icon={Megaphone}
-            label="App updates"
-            onNavigate={close}
-          />
           <MenuLink
             to="/garage"
             icon={Warehouse}
