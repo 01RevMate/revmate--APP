@@ -1,26 +1,15 @@
 # Pending SQL — not yet applied
 
 SQL that has been committed but **not yet run** on the live database. Run
-each item in order (in Lovable, or the Supabase SQL editor), then move it
-to the "Applied" section with the date.
+each item in order, then move it to the "Applied" section with the date.
 
 The app is built to keep working before each item runs — new features
 simply stay hidden until their SQL is in place.
 
-**Quickest way:** every file below is ready to run, numbered in order, in the
-`sql-to-run/` folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste
-Lovable prompts.
+**Quickest way:** the file below is ready to run in the `sql-to-run/`
+folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
-
-### Live unread-message badge (recommended, quick)
-
-- File: `drizzle/migrations/0047_live_messages.sql` (`sql-to-run/15_live_messages.sql`).
-- Added: 2026-09-28
-- Needed by: the red unread count on Messages. It already works without this
-  (it re-checks every 30 seconds); after it runs, the count and open chats
-  update instantly. Adds `messages` to Supabase Realtime and an index for
-  counting unread messages. Safe to run more than once; doesn't touch any data.
 
 ### 1. Phone push notifications (optional, needs a few setup steps)
 
@@ -49,6 +38,10 @@ Lovable prompts.
   (Share → Add to Home Screen) and opened from there.
 
 ## Applied
+
+- 2026-10-01: live unread-message badge — 0047/0050 (`sql-to-run/15`).
+  Added `messages` to Supabase Realtime and the `messages_unread_idx`
+  index; verified `messages` is in the realtime publication.
 
 - 2026-10-01: Speakers / Sound diagnostics category — 0048/0049
   (`sql-to-run/16`, now applied and moved to `sql-to-run/applied/`).
