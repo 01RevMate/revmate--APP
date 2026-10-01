@@ -8,10 +8,9 @@ been run live in `applied/` for reference.
 |---|------|--------------|--------|
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
-| 15 | `15_live_messages.sql` | Instant unread-message badge (live updates + fast count) | Recommended — can run on its own, before 13/14 |
-| 16 | `16_diagnostics_audio_category.sql` | Adds "Speakers / Sound" as a diagnostics category | Can run on its own |
 
-Already applied (in `applied/`): 1–4 on 27 Sep 2026 and 5–12 on 28 Sep 2026.
+Already applied (in `applied/`): 1–4 on 27 Sep 2026, 5–12 on 28 Sep 2026,
+and 15–16 on 1 Oct 2026.
 
 ## Two ways to run them
 

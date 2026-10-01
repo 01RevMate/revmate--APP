@@ -1,33 +1,9 @@
 # Lovable prompts — run outstanding RevMate SQL
 
 Steps 1–12 in `sql-to-run/` have all been applied (the latest, 8–12, on 28
-September 2026) and their files are kept in `sql-to-run/applied/`. The only
-things left are the quick live-messages step and the optional phone
-notifications setup below.
-
----
-
-## Prompt 0a — Speakers / Sound diagnostics category
-
-```
-Please run sql-to-run/16_diagnostics_audio_category.sql on the connected
-Supabase database, exactly as committed. It widens the
-posts_issue_system_check constraint to also allow 'audio', so the
-"Speakers / Sound" option in the diagnostics post picker can be saved.
-It doesn't change any existing data.
-```
-
----
-
-## Prompt 0 — live unread-message badge (recommended)
-
-```
-Please run sql-to-run/15_live_messages.sql on the connected Supabase
-database, exactly as committed. It adds public.messages to the
-supabase_realtime publication (only if it isn't already there) and creates
-the index messages_unread_idx. It doesn't change any data. Then confirm
-messages is listed in pg_publication_tables for supabase_realtime.
-```
+September 2026). Steps 15 (live unread badge) and 16 (Speakers / Sound
+diagnostics) were applied on 1 October 2026. The only thing left is the
+optional phone notifications setup below.
 
 ---
 
@@ -53,11 +29,6 @@ Please set up web push notifications for RevMate:
 
 Then confirm the send-push function returns a publicKey on a GET request.
 ```
-
----
-
-When something has run, move it to the "Applied" section of
-`PENDING_SQL.md` (or ask Claude/Lovable to do it).
 
 ---
 
