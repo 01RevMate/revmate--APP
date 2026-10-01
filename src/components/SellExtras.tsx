@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, Circle, ClipboardCheck, Loader2, MapPin, Search } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -51,6 +51,9 @@ export function LocationField({
 }) {
   const [text, setText] = useState(value?.district ?? "");
   const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (value?.district) setText(value.district);
+  }, [value?.district]);
 
   async function find() {
     if (!text.trim()) {

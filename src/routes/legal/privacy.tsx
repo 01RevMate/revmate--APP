@@ -75,7 +75,9 @@ function PrivacyPage() {
           </li>
           <li>
             <strong>Your area — only if you add it:</strong> the first half of your postcode (e.g.
-            LS6), used to show local businesses and offers. Only you can see it.
+            LS6). We use it to work out rough distances to adverts, car meets and local businesses,
+            to start your adverts' location, and to show local offers. It's never shown to other
+            members — they only ever see a rounded distance.
           </li>
           <li>
             <strong>Business reviews and reports</strong> you write. Reviews are public; reports are

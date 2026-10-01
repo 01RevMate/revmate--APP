@@ -11,6 +11,7 @@ import {
 import { isAutomatic } from "@/lib/vehicleSpecs";
 import { PART_CATEGORY_LABELS, type MyCar, type PriceGuide } from "@/lib/marketDeals";
 import { PriceGuideBadge } from "@/components/PriceGuideBadge";
+import { roughMiles } from "@/lib/myArea";
 
 /**
  * A marketplace tile built to be scanned fast: photo first, price as the
@@ -159,7 +160,7 @@ export function MarketListingCard({
             <span className="flex min-w-0 items-center gap-0.5 truncate">
               <MapPin className="size-3 shrink-0" />
               {miles != null
-                ? `${miles < 1 ? "<1" : Math.round(miles)} mi${listing.location_area ? ` · ${listing.location_area}` : ""}`
+                ? `${roughMiles(miles)}${listing.location_area ? ` · ${listing.location_area}` : ""}`
                 : listing.location_area}
             </span>
           )}

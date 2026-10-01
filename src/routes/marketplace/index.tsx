@@ -35,6 +35,7 @@ import {
   type PlaceFix,
   type SavedSearch,
 } from "@/lib/marketDeals";
+import { useMyPlace } from "@/lib/myArea";
 import {
   activeFilterCount,
   filterChips,
@@ -123,6 +124,12 @@ function MarketplacePage() {
   const [condition, setCondition] = useState("");
   const [postageOnly, setPostageOnly] = useState(false);
   const [distanceOpen, setDistanceOpen] = useState(false);
+  // Falls back to the member's private area until they pick a place here.
+  const myPlace = useMyPlace();
+  const [placeTouched, setPlaceTouched] = useState(false);
+  useEffect(() => {
+    if (!placeTouched && myPlace) setPlace((current) => current ?? myPlace);
+  }, [myPlace, placeTouched]);
   const [saveOpen, setSaveOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
   useEffect(() => {
@@ -537,6 +544,7 @@ function MarketplacePage() {
           place={place}
           radius={radius}
           onChange={(next, nextRadius) => {
+            setPlaceTouched(true);
             setPlace(next);
             setRadius(nextRadius);
             savePlace(next);

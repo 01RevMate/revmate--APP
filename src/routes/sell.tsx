@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useMarketplaceFeatures } from "@/lib/marketplace";
@@ -38,6 +38,24 @@ import {
   RegLookupComingSoon,
   RunningCostFields,
 } from "@/components/SellExtras";
+import { useMyPlace } from "@/lib/myArea";
+
+/** Starts the advert's location from the member's private area (they can change it). */
+function usePrefillPlace(
+  place: PlaceFix | null,
+  setPlace: (p: PlaceFix) => void,
+  area: string,
+  setArea: (a: string) => void,
+) {
+  const myPlace = useMyPlace();
+  useEffect(() => {
+    if (!myPlace || place) return;
+    setPlace(myPlace);
+    if (!area && myPlace.town) setArea(myPlace.town);
+    // Only when the member's area first loads.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [myPlace]);
+}
 
 export const Route = createFileRoute("/sell")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -217,6 +235,7 @@ function SellCarForm({
   const [pushToFeed, setPushToFeed] = useState(true);
   const upgrade = useMarketUpgradeFeature();
   const [place, setPlace] = useState<PlaceFix | null>(null);
+  usePrefillPlace(place, setPlace, area, setArea);
   const [costs, setCosts] = useState<RunningCosts>(EMPTY_RUNNING_COSTS);
   const [openToOffers, setOpenToOffers] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -662,6 +681,7 @@ function SellSomethingElseForm({
   const market = useMarketplaceFeatures();
   const upgrade = useMarketUpgradeFeature();
   const [place, setPlace] = useState<PlaceFix | null>(null);
+  usePrefillPlace(place, setPlace, area, setArea);
   const [details, setDetails] = useState<PartDetails>(EMPTY_PART_DETAILS);
   const [openToOffers, setOpenToOffers] = useState(true);
   const [photos, setPhotos] = useState<string[]>([]);

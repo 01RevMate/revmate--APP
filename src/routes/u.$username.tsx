@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { MyAreaCard } from "@/components/MyAreaCard";
 import { fetchProfileSeo } from "@/lib/seoData";
 import { profileHead } from "@/lib/seoHeads";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -329,11 +330,16 @@ function GarageProfilePage() {
         <ProfileStatsBar userId={profile.user_id} />
 
         {isOwner && editing && (
-          <EditProfileForm
-            profile={profile}
-            onSaved={refreshProfile}
-            onDone={() => setEditing(false)}
-          />
+          <>
+            <EditProfileForm
+              profile={profile}
+              onSaved={refreshProfile}
+              onDone={() => setEditing(false)}
+            />
+            <div className="mt-3">
+              <MyAreaCard userId={profile.user_id} />
+            </div>
+          </>
         )}
 
         <Section title="Community">

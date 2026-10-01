@@ -20,6 +20,8 @@ import {
   type MeetWithOrganizer,
 } from "@/lib/meets";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
+import { milesBetween } from "@/lib/marketDeals";
+import { roughMiles, useMyArea, useMyPlace } from "@/lib/myArea";
 
 export const Route = createFileRoute("/meets/")({
   head: () => ({
@@ -51,6 +53,9 @@ function MeetsPage() {
   const [tab, setTab] = useState<"upcoming" | "mine">("upcoming");
   const [creating, setCreating] = useState(false);
   const oldEnoughToHost = useOldEnough(AGE_LIMITS.meets);
+  const myArea = useMyArea();
+  const myPlace = useMyPlace();
+  const [nearestFirst, setNearestFirst] = useState(false);
 
   const { data: upcoming, isLoading } = useQuery({
     queryKey: ["meets", "upcoming"],
@@ -73,7 +78,15 @@ function MeetsPage() {
   }
   if (!social) return <MeetsComingSoon />;
 
-  const meets = tab === "upcoming" ? upcoming : mine;
+  const milesTo = (meet: MeetWithOrganizer) =>
+    myPlace && meet.latitude != null && meet.longitude != null
+      ? milesBetween(myPlace, { lat: meet.latitude, lng: meet.longitude })
+      : null;
+  const listed = tab === "upcoming" ? upcoming : mine;
+  const meets =
+    nearestFirst && listed
+      ? [...listed].sort((a, b) => (milesTo(a) ?? Infinity) - (milesTo(b) ?? Infinity))
+      : listed;
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6">
@@ -118,6 +131,26 @@ function MeetsPage() {
           </button>
         ))}
       </div>
+      {myPlace ? (
+        <button
+          type="button"
+          onClick={() => setNearestFirst((v) => !v)}
+          className={`ml-2 inline-flex items-center gap-1 rounded-full border px-3 py-1 text-sm font-medium ${nearestFirst ? "border-transparent bg-foreground text-background" : "border-border text-muted-foreground hover:text-foreground"}`}
+        >
+          <MapPin className="size-3.5" /> Nearest to {myPlace.district}
+        </button>
+      ) : (
+        myArea.available &&
+        !myArea.loading &&
+        !myArea.district && (
+          <Link
+            to="/settings"
+            className="ml-2 inline-flex items-center gap-1 text-xs font-medium text-primary underline"
+          >
+            <MapPin className="size-3.5" /> Add your area to see how far meets are
+          </Link>
+        )
+      )}
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {isLoading &&
@@ -129,7 +162,7 @@ function MeetsPage() {
             />
           ))}
         {meets?.map((meet) => (
-          <MeetCard key={meet.id} meet={meet} rsvp={rsvps?.get(meet.id)} />
+          <MeetCard key={meet.id} meet={meet} rsvp={rsvps?.get(meet.id)} miles={milesTo(meet)} />
         ))}
       </div>
       {meets?.length === 0 && (
@@ -143,7 +176,15 @@ function MeetsPage() {
   );
 }
 
-function MeetCard({ meet, rsvp }: { meet: MeetWithOrganizer; rsvp?: string | undefined }) {
+function MeetCard({
+  meet,
+  rsvp,
+  miles,
+}: {
+  meet: MeetWithOrganizer;
+  rsvp?: string | undefined;
+  miles: number | null;
+}) {
   const starts = new Date(meet.starts_at);
   const past = starts.getTime() < Date.now() - 6 * 60 * 60 * 1000;
   return (
@@ -183,6 +224,11 @@ function MeetCard({ meet, rsvp }: { meet: MeetWithOrganizer; rsvp?: string | und
         <p className="flex items-center gap-1 text-xs text-muted-foreground">
           <MapPin className="size-3 shrink-0" />
           <span className="truncate">{meet.location_name}</span>
+          {miles != null && (
+            <span className="ml-auto shrink-0 font-semibold text-foreground">
+              {roughMiles(miles)} away
+            </span>
+          )}
         </p>
         <p className="flex items-center gap-1 text-xs text-muted-foreground">
           <Users className="size-3 shrink-0" />

@@ -6,7 +6,7 @@ import { Download, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { forgetMapsConsent } from "@/components/MapEmbed";
 import { deleteMyAccount, setMarketingConsent, useAccountConsents } from "@/lib/legal";
-import { fetchMyArea, postcodeDistrict, saveMyArea, useBusinessesFeature } from "@/lib/businesses";
+import { MyAreaCard } from "@/components/MyAreaCard";
 
 // Everything tied to a person, for "Download my data" (UK GDPR access and
 // portability). Each entry is [table, column holding the user's id].
@@ -85,13 +85,6 @@ export function PrivacyDataSettings({
   const [password, setPassword] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
-  const businessesOn = useBusinessesFeature();
-  const { data: myArea } = useQuery({
-    queryKey: ["my-area", userId],
-    queryFn: () => fetchMyArea(userId),
-    enabled: businessesOn,
-  });
-  const [areaText, setAreaText] = useState<string | null>(null);
 
   async function handleDelete(e: React.FormEvent) {
     e.preventDefault();
@@ -140,47 +133,7 @@ export function PrivacyDataSettings({
         </label>
       )}
 
-      {businessesOn && (
-        <form
-          className="space-y-1.5"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const value = (areaText ?? myArea ?? "").trim();
-            const district = value ? postcodeDistrict(value) : null;
-            if (value && !district) {
-              toast.error("Enter your postcode or its first half, e.g. LS6.");
-              return;
-            }
-            try {
-              await saveMyArea(userId, district);
-              setAreaText(null);
-              await queryClient.invalidateQueries({ queryKey: ["my-area", userId] });
-              await queryClient.invalidateQueries({ queryKey: ["ads"] });
-              toast.success(district ? `Area set to ${district}.` : "Area removed.");
-            } catch (err) {
-              toast.error(err instanceof Error ? err.message : "Couldn't save your area.");
-            }
-          }}
-        >
-          <span className="block text-sm font-medium">Your area</span>
-          <span className="block text-xs text-muted-foreground">
-            The first half of your postcode (e.g. LS6), for local businesses and offers near you.
-            Only you can see it; we only keep the district, never your full address.
-          </span>
-          <div className="flex gap-2">
-            <input
-              value={areaText ?? myArea ?? ""}
-              onChange={(e) => setAreaText(e.target.value)}
-              placeholder="e.g. LS6"
-              maxLength={8}
-              className="w-32 rounded-md border border-input bg-background px-3 py-1.5 text-sm uppercase"
-            />
-            <button className="rounded-md border border-input px-3 py-1.5 text-xs hover:bg-accent">
-              Save
-            </button>
-          </div>
-        </form>
-      )}
+      <MyAreaCard userId={userId} />
 
       <div className="flex items-start justify-between gap-4">
         <span className="text-sm">

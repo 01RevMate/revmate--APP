@@ -27,3 +27,12 @@ migration, add it to all three. Once a file has been run, move it into
 Lovable records what it runs as its own copies in `drizzle/migrations/`
 (e.g. 0038–0040 duplicate 0035–0037), so a new migration takes the next
 free number after those.
+
+## Location is sensitive
+
+Read `docs/LOCATION_PRIVACY.md` before building anything that uses location
+(member areas, distances, maps, "nearby" features). Location is opt-in and
+coarse (postcode district or ~1 km). Other members only ever see rounded
+distances, never someone's area or coordinates. Under-18s are excluded from
+sharing, and blocks always apply. Planned features (Find a friend, Heartbeat)
+have their safety design written down there.
