@@ -351,6 +351,13 @@
       "when": 1790895135101,
       "tag": "0049_diagnostics_audio_category",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1790895181884,
+      "tag": "0050_live_messages",
+      "breakpoints": true
     }
   ]
 }
