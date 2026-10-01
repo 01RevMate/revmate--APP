@@ -27,7 +27,7 @@ export const RELEASES: Release[] = [
     version: "1.14.0",
     date: "2026-10-01",
     title: "A better Buy & Sell",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "Save a search and get alerts when a new listing matches, or when one drops into your budget",
       "Search near you: enter your postcode, pick 10–100 miles, and see how far away each listing is",
