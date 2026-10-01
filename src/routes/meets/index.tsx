@@ -8,7 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { AGE_LIMITS, useOldEnough } from "@/lib/legal";
 
 import { useAuthModal } from "@/hooks/useAuthModal";
-import { ImageUploadField } from "@/components/ImageUploadField";
+import { MeetCoverPicker } from "@/components/MeetCoverPicker";
+import { meetCoverSrc } from "@/lib/meetCovers";
 import { MeetsComingSoon } from "@/components/MeetsComingSoon";
 import { useEngagementFeatures, useSocialFeaturesStatus } from "@/lib/features";
 import { geocodeAddress, setMeetLocation } from "@/lib/engagement";
@@ -194,13 +195,7 @@ function MeetCard({
       className={`overflow-hidden rounded-lg border border-border bg-card transition-colors hover:bg-accent/40 ${past || meet.cancelled_at ? "opacity-70" : ""}`}
     >
       <div className="relative aspect-[16/9] bg-muted">
-        {meet.cover_url ? (
-          <img src={meet.cover_url} alt="" className="size-full object-cover" />
-        ) : (
-          <div className="flex size-full items-center justify-center bg-gradient-to-br from-slate-800 to-slate-950">
-            <CalendarDays className="size-10 text-white/40" />
-          </div>
-        )}
+        <img src={meetCoverSrc(meet)} alt="" loading="lazy" className="size-full object-cover" />
         <div className="absolute left-2 top-2 rounded-md bg-background/95 px-2 py-1 text-center shadow">
           <p className="text-[10px] font-semibold uppercase text-primary">
             {format(starts, "MMM")}
@@ -375,13 +370,7 @@ function CreateMeetForm({ userId, onDone }: { userId: string; onDone: () => void
         placeholder="What's the plan? Entry fee, parking, rules…"
         className={`${input} resize-none`}
       />
-      <ImageUploadField
-        label="Cover photo (optional)"
-        userId={userId}
-        value={coverUrl}
-        onChange={setCoverUrl}
-        shape="wide"
-      />
+      <MeetCoverPicker userId={userId} value={coverUrl} onChange={setCoverUrl} />
       <div className="flex justify-end">
         <button
           disabled={saving}

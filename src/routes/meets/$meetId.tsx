@@ -5,6 +5,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
+  Camera,
   CalendarDays,
   CalendarPlus,
   Check,
@@ -37,6 +38,15 @@ import {
   type MeetStatus,
 } from "@/lib/meets";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
+import { MeetCoverPicker } from "@/components/MeetCoverPicker";
+import { meetCoverSrc, updateMeetCover } from "@/lib/meetCovers";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/meets/$meetId")({
   loader: ({ params }) => fetchMeetSeo(params.meetId),
@@ -53,6 +63,7 @@ function MeetPage() {
   const socialStatus = useSocialFeaturesStatus();
   const social = socialStatus === "on";
   const [busy, setBusy] = useState(false);
+  const [coverOpen, setCoverOpen] = useState(false);
 
   const { data: meet, isLoading } = useQuery({
     queryKey: ["meet", meetId],
@@ -167,12 +178,15 @@ function MeetPage() {
 
       <div className="mt-3 overflow-hidden rounded-lg border border-border bg-card">
         <div className="relative aspect-[16/9] bg-muted">
-          {meet.cover_url ? (
-            <img src={meet.cover_url} alt="" className="size-full object-cover" />
-          ) : (
-            <div className="flex size-full items-center justify-center bg-gradient-to-br from-slate-800 to-slate-950">
-              <CalendarDays className="size-14 text-white/40" />
-            </div>
+          <img src={meetCoverSrc(meet)} alt="" className="size-full object-cover" />
+          {isOrganizer && user && (
+            <button
+              type="button"
+              onClick={() => setCoverOpen(true)}
+              className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur hover:bg-black/75"
+            >
+              <Camera className="size-3.5" /> {meet.cover_url ? "Change cover" : "Add a cover"}
+            </button>
           )}
           {meet.cancelled_at && (
             <span className="absolute left-3 top-3 rounded-full bg-destructive px-3 py-1 text-xs font-semibold uppercase text-white">
@@ -312,6 +326,29 @@ function MeetPage() {
           )}
         </div>
       </div>
+      {isOrganizer && user && (
+        <Dialog open={coverOpen} onOpenChange={setCoverOpen}>
+          <DialogContent className="max-h-[90vh] max-w-[calc(100%-2rem)] overflow-y-auto rounded-2xl sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Meet cover</DialogTitle>
+              <DialogDescription>Saved as soon as you pick one.</DialogDescription>
+            </DialogHeader>
+            <MeetCoverPicker
+              userId={user.id}
+              value={meet.cover_url ?? ""}
+              onChange={async (url) => {
+                try {
+                  await updateMeetCover(meet.id, url || null);
+                  refresh();
+                  toast.success(url ? "Cover updated" : "Cover removed");
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Couldn't update the cover");
+                }
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </main>
   );
 }

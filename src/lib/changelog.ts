@@ -41,6 +41,7 @@ export const RELEASES: Release[] = [
       "Similar listings on every advert, plus running costs (MPG, CO₂, insurance group) and a road tax link",
       "Photo guide and an advert quality score when you sell",
       "MOT history link to GOV.UK on every car, with registration lookup and in-app MOT history coming soon",
+      "Meet covers: upload a photo, reuse one from a past meet, or pick a RevMate design. Organisers can change it any time, and meets without one get a matching design automatically",
       "Groups can have a cover image: add one when you create a group, or change it in group settings",
       "Social links got a glow-up: brand-coloured buttons with your @handle on your profile, and you can just type your username to add them. YouTube, Snapchat and X added",
       "A clearer \"Your area\" section in Edit profile and Settings: it explains what it's for, and that it's never shown to anyone",

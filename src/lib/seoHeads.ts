@@ -1,4 +1,5 @@
 import { isPublicPath } from "@/components/AuthGate";
+import { meetShareImage } from "@/lib/meetCovers";
 import { breadcrumbs, pickShareImage, seo, summarise, absoluteUrl } from "@/lib/seo";
 import type {
   fetchGarageCarSeo,
@@ -191,7 +192,9 @@ export function meetHead(meetId: string, meet: Loaded<typeof fetchMeetSeo>) {
     title: `${meet.cancelled_at ? "Cancelled: " : ""}${meet.title} · ${when} — RevMate Car Meet`,
     description: `${when} at ${meet.location_name}. ${meet.description || "See who's going and RSVP on RevMate."}`,
     path,
-    image: pickShareImage(meet.cover_url),
+    image: pickShareImage(
+      meetShareImage({ id: meetId, title: meet.title, cover_url: meet.cover_url }),
+    ),
     noindex: !indexable(path),
     jsonLd: {
       "@context": "https://schema.org",
@@ -209,7 +212,7 @@ export function meetHead(meetId: string, meet: Loaded<typeof fetchMeetSeo>) {
         address: meet.address || meet.location_name,
       },
       ...(meet.description ? { description: meet.description } : {}),
-      ...(meet.cover_url ? { image: meet.cover_url } : {}),
+      image: meetShareImage({ id: meetId, title: meet.title, cover_url: meet.cover_url }),
       url: absoluteUrl(path),
     },
   });
