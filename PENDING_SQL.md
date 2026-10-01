@@ -11,32 +11,6 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
-### Group covers and more social links (quick)
-
-- File: `drizzle/migrations/0052_group_covers_and_socials.sql` (`sql-to-run/18_group_covers_and_socials.sql`).
-- Added: 2026-10-01
-- Needed by: the cover image on groups (owners/admins add it when creating
-  the group or in group settings), and YouTube / Snapchat / X buttons on
-  profiles. Instagram, TikTok and Facebook work already. Adds
-  `community_groups.cover_url` (+ column grants) and `profiles.social_youtube`,
-  `social_snapchat`, `social_x` (https links only). Safe to run more than once.
-
-### Buy & Sell upgrade (needed for the new marketplace features)
-
-- File: `drizzle/migrations/0051_marketplace_upgrade.sql` (`sql-to-run/17_marketplace_upgrade.sql`).
-- Added: 2026-10-01
-- Needed by: saved searches & alerts, Make an offer, parts category /
-  condition / postage, distance search, MPG / CO2 / insurance group,
-  "Who bought it?" + seller reviews, and the seller trust panel. Until it
-  runs those stay hidden; the price guide, similar listings, compare, the
-  "Fits your car" badge, photo guide and MOT link work straight away.
-- Adds listing columns, `saved_searches` (+ `saved_search_hits`),
-  `listing_offers`, `seller_reviews`, the RPCs `make_offer`,
-  `respond_to_offer`, `listing_buyer_candidates`, `set_listing_buyer`,
-  `leave_seller_review`, `seller_stats`, and new notification kinds
-  `search_alert`, `offer`, `offer_update`, `review_request`. Safe to run
-  more than once; doesn't change existing data.
-
 ### 1. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
@@ -64,6 +38,12 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
   (Share → Add to Home Screen) and opened from there.
 
 ## Applied
+
+- 2026-10-01: Buy & Sell upgrade (0051/0053, `sql-to-run/17`) and group
+  covers + more social links (0052/0054, `sql-to-run/18`) — both applied by
+  Lovable and verified live (tables, listing columns, RPCs, cover_url and
+  the three new social link columns all present). Files moved to
+  `sql-to-run/applied/`.
 
 - 2026-10-01: live unread-message badge — 0047/0050 (`sql-to-run/15`).
   Added `messages` to Supabase Realtime and the `messages_unread_idx`
