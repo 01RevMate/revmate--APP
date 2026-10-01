@@ -40,6 +40,7 @@ export const RELEASES: Release[] = [
       "Local businesses: mechanics, bodywork, EV installers, detailers and dealers, rated and reviewed by members, with trust badges and reporting",
       "Admin ads manager for local sponsored posts targeted by area and car type, always labelled Sponsored",
       "Set your area in Settings for local offers (only you can see it)",
+      "Diagnostic posts have a new Speakers / Sound option for audio faults",
       "Unread messages now show as a red number on Messages in the bottom bar, the menu button and the menu, and update live",
     ],
     fixes: [
@@ -50,6 +51,7 @@ export const RELEASES: Release[] = [
       "drizzle/migrations/0045_car_care_diagnostics_feed.sql",
       "drizzle/migrations/0046_businesses_and_ads.sql",
       "drizzle/migrations/0047_live_messages.sql",
+      "drizzle/migrations/0048_diagnostics_audio_category.sql",
     ],
   },
   {
