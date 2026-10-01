@@ -22,6 +22,22 @@ import {
 } from "@/lib/listings";
 import { createPost, attachImagesToPost } from "@/lib/posts";
 import { uploadImage, validateImageFile } from "@/lib/uploads";
+import {
+  EMPTY_PART_DETAILS,
+  EMPTY_RUNNING_COSTS,
+  listingQuality,
+  useMarketUpgradeFeature,
+  type PartDetails,
+  type PlaceFix,
+  type RunningCosts,
+} from "@/lib/marketDeals";
+import {
+  ListingQualityMeter,
+  LocationField,
+  PartDetailsFields,
+  RegLookupComingSoon,
+  RunningCostFields,
+} from "@/components/SellExtras";
 
 export const Route = createFileRoute("/sell")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -47,15 +63,44 @@ export const Route = createFileRoute("/sell")({
   component: SellPage,
 });
 
+// The photo guide: the shots buyers expect, in the order they look for them.
 const RECOMMENDED_SHOTS = [
-  "Front 3/4 angle (most important — this is your cover photo)",
-  "Rear 3/4 angle",
-  "Both sides, straight on",
-  "Interior — dashboard and seats",
-  "Odometer / mileage",
-  "Engine bay",
-  "Any wear, damage or modifications — be honest, it builds trust",
+  { title: "Front ¾", hint: "Your cover photo" },
+  { title: "Rear ¾", hint: "Opposite corner" },
+  { title: "Both sides", hint: "Straight on" },
+  { title: "Interior", hint: "Dash & seats" },
+  { title: "Mileage", hint: "Dashboard on" },
+  { title: "Engine bay", hint: "Clean, in daylight" },
+  { title: "Tyres", hint: "Show the tread" },
+  { title: "Any wear", hint: "Honesty sells" },
 ];
+
+function PhotoGuide({ count }: { count: number }) {
+  return (
+    <ol className="grid grid-cols-4 gap-1.5">
+      {RECOMMENDED_SHOTS.map((shot, i) => {
+        const done = i < count;
+        return (
+          <li
+            key={shot.title}
+            className={`rounded-md border px-1.5 py-1.5 text-center ${done ? "border-emerald-500/50 bg-emerald-500/10" : "border-dashed border-border"}`}
+          >
+            <span className="block text-[11px] font-semibold leading-tight">
+              {i + 1}. {shot.title}
+            </span>
+            <span className="block text-[10px] leading-tight text-muted-foreground">
+              {shot.hint}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function specsFilledCount(specs: ListingSpecs) {
+  return Object.values(specs).filter((v) => v !== null && v !== "").length;
+}
 
 function SellPage() {
   const { user } = useAuth();
@@ -170,6 +215,10 @@ function SellCarForm({
   const detailsOn = useListingDetailsFeature();
   const [specs, setSpecs] = useState<ListingSpecs>(EMPTY_SPECS);
   const [pushToFeed, setPushToFeed] = useState(true);
+  const upgrade = useMarketUpgradeFeature();
+  const [place, setPlace] = useState<PlaceFix | null>(null);
+  const [costs, setCosts] = useState<RunningCosts>(EMPTY_RUNNING_COSTS);
+  const [openToOffers, setOpenToOffers] = useState(true);
   const [saving, setSaving] = useState(false);
   const savingRef = useRef(false);
 
@@ -291,6 +340,15 @@ function SellCarForm({
         headline: headline.trim() || null,
         locationArea: market ? area : null,
         specs: detailsOn ? specs : undefined,
+        extras: upgrade
+          ? {
+              ...costs,
+              open_to_offers: openToOffers,
+              location_district: place?.district ?? null,
+              location_lat: place?.lat ?? null,
+              location_lng: place?.lng ?? null,
+            }
+          : undefined,
       });
       if (pushToFeed) {
         try {
@@ -396,6 +454,15 @@ function SellCarForm({
             </span>
           </Field>
 
+          <RegLookupComingSoon />
+
+          {upgrade && (
+            <LocationField
+              value={place}
+              onChange={setPlace}
+              onTown={(town) => !area && setArea(town)}
+            />
+          )}
           {market && <AreaField value={area} onChange={setArea} />}
 
           <Field label="Price (£)">
@@ -421,6 +488,7 @@ function SellCarForm({
           </Field>
 
           {detailsOn && <VehicleSpecsFields value={specs} onChange={setSpecs} />}
+          {upgrade && <RunningCostFields value={costs} onChange={setCosts} />}
 
           <div className="space-y-2">
             <p className="text-sm font-medium">
@@ -431,11 +499,7 @@ function SellCarForm({
               maximum of
               {` ${MAX_CAR_LISTING_PHOTOS}`}.
             </p>
-            <ul className="list-inside list-disc text-xs text-muted-foreground">
-              {RECOMMENDED_SHOTS.map((shot) => (
-                <li key={shot}>{shot}</li>
-              ))}
-            </ul>
+            <PhotoGuide count={allPhotos.length} />
             {existingPhotos && existingPhotos.length > 0 && (
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                 {existingPhotos.map((photo) => (
@@ -518,6 +582,30 @@ function SellCarForm({
             Also post this to the feed as a "For Sale" card
           </label>
 
+          {upgrade && (
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={openToOffers}
+                onChange={(e) => setOpenToOffers(e.target.checked)}
+              />
+              Let buyers make offers
+            </label>
+          )}
+
+          <ListingQualityMeter
+            {...listingQuality({
+              isCar: true,
+              photos: allPhotos.length,
+              description,
+              headline,
+              specsFilled: specsFilledCount(specs),
+              motDate: !!specs.mot_expiry,
+              serviceHistory: !!specs.service_history,
+              location: !!place || !!area.trim(),
+            })}
+          />
+
           {allPhotos.length > 0 && (
             <div className="rounded-lg border border-dashed border-border p-3">
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -572,9 +660,46 @@ function SellSomethingElseForm({
   const [saving, setSaving] = useState(false);
   const [area, setArea] = useState("");
   const market = useMarketplaceFeatures();
+  const upgrade = useMarketUpgradeFeature();
+  const [place, setPlace] = useState<PlaceFix | null>(null);
+  const [details, setDetails] = useState<PartDetails>(EMPTY_PART_DETAILS);
+  const [openToOffers, setOpenToOffers] = useState(true);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleUploadPhotos(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    const room = MAX_PART_PHOTOS - photos.length;
+    const valid = files.filter((file) => {
+      const problem = validateImageFile(file);
+      if (problem) toast.error(problem);
+      return !problem;
+    });
+    if (valid.length > room) toast.error(`Up to ${MAX_PART_PHOTOS} photos.`);
+    const batch = valid.slice(0, Math.max(room, 0));
+    if (!batch.length) return;
+    setUploading(true);
+    try {
+      for (const file of batch) {
+        try {
+          const url = await uploadImage("user-media", userId, file);
+          setPhotos((prev) => [...prev, url]);
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : `Couldn't upload ${file.name}`);
+        }
+      }
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (upgrade && !details.collection_available && !details.postage_available) {
+      toast.error("Choose collection, postage or both.");
+      return;
+    }
     setSaving(true);
     try {
       await createListing({
@@ -585,7 +710,17 @@ function SellSomethingElseForm({
         title,
         description,
         price: price ? Number(price) : null,
+        photos,
         locationArea: market ? area : null,
+        extras: upgrade
+          ? {
+              ...details,
+              open_to_offers: openToOffers,
+              location_district: place?.district ?? null,
+              location_lat: place?.lat ?? null,
+              location_lng: place?.lng ?? null,
+            }
+          : undefined,
       });
       toast.success("Listing created");
       navigate({ to: "/marketplace" });
@@ -614,6 +749,59 @@ function SellSomethingElseForm({
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </Field>
+        {upgrade && <PartDetailsFields value={details} onChange={setDetails} />}
+
+        <div className="space-y-2">
+          <p className="text-sm font-medium">
+            Photos ({photos.length}/{MAX_PART_PHOTOS})
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Show it from a few angles, any part numbers, and any wear.
+          </p>
+          {photos.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {photos.map((url) => (
+                <div key={url} className="relative aspect-square overflow-hidden rounded-md">
+                  <img src={url} alt="" className="size-full object-cover" />
+                  <button
+                    type="button"
+                    aria-label="Remove photo"
+                    onClick={() => setPhotos((prev) => prev.filter((p) => p !== url))}
+                    className="absolute right-1 top-1 rounded bg-black/60 p-1 text-white"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <label
+            className={`inline-flex items-center gap-1.5 rounded-md border border-input px-3 py-1.5 text-sm font-medium ${uploading || photos.length >= MAX_PART_PHOTOS ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-accent"}`}
+          >
+            {uploading ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Upload className="size-3.5" />
+            )}
+            {uploading ? "Uploading…" : "Add photos"}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              multiple
+              className="hidden"
+              onChange={handleUploadPhotos}
+              disabled={uploading || photos.length >= MAX_PART_PHOTOS}
+            />
+          </label>
+        </div>
+
+        {upgrade && (
+          <LocationField
+            value={place}
+            onChange={setPlace}
+            onTown={(town) => !area && setArea(town)}
+          />
+        )}
         {market && <AreaField value={area} onChange={setArea} />}
 
         <Field label="Price (£)">
@@ -630,9 +818,32 @@ function SellSomethingElseForm({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={6}
+            placeholder="Part numbers, what it came off, condition, why you're selling…"
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
         </Field>
+        {upgrade && (
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={openToOffers}
+              onChange={(e) => setOpenToOffers(e.target.checked)}
+            />
+            Let buyers make offers
+          </label>
+        )}
+        <ListingQualityMeter
+          {...listingQuality({
+            isCar: false,
+            photos: photos.length,
+            description,
+            headline: "",
+            specsFilled: (details.part_category ? 1 : 0) + (details.item_condition ? 1 : 0),
+            motDate: false,
+            serviceHistory: false,
+            location: !!place || !!area.trim(),
+          })}
+        />
         <button
           type="submit"
           disabled={saving || !carId}
@@ -644,6 +855,8 @@ function SellSomethingElseForm({
     </div>
   );
 }
+
+const MAX_PART_PHOTOS = 10;
 
 function AreaField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   return (

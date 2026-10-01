@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowRight,
   BadgePoundSterling,
+  Bell,
+  Bookmark,
   Heart,
   History,
   Search,
@@ -12,6 +14,27 @@ import {
   X,
 } from "lucide-react";
 import { CarFiltersSheet } from "@/components/CarFiltersSheet";
+import {
+  CompareBar,
+  DistanceDialog,
+  NearbyChipLabel,
+  SavedSearchesDialog,
+  SaveSearchDialog,
+} from "@/components/MarketFinders";
+import {
+  CONDITION_LABELS,
+  fetchMyCurrentCars,
+  fitsMyCar,
+  listingMiles,
+  PART_CATEGORY_LABELS,
+  priceGuide,
+  readSavedPlace,
+  savePlace,
+  useMarketUpgradeFeature,
+  type MarketSearch,
+  type PlaceFix,
+  type SavedSearch,
+} from "@/lib/marketDeals";
 import {
   activeFilterCount,
   filterChips,
@@ -46,7 +69,8 @@ import {
 } from "@/lib/marketplace";
 
 type ListingFilter = "car" | "part";
-type Sort = "newest" | "price_low" | "price_high" | "watched" | "mileage_low" | "year_new";
+type Sort =
+  "newest" | "price_low" | "price_high" | "watched" | "mileage_low" | "year_new" | "nearest";
 
 const PRICE_BANDS: { id: string; label: string; min: number; max: number }[] = [
   { id: "any", label: "Any price", min: 0, max: Infinity },
@@ -91,11 +115,32 @@ function MarketplacePage() {
   // stays put while you browse.
   const [lastVisit, setLastVisit] = useState<number | null>(null);
   const [recentIds, setRecentIds] = useState<string[]>([]);
+  const upgrade = useMarketUpgradeFeature();
+  const navigate = useNavigate({ from: "/marketplace/" });
+  const [place, setPlace] = useState<PlaceFix | null>(null);
+  const [radius, setRadius] = useState("");
+  const [partCategory, setPartCategory] = useState("");
+  const [condition, setCondition] = useState("");
+  const [postageOnly, setPostageOnly] = useState(false);
+  const [distanceOpen, setDistanceOpen] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [savedOpen, setSavedOpen] = useState(false);
   useEffect(() => {
     setLastVisit(readLastMarketVisit());
     setRecentIds(readRecentlyViewed());
     markMarketVisited();
+    const saved = readSavedPlace();
+    if (saved) {
+      setPlace(saved);
+      setRadius("");
+    }
   }, []);
+  const { data: myCars } = useQuery({
+    queryKey: ["my-current-cars", user?.id],
+    queryFn: () => fetchMyCurrentCars(user!.id),
+    enabled: !!user,
+    staleTime: 5 * 60_000,
+  });
 
   const { data: listings, isLoading } = useQuery({
     queryKey: ["listings", "market"],
@@ -124,6 +169,18 @@ function MarketplacePage() {
       if (type && listing.type !== type) return false;
       if (watchlistOnly && !watchIds?.has(listing.id)) return false;
       if (!matchesCarFilters(listing, carFilters)) return false;
+      if (partCategory && listing.part_category !== partCategory) return false;
+      if (condition && listing.item_condition !== condition) return false;
+      if (postageOnly && !listing.postage_available) return false;
+      if (place && radius) {
+        const miles = listingMiles(listing, place);
+        if (
+          miles == null
+            ? !listing.postage_available
+            : miles > Number(radius) && !listing.postage_available
+        )
+          return false;
+      }
       if (band !== "any") {
         if (listing.price == null) return false;
         const price = Number(listing.price);
@@ -154,11 +211,74 @@ function MarketplacePage() {
       if (sort === "watched") return (b.saves_count ?? 0) - (a.saves_count ?? 0);
       if (sort === "mileage_low") return (a.mileage ?? Infinity) - (b.mileage ?? Infinity);
       if (sort === "year_new") return (listingYear(b) ?? 0) - (listingYear(a) ?? 0);
+      if (sort === "nearest")
+        return (listingMiles(a, place) ?? Infinity) - (listingMiles(b, place) ?? Infinity);
       // Newest, with paid Featured listings pinned to the top.
       const featured = Number(isFeatured(b)) - Number(isFeatured(a));
       return featured || b.created_at.localeCompare(a.created_at);
     });
-  }, [listings, type, watchlistOnly, watchIds, band, query, sort, carFilters]);
+  }, [
+    listings,
+    type,
+    watchlistOnly,
+    watchIds,
+    band,
+    query,
+    sort,
+    carFilters,
+    partCategory,
+    condition,
+    postageOnly,
+    place,
+    radius,
+  ]);
+
+  const currentSearch: MarketSearch = useMemo(() => {
+    const priceBand = PRICE_BANDS.find((b) => b.id === band);
+    return {
+      ...carFilters,
+      type,
+      query: query.trim() || undefined,
+      minPrice: priceBand && priceBand.min > 0 ? String(priceBand.min) : undefined,
+      maxPrice: priceBand && Number.isFinite(priceBand.max) ? String(priceBand.max) : undefined,
+      partCategory: partCategory || undefined,
+      condition: condition || undefined,
+      postageOnly: postageOnly || undefined,
+      ...(place && radius
+        ? { radius, lat: String(place.lat), lng: String(place.lng), district: place.district }
+        : {}),
+    };
+  }, [carFilters, type, query, band, partCategory, condition, postageOnly, place, radius]);
+
+  function applySavedSearch(saved: SavedSearch) {
+    const f = saved.filters;
+    void navigate({ search: f.type ? { type: f.type } : {} });
+    setQuery(f.query ?? "");
+    setCarFilters({
+      ...NO_CAR_FILTERS,
+      ...Object.fromEntries(Object.entries(f).filter(([k]) => k in NO_CAR_FILTERS)),
+    });
+    const bandMatch = PRICE_BANDS.find(
+      (b) =>
+        String(b.min > 0 ? b.min : "") === (f.minPrice ?? "") &&
+        String(Number.isFinite(b.max) ? b.max : "") === (f.maxPrice ?? ""),
+    );
+    setBand(bandMatch?.id ?? "any");
+    setPartCategory(f.partCategory ?? "");
+    setCondition(f.condition ?? "");
+    setPostageOnly(!!f.postageOnly);
+    if (f.radius && f.lat && f.lng && f.district) {
+      const next = { district: f.district, lat: Number(f.lat), lng: Number(f.lng), town: null };
+      setPlace(next);
+      setRadius(f.radius);
+    } else setRadius("");
+    setWatchlistOnly(false);
+  }
+
+  function openSave() {
+    if (!user) return openAuthModal("Create a free account to save searches and get alerts.");
+    setSaveOpen(true);
+  }
 
   const newToday = (listings ?? []).filter(isNewToday).length;
   const newSinceVisit = lastVisit
@@ -270,6 +390,20 @@ function MarketplacePage() {
               {watchIds && watchIds.size > 0 && ` (${watchIds.size})`}
             </button>
           )}
+          {upgrade && (
+            <button
+              type="button"
+              onClick={() => setDistanceOpen(true)}
+              className={chip(!!place && !!radius)}
+            >
+              <NearbyChipLabel place={radius ? place : null} radius={radius} />
+            </button>
+          )}
+          {upgrade && user && (
+            <button type="button" onClick={() => setSavedOpen(true)} className={chip(false)}>
+              <Bookmark className="size-3.5" /> Saved
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setFiltersOpen(true)}
@@ -290,6 +424,38 @@ function MarketplacePage() {
             </button>
           ))}
         </div>
+        {upgrade && type === "part" && (
+          <div className="-mx-3 flex gap-1.5 overflow-x-auto px-3 [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0">
+            {Object.entries(PART_CATEGORY_LABELS).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setPartCategory((c) => (c === id ? "" : id))}
+                className={chip(partCategory === id)}
+              >
+                {label}
+              </button>
+            ))}
+            <span className="mx-0.5 w-px shrink-0 bg-border" />
+            {Object.entries(CONDITION_LABELS).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setCondition((c) => (c === id ? "" : id))}
+                className={chip(condition === id)}
+              >
+                {label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setPostageOnly((v) => !v)}
+              className={chip(postageOnly)}
+            >
+              Can post
+            </button>
+          </div>
+        )}
         {filterCount > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {filterChips(carFilters).map((c) => (
@@ -327,19 +493,31 @@ function MarketplacePage() {
               </span>
             )}
           </span>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as Sort)}
-            aria-label="Sort listings"
-            className="rounded-md border border-input bg-background px-2 py-1 text-xs"
-          >
-            <option value="newest">Newest first</option>
-            <option value="price_low">Price: low to high</option>
-            <option value="price_high">Price: high to low</option>
-            <option value="mileage_low">Mileage: lowest first</option>
-            <option value="year_new">Age: newest first</option>
-            {market && <option value="watched">Most watched</option>}
-          </select>
+          <span className="flex items-center gap-2">
+            {upgrade && (
+              <button
+                type="button"
+                onClick={openSave}
+                className="flex items-center gap-1 font-semibold text-primary"
+              >
+                <Bell className="size-3.5" /> Save search
+              </button>
+            )}
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as Sort)}
+              aria-label="Sort listings"
+              className="rounded-md border border-input bg-background px-2 py-1 text-xs"
+            >
+              <option value="newest">Newest first</option>
+              <option value="price_low">Price: low to high</option>
+              <option value="price_high">Price: high to low</option>
+              <option value="mileage_low">Mileage: lowest first</option>
+              <option value="year_new">Age: newest first</option>
+              {market && <option value="watched">Most watched</option>}
+              {place && <option value="nearest">Nearest first</option>}
+            </select>
+          </span>
         </div>
       </div>
 
@@ -351,6 +529,39 @@ function MarketplacePage() {
         onApply={setCarFilters}
         detailed={detailsOn}
       />
+
+      {upgrade && (
+        <DistanceDialog
+          open={distanceOpen}
+          onOpenChange={setDistanceOpen}
+          place={place}
+          radius={radius}
+          onChange={(next, nextRadius) => {
+            setPlace(next);
+            setRadius(nextRadius);
+            savePlace(next);
+            if (next && sort === "newest") setSort("nearest");
+            if (!next && sort === "nearest") setSort("newest");
+          }}
+        />
+      )}
+      {upgrade && user && (
+        <>
+          <SaveSearchDialog
+            open={saveOpen}
+            onOpenChange={setSaveOpen}
+            userId={user.id}
+            search={currentSearch}
+          />
+          <SavedSearchesDialog
+            open={savedOpen}
+            onOpenChange={setSavedOpen}
+            userId={user.id}
+            onApply={applySavedSearch}
+          />
+        </>
+      )}
+      <CompareBar />
 
       {bannerPartner && <PartnerBanner partner={bannerPartner} />}
 
@@ -425,6 +636,9 @@ function MarketplacePage() {
               canWatch={market}
               onToggleWatch={() => void toggleWatch(listing)}
               isMine={user?.id === listing.user_id}
+              miles={listingMiles(listing, place)}
+              fits={fitsMyCar(listing, myCars)}
+              guide={priceGuide(listing, listings ?? [])}
             />
           </GridItems>
         ))}

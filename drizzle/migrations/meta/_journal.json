@@ -358,6 +358,13 @@
       "when": 1790895181884,
       "tag": "0050_live_messages",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1790895241884,
+      "tag": "0051_marketplace_upgrade",
+      "breakpoints": true
     }
   ]
 }

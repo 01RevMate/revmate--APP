@@ -8,6 +8,7 @@ been run live in `applied/` for reference.
 |---|------|--------------|--------|
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
+| 17 | `17_marketplace_upgrade.sql` | Buy & Sell upgrade: saved-search alerts, offers, parts details, distance, seller reviews & stats | Needed — run on its own, no setup |
 
 Already applied (in `applied/`): 1–4 on 27 Sep 2026, 5–12 on 28 Sep 2026,
 and 15–16 on 1 Oct 2026.
@@ -30,4 +31,5 @@ its SQL has run, then appears on its own.
 
 File 15 is a copy of `drizzle/migrations/0047_live_messages.sql` with a short header added.
 File 16 is a copy of `drizzle/migrations/0048_diagnostics_audio_category.sql` with a short header added.
+File 17 is a copy of `drizzle/migrations/0051_marketplace_upgrade.sql` with a short header added.
 File 13 is a copy of `drizzle/migrations/0032_push_notifications.sql` with a short header added.

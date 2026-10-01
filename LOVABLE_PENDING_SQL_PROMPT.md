@@ -2,8 +2,26 @@
 
 Steps 1–12 in `sql-to-run/` have all been applied (the latest, 8–12, on 28
 September 2026). Steps 15 (live unread badge) and 16 (Speakers / Sound
-diagnostics) were applied on 1 October 2026. The only thing left is the
-optional phone notifications setup below.
+diagnostics) were applied on 1 October 2026. Left to do: the Buy & Sell
+upgrade (Prompt 0, needed) and the optional phone notifications setup.
+
+---
+
+## Prompt 0 — Buy & Sell upgrade (needed)
+
+```
+Please run sql-to-run/17_marketplace_upgrade.sql on the connected Supabase
+database, exactly as committed (it's a copy of
+drizzle/migrations/0051_marketplace_upgrade.sql and is safe to run more
+than once). It adds listing columns (part category, condition, postage,
+postcode district + rough location, CO2, MPG, insurance group,
+open_to_offers, buyer_id), the tables saved_searches, saved_search_hits,
+listing_offers and seller_reviews, the functions make_offer,
+respond_to_offer, listing_buyer_candidates, set_listing_buyer,
+leave_seller_review and seller_stats, and four notification kinds. It
+doesn't change any existing data. Then regenerate the Supabase TypeScript
+types and confirm the app still builds.
+```
 
 ---
 

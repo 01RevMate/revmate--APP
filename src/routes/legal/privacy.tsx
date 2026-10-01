@@ -82,6 +82,13 @@ function PrivacyPage() {
             only seen by RevMate's team.
           </li>
           <li>
+            <strong>Buy &amp; Sell:</strong> if you add a postcode to an advert we keep only the
+            first half (e.g. LS6) and its rough centre, to show buyers how far away it is. Offers
+            you make or receive are only seen by you and the other person. Saved searches are
+            private to you. If a seller marks you as the buyer, you can leave a public review of the
+            seller. The postcode you use to search "near me" stays on your device.
+          </li>
+          <li>
             <strong>Consents:</strong> which version of our Terms and this policy you agreed to,
             when, and your marketing choice.
           </li>

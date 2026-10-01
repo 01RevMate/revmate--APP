@@ -17,7 +17,9 @@ import {
 import { endListing, fetchListingById, type ListingEndReason } from "@/lib/listings";
 import {
   changeListingPrice,
+  fetchMarketListings,
   fetchMyWatchlistIds,
+  fetchPartners,
   formatPrice,
   hasRecentPriceDrop,
   isFeatured,
@@ -27,6 +29,7 @@ import {
   unwatchListing,
   useMarketplaceFeatures,
   watchListing,
+  type MarketListing,
 } from "@/lib/marketplace";
 import { fetchOrCreateConversation, sendMessage } from "@/lib/messages";
 import { reportSeller, SELLER_REPORT_REASONS, type SellerReportReason } from "@/lib/sellers";
@@ -35,6 +38,24 @@ import { Avatar } from "@/components/Avatar";
 import { ListingGallery } from "@/components/ListingGallery";
 import { ListingBusinessCard } from "@/components/ListingBusinessCard";
 import { ListingSpecHighlights, ListingSpecSheet } from "@/components/ListingSpecSheet";
+import {
+  BuyerPickerDialog,
+  CompareToggle,
+  MotHistoryCard,
+  OfferPanel,
+  PartDetailsCard,
+  RunningCostsCard,
+  SellerTrust,
+  SimilarListings,
+} from "@/components/ListingDealPanels";
+import { PriceGuideBadge } from "@/components/PriceGuideBadge";
+import {
+  fetchMyCurrentCars,
+  fitsMyCar,
+  priceGuide,
+  similarListings,
+  useMarketUpgradeFeature,
+} from "@/lib/marketDeals";
 import { displayUsername, displayUsernameWithoutAt } from "@/lib/usernames";
 import { useAuth } from "@/hooks/useAuth";
 import { AGE_LIMITS, useOldEnough } from "@/lib/legal";
@@ -111,6 +132,27 @@ function ListingDetailPage() {
   });
   const [newPrice, setNewPrice] = useState("");
   const [savingPrice, setSavingPrice] = useState(false);
+  const upgrade = useMarketUpgradeFeature();
+  const [pickBuyerFor, setPickBuyerFor] = useState<string | null>(null);
+  // Shared with the Buy & Sell grid (usually already cached) — powers the
+  // price guide and "Similar for sale".
+  const { data: marketListings } = useQuery({
+    queryKey: ["listings", "market"],
+    queryFn: fetchMarketListings,
+    staleTime: 60_000,
+  });
+  const { data: partners } = useQuery({
+    queryKey: ["marketplace-partners"],
+    queryFn: () => fetchPartners(),
+    enabled: market,
+    staleTime: 10 * 60_000,
+  });
+  const { data: myCars } = useQuery({
+    queryKey: ["my-current-cars", user?.id],
+    queryFn: () => fetchMyCurrentCars(user!.id),
+    enabled: !!user,
+    staleTime: 5 * 60_000,
+  });
 
   // Count the view (once a day per person) and remember it for
   // "Pick up where you left off" on the Buy & Sell page.
@@ -126,6 +168,21 @@ function ListingDetailPage() {
   }
 
   if (!listing) {
+    // Just marked "Sold through RevMate": the advert is gone, but ask who bought it.
+    if (pickBuyerFor) {
+      return (
+        <div className="mx-auto max-w-3xl px-4 py-10">
+          <BuyerPickerDialog
+            listingId={pickBuyerFor}
+            open
+            onDone={() => {
+              setPickBuyerFor(null);
+              navigate({ to: "/marketplace" });
+            }}
+          />
+        </div>
+      );
+    }
     return (
       <div className="mx-auto max-w-3xl px-4 py-10">
         <h1 className="text-xl font-semibold">Listing not found</h1>
@@ -141,6 +198,10 @@ function ListingDetailPage() {
 
   const isOwner = user?.id === listing.user_id;
   const watched = watchIds?.has(listing.id) ?? false;
+  const asMarket = listing as unknown as MarketListing;
+  const guide = listing.type === "car" ? priceGuide(asMarket, marketListings ?? []) : null;
+  const similar = similarListings(asMarket, marketListings ?? []);
+  const fits = fitsMyCar(asMarket, myCars);
 
   async function toggleWatch() {
     if (!listing) return;
@@ -216,7 +277,9 @@ function ListingDetailPage() {
       return;
     }
     if (!oldEnoughToBuy) {
-      toast.error(`Buying and selling on RevMate is for people aged ${AGE_LIMITS.selling} and over.`);
+      toast.error(
+        `Buying and selling on RevMate is for people aged ${AGE_LIMITS.selling} and over.`,
+      );
       return;
     }
     setMessageBody(QUICK_QUESTIONS[0]!);
@@ -299,7 +362,8 @@ function ListingDetailPage() {
       );
       warnings.forEach((warning) => toast.warning(warning));
       setManageOpen(false);
-      navigate({ to: "/marketplace" });
+      if (reason === "sold_revmate" && upgrade) setPickBuyerFor(listing.id);
+      else navigate({ to: "/marketplace" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't end this advert");
     } finally {
@@ -339,6 +403,11 @@ function ListingDetailPage() {
             </p>
           )}
           {listing.type === "car" && <ListingSpecHighlights specs={listing} />}
+          {fits && !isOwner && (
+            <p className="mt-2 inline-flex items-center rounded-full bg-sky-600 px-3 py-1 text-xs font-bold text-white">
+              Fits your {fits.nickname}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <div className="rounded-lg border-2 border-border bg-white px-5 py-3 text-right shadow-md dark:bg-neutral-900">
@@ -371,18 +440,23 @@ function ListingDetailPage() {
         </div>
       </div>
 
-      {market && !isOwner && (
-        <button
-          type="button"
-          onClick={() => void toggleWatch()}
-          className={`mt-3 flex w-full items-center justify-center gap-2 rounded-lg border py-2.5 text-sm font-semibold transition-colors ${watched ? "border-red-500/40 bg-red-500/10 text-red-600" : "border-input hover:bg-accent"}`}
-        >
-          <Heart className="size-4" fill={watched ? "currentColor" : "none"} />
-          {watched
-            ? "Watching — we'll alert you if the price drops"
-            : "Watch this — get price-drop alerts"}
-        </button>
-      )}
+      {guide && <PriceGuideBadge guide={guide} />}
+
+      {(market && !isOwner) || listing.type === "car" ? (
+        <div className="mt-3 flex gap-2">
+          {market && !isOwner && (
+            <button
+              type="button"
+              onClick={() => void toggleWatch()}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-lg border py-2.5 text-sm font-semibold transition-colors ${watched ? "border-red-500/40 bg-red-500/10 text-red-600" : "border-input hover:bg-accent"}`}
+            >
+              <Heart className="size-4" fill={watched ? "currentColor" : "none"} />
+              {watched ? "Watching — price-drop alerts on" : "Watch — get price-drop alerts"}
+            </button>
+          )}
+          {listing.type === "car" && <CompareToggle listingId={listing.id} />}
+        </div>
+      ) : null}
       {market && isAdmin && (
         <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-amber-400/50 bg-amber-400/10 p-2 text-xs">
           <span className="font-semibold">Admin · Featured:</span>
@@ -437,9 +511,25 @@ function ListingDetailPage() {
         </section>
       )}
 
+      {upgrade && listing.type === "part" && <PartDetailsCard listing={listing} />}
+
       {listing.business_id && <ListingBusinessCard businessId={listing.business_id} />}
 
       {listing.type === "car" && <ListingSpecSheet specs={listing} />}
+      {listing.type === "car" && <MotHistoryCard />}
+      {upgrade && listing.type === "car" && (
+        <RunningCostsCard listing={listing} partners={partners} />
+      )}
+
+      {upgrade && isOwner && (
+        <OfferPanel
+          listing={listing}
+          userId={user?.id ?? null}
+          isOwner
+          onNeedAccount={() => undefined}
+          onMessage={() => undefined}
+        />
+      )}
 
       {listing.cars && (
         <Link
@@ -463,6 +553,7 @@ function ListingDetailPage() {
               <p className="text-sm font-medium">{displayUsername(listing.profiles.username)}</p>
             </div>
           </Link>
+          {upgrade && <SellerTrust sellerId={listing.user_id} />}
           {!isOwner && listing.status === "active" && (
             <>
               <button
@@ -473,6 +564,18 @@ function ListingDetailPage() {
                 <MessageCircle className="size-4" />
                 Message seller
               </button>
+              {upgrade && (
+                <OfferPanel
+                  listing={listing}
+                  userId={user?.id ?? null}
+                  isOwner={false}
+                  onNeedAccount={() => openAuthModal("Create a free account to make an offer.")}
+                  onMessage={(text) => {
+                    setMessageBody(text);
+                    setMessageOpen(true);
+                  }}
+                />
+              )}
               <button
                 type="button"
                 onClick={openReportDialog}
@@ -484,6 +587,19 @@ function ListingDetailPage() {
             </>
           )}
         </div>
+      )}
+
+      <SimilarListings listings={similar} />
+
+      {pickBuyerFor && (
+        <BuyerPickerDialog
+          listingId={pickBuyerFor}
+          open
+          onDone={() => {
+            setPickBuyerFor(null);
+            navigate({ to: "/marketplace" });
+          }}
+        />
       )}
 
       <Dialog open={messageOpen} onOpenChange={(open) => !sendingMessage && setMessageOpen(open)}>

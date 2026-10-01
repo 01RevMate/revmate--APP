@@ -11,6 +11,22 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
+### Buy & Sell upgrade (needed for the new marketplace features)
+
+- File: `drizzle/migrations/0051_marketplace_upgrade.sql` (`sql-to-run/17_marketplace_upgrade.sql`).
+- Added: 2026-10-01
+- Needed by: saved searches & alerts, Make an offer, parts category /
+  condition / postage, distance search, MPG / CO2 / insurance group,
+  "Who bought it?" + seller reviews, and the seller trust panel. Until it
+  runs those stay hidden; the price guide, similar listings, compare, the
+  "Fits your car" badge, photo guide and MOT link work straight away.
+- Adds listing columns, `saved_searches` (+ `saved_search_hits`),
+  `listing_offers`, `seller_reviews`, the RPCs `make_offer`,
+  `respond_to_offer`, `listing_buyer_candidates`, `set_listing_buyer`,
+  `leave_seller_review`, `seller_stats`, and new notification kinds
+  `search_alert`, `offer`, `offer_update`, `review_request`. Safe to run
+  more than once; doesn't change existing data.
+
 ### 1. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).

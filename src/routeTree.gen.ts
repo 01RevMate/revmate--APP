@@ -44,10 +44,12 @@ import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as LegalUpdatesRouteImport } from './routes/legal/updates'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace/index'
 import { Route as MarketplaceListingIdRouteImport } from './routes/marketplace/$listingId'
+import { Route as MarketplaceCompareRouteImport } from './routes/marketplace/compare'
 import { Route as MeetsIndexRouteImport } from './routes/meets/index'
 import { Route as MeetsMeetIdRouteImport } from './routes/meets/$meetId'
 import { Route as MessagesUsernameRouteImport } from './routes/messages.$username'
 import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
+import { Route as ReviewListingIdRouteImport } from './routes/review.$listingId'
 import { Route as TagsTagRouteImport } from './routes/tags.$tag'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as CarsMakeModelGenerationRouteImport } from './routes/cars/$make.$model.$generation'
@@ -228,6 +230,11 @@ const MarketplaceListingIdRoute = MarketplaceListingIdRouteImport.update({
   path: '/marketplace/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketplaceCompareRoute = MarketplaceCompareRouteImport.update({
+  id: '/marketplace/compare',
+  path: '/marketplace/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MeetsIndexRoute = MeetsIndexRouteImport.update({
   id: '/meets/',
   path: '/meets/',
@@ -246,6 +253,11 @@ const MessagesUsernameRoute = MessagesUsernameRouteImport.update({
 const PostsPostIdRoute = PostsPostIdRouteImport.update({
   id: '/posts/$postId',
   path: '/posts/$postId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewListingIdRoute = ReviewListingIdRouteImport.update({
+  id: '/review/$listingId',
+  path: '/review/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TagsTagRoute = TagsTagRouteImport.update({
@@ -301,9 +313,11 @@ export interface FileRoutesByFullPath {
   '/legal/terms': typeof LegalTermsRoute
   '/legal/updates': typeof LegalUpdatesRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/marketplace/compare': typeof MarketplaceCompareRoute
   '/meets/$meetId': typeof MeetsMeetIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/review/$listingId': typeof ReviewListingIdRoute
   '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
   '/businesses/': typeof BusinessesIndexRoute
@@ -346,9 +360,11 @@ export interface FileRoutesByTo {
   '/legal/terms': typeof LegalTermsRoute
   '/legal/updates': typeof LegalUpdatesRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/marketplace/compare': typeof MarketplaceCompareRoute
   '/meets/$meetId': typeof MeetsMeetIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/review/$listingId': typeof ReviewListingIdRoute
   '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
   '/businesses': typeof BusinessesIndexRoute
@@ -392,9 +408,11 @@ export interface FileRoutesById {
   '/legal/terms': typeof LegalTermsRoute
   '/legal/updates': typeof LegalUpdatesRoute
   '/marketplace/$listingId': typeof MarketplaceListingIdRoute
+  '/marketplace/compare': typeof MarketplaceCompareRoute
   '/meets/$meetId': typeof MeetsMeetIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/review/$listingId': typeof ReviewListingIdRoute
   '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
   '/businesses/': typeof BusinessesIndexRoute
@@ -439,9 +457,11 @@ export interface FileRouteTypes {
     | '/legal/terms'
     | '/legal/updates'
     | '/marketplace/$listingId'
+    | '/marketplace/compare'
     | '/meets/$meetId'
     | '/messages/$username'
     | '/posts/$postId'
+    | '/review/$listingId'
     | '/tags/$tag'
     | '/u/$username'
     | '/businesses/'
@@ -484,9 +504,11 @@ export interface FileRouteTypes {
     | '/legal/terms'
     | '/legal/updates'
     | '/marketplace/$listingId'
+    | '/marketplace/compare'
     | '/meets/$meetId'
     | '/messages/$username'
     | '/posts/$postId'
+    | '/review/$listingId'
     | '/tags/$tag'
     | '/u/$username'
     | '/businesses'
@@ -529,9 +551,11 @@ export interface FileRouteTypes {
     | '/legal/terms'
     | '/legal/updates'
     | '/marketplace/$listingId'
+    | '/marketplace/compare'
     | '/meets/$meetId'
     | '/messages/$username'
     | '/posts/$postId'
+    | '/review/$listingId'
     | '/tags/$tag'
     | '/u/$username'
     | '/businesses/'
@@ -575,8 +599,10 @@ export interface RootRouteChildren {
   LegalTermsRoute: typeof LegalTermsRoute
   LegalUpdatesRoute: typeof LegalUpdatesRoute
   MarketplaceListingIdRoute: typeof MarketplaceListingIdRoute
+  MarketplaceCompareRoute: typeof MarketplaceCompareRoute
   MeetsMeetIdRoute: typeof MeetsMeetIdRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
+  ReviewListingIdRoute: typeof ReviewListingIdRoute
   TagsTagRoute: typeof TagsTagRoute
   UUsernameRoute: typeof UUsernameRoute
   BusinessesIndexRoute: typeof BusinessesIndexRoute
@@ -835,6 +861,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/marketplace/compare': {
+      id: '/marketplace/compare'
+      path: '/marketplace/compare'
+      fullPath: '/marketplace/compare'
+      preLoaderRoute: typeof MarketplaceCompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/meets/': {
       id: '/meets/'
       path: '/meets'
@@ -861,6 +894,13 @@ declare module '@tanstack/react-router' {
       path: '/posts/$postId'
       fullPath: '/posts/$postId'
       preLoaderRoute: typeof PostsPostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/review/$listingId': {
+      id: '/review/$listingId'
+      path: '/review/$listingId'
+      fullPath: '/review/$listingId'
+      preLoaderRoute: typeof ReviewListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tags/$tag': {
@@ -938,8 +978,10 @@ const rootRouteChildren: RootRouteChildren = {
   LegalTermsRoute: LegalTermsRoute,
   LegalUpdatesRoute: LegalUpdatesRoute,
   MarketplaceListingIdRoute: MarketplaceListingIdRoute,
+  MarketplaceCompareRoute: MarketplaceCompareRoute,
   MeetsMeetIdRoute: MeetsMeetIdRoute,
   PostsPostIdRoute: PostsPostIdRoute,
+  ReviewListingIdRoute: ReviewListingIdRoute,
   TagsTagRoute: TagsTagRoute,
   UUsernameRoute: UUsernameRoute,
   BusinessesIndexRoute: BusinessesIndexRoute,

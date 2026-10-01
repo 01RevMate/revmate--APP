@@ -9,6 +9,8 @@ import {
   type MarketListing,
 } from "@/lib/marketplace";
 import { isAutomatic } from "@/lib/vehicleSpecs";
+import { PART_CATEGORY_LABELS, type MyCar, type PriceGuide } from "@/lib/marketDeals";
+import { PriceGuideBadge } from "@/components/PriceGuideBadge";
 
 /**
  * A marketplace tile built to be scanned fast: photo first, price as the
@@ -23,6 +25,9 @@ export function MarketListingCard({
   canWatch,
   onToggleWatch,
   isMine,
+  miles = null,
+  fits = null,
+  guide = null,
 }: {
   listing: MarketListing;
   isNewSinceVisit: boolean;
@@ -30,6 +35,11 @@ export function MarketListingCard({
   canWatch: boolean;
   onToggleWatch: () => void;
   isMine: boolean;
+  /** Distance from the buyer's postcode, when they've set one. */
+  miles?: number | null;
+  /** The buyer's garage car this part fits. */
+  fits?: MyCar | null;
+  guide?: PriceGuide | null;
 }) {
   const car = listing.garage_cars;
   const catalog = listing.cars;
@@ -55,7 +65,10 @@ export function MarketListingCard({
                 : null
             : null,
         ]
-      : ["Part", make ? `fits ${[make, model].filter(Boolean).join(" ")}` : null];
+      : [
+          (listing.part_category && PART_CATEGORY_LABELS[listing.part_category]) || "Part",
+          make ? `fits ${[make, model].filter(Boolean).join(" ")}` : null,
+        ];
   const photoCount = listing.photos?.length ?? 0;
 
   return (
@@ -94,6 +107,9 @@ export function MarketListingCard({
             </Badge>
           )}
           {isMine && <Badge className="bg-primary text-primary-foreground">Your ad</Badge>}
+          {fits && !isMine && (
+            <Badge className="bg-sky-600 text-white">Fits your {fits.nickname}</Badge>
+          )}
         </div>
         {canWatch && !isMine && (
           <button
@@ -133,15 +149,18 @@ export function MarketListingCard({
         {saving > 0 && (
           <p className="text-[11px] font-bold text-red-600">Save {formatPrice(saving)}</p>
         )}
+        {guide && guide.tone !== "high" && <PriceGuideBadge guide={guide} compact />}
         <p className="mt-0.5 line-clamp-1 text-sm font-medium">{listing.title}</p>
         <p className="line-clamp-1 text-xs text-muted-foreground">
           {facts.filter(Boolean).join(" · ")}
         </p>
         <div className="mt-auto flex items-center gap-2 pt-1.5 text-[11px] text-muted-foreground">
-          {listing.location_area && (
+          {(listing.location_area || miles != null) && (
             <span className="flex min-w-0 items-center gap-0.5 truncate">
               <MapPin className="size-3 shrink-0" />
-              {listing.location_area}
+              {miles != null
+                ? `${miles < 1 ? "<1" : Math.round(miles)} mi${listing.location_area ? ` · ${listing.location_area}` : ""}`
+                : listing.location_area}
             </span>
           )}
           <span className="shrink-0">

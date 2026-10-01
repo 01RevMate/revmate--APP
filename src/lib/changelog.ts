@@ -24,6 +24,27 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.14.0",
+    date: "2026-10-01",
+    title: "A better Buy & Sell",
+    status: "needs_database_update",
+    highlights: [
+      "Save a search and get alerts when a new listing matches, or when one drops into your budget",
+      "Search near you: enter your postcode, pick 10–100 miles, and see how far away each listing is",
+      "Make an offer: sellers can accept, decline or come back with a price, and you're told at each step",
+      "Price guide on cars: Good, Fair or Higher price compared with similar cars on RevMate (only when there are enough to compare)",
+      "Parts get categories, condition (new, used, refurbished), photos and postage or collection",
+      "\"Fits your car\" badge on parts that match a car in your garage",
+      "Seller trust: member since, how quickly they usually reply, items sold, and reviews from real buyers",
+      "After selling through RevMate, pick who bought it and they can leave you a review",
+      "Compare up to three cars side by side",
+      "Similar listings on every advert, plus running costs (MPG, CO₂, insurance group) and a road tax link",
+      "Photo guide and an advert quality score when you sell",
+      "MOT history link to GOV.UK on every car, with registration lookup and in-app MOT history coming soon",
+    ],
+    requiredSql: ["drizzle/migrations/0051_marketplace_upgrade.sql"],
+  },
+  {
     version: "1.13.0",
     date: "2026-09-28",
     title: "Car care, smart diagnostics, search & local businesses",

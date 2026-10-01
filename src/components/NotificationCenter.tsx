@@ -27,6 +27,9 @@ import {
   ClipboardCheck,
   Landmark,
   Stethoscope,
+  BadgePoundSterling,
+  BellRing,
+  Star,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -159,6 +162,23 @@ function notificationDetails(notification: NotificationWithContext, actorLabel?:
         Icon: CheckCircle2,
         text: notification.message ?? "A problem you followed was fixed",
       };
+    case "search_alert":
+      return {
+        Icon: BellRing,
+        text: notification.message ?? "Something new matches your saved search",
+      };
+    case "offer":
+      return {
+        Icon: BadgePoundSterling,
+        text: `${actor} ${notification.message ?? "made an offer on your listing"}`,
+      };
+    case "offer_update":
+      return {
+        Icon: BadgePoundSterling,
+        text: `${actor} ${notification.message ?? "replied to an offer"}`,
+      };
+    case "review_request":
+      return { Icon: Star, text: notification.message ?? "How was your purchase? Leave a review" };
     case "resolve_prompt":
       return { Icon: Stethoscope, text: notification.message ?? "Did you fix your car problem?" };
     default:

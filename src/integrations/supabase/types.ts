@@ -1478,9 +1478,64 @@ export type Database = {
           },
         ]
       }
+      listing_offers: {
+        Row: {
+          amount: number
+          buyer_id: string
+          counter_amount: number | null
+          created_at: string
+          final_amount: number | null
+          id: string
+          listing_id: string
+          message: string
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          buyer_id: string
+          counter_amount?: number | null
+          created_at?: string
+          final_amount?: number | null
+          id?: string
+          listing_id: string
+          message?: string
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          buyer_id?: string
+          counter_amount?: number | null
+          created_at?: string
+          final_amount?: number | null
+          id?: string
+          listing_id?: string
+          message?: string
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       listings: {
         Row: {
           body_type: string | null
+          buyer_id: string | null
+          co2_gkm: number | null
+          collection_available: boolean
+          insurance_group: number | null
+          item_condition: string | null
+          location_district: string | null
+          location_lat: number | null
+          location_lng: number | null
+          mpg: number | null
+          open_to_offers: boolean
+          part_category: string | null
+          postage_available: boolean
+          postage_price: number | null
           business_id: string | null
           car_id: string | null
           colour: string | null
@@ -1522,6 +1577,19 @@ export type Database = {
         }
         Insert: {
           body_type?: string | null
+          buyer_id?: string | null
+          co2_gkm?: number | null
+          collection_available?: boolean
+          insurance_group?: number | null
+          item_condition?: string | null
+          location_district?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          mpg?: number | null
+          open_to_offers?: boolean
+          part_category?: string | null
+          postage_available?: boolean
+          postage_price?: number | null
           business_id?: string | null
           car_id?: string | null
           colour?: string | null
@@ -1563,6 +1631,19 @@ export type Database = {
         }
         Update: {
           body_type?: string | null
+          buyer_id?: string | null
+          co2_gkm?: number | null
+          collection_available?: boolean
+          insurance_group?: number | null
+          item_condition?: string | null
+          location_district?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          mpg?: number | null
+          open_to_offers?: boolean
+          part_category?: string | null
+          postage_available?: boolean
+          postage_price?: number | null
           business_id?: string | null
           car_id?: string | null
           colour?: string | null
@@ -2737,6 +2818,33 @@ export type Database = {
           },
         ]
       }
+      saved_searches: {
+        Row: {
+          alerts: boolean
+          created_at: string
+          filters: Json
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          alerts?: boolean
+          created_at?: string
+          filters?: Json
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          alerts?: boolean
+          created_at?: string
+          filters?: Json
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       saved_posts: {
         Row: {
           created_at: string
@@ -2824,6 +2932,36 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      seller_reviews: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          listing_id: string
+          rating: number
+          reviewer_id: string
+          seller_id: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          rating: number
+          reviewer_id: string
+          seller_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          rating?: number
+          reviewer_id?: string
+          seller_id?: string
+        }
+        Relationships: []
       }
       stories: {
         Row: {
@@ -3438,6 +3576,38 @@ export type Database = {
           current_streak: number
           longest_streak: number
         }[]
+      }
+      leave_seller_review: {
+        Args: { review_body?: string; review_rating: number; target_listing: string }
+        Returns: undefined
+      }
+      listing_buyer_candidates: {
+        Args: { target_listing: string }
+        Returns: { avatar_url: string | null; user_id: string; username: string }[]
+      }
+      make_offer: {
+        Args: { offer_amount: number; offer_message?: string; target_listing: string }
+        Returns: string
+      }
+      respond_to_offer: {
+        Args: { new_counter?: number; offer_action: string; target_offer: string }
+        Returns: string
+      }
+      seller_stats: {
+        Args: { target_seller: string }
+        Returns: {
+          active_listings: number
+          member_since: string
+          rating_avg: number | null
+          replies_sampled: number
+          reply_minutes: number | null
+          reviews_count: number
+          sold_listings: number
+        }[]
+      }
+      set_listing_buyer: {
+        Args: { target_buyer: string; target_listing: string }
+        Returns: undefined
       }
       record_listing_view: {
         Args: { target_listing: string }

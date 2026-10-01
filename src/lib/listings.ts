@@ -4,6 +4,23 @@ import { isMissingEndReasonColumn } from "@/lib/garage";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type Listing = Tables<"listings">;
+export type ListingExtras = Partial<
+  Pick<
+    Listing,
+    | "part_category"
+    | "item_condition"
+    | "collection_available"
+    | "postage_available"
+    | "postage_price"
+    | "location_district"
+    | "location_lat"
+    | "location_lng"
+    | "co2_gkm"
+    | "mpg"
+    | "insurance_group"
+    | "open_to_offers"
+  >
+>;
 export type ListingWithCar = Listing & {
   cars: { make: string; model: string; generation: string } | null;
   garage_cars: {
@@ -136,6 +153,8 @@ export async function createListing(input: {
   locationArea?: string | null;
   /** Vehicle details (0043); only passed once that SQL has run. */
   specs?: Partial<ListingSpecs> | undefined;
+  /** Parts details, location, running costs, offers (0051); only once that SQL has run. */
+  extras?: ListingExtras | undefined;
 }): Promise<string> {
   const { data, error } = await supabase
     .from("listings")
@@ -155,6 +174,7 @@ export async function createListing(input: {
       // marketplace SQL has run.
       ...(input.locationArea?.trim() ? { location_area: input.locationArea.trim() } : {}),
       ...(input.specs ?? {}),
+      ...(input.extras ?? {}),
     })
     .select("id")
     .single();
