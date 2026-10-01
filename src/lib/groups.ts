@@ -104,6 +104,8 @@ export async function createGroup(
   > & {
     make_name?: string | undefined;
     model_name?: string | undefined;
+    /** Only passed once 0052 has run (useGroupCoversFeature). */
+    cover_url?: string | null | undefined;
   },
   // Only passed once 0036_group_rules.sql has run (useGroupRulesFeature).
   rules?: GroupRulesSettings & { rules_text: string; questions: GroupQuestionDraft[] },
@@ -130,6 +132,7 @@ export async function createGroup(
       post_policy: input.post_policy,
       make_name: approvedMake,
       model_name: input.model_name?.trim() || null,
+      ...(input.cover_url ? { cover_url: input.cover_url } : {}),
       ...(rules
         ? {
             entry_rule: rules.entry_rule,
@@ -346,6 +349,7 @@ export async function updateGroupSettings(
       | "require_rules_agreement"
       | "make_name"
       | "model_name"
+      | "cover_url"
     >
   >,
 ) {

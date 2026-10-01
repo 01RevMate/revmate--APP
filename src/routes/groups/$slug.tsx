@@ -38,7 +38,8 @@ import { PostCard } from "@/components/PostCard";
 import { Avatar } from "@/components/Avatar";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { fetchGarage } from "@/lib/garage";
-import { useGroupRulesFeature } from "@/lib/features";
+import { useGroupCoversFeature, useGroupRulesFeature } from "@/lib/features";
+import { GroupCoverBanner, GroupCoverPicker } from "@/components/GroupCover";
 import { JoinGroupDialog } from "@/components/JoinGroupDialog";
 import { GroupRulesEditor, type GroupRulesDraft } from "@/components/GroupRulesEditor";
 import { MakeSelect } from "@/components/MakeSelect";
@@ -111,6 +112,7 @@ function GroupPage() {
     queryFn: () => fetchGroupMembers(group!.id),
   });
   const groupRules = useGroupRulesFeature();
+  const groupCovers = useGroupCoversFeature();
   const ruleLabel = group && groupRules ? groupRuleLabel(group) : null;
   const [joinOpen, setJoinOpen] = useState(false);
   const { data: questions } = useQuery({
@@ -260,8 +262,15 @@ function GroupPage() {
       >
         <ArrowLeft className="size-4" /> All groups
       </Link>
-      <section className="mt-4 rounded-xl border border-border bg-card p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+      <section className="mt-4 overflow-hidden rounded-xl border border-border bg-card">
+        {groupCovers && (
+          <GroupCoverBanner
+            coverUrl={group.cover_url}
+            makeName={group.make_name}
+            className="aspect-[5/2] sm:aspect-[3/1]"
+          />
+        )}
+        <div className="flex flex-wrap items-start justify-between gap-4 p-6">
           <div>
             <div className="flex items-center gap-2">
               {group.make_name && <CarLogo make={group.make_name} className="size-12 rounded-xl" />}
@@ -700,6 +709,23 @@ function GroupSettingsForm({
   });
   const [questionsLoaded, setQuestionsLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
+  const { user } = useAuth();
+  const groupCovers = useGroupCoversFeature();
+  const [cover, setCover] = useState(group.cover_url ?? "");
+
+  // The cover saves as soon as it's chosen — no need to hit Save.
+  async function changeCover(url: string) {
+    const previous = cover;
+    setCover(url);
+    try {
+      await updateGroupSettings(group.id, { cover_url: url || null });
+      onSaved();
+      toast.success(url ? "Cover updated." : "Cover removed.");
+    } catch (err) {
+      setCover(previous);
+      toast.error(err instanceof Error ? err.message : "Couldn't update the cover.");
+    }
+  }
 
   useEffect(() => {
     if (!questions || questionsLoaded) return;
@@ -755,6 +781,14 @@ function GroupSettingsForm({
   const select = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 font-normal";
   return (
     <form className="mt-4 space-y-4" onSubmit={save}>
+      {groupCovers && user && (
+        <GroupCoverPicker
+          userId={user.id}
+          value={cover}
+          onChange={(url) => void changeCover(url)}
+          makeName={group.make_name}
+        />
+      )}
       {groupRules && (
         <div className="grid gap-3 sm:grid-cols-2">
           <div>

@@ -17,7 +17,8 @@ import { CarLogo } from "@/components/CarLogo";
 import { MakeSelect } from "@/components/MakeSelect";
 import { ModelSelect } from "@/components/ModelSelect";
 import { GroupRulesEditor } from "@/components/GroupRulesEditor";
-import { useGroupRulesFeature } from "@/lib/features";
+import { useGroupCoversFeature, useGroupRulesFeature } from "@/lib/features";
+import { GroupCoverBanner, GroupCoverPicker } from "@/components/GroupCover";
 
 export const Route = createFileRoute("/groups/")({
   head: () => ({
@@ -63,6 +64,8 @@ function GroupsPage() {
   const [makeName, setMakeName] = useState("");
   const [modelName, setModelName] = useState("");
   const groupRules = useGroupRulesFeature();
+  const groupCovers = useGroupCoversFeature();
+  const [coverUrl, setCoverUrl] = useState("");
   const [rules, setRules] = useState<GroupRulesDraft>(EMPTY_GROUP_RULES);
 
   // A brand/car gate needs the make (and model) it checks against.
@@ -112,6 +115,7 @@ function GroupsPage() {
           post_policy: postPolicy,
           make_name: makeName || undefined,
           model_name: modelName || undefined,
+          cover_url: groupCovers ? coverUrl || null : undefined,
         },
         groupRules ? rules : undefined,
       );
@@ -151,6 +155,14 @@ function GroupsPage() {
           onSubmit={handleCreate}
           className="mt-6 space-y-4 rounded-xl border border-border bg-card p-5"
         >
+          {groupCovers && user && (
+            <GroupCoverPicker
+              userId={user.id}
+              value={coverUrl}
+              onChange={setCoverUrl}
+              makeName={makeName || null}
+            />
+          )}
           <div>
             <label className="text-sm font-medium">Group name</label>
             <input
@@ -304,37 +316,48 @@ function GroupsPage() {
             key={group.id}
             to="/groups/$slug"
             params={{ slug: group.slug }}
-            className="rounded-xl border border-border bg-card p-5 transition hover:border-primary/50 hover:shadow-sm"
+            className="overflow-hidden rounded-xl border border-border bg-card transition hover:border-primary/50 hover:shadow-sm"
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                {group.make_name ? (
-                  <CarLogo make={group.make_name} className="size-9" />
-                ) : (
-                  <Users className="size-5" />
+            {groupCovers && (
+              <GroupCoverBanner
+                coverUrl={group.cover_url}
+                makeName={group.make_name}
+                className="aspect-[3/1]"
+              />
+            )}
+            <div className="p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div
+                  className={`flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary ${groupCovers ? "-mt-10 border-2 border-card bg-card shadow" : ""}`}
+                >
+                  {group.make_name ? (
+                    <CarLogo make={group.make_name} className="size-9" />
+                  ) : (
+                    <Users className="size-5" />
+                  )}
+                </div>
+                {group.visibility === "private" && (
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <Lock className="size-3.5" /> Private
+                  </span>
                 )}
               </div>
-              {group.visibility === "private" && (
-                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                  <Lock className="size-3.5" /> Private
-                </span>
-              )}
-            </div>
-            <h2 className="mt-4 font-semibold">{group.name}</h2>
-            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-              {group.description || "A RevMate community group."}
-            </p>
-            {(group.make_name || group.model_name) && (
-              <p className="mt-3 text-xs font-medium text-primary">
-                {[group.make_name, group.model_name].filter(Boolean).join(" ")}
-                {groupRules && groupRuleLabel(group) && (
-                  <span className="text-muted-foreground"> · owners only</span>
-                )}
+              <h2 className="mt-4 font-semibold">{group.name}</h2>
+              <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                {group.description || "A RevMate community group."}
               </p>
-            )}
-            <p className="mt-3 text-xs text-muted-foreground">
-              {group.member_count} {group.member_count === 1 ? "member" : "members"}
-            </p>
+              {(group.make_name || group.model_name) && (
+                <p className="mt-3 text-xs font-medium text-primary">
+                  {[group.make_name, group.model_name].filter(Boolean).join(" ")}
+                  {groupRules && groupRuleLabel(group) && (
+                    <span className="text-muted-foreground"> · owners only</span>
+                  )}
+                </p>
+              )}
+              <p className="mt-3 text-xs text-muted-foreground">
+                {group.member_count} {group.member_count === 1 ? "member" : "members"}
+              </p>
+            </div>
           </Link>
         ))}
       </div>

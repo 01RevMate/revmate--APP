@@ -41,10 +41,15 @@ export const RELEASES: Release[] = [
       "Similar listings on every advert, plus running costs (MPG, CO₂, insurance group) and a road tax link",
       "Photo guide and an advert quality score when you sell",
       "MOT history link to GOV.UK on every car, with registration lookup and in-app MOT history coming soon",
+      "Groups can have a cover image: add one when you create a group, or change it in group settings",
+      "Social links got a glow-up: brand-coloured buttons with your @handle on your profile, and you can just type your username to add them. YouTube, Snapchat and X added",
       "A clearer \"Your area\" section in Edit profile and Settings: it explains what it's for, and that it's never shown to anyone",
       'Your area now shows how far car meets are, sorts meets nearest first, and fills in your advert location and "near me" on Buy & Sell',
     ],
-    requiredSql: ["drizzle/migrations/0051_marketplace_upgrade.sql"],
+    requiredSql: [
+      "drizzle/migrations/0051_marketplace_upgrade.sql",
+      "drizzle/migrations/0052_group_covers_and_socials.sql",
+    ],
   },
   {
     version: "1.13.0",

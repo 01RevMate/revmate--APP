@@ -11,6 +11,16 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
+### Group covers and more social links (quick)
+
+- File: `drizzle/migrations/0052_group_covers_and_socials.sql` (`sql-to-run/18_group_covers_and_socials.sql`).
+- Added: 2026-10-01
+- Needed by: the cover image on groups (owners/admins add it when creating
+  the group or in group settings), and YouTube / Snapchat / X buttons on
+  profiles. Instagram, TikTok and Facebook work already. Adds
+  `community_groups.cover_url` (+ column grants) and `profiles.social_youtube`,
+  `social_snapchat`, `social_x` (https links only). Safe to run more than once.
+
 ### Buy & Sell upgrade (needed for the new marketplace features)
 
 - File: `drizzle/migrations/0051_marketplace_upgrade.sql` (`sql-to-run/17_marketplace_upgrade.sql`).

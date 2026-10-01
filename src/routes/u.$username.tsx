@@ -13,6 +13,10 @@ import {
   fetchProfileByUsername,
   updateProfile,
   SOCIAL_PLATFORMS,
+  normaliseSocial,
+  socialInputValue,
+  useExtraSocialsFeature,
+  type SocialPlatformKey,
   type Profile,
 } from "@/lib/profiles";
 import {
@@ -536,30 +540,36 @@ function EditProfileForm({
 }) {
   const [persona, setPersona] = useState<Profile["persona"]>(profile.persona);
   const [bio, setBio] = useState(profile.bio ?? "");
-  const [socialLinks, setSocialLinks] = useState({
-    social_instagram: profile.social_instagram ?? "",
-    social_facebook: profile.social_facebook ?? "",
-    social_tiktok: profile.social_tiktok ?? "",
-  });
+  const extraSocials = useExtraSocialsFeature();
+  const [socialLinks, setSocialLinks] = useState<Partial<Record<SocialPlatformKey, string>>>(() =>
+    Object.fromEntries(
+      SOCIAL_PLATFORMS.map((p) => [
+        p.key,
+        socialInputValue((profile as Record<string, unknown>)[p.key] as string | null),
+      ]),
+    ),
+  );
   const [saving, setSaving] = useState(false);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    const links: Partial<Record<SocialPlatformKey, string | null>> = {};
     for (const platform of SOCIAL_PLATFORMS) {
-      const value = socialLinks[platform.key].trim();
-      if (value && !platform.validate(value)) {
-        toast.error(`${platform.label} link doesn't look like a valid ${platform.label} URL.`);
+      if (platform.extra && !extraSocials) continue;
+      const value = (socialLinks[platform.key] ?? "").trim();
+      const url = value ? normaliseSocial(platform, value) : null;
+      if (value && !url) {
+        toast.error(`That ${platform.label} username or link doesn't look right.`);
         return;
       }
+      links[platform.key] = url;
     }
     setSaving(true);
     try {
       await updateProfile(profile.user_id, {
         persona,
         bio: bio.trim() || null,
-        social_instagram: socialLinks.social_instagram.trim() || null,
-        social_facebook: socialLinks.social_facebook.trim() || null,
-        social_tiktok: socialLinks.social_tiktok.trim() || null,
+        ...links,
       });
       onSaved();
       onDone();

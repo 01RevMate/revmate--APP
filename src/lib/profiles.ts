@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { normalizeUsername, usernameLookupCandidates } from "@/lib/usernames";
@@ -30,6 +31,9 @@ export async function updateProfile(
       | "social_instagram"
       | "social_facebook"
       | "social_tiktok"
+      | "social_youtube"
+      | "social_snapchat"
+      | "social_x"
     >
   >,
 ) {
@@ -52,30 +56,124 @@ export async function setActivePostingIdentity(userId: string, garageCarId: stri
   if (error) throw error;
 }
 
-export type SocialPlatformKey = "social_instagram" | "social_facebook" | "social_tiktok";
+export type SocialPlatformKey =
+  | "social_instagram"
+  | "social_tiktok"
+  | "social_youtube"
+  | "social_facebook"
+  | "social_snapchat"
+  | "social_x";
 
-export const SOCIAL_PLATFORMS: {
+export type SocialPlatform = {
   key: SocialPlatformKey;
   label: string;
-  placeholder: string;
+  /** What goes in front of a handle, e.g. instagram.com/ */
+  prefix: string;
+  /** Turns a typed handle (@name or name) into a profile URL. */
+  fromHandle: (handle: string) => string;
   validate: (url: string) => boolean;
-}[] = [
+  /** Added by 0052; hidden until that SQL has run. */
+  extra?: boolean;
+};
+
+const host = (pattern: RegExp) => (url: string) => {
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && pattern.test(u.hostname) && u.pathname.length > 1;
+  } catch {
+    return false;
+  }
+};
+
+export const SOCIAL_PLATFORMS: SocialPlatform[] = [
   {
     key: "social_instagram",
     label: "Instagram",
-    placeholder: "https://www.instagram.com/yourpage",
-    validate: (url) => /instagram\.com\//i.test(url),
-  },
-  {
-    key: "social_facebook",
-    label: "Facebook",
-    placeholder: "https://www.facebook.com/yourpage",
-    validate: (url) => /facebook\.com\//i.test(url),
+    prefix: "instagram.com/",
+    fromHandle: (h) => `https://www.instagram.com/${h}`,
+    validate: host(/(^|\.)instagram\.com$/i),
   },
   {
     key: "social_tiktok",
     label: "TikTok",
-    placeholder: "https://www.tiktok.com/@yourpage",
-    validate: (url) => /tiktok\.com\//i.test(url),
+    prefix: "tiktok.com/@",
+    fromHandle: (h) => `https://www.tiktok.com/@${h}`,
+    validate: host(/(^|\.)tiktok\.com$/i),
+  },
+  {
+    key: "social_youtube",
+    label: "YouTube",
+    prefix: "youtube.com/@",
+    fromHandle: (h) => `https://www.youtube.com/@${h}`,
+    validate: host(/(^|\.)(youtube\.com|youtu\.be)$/i),
+    extra: true,
+  },
+  {
+    key: "social_facebook",
+    label: "Facebook",
+    prefix: "facebook.com/",
+    fromHandle: (h) => `https://www.facebook.com/${h}`,
+    validate: host(/(^|\.)(facebook\.com|fb\.com)$/i),
+  },
+  {
+    key: "social_snapchat",
+    label: "Snapchat",
+    prefix: "snapchat.com/add/",
+    fromHandle: (h) => `https://www.snapchat.com/add/${h}`,
+    validate: host(/(^|\.)snapchat\.com$/i),
+    extra: true,
+  },
+  {
+    key: "social_x",
+    label: "X",
+    prefix: "x.com/",
+    fromHandle: (h) => `https://x.com/${h}`,
+    validate: host(/(^|\.)(x\.com|twitter\.com)$/i),
+    extra: true,
   },
 ];
+
+/**
+ * Accepts what people actually type — "@dave_gti", "dave_gti", or a full
+ * link — and returns a clean https URL (or null if it isn't usable).
+ */
+export function normaliseSocial(platform: SocialPlatform, input: string): string | null {
+  const value = input.trim();
+  if (!value) return null;
+  if (/^https?:\/\//i.test(value) || /\.(com|be)\//i.test(value)) {
+    const url = value.replace(/^http:\/\//i, "https://").replace(/^(?!https:\/\/)/i, "https://");
+    return platform.validate(url) ? url.slice(0, 300) : null;
+  }
+  const handle = value.replace(/^@/, "");
+  return /^[A-Za-z0-9._-]{1,60}$/.test(handle) ? platform.fromHandle(handle) : null;
+}
+
+/** "@dave_gti" from a profile link, for the button label. */
+export function socialHandle(url: string): string | null {
+  try {
+    const parts = new URL(url).pathname.split("/").filter(Boolean);
+    const last = parts[parts.length - 1];
+    if (!last || ["channel", "c", "user", "add", "profile.php"].includes(last)) return null;
+    return last.startsWith("@") ? last : `@${last}`;
+  } catch {
+    return null;
+  }
+}
+
+/** YouTube, Snapchat and X links (0052). */
+export function useExtraSocialsFeature(): boolean {
+  const { data } = useQuery({
+    queryKey: ["feature", "extra-socials"],
+    queryFn: async () => !(await supabase.from("profiles").select("social_youtube").limit(1)).error,
+    staleTime: Infinity,
+    retry: false,
+  });
+  return data === true;
+}
+
+/** What to show in the editor box: the handle for standard links, else the link. */
+export function socialInputValue(url: string | null | undefined) {
+  if (!url) return "";
+  const handle = socialHandle(url);
+  return handle ? handle.replace(/^@/, "") : url;
+}

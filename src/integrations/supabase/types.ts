@@ -862,6 +862,7 @@ export type Database = {
       }
       community_groups: {
         Row: {
+          cover_url: string | null
           allow_sales: boolean
           created_at: string
           description: string
@@ -880,6 +881,7 @@ export type Database = {
           visibility: string
         }
         Insert: {
+          cover_url?: string | null
           allow_sales?: boolean
           created_at?: string
           description?: string
@@ -898,6 +900,7 @@ export type Database = {
           visibility?: string
         }
         Update: {
+          cover_url?: string | null
           allow_sales?: boolean
           created_at?: string
           description?: string
@@ -2557,6 +2560,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          social_snapchat: string | null
+          social_x: string | null
+          social_youtube: string | null
           account_status: Database["public"]["Enums"]["account_status"]
           active_garage_car_id: string | null
           avatar_url: string | null
@@ -2582,6 +2588,9 @@ export type Database = {
           verified_type: string | null
         }
         Insert: {
+          social_snapchat?: string | null
+          social_x?: string | null
+          social_youtube?: string | null
           account_status?: Database["public"]["Enums"]["account_status"]
           active_garage_car_id?: string | null
           avatar_url?: string | null
@@ -2607,6 +2616,9 @@ export type Database = {
           verified_type?: string | null
         }
         Update: {
+          social_snapchat?: string | null
+          social_x?: string | null
+          social_youtube?: string | null
           account_status?: Database["public"]["Enums"]["account_status"]
           active_garage_car_id?: string | null
           avatar_url?: string | null

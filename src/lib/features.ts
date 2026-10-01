@@ -80,6 +80,18 @@ export function useGroupRulesFeature(): boolean {
   return data === true;
 }
 
+/** True once 0052 has run (group cover images). */
+export function useGroupCoversFeature(): boolean {
+  const { data } = useQuery({
+    queryKey: ["feature", "group-covers"],
+    queryFn: async () =>
+      !(await supabase.from("community_groups").select("cover_url").limit(1)).error,
+    staleTime: Infinity,
+    retry: false,
+  });
+  return data === true;
+}
+
 /** True once 0038_announcements.sql has been applied (pop-up announcements). */
 export function useAnnouncementsFeature(): boolean {
   const { data } = useQuery({

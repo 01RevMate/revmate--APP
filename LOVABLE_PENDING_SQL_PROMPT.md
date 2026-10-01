@@ -25,6 +25,19 @@ types and confirm the app still builds.
 
 ---
 
+## Prompt 0b — group covers and more social links
+
+```
+Please run sql-to-run/18_group_covers_and_socials.sql on the connected
+Supabase database, exactly as committed (a copy of
+drizzle/migrations/0052_group_covers_and_socials.sql, safe to re-run). It
+adds community_groups.cover_url with INSERT/UPDATE column grants for
+authenticated, and profiles.social_youtube, social_snapchat and social_x.
+Then regenerate the Supabase TypeScript types and confirm the app builds.
+```
+
+---
+
 ## Prompt 1 — phone push notifications (optional)
 
 ```
