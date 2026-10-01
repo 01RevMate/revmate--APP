@@ -1,74 +1,10 @@
 # Lovable prompts — run outstanding RevMate SQL
 
 Steps 1–12 in `sql-to-run/` have all been applied (the latest, 8–12, on 28
-September 2026). Steps 15 (live unread badge) and 16 (Speakers / Sound
-diagnostics) were applied on 1 October 2026. Left to do: the Buy & Sell
-upgrade (Prompt 0, needed) and the optional phone notifications setup.
-
----
-
-## ⭐ Prompt A — run everything outstanding in one go (use this one)
-
-```
-Please apply the two outstanding RevMate database migrations to the
-connected Supabase database, in this order, exactly as committed in the repo:
-
-1. sql-to-run/17_marketplace_upgrade.sql
-   (a copy of drizzle/migrations/0051_marketplace_upgrade.sql)
-2. sql-to-run/18_group_covers_and_socials.sql
-   (a copy of drizzle/migrations/0052_group_covers_and_socials.sql)
-
-Both are additive and safe to run more than once — they don't delete or
-change any existing data. Run each file in full (each is wrapped in
-BEGIN/COMMIT); if one fails, stop and tell me the exact error rather than
-editing the SQL.
-
-When they've run:
-- Regenerate the Supabase TypeScript types
-  (src/integrations/supabase/types.ts) from the live database. Don't change
-  any other files.
-- Confirm these exist:
-  * tables: saved_searches, saved_search_hits, listing_offers, seller_reviews
-  * listings columns: part_category, item_condition, postage_available,
-    postage_price, location_district, location_lat, location_lng, co2_gkm,
-    mpg, insurance_group, open_to_offers, buyer_id
-  * functions: make_offer, respond_to_offer, listing_buyer_candidates,
-    set_listing_buyer, leave_seller_review, seller_stats
-  * community_groups.cover_url, and profiles.social_youtube,
-    social_snapchat, social_x
-- Confirm the app still builds with no errors.
-```
-
----
-
-## Prompt 0 — Buy & Sell upgrade (needed)
-
-```
-Please run sql-to-run/17_marketplace_upgrade.sql on the connected Supabase
-database, exactly as committed (it's a copy of
-drizzle/migrations/0051_marketplace_upgrade.sql and is safe to run more
-than once). It adds listing columns (part category, condition, postage,
-postcode district + rough location, CO2, MPG, insurance group,
-open_to_offers, buyer_id), the tables saved_searches, saved_search_hits,
-listing_offers and seller_reviews, the functions make_offer,
-respond_to_offer, listing_buyer_candidates, set_listing_buyer,
-leave_seller_review and seller_stats, and four notification kinds. It
-doesn't change any existing data. Then regenerate the Supabase TypeScript
-types and confirm the app still builds.
-```
-
----
-
-## Prompt 0b — group covers and more social links
-
-```
-Please run sql-to-run/18_group_covers_and_socials.sql on the connected
-Supabase database, exactly as committed (a copy of
-drizzle/migrations/0052_group_covers_and_socials.sql, safe to re-run). It
-adds community_groups.cover_url with INSERT/UPDATE column grants for
-authenticated, and profiles.social_youtube, social_snapchat and social_x.
-Then regenerate the Supabase TypeScript types and confirm the app builds.
-```
+September 2026). Steps 15 (live unread badge), 16 (Speakers / Sound
+diagnostics), 17 (Buy & Sell upgrade) and 18 (group covers + more social
+links) were applied on 1 October 2026. Left to do: only the optional phone
+notifications setup.
 
 ---
 

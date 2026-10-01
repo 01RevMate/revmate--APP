@@ -862,8 +862,8 @@ export type Database = {
       }
       community_groups: {
         Row: {
-          cover_url: string | null
           allow_sales: boolean
+          cover_url: string | null
           created_at: string
           description: string
           entry_rule: string
@@ -881,8 +881,8 @@ export type Database = {
           visibility: string
         }
         Insert: {
-          cover_url?: string | null
           allow_sales?: boolean
+          cover_url?: string | null
           created_at?: string
           description?: string
           entry_rule?: string
@@ -900,8 +900,8 @@ export type Database = {
           visibility?: string
         }
         Update: {
-          cover_url?: string | null
           allow_sales?: boolean
+          cover_url?: string | null
           created_at?: string
           description?: string
           entry_rule?: string
@@ -1448,39 +1448,6 @@ export type Database = {
           },
         ]
       }
-      listing_views: {
-        Row: {
-          listing_id: string
-          viewed_on: string
-          viewer_id: string
-        }
-        Insert: {
-          listing_id: string
-          viewed_on?: string
-          viewer_id: string
-        }
-        Update: {
-          listing_id?: string
-          viewed_on?: string
-          viewer_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "listing_views_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "listing_views_viewer_id_fkey"
-            columns: ["viewer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
       listing_offers: {
         Row: {
           amount: number
@@ -1521,26 +1488,71 @@ export type Database = {
           status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "listing_offers_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "listing_offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_offers_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      listing_views: {
+        Row: {
+          listing_id: string
+          viewed_on: string
+          viewer_id: string
+        }
+        Insert: {
+          listing_id: string
+          viewed_on?: string
+          viewer_id: string
+        }
+        Update: {
+          listing_id?: string
+          viewed_on?: string
+          viewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_views_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_views_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       listings: {
         Row: {
           body_type: string | null
+          business_id: string | null
           buyer_id: string | null
+          car_id: string | null
           co2_gkm: number | null
           collection_available: boolean
-          insurance_group: number | null
-          item_condition: string | null
-          location_district: string | null
-          location_lat: number | null
-          location_lng: number | null
-          mpg: number | null
-          open_to_offers: boolean
-          part_category: string | null
-          postage_available: boolean
-          postage_price: number | null
-          business_id: string | null
-          car_id: string | null
           colour: string | null
           created_at: string
           description: string | null
@@ -1551,13 +1563,23 @@ export type Database = {
           garage_car_id: string | null
           headline: string | null
           id: string
+          insurance_group: number | null
+          item_condition: string | null
           location_area: string | null
+          location_district: string | null
+          location_lat: number | null
+          location_lng: number | null
           make: string | null
           mileage: number | null
           model: string | null
           modified: boolean | null
           mot_expiry: string | null
+          mpg: number | null
+          open_to_offers: boolean
+          part_category: string | null
           photos: string[]
+          postage_available: boolean
+          postage_price: number | null
           power_bhp: number | null
           previous_owners: number | null
           previous_price: number | null
@@ -1580,21 +1602,11 @@ export type Database = {
         }
         Insert: {
           body_type?: string | null
+          business_id?: string | null
           buyer_id?: string | null
+          car_id?: string | null
           co2_gkm?: number | null
           collection_available?: boolean
-          insurance_group?: number | null
-          item_condition?: string | null
-          location_district?: string | null
-          location_lat?: number | null
-          location_lng?: number | null
-          mpg?: number | null
-          open_to_offers?: boolean
-          part_category?: string | null
-          postage_available?: boolean
-          postage_price?: number | null
-          business_id?: string | null
-          car_id?: string | null
           colour?: string | null
           created_at?: string
           description?: string | null
@@ -1605,13 +1617,23 @@ export type Database = {
           garage_car_id?: string | null
           headline?: string | null
           id?: string
+          insurance_group?: number | null
+          item_condition?: string | null
           location_area?: string | null
+          location_district?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
           make?: string | null
           mileage?: number | null
           model?: string | null
           modified?: boolean | null
           mot_expiry?: string | null
+          mpg?: number | null
+          open_to_offers?: boolean
+          part_category?: string | null
           photos?: string[]
+          postage_available?: boolean
+          postage_price?: number | null
           power_bhp?: number | null
           previous_owners?: number | null
           previous_price?: number | null
@@ -1634,21 +1656,11 @@ export type Database = {
         }
         Update: {
           body_type?: string | null
+          business_id?: string | null
           buyer_id?: string | null
+          car_id?: string | null
           co2_gkm?: number | null
           collection_available?: boolean
-          insurance_group?: number | null
-          item_condition?: string | null
-          location_district?: string | null
-          location_lat?: number | null
-          location_lng?: number | null
-          mpg?: number | null
-          open_to_offers?: boolean
-          part_category?: string | null
-          postage_available?: boolean
-          postage_price?: number | null
-          business_id?: string | null
-          car_id?: string | null
           colour?: string | null
           created_at?: string
           description?: string | null
@@ -1659,13 +1671,23 @@ export type Database = {
           garage_car_id?: string | null
           headline?: string | null
           id?: string
+          insurance_group?: number | null
+          item_condition?: string | null
           location_area?: string | null
+          location_district?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
           make?: string | null
           mileage?: number | null
           model?: string | null
           modified?: boolean | null
           mot_expiry?: string | null
+          mpg?: number | null
+          open_to_offers?: boolean
+          part_category?: string | null
           photos?: string[]
+          postage_available?: boolean
+          postage_price?: number | null
           power_bhp?: number | null
           previous_owners?: number | null
           previous_price?: number | null
@@ -1693,6 +1715,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "businesses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "listings_car_id_fkey"
@@ -2560,9 +2589,6 @@ export type Database = {
       }
       profiles: {
         Row: {
-          social_snapchat: string | null
-          social_x: string | null
-          social_youtube: string | null
           account_status: Database["public"]["Enums"]["account_status"]
           active_garage_car_id: string | null
           avatar_url: string | null
@@ -2582,15 +2608,15 @@ export type Database = {
           role: Database["public"]["Enums"]["profile_role"]
           social_facebook: string | null
           social_instagram: string | null
+          social_snapchat: string | null
           social_tiktok: string | null
+          social_x: string | null
+          social_youtube: string | null
           user_id: string
           username: string
           verified_type: string | null
         }
         Insert: {
-          social_snapchat?: string | null
-          social_x?: string | null
-          social_youtube?: string | null
           account_status?: Database["public"]["Enums"]["account_status"]
           active_garage_car_id?: string | null
           avatar_url?: string | null
@@ -2610,15 +2636,15 @@ export type Database = {
           role?: Database["public"]["Enums"]["profile_role"]
           social_facebook?: string | null
           social_instagram?: string | null
+          social_snapchat?: string | null
           social_tiktok?: string | null
+          social_x?: string | null
+          social_youtube?: string | null
           user_id: string
           username: string
           verified_type?: string | null
         }
         Update: {
-          social_snapchat?: string | null
-          social_x?: string | null
-          social_youtube?: string | null
           account_status?: Database["public"]["Enums"]["account_status"]
           active_garage_car_id?: string | null
           avatar_url?: string | null
@@ -2638,7 +2664,10 @@ export type Database = {
           role?: Database["public"]["Enums"]["profile_role"]
           social_facebook?: string | null
           social_instagram?: string | null
+          social_snapchat?: string | null
           social_tiktok?: string | null
+          social_x?: string | null
+          social_youtube?: string | null
           user_id?: string
           username?: string
           verified_type?: string | null
@@ -2830,33 +2859,6 @@ export type Database = {
           },
         ]
       }
-      saved_searches: {
-        Row: {
-          alerts: boolean
-          created_at: string
-          filters: Json
-          id: string
-          name: string
-          user_id: string
-        }
-        Insert: {
-          alerts?: boolean
-          created_at?: string
-          filters?: Json
-          id?: string
-          name: string
-          user_id: string
-        }
-        Update: {
-          alerts?: boolean
-          created_at?: string
-          filters?: Json
-          id?: string
-          name?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       saved_posts: {
         Row: {
           created_at: string
@@ -2883,6 +2885,74 @@ export type Database = {
           },
           {
             foreignKeyName: "saved_posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      saved_search_hits: {
+        Row: {
+          created_at: string
+          listing_id: string
+          search_id: string
+        }
+        Insert: {
+          created_at?: string
+          listing_id: string
+          search_id: string
+        }
+        Update: {
+          created_at?: string
+          listing_id?: string
+          search_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_search_hits_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_search_hits_search_id_fkey"
+            columns: ["search_id"]
+            isOneToOne: false
+            referencedRelation: "saved_searches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_searches: {
+        Row: {
+          alerts: boolean
+          created_at: string
+          filters: Json
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          alerts?: boolean
+          created_at?: string
+          filters?: Json
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          alerts?: boolean
+          created_at?: string
+          filters?: Json
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_searches_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -2973,7 +3043,29 @@ export type Database = {
           reviewer_id?: string
           seller_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "seller_reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: true
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "seller_reviews_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       stories: {
         Row: {
@@ -3422,6 +3514,30 @@ export type Database = {
         Args: { agreed?: boolean; answers?: Json; gid: string }
         Returns: string
       }
+      leave_seller_review: {
+        Args: {
+          review_body?: string
+          review_rating: number
+          target_listing: string
+        }
+        Returns: undefined
+      }
+      listing_buyer_candidates: {
+        Args: { target_listing: string }
+        Returns: {
+          avatar_url: string
+          user_id: string
+          username: string
+        }[]
+      }
+      make_offer: {
+        Args: {
+          offer_amount: number
+          offer_message?: string
+          target_listing: string
+        }
+        Returns: string
+      }
       manage_group_member: {
         Args: { action: string; gid: string; target_user: string }
         Returns: undefined
@@ -3589,38 +3705,6 @@ export type Database = {
           longest_streak: number
         }[]
       }
-      leave_seller_review: {
-        Args: { review_body?: string; review_rating: number; target_listing: string }
-        Returns: undefined
-      }
-      listing_buyer_candidates: {
-        Args: { target_listing: string }
-        Returns: { avatar_url: string | null; user_id: string; username: string }[]
-      }
-      make_offer: {
-        Args: { offer_amount: number; offer_message?: string; target_listing: string }
-        Returns: string
-      }
-      respond_to_offer: {
-        Args: { new_counter?: number; offer_action: string; target_offer: string }
-        Returns: string
-      }
-      seller_stats: {
-        Args: { target_seller: string }
-        Returns: {
-          active_listings: number
-          member_since: string
-          rating_avg: number | null
-          replies_sampled: number
-          reply_minutes: number | null
-          reviews_count: number
-          sold_listings: number
-        }[]
-      }
-      set_listing_buyer: {
-        Args: { target_buyer: string; target_listing: string }
-        Returns: undefined
-      }
       record_listing_view: {
         Args: { target_listing: string }
         Returns: undefined
@@ -3632,6 +3716,14 @@ export type Database = {
       record_profile_view: {
         Args: { target_user_id: string }
         Returns: undefined
+      }
+      respond_to_offer: {
+        Args: {
+          new_counter?: number
+          offer_action: string
+          target_offer: string
+        }
+        Returns: string
       }
       review_group_post: {
         Args: { decision: string; pid: string }
@@ -3687,6 +3779,18 @@ export type Database = {
           score: number
         }[]
       }
+      seller_stats: {
+        Args: { target_seller: string }
+        Returns: {
+          active_listings: number
+          member_since: string
+          rating_avg: number
+          replies_sampled: number
+          reply_minutes: number
+          reviews_count: number
+          sold_listings: number
+        }[]
+      }
       send_app_update: {
         Args: { update_message: string; update_url?: string }
         Returns: number
@@ -3695,6 +3799,10 @@ export type Database = {
       send_my_car_reminders: { Args: never; Returns: number }
       send_my_resolve_prompts: { Args: never; Returns: number }
       send_my_weekly_recap: { Args: never; Returns: boolean }
+      set_listing_buyer: {
+        Args: { target_buyer: string; target_listing: string }
+        Returns: undefined
+      }
       set_marketing_consent: { Args: { opt_in: boolean }; Returns: undefined }
       suggested_profiles: {
         Args: { result_limit?: number }

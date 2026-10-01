@@ -372,6 +372,20 @@
       "when": 1790895301884,
       "tag": "0052_group_covers_and_socials",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1790898354418,
+      "tag": "0053_lov_database_migration",
+      "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1790898366852,
+      "tag": "0054_lov_database_migration",
+      "breakpoints": true
     }
   ]
 }
