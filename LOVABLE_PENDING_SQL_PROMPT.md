@@ -2,23 +2,9 @@
 
 Steps 1–12 in `sql-to-run/` have all been applied (the latest, 8–12, on 28
 September 2026). Steps 15 (live unread badge), 16 (Speakers / Sound
-diagnostics), 17 (Buy & Sell upgrade) and 18 (group covers + more social
-links) were applied on 1 October 2026. Left to do: only the optional phone
-notifications setup.
-
----
-
-## ⭐ Prompt A — public profile pages
-
-```
-Please run sql-to-run/19_public_profiles.sql on the connected Supabase
-database, exactly as committed (a copy of
-drizzle/migrations/0055_public_profiles.sql, safe to re-run). It adds the
-functions public.public_profile(text) and public.public_profile_handles(int)
-(granted to anon and authenticated) and an index on profiles. It doesn't
-change any data. Then regenerate the Supabase TypeScript types and confirm
-the app builds.
-```
+diagnostics), 17 (Buy & Sell upgrade), 18 (group covers + more social
+links) and 19 (public profile pages) were applied on 1–2 October 2026.
+Left to do: only the optional phone notifications setup.
 
 ---
 
