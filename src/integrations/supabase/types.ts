@@ -3640,6 +3640,20 @@ export type Database = {
           xp: number
         }[]
       }
+      public_profile: {
+        Args: { target_username: string }
+        Returns: {
+          user_id: string
+          username: string
+        }[]
+      }
+      public_profile_handles: {
+        Args: { max_rows?: number }
+        Returns: {
+          created_at: string
+          username: string
+        }[]
+      }
       rank_garage_car: { Args: { target_id: string }; Returns: number }
       rank_garage_car_brands: {
         Args: { result_limit?: number; result_offset?: number }
