@@ -122,7 +122,11 @@ function MarketplacePage() {
   const [carFilters, setCarFilters] = useState<CarFilters>(NO_CAR_FILTERS);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const detailsOn = useListingDetailsFeature();
-  const filterCount = activeFilterCount(carFilters);
+  // Car filters only count on All/Cars, part filters only on Parts — so
+  // switching tabs never leaves a hidden filter that hides everything.
+  const carFiltersOn = type !== "part";
+  const partFiltersOn = type === "part";
+  const filterCount = carFiltersOn ? activeFilterCount(carFilters) : 0;
   // Captured once per visit, then updated, so "new since you were last here"
   // stays put while you browse.
   const [lastVisit, setLastVisit] = useState<number | null>(null);
@@ -186,10 +190,10 @@ function MarketplacePage() {
     const list = (listings ?? []).filter((listing) => {
       if (type && listing.type !== type) return false;
       if (watchlistOnly && !watchIds?.has(listing.id)) return false;
-      if (!matchesCarFilters(listing, carFilters)) return false;
-      if (partCategory && listing.part_category !== partCategory) return false;
-      if (condition && listing.item_condition !== condition) return false;
-      if (postageOnly && !listing.postage_available) return false;
+      if (carFiltersOn && !matchesCarFilters(listing, carFilters)) return false;
+      if (partFiltersOn && partCategory && listing.part_category !== partCategory) return false;
+      if (partFiltersOn && condition && listing.item_condition !== condition) return false;
+      if (partFiltersOn && postageOnly && !listing.postage_available) return false;
       if (place && radius) {
         const miles = listingMiles(listing, place);
         if (
@@ -242,6 +246,8 @@ function MarketplacePage() {
   }, [
     listings,
     type,
+    carFiltersOn,
+    partFiltersOn,
     watchlistOnly,
     watchIds,
     band,
@@ -258,14 +264,18 @@ function MarketplacePage() {
   const currentSearch: MarketSearch = useMemo(() => {
     const priceBand = PRICE_BANDS.find((b) => b.id === band);
     return {
-      ...carFilters,
+      ...(type !== "part" ? carFilters : {}),
       type,
       query: query.trim() || undefined,
       minPrice: priceBand && priceBand.min > 0 ? String(priceBand.min) : undefined,
       maxPrice: priceBand && Number.isFinite(priceBand.max) ? String(priceBand.max) : undefined,
-      partCategory: partCategory || undefined,
-      condition: condition || undefined,
-      postageOnly: postageOnly || undefined,
+      ...(type === "part"
+        ? {
+            partCategory: partCategory || undefined,
+            condition: condition || undefined,
+            postageOnly: postageOnly || undefined,
+          }
+        : {}),
       ...(place && radius
         ? { radius, lat: String(place.lat), lng: String(place.lng), district: place.district }
         : {}),

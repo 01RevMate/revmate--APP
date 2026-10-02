@@ -33,6 +33,12 @@ export const RELEASES: Release[] = [
       "Profiles can appear in Google, with your handle, cars and photo",
       "Profile links work however they're typed: /u/@Jorderz, /u/Jorderz or /u/jorderz",
       "One main web address (revmate.co.uk): other RevMate addresses forward to it, so Google and shared links always use the same one",
+      "Car research (specs & common faults), Problems & fixes, Car meets and the groups list can now be seen without an account and found on Google",
+      "A footer of handy links on every page, and better Google titles and descriptions for research, meets and groups",
+      "New post now shows who you're posting as (you or one of your cars), with a quick Change button",
+    ],
+    fixes: [
+      "Buy & Sell: switching from Parts back to Cars no longer leaves a parts filter on that hid every car",
     ],
     requiredSql: ["drizzle/migrations/0055_public_profiles.sql"],
   },

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { seo } from "@/lib/seo";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -25,24 +26,13 @@ import { milesBetween } from "@/lib/marketDeals";
 import { roughMiles, useMyArea, useMyPlace } from "@/lib/myArea";
 
 export const Route = createFileRoute("/meets/")({
-  head: () => ({
-    meta: [
-      { title: "Car Meets & Events — RevMate" },
-      {
-        name: "description",
-        content:
-          "Find car meets, cars & coffee mornings and track days near you, and see who's going.",
-      },
-      { property: "og:title", content: "Car Meets & Events — RevMate" },
-      {
-        property: "og:description",
-        content:
-          "Find car meets, cars & coffee mornings and track days near you, and see who's going.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Car meets & events near you — RevMate",
+      description:
+        "Find car meets, cars & coffee mornings, shows and track days across the UK, and see who's going.",
+      path: "/meets",
+    }),
   component: MeetsPage,
 });
 

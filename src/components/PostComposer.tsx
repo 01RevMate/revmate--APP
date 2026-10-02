@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   BarChart3,
+  Check,
+  ChevronDown,
   Eye,
   MapPin,
   Gauge,
@@ -63,7 +65,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { GarageCar } from "@/lib/garage";
+import { fetchGarage, type GarageCar } from "@/lib/garage";
+import { Avatar } from "@/components/Avatar";
 
 // "for_sale" posts are only created via the sell flow (pushed from a
 // listing), not chosen directly here, so it's excluded from this picker.
@@ -177,9 +180,20 @@ export function PostComposer({
     selectedGarageCarId,
   ]);
 
-  const postingAs = requiredCarIdentity
-    ? selectedGarageCarId
-    : (profile?.active_garage_car_id ?? "");
+  // Who this post goes out as: yourself or one of your cars. Starts from the
+  // identity picked in the top bar, and can be switched just for this post.
+  const [asCarId, setAsCarId] = useState<string | null | undefined>(undefined);
+  const [identityOpen, setIdentityOpen] = useState(false);
+  const { data: myGarage } = useQuery({
+    queryKey: ["garage", user?.id],
+    queryFn: () => fetchGarage(user!.id),
+    enabled: !!user && !requiredCarIdentity,
+    staleTime: 60_000,
+  });
+  const myCars = (myGarage ?? []).filter((car) => car.ownership_status !== "previous");
+  const chosenCarId = asCarId !== undefined ? asCarId : (profile?.active_garage_car_id ?? null);
+  const postingCar = myCars.find((car) => car.id === chosenCarId) ?? null;
+  const postingAs = requiredCarIdentity ? selectedGarageCarId : (postingCar?.id ?? "");
 
   function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -370,6 +384,88 @@ export function PostComposer({
           Posting in {lockedGroup.name} ·{" "}
           {lockedGroup.postPolicy === "moderated" ? "Posts may need approval" : "Group members"}
         </p>
+      )}
+      {user && profile && !requiredCarIdentity && (
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIdentityOpen((v) => !v)}
+            aria-expanded={identityOpen}
+            className="flex w-full items-center gap-2.5 rounded-lg bg-muted/60 px-2.5 py-2 text-left hover:bg-muted"
+          >
+            {postingCar ? (
+              <Avatar
+                photoUrl={postingCar.photo_url}
+                fallback={postingCar.nickname}
+                className="size-8"
+              />
+            ) : (
+              <Avatar
+                photoUrl={profile.avatar_url}
+                fallback={profile.username}
+                className="size-8"
+              />
+            )}
+            <span className="min-w-0 flex-1">
+              <span className="block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Posting as
+              </span>
+              <span className="block truncate text-sm font-semibold">
+                {postingCar
+                  ? `${postingCar.nickname} · ${postingCar.make} ${postingCar.model}`
+                  : `${profile.username.startsWith("@") ? profile.username : `@${profile.username}`} (you)`}
+              </span>
+            </span>
+            {myCars.length > 0 && (
+              <span className="flex items-center gap-0.5 text-xs font-semibold text-primary">
+                Change <ChevronDown className="size-3.5" />
+              </span>
+            )}
+          </button>
+          {identityOpen && myCars.length > 0 && (
+            <ul
+              role="listbox"
+              aria-label="Post as"
+              className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-lg border border-border bg-popover shadow-lg"
+            >
+              {[null, ...myCars].map((car) => {
+                const selected = (car?.id ?? null) === (postingCar?.id ?? null);
+                return (
+                  <li key={car?.id ?? "me"}>
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={selected}
+                      onClick={() => {
+                        setAsCarId(car?.id ?? null);
+                        setIdentityOpen(false);
+                      }}
+                      className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-accent ${selected ? "bg-accent/60 font-semibold" : ""}`}
+                    >
+                      {car ? (
+                        <Avatar
+                          photoUrl={car.photo_url}
+                          fallback={car.nickname}
+                          className="size-7"
+                        />
+                      ) : (
+                        <Avatar
+                          photoUrl={profile.avatar_url}
+                          fallback={profile.username}
+                          className="size-7"
+                        />
+                      )}
+                      <span className="min-w-0 flex-1 truncate">
+                        {car ? `${car.nickname} · ${car.make} ${car.model}` : "Yourself"}
+                      </span>
+                      {selected && <Check className="size-4 text-primary" />}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       )}
       {!lockedGroup && audience === "friends" && (
         <div className="flex items-center gap-2 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-900">

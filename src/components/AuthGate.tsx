@@ -26,6 +26,12 @@ const PUBLIC_PATHS: RegExp[] = [
   /^\/legal\/.+/,
   /^\/community-standards\/?$/,
   /^\/businesses(\/[^/]+)?\/?$/,
+  // Research, fixes, meets and the groups directory are useful to anyone and
+  // help people find RevMate on Google.
+  /^\/cars(\/.*)?$/,
+  /^\/issues\/?$/,
+  /^\/meets(\/[^/]+)?\/?$/,
+  /^\/groups\/?$/,
 ];
 
 // What people were trying to open, so the join screen can sell exactly that.

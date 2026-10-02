@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { DEFAULT_DESCRIPTION, seo, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
+import { absoluteUrl, DEFAULT_DESCRIPTION, seo, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
 import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Car, Plus } from "lucide-react";
@@ -35,6 +35,29 @@ export const Route = createFileRoute("/")({
       title: `${SITE_NAME} — ${SITE_TAGLINE}`,
       description: DEFAULT_DESCRIPTION,
       path: "/",
+      jsonLd: [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: SITE_NAME,
+          url: absoluteUrl("/"),
+          potentialAction: {
+            "@type": "SearchAction",
+            target: {
+              "@type": "EntryPoint",
+              urlTemplate: absoluteUrl("/search?q={search_term_string}"),
+            },
+            "query-input": "required name=search_term_string",
+          },
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: SITE_NAME,
+          url: absoluteUrl("/"),
+          logo: absoluteUrl("/og-default.png"),
+        },
+      ],
     }),
   component: Home,
 });
@@ -185,7 +208,7 @@ function Home() {
       <main className="min-w-0 flex-1">
         {homeMode === "essentials" ? (
           // iOS-style grouped background so the white cards stand out.
-          <div className="-mb-16 min-h-screen bg-[#f2f2f7] pb-20 dark:bg-black md:mb-0 md:pb-6">
+          <div className="min-h-screen bg-[#f2f2f7] pb-6 dark:bg-black">
             <div className="mx-auto max-w-2xl space-y-4 px-4 py-4 sm:py-6">
               <HomeModeSwitch />
               <EssentialsHome />

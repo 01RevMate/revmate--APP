@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { seo } from "@/lib/seo";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Lock, Plus, Users } from "lucide-react";
@@ -21,36 +22,21 @@ import { useGroupCoversFeature, useGroupRulesFeature } from "@/lib/features";
 import { GroupCoverBanner, GroupCoverPicker } from "@/components/GroupCover";
 
 export const Route = createFileRoute("/groups/")({
-  head: () => ({
-    meta: [
-      { title: "Groups — RevMate" },
-      {
-        name: "description",
-        content: "Find and create RevMate groups for makes, models and car communities.",
-      },
-      { property: "og:title", content: "Groups — RevMate" },
-      {
-        property: "og:description",
-        content: "Find and create RevMate groups for makes, models and car communities.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Car clubs & owners groups — RevMate",
+      description:
+        "Join UK car clubs and owners groups for your make and model: meets, mods, advice and banter.",
+      path: "/groups",
+    }),
   component: GroupsPage,
 });
 
 function GroupsPage() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate({ to: "/login", replace: true });
-    }
-  }, [loading, user, navigate]);
 
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("discover");

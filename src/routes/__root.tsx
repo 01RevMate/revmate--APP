@@ -16,6 +16,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TopNav } from "@/components/TopNav";
 import { BottomNav } from "@/components/BottomNav";
+import { SiteFooter } from "@/components/SiteFooter";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AuthModalProvider } from "@/hooks/useAuthModal";
 import { AuthPromptModal } from "@/components/AuthPromptModal";
@@ -180,6 +181,7 @@ function RootComponent() {
               <AuthGate>
                 <Outlet />
               </AuthGate>
+              <SiteFooter />
             </div>
             <BottomNav />
             <Toaster />

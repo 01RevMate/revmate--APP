@@ -1,14 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { absoluteUrl, pickShareImage } from "@/lib/seo";
+import { carPath } from "@/lib/cars";
 
-// Pages anyone can open without an account, plus every live listing (with
-// its photos, for Google Images). Signed-in-only pages are left out until
-// they're viewable signed out.
+// Pages anyone can open without an account: static pages, every live
+// listing (with photos, for Google Images), car research pages, upcoming
+// meets, businesses and adults' public profiles.
 const STATIC_PAGES: { path: string; changefreq: string; priority: string }[] = [
   { path: "/", changefreq: "hourly", priority: "1.0" },
   { path: "/marketplace", changefreq: "hourly", priority: "0.9" },
   { path: "/businesses", changefreq: "daily", priority: "0.7" },
+  { path: "/cars", changefreq: "weekly", priority: "0.8" },
+  { path: "/issues", changefreq: "daily", priority: "0.7" },
+  { path: "/meets", changefreq: "daily", priority: "0.7" },
+  { path: "/groups", changefreq: "daily", priority: "0.6" },
   { path: "/signup", changefreq: "monthly", priority: "0.5" },
   { path: "/community-standards", changefreq: "monthly", priority: "0.3" },
   { path: "/legal/terms", changefreq: "monthly", priority: "0.2" },
@@ -41,6 +46,21 @@ export const Route = createFileRoute("/sitemap.xml")({
           .eq("status", "active")
           .limit(5000);
 
+        // Every car research page (specs, common faults, for sale).
+        const { data: cars } = await supabase
+          .from("cars")
+          .select("make, model, generation, created_at")
+          .eq("status", "verified")
+          .limit(5000);
+
+        // Upcoming car meets (public events).
+        const { data: meets } = await supabase
+          .from("car_meets")
+          .select("id, created_at")
+          .is("cancelled_at", null)
+          .gte("starts_at", new Date(Date.now() - 86_400_000).toISOString())
+          .limit(2000);
+
         // Adults' public profiles (0055); skipped until that SQL has run.
         const { data: profiles } = await supabase.rpc("public_profile_handles", { max_rows: 5000 });
 
@@ -60,6 +80,14 @@ export const Route = createFileRoute("/sitemap.xml")({
               .join("");
             return `<url><loc>${escapeXml(absoluteUrl(`/marketplace/${listing.id}`))}</loc><lastmod>${listing.created_at.slice(0, 10)}</lastmod><changefreq>daily</changefreq><priority>0.8</priority>${images}</url>`;
           }),
+          ...(cars ?? []).map((car) => {
+            const { params } = carPath(car);
+            return `<url><loc>${escapeXml(absoluteUrl(`/cars/${params.make}/${params.model}/${params.generation}`))}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`;
+          }),
+          ...(meets ?? []).map(
+            (m) =>
+              `<url><loc>${escapeXml(absoluteUrl(`/meets/${m.id}`))}</loc><lastmod>${m.created_at.slice(0, 10)}</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>`,
+          ),
           ...(profiles ?? []).map(
             (p) =>
               `<url><loc>${escapeXml(absoluteUrl(`/u/${encodeURIComponent(p.username.replace(/^@/, ""))}`))}</loc><lastmod>${p.created_at.slice(0, 10)}</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>`,

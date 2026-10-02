@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { seo } from "@/lib/seo";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { carLabel, carPath, fetchCars, yearRange } from "@/lib/cars";
@@ -12,22 +13,13 @@ export const Route = createFileRoute("/cars/")({
     const raw = search["q"];
     return typeof raw === "string" && raw ? { q: raw } : {};
   },
-  head: () => ({
-    meta: [
-      { title: "Browse cars — RevMate" },
-      {
-        name: "description",
-        content: "Browse and search every car generation covered on RevMate.",
-      },
-      { property: "og:title", content: "Browse cars — RevMate" },
-      {
-        property: "og:description",
-        content: "Browse and search every car generation covered on RevMate.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Car specs & common faults by make and model — RevMate",
+      description:
+        "Research any car: specs, common faults and how owners fixed them, owner Q&A and cars for sale in the UK.",
+      path: "/cars",
+    }),
   component: BrowseCars,
 });
 

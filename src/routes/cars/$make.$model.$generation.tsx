@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { breadcrumbs, seo } from "@/lib/seo";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, ThumbsDown, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,20 +13,18 @@ import { CarLogo } from "@/components/CarLogo";
 export const Route = createFileRoute("/cars/$make/$model/$generation")({
   head: ({ params }) => {
     const pretty = [params.make, params.model, params.generation]
-      .map((p) => p.replace(/-/g, " "))
+      .map((p) => p.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()))
       .join(" ");
-    const title = `${pretty} — specs, faults & listings | RevMate`;
-    const description = `Specs, common faults, owner Q&A and listings for the ${pretty}.`;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-    };
+    const path = `/cars/${params.make}/${params.model}/${params.generation}`;
+    return seo({
+      title: `${pretty} — specs, common faults & for sale | RevMate`,
+      description: `${pretty}: specs, common faults and how owners fixed them, owner questions and cars for sale in the UK.`,
+      path,
+      jsonLd: breadcrumbs([
+        { name: "Cars", path: "/cars" },
+        { name: pretty, path },
+      ]),
+    });
   },
   component: CarPage,
 });
