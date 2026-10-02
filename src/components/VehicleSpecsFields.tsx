@@ -6,7 +6,10 @@ import {
   type ListingSpecs,
 } from "@/lib/vehicleSpecs";
 
-const input = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
+// Same height for text boxes, dropdowns and the date picker, and min-w-0 so
+// iPhone Safari's wide native date field can't spill into the next column.
+const input =
+  "block h-11 w-full min-w-0 max-w-full rounded-md border border-input bg-background px-3 text-sm";
 
 function num(value: string): number | null {
   if (value.trim() === "") return null;
@@ -29,7 +32,7 @@ function TriState({
   no?: string;
 }) {
   return (
-    <label className="block space-y-1.5">
+    <label className="block min-w-0 space-y-1.5">
       <span className="text-sm font-medium">{label}</span>
       <select
         value={value == null ? "" : value ? "yes" : "no"}
@@ -56,7 +59,7 @@ function Select({
   onChange: (value: string | null) => void;
 }) {
   return (
-    <label className="block space-y-1.5">
+    <label className="block min-w-0 space-y-1.5">
       <span className="text-sm font-medium">{label}</span>
       <select
         value={value ?? ""}
@@ -96,7 +99,7 @@ export function VehicleSpecsFields({
         accurate.
       </p>
       <div className="grid grid-cols-2 gap-3">
-        <label className="block space-y-1.5">
+        <label className="block min-w-0 space-y-1.5">
           <span className="text-sm font-medium">Year</span>
           <input
             type="number"
@@ -126,7 +129,7 @@ export function VehicleSpecsFields({
           options={TRANSMISSION_LABELS}
           onChange={(transmission) => set({ transmission })}
         />
-        <label className="block space-y-1.5">
+        <label className="block min-w-0 space-y-1.5">
           <span className="text-sm font-medium">Engine size (cc)</span>
           <input
             type="number"
@@ -139,7 +142,7 @@ export function VehicleSpecsFields({
             className={input}
           />
         </label>
-        <label className="block space-y-1.5">
+        <label className="block min-w-0 space-y-1.5">
           <span className="text-sm font-medium">Power (bhp)</span>
           <input
             type="number"
@@ -151,7 +154,7 @@ export function VehicleSpecsFields({
             className={input}
           />
         </label>
-        <label className="block space-y-1.5">
+        <label className="block min-w-0 space-y-1.5">
           <span className="text-sm font-medium">Colour</span>
           <input
             value={value.colour ?? ""}
@@ -160,7 +163,7 @@ export function VehicleSpecsFields({
             className={input}
           />
         </label>
-        <label className="block space-y-1.5">
+        <label className="block min-w-0 space-y-1.5">
           <span className="text-sm font-medium">Previous owners</span>
           <input
             type="number"
@@ -172,7 +175,7 @@ export function VehicleSpecsFields({
             className={input}
           />
         </label>
-        <label className="block space-y-1.5">
+        <label className="block min-w-0 space-y-1.5">
           <span className="text-sm font-medium">Doors</span>
           <input
             type="number"
@@ -184,7 +187,7 @@ export function VehicleSpecsFields({
             className={input}
           />
         </label>
-        <label className="block space-y-1.5">
+        <label className="block min-w-0 space-y-1.5">
           <span className="text-sm font-medium">Seats</span>
           <input
             type="number"
@@ -196,13 +199,13 @@ export function VehicleSpecsFields({
             className={input}
           />
         </label>
-        <label className="block space-y-1.5">
+        <label className="block min-w-0 space-y-1.5">
           <span className="text-sm font-medium">MOT expiry</span>
           <input
             type="date"
             value={value.mot_expiry ?? ""}
             onChange={(e) => set({ mot_expiry: e.target.value || null })}
-            className={input}
+            className={`${input} appearance-none text-left [&::-webkit-date-and-time-value]:text-left`}
           />
         </label>
         <Select
@@ -230,7 +233,7 @@ export function VehicleSpecsFields({
           no="Standard"
           onChange={(modified) => set({ modified })}
         />
-        <label className="block space-y-1.5">
+        <label className="block min-w-0 space-y-1.5">
           <span className="text-sm font-medium">Selling as</span>
           <select
             value={value.seller_type}

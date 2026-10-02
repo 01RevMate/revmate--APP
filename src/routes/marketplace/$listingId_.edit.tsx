@@ -17,6 +17,8 @@ import {
   type RunningCosts,
 } from "@/lib/marketDeals";
 import { VehicleSpecsFields } from "@/components/VehicleSpecsFields";
+import { AutoFilledNote } from "@/components/AutoFilledNote";
+import { fetchGarageFill, mergeEmpty } from "@/lib/garageAutofill";
 import { ListingPhotosEditor } from "@/components/ListingPhotosEditor";
 import {
   ListingQualityMeter,
@@ -71,6 +73,7 @@ function EditListingPage() {
   const [place, setPlace] = useState<PlaceFix | null>(null);
   const [openToOffers, setOpenToOffers] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [autoFilled, setAutoFilled] = useState(0);
 
   useEffect(() => {
     if (!listing || loaded) return;
@@ -95,6 +98,15 @@ function EditListingPage() {
       });
     }
     setLoaded(true);
+    // Top up any empty details from the car in the seller's garage.
+    if (listing.type === "car" && listing.garage_car_id) {
+      const initial = pick(row, EMPTY_SPECS);
+      void fetchGarageFill(listing.garage_car_id).then((fill) => {
+        setSpecs((current) => mergeEmpty(current, fill.specs).next);
+        setAutoFilled(mergeEmpty(initial, fill.specs).added.length);
+        if (fill.mileage != null) setMileage((m) => m || String(fill.mileage));
+      });
+    }
   }, [listing, loaded]);
 
   if (isLoading)
@@ -259,6 +271,7 @@ function EditListingPage() {
         </label>
 
         {!isCar && upgrade && <PartDetailsFields value={details} onChange={setDetails} />}
+        {isCar && detailsOn && autoFilled > 0 && <AutoFilledNote count={autoFilled} />}
         {isCar && detailsOn && <VehicleSpecsFields value={specs} onChange={setSpecs} />}
         {isCar && upgrade && <RunningCostFields value={costs} onChange={setCosts} />}
 

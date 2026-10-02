@@ -40,6 +40,8 @@ import {
   RunningCostFields,
 } from "@/components/SellExtras";
 import { useMyPlace } from "@/lib/myArea";
+import { fetchGarageFill, mergeEmpty } from "@/lib/garageAutofill";
+import { AutoFilledNote } from "@/components/AutoFilledNote";
 
 /** Starts the advert's location from the member's private area (they can change it). */
 function usePrefillPlace(
@@ -234,6 +236,7 @@ function SellCarForm({
   const detailsOn = useListingDetailsFeature();
   const [specs, setSpecs] = useState<ListingSpecs>(EMPTY_SPECS);
   const [pushToFeed, setPushToFeed] = useState(true);
+  const [autoFilled, setAutoFilled] = useState(0);
   const upgrade = useMarketUpgradeFeature();
   const [place, setPlace] = useState<PlaceFix | null>(null);
   usePrefillPlace(place, setPlace, area, setArea);
@@ -251,8 +254,9 @@ function SellCarForm({
     setGarageCarId(id);
     const car = cars?.find((c) => c.id === id);
     if (car?.mileage != null) setMileage(String(car.mileage));
-    // Start the spec sheet from what the garage already knows.
-    setSpecs({
+    // Start the spec sheet from what the garage already knows, then top it
+    // up from the catalogue and mods (empty fields only).
+    const base: ListingSpecs = {
       ...EMPTY_SPECS,
       make: car?.make ?? null,
       model: car?.model ?? null,
@@ -261,6 +265,14 @@ function SellCarForm({
       transmission: car?.transmission ?? null,
       colour: car?.color ? car.color.slice(0, 30) : null,
       power_bhp: car?.horsepower ?? null,
+    };
+    setSpecs(base);
+    setAutoFilled(0);
+    void fetchGarageFill(id).then((fill) => {
+      setSpecs((current) => mergeEmpty(current, fill.specs).next);
+      const merged = mergeEmpty(base, fill.specs).next;
+      setAutoFilled(Object.values(merged).filter((v) => v !== null && v !== "").length);
+      if (fill.mileage != null) setMileage((m) => m || String(fill.mileage));
     });
     setSelectedPhotos(car?.photo_url ? [car.photo_url] : []);
     setUploadedPhotos([]);
@@ -502,6 +514,7 @@ function SellCarForm({
             </Field>
           </div>
 
+          {detailsOn && autoFilled > 0 && <AutoFilledNote count={autoFilled} />}
           {detailsOn && <VehicleSpecsFields value={specs} onChange={setSpecs} />}
           {upgrade && <RunningCostFields value={costs} onChange={setCosts} />}
 
