@@ -39,6 +39,7 @@ export const RELEASES: Release[] = [
       "Vehicle details boxes no longer overlap on iPhone, and all the boxes are the same height",
       'Date and time boxes no longer overlap anywhere on iPhone; on Post a meet the end time is now an optional "+ Add end time" button instead of showing the current time',
       "The Track day meet cover now has the chequered finish line across the track",
+      'The "to compare" bar on Buy & Sell now sits above the bottom bar on iPhone instead of being cut off, and no longer covers the last listings',
     ],
   },
   {

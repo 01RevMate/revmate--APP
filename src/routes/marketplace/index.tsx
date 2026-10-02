@@ -582,7 +582,6 @@ function MarketplacePage() {
           />
         </>
       )}
-      <CompareBar />
 
       {bannerPartner && <PartnerBanner partner={bannerPartner} />}
 
@@ -686,6 +685,7 @@ function MarketplacePage() {
           </li>
         )}
       </ul>
+      <CompareBar />
     </div>
   );
 }

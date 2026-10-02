@@ -287,29 +287,37 @@ export function CompareBar() {
   const [ids, setIds] = useCompareList();
   if (ids.length === 0) return null;
   return (
-    <div className="fixed inset-x-3 bottom-20 z-30 mx-auto flex max-w-md items-center gap-2 rounded-full border border-border bg-card p-1.5 pl-4 shadow-lg md:bottom-6">
-      <GitCompareArrows className="size-4 shrink-0 text-primary" />
-      <span className="flex-1 text-sm font-semibold">
-        {ids.length} to compare
-        {ids.length < 2 && (
-          <span className="font-normal text-muted-foreground"> · add one more</span>
-        )}
-      </span>
-      <button
-        type="button"
-        aria-label="Clear compare"
-        onClick={() => setIds([])}
-        className="rounded-full p-2 text-muted-foreground hover:bg-accent"
+    <>
+      {/* Room at the end of the page so the bar never hides the last listings. */}
+      <div aria-hidden className="h-20" />
+      <div
+        className="fixed inset-x-3 z-30 mx-auto flex max-w-md items-center gap-2 rounded-full border border-border bg-card p-1.5 pl-4 shadow-lg md:!bottom-6"
+        // Sits above the bottom nav, which is taller on iPhones (home bar area).
+        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 5.25rem)" }}
       >
-        <X className="size-4" />
-      </button>
-      <Link
-        to="/marketplace/compare"
-        className={`rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground ${ids.length < 2 ? "pointer-events-none opacity-50" : ""}`}
-      >
-        Compare
-      </Link>
-    </div>
+        <GitCompareArrows className="size-4 shrink-0 text-primary" />
+        <span className="flex-1 text-sm font-semibold">
+          {ids.length} to compare
+          {ids.length < 2 && (
+            <span className="font-normal text-muted-foreground"> · add one more</span>
+          )}
+        </span>
+        <button
+          type="button"
+          aria-label="Clear compare"
+          onClick={() => setIds([])}
+          className="rounded-full p-2 text-muted-foreground hover:bg-accent"
+        >
+          <X className="size-4" />
+        </button>
+        <Link
+          to="/marketplace/compare"
+          className={`rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground ${ids.length < 2 ? "pointer-events-none opacity-50" : ""}`}
+        >
+          Compare
+        </Link>
+      </div>
+    </>
   );
 }
 
