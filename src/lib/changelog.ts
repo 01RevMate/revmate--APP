@@ -39,6 +39,7 @@ export const RELEASES: Release[] = [
       "Vehicle details boxes no longer overlap on iPhone, and all the boxes are the same height",
       'Date and time boxes no longer overlap anywhere on iPhone; on Post a meet the end time is now an optional "+ Add end time" button instead of showing the current time',
       "The Track day meet cover now has the chequered finish line across the track",
+      "Advert prices now look like a dealer's windscreen price board: tall, bold number cards in a holder that flip into place one by one",
       "Essentials has a cleaner, iPhone-style design: your cars up top with big MOT and tax countdowns, four big tool tiles (Fix a problem, Find a mechanic, Sell, Ask for help) and simple grouped lists for everything else, with nothing social",
       "Buy & Sell: All / Cars / Parts is now a big switch that's easy to tap, and the filter buttons are bigger",
       'The "to compare" bar on Buy & Sell now sits above the bottom bar on iPhone instead of being cut off, and no longer covers the last listings',

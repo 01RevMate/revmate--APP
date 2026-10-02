@@ -272,3 +272,31 @@ input[type="time"]::-webkit-date-and-time-value,
 input[type="datetime-local"]::-webkit-date-and-time-value {
   text-align: left;
 }
+
+/* Listing price board: each number card flips down into place in turn. */
+@keyframes price-card-flip {
+  0% {
+    transform: rotateX(-95deg);
+    opacity: 0;
+  }
+  60% {
+    transform: rotateX(12deg);
+    opacity: 1;
+  }
+  80% {
+    transform: rotateX(-5deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+.price-card {
+  transform-origin: top center;
+  animation: price-card-flip 0.6s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  backface-visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .price-card {
+    animation: none;
+  }
+}

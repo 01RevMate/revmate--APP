@@ -81,22 +81,39 @@ export const Route = createFileRoute("/marketplace/$listingId")({
   component: ListingDetailPage,
 });
 
-/** Dealer forecourt "flip sign" price — each character gets its own tile. */
+/**
+ * Dealer windscreen price board: tall white number cards slotted into a dark
+ * holder, flipping down one after another when the advert opens.
+ */
 function PriceTiles({ price }: { price: number | string | null | undefined }) {
-  if (price == null) {
-    return <p className="text-4xl font-extrabold tracking-tight">POA</p>;
-  }
-  const chars = Array.from(
-    `£${Number(price).toLocaleString("en-GB", { maximumFractionDigits: 0 })}`.replace(/,/g, ""),
-  );
+  const chars =
+    price == null
+      ? Array.from("POA")
+      : Array.from(
+          `£${Number(price).toLocaleString("en-GB", { maximumFractionDigits: 0 })}`.replace(
+            /,/g,
+            "",
+          ),
+        );
   return (
-    <div className="flex gap-0.5">
+    <div
+      aria-label={
+        price == null ? "Price on application" : `Price £${Number(price).toLocaleString("en-GB")}`
+      }
+      className="inline-flex gap-1 rounded-xl bg-gradient-to-b from-neutral-700 to-neutral-900 p-1.5 shadow-[0_6px_14px_rgba(0,0,0,0.35)] [perspective:600px] sm:gap-1.5 sm:p-2"
+    >
       {chars.map((char, index) => (
         <span
-          key={index}
-          className="flex h-12 w-7 items-center justify-center rounded-sm border border-neutral-800 bg-white text-xl font-extrabold text-neutral-900 shadow-[0_2px_3px_rgba(0,0,0,0.25)] sm:h-14 sm:w-8 sm:text-2xl"
+          key={`${index}-${char}`}
+          aria-hidden
+          style={{ animationDelay: `${index * 90}ms` }}
+          className="price-card relative flex h-[4.75rem] w-11 items-center justify-center overflow-hidden rounded-md bg-gradient-to-b from-white via-white to-neutral-200 text-neutral-950 shadow-[inset_0_-2px_0_rgba(0,0,0,0.12),0_1px_2px_rgba(0,0,0,0.4)] sm:h-24 sm:w-14"
         >
-          {char}
+          <span className="inline-block origin-center scale-y-[1.3] text-[2.6rem] font-black leading-none tracking-tighter sm:text-[3.2rem]">
+            {char}
+          </span>
+          {/* the split across the middle of a flip card */}
+          <span className="absolute inset-x-0 top-1/2 h-px bg-black/15" />
         </span>
       ))}
     </div>
@@ -424,8 +441,8 @@ function ListingDetailPage() {
             </p>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg border-2 border-border bg-white px-5 py-3 text-right shadow-md dark:bg-neutral-900">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="text-right">
             <PriceTiles price={listing.price} />
             {hasRecentPriceDrop(listing) && (
               <p className="mt-1 text-sm">
