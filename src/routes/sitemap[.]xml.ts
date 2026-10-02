@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { absoluteUrl, pickShareImage } from "@/lib/seo";
 import { carPath } from "@/lib/cars";
+import { looseRpc } from "@/lib/publicProfiles";
 
 // Pages anyone can open without an account: static pages, every live
 // listing (with photos, for Google Images), car research pages, upcoming
@@ -62,7 +63,8 @@ export const Route = createFileRoute("/sitemap.xml")({
           .limit(2000);
 
         // Adults' public profiles (0055); skipped until that SQL has run.
-        const { data: profiles } = await supabase.rpc("public_profile_handles", { max_rows: 5000 });
+        const { data: profileRows } = await looseRpc("public_profile_handles", { max_rows: 5000 });
+        const profiles = profileRows as { username: string; created_at: string }[] | null;
 
         const urls = [
           ...STATIC_PAGES.map(
