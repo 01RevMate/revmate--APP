@@ -31,10 +31,12 @@ export const RELEASES: Release[] = [
     highlights: [
       "Edit your adverts any time: title, headline, price, mileage, photos (and which one is the cover), description, car details, running costs, part details, location and offers",
       "Quicker to list: a car needs just one photo, and price (or POA) and mileage are optional; parts only need a title",
+      "Selling a car from your garage fills in as much as it can for you: engine size, fuel, gearbox, colour, power, body style, doors, MOT date, mileage and whether it's modified (from your logged mods)",
       'Advert strength: a score with tips shows sellers what to add, and stronger adverts rank higher in the new "Best match" order on Buy & Sell',
     ],
     fixes: [
       "Compare now shows every car's photo at the same size, whatever shape the original photos are",
+      "Vehicle details boxes no longer overlap on iPhone, and all the boxes are the same height",
     ],
   },
   {
