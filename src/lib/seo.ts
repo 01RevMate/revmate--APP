@@ -1,5 +1,5 @@
 import { createIsomorphicFn } from "@tanstack/react-start";
-import { getRequestUrl } from "@tanstack/react-start/server";
+import { PRIMARY_ORIGIN } from "@/lib/siteDomains";
 
 // Search and link-preview tags for every page. Link previews (WhatsApp,
 // iMessage, Facebook, X, Discord…) and Google read these from the
@@ -13,19 +13,12 @@ export const DEFAULT_DESCRIPTION =
 /** 1200×630 share card used when a page has no photo of its own. */
 export const DEFAULT_SHARE_IMAGE = "/og-default.png";
 
-/**
- * The public address of the site. Set VITE_SITE_URL (e.g.
- * https://revmate.app) so canonical links always point at the main domain;
- * otherwise the address the page was requested on is used.
- */
-export const getSiteOrigin = createIsomorphicFn()
-  .server(() => configuredOrigin() ?? getRequestUrl({ xForwardedHost: true }).origin)
-  .client(() => configuredOrigin() ?? window.location.origin);
+export { PRIMARY_HOST, PRIMARY_ORIGIN } from "@/lib/siteDomains";
 
-function configuredOrigin(): string | null {
-  const value = import.meta.env["VITE_SITE_URL"] as string | undefined;
-  return value ? value.replace(/\/+$/, "") : null;
-}
+/** Canonical links, the sitemap and share links always use the main domain. */
+export const getSiteOrigin = createIsomorphicFn()
+  .server(() => PRIMARY_ORIGIN)
+  .client(() => PRIMARY_ORIGIN);
 
 export function absoluteUrl(pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;

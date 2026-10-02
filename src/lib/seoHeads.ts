@@ -59,8 +59,9 @@ export function postHead(postId: string, post: Loaded<typeof fetchPostSeo>) {
 }
 
 export function profileHead(username: string, profile: Loaded<typeof fetchProfileSeo>) {
-  const handle = displayUsername(username);
-  const path = `/u/${displayUsernameWithoutAt(username)}`;
+  // Canonical address uses the member's real handle, however the link was typed.
+  const handle = displayUsername(profile?.username ?? username);
+  const path = `/u/${displayUsernameWithoutAt(profile?.username ?? username)}`;
   if (!profile) {
     return seo({
       title: `${handle} — RevMate`,
@@ -81,15 +82,17 @@ export function profileHead(username: string, profile: Loaded<typeof fetchProfil
     path,
     image: pickShareImage(profile.cars[0]?.photo_url, profile.cover_photo_url, profile.avatar_url),
     type: "profile",
-    noindex: !indexable(path),
-    extraMeta: [{ property: "profile:username", content: displayUsernameWithoutAt(username) }],
+    noindex: !profile.isPublic,
+    extraMeta: [
+      { property: "profile:username", content: displayUsernameWithoutAt(profile.username) },
+    ],
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "ProfilePage",
       mainEntity: {
         "@type": "Person",
         name: handle,
-        alternateName: displayUsernameWithoutAt(username),
+        alternateName: displayUsernameWithoutAt(profile.username),
         ...(profile.bio ? { description: profile.bio } : {}),
         ...(profile.avatar_url ? { image: profile.avatar_url } : {}),
         url: absoluteUrl(path),
@@ -103,8 +106,8 @@ export function garageCarHead(
   carId: string,
   car: Loaded<typeof fetchGarageCarSeo>,
 ) {
-  const handle = displayUsername(username);
-  const path = `/u/${displayUsernameWithoutAt(username)}/cars/${carId}`;
+  const handle = displayUsername(car?.ownerUsername ?? username);
+  const path = `/u/${displayUsernameWithoutAt(car?.ownerUsername ?? username)}/cars/${carId}`;
   if (!car) {
     return seo({
       title: `${handle}'s car — RevMate`,
@@ -131,7 +134,7 @@ export function garageCarHead(
     path,
     image: pickShareImage(car.photo_url),
     imageAlt: name,
-    noindex: !indexable(path),
+    noindex: !car.isPublic,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "Car",

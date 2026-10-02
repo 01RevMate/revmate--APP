@@ -11,6 +11,17 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
+### Public profile pages (quick)
+
+- File: `drizzle/migrations/0055_public_profiles.sql` (`sql-to-run/19_public_profiles.sql`).
+- Added: 2026-10-02
+- Needed by: profile and garage-car pages opening for signed-out visitors
+  and appearing in Google (adults only), and profiles in the sitemap. Until
+  it runs, profiles stay signed-in only, exactly as before.
+- Adds `public.public_profile(text)` and `public.public_profile_handles(int)`
+  (both only return active members aged 18+ with a known date of birth) and
+  a case-insensitive username index. Doesn't change any data.
+
 ### 1. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).

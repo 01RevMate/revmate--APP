@@ -8,6 +8,20 @@ notifications setup.
 
 ---
 
+## ⭐ Prompt A — public profile pages
+
+```
+Please run sql-to-run/19_public_profiles.sql on the connected Supabase
+database, exactly as committed (a copy of
+drizzle/migrations/0055_public_profiles.sql, safe to re-run). It adds the
+functions public.public_profile(text) and public.public_profile_handles(int)
+(granted to anon and authenticated) and an index on profiles. It doesn't
+change any data. Then regenerate the Supabase TypeScript types and confirm
+the app builds.
+```
+
+---
+
 ## Prompt 1 — phone push notifications (optional)
 
 ```

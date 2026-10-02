@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { fetchPublicProfile } from "@/lib/publicProfiles";
 import { usernameLookupCandidates } from "@/lib/usernames";
 
 // Small, fast lookups used only to build search and link-preview tags in
@@ -94,12 +95,17 @@ export function fetchPostSeo(id: string) {
 
 export function fetchProfileSeo(username: string) {
   return safely(async () => {
-    const { data } = await supabase
+    const visibility = await fetchPublicProfile(username);
+    // Not public (e.g. under 18): no preview, not in Google.
+    if (visibility.status === "private") return null;
+    let query = supabase
       .from("profiles")
-      .select("user_id, username, bio, avatar_url, cover_photo_url, verified_type")
-      .in("username", usernameLookupCandidates(username))
-      .limit(1)
-      .maybeSingle();
+      .select("user_id, username, bio, avatar_url, cover_photo_url, verified_type");
+    query =
+      visibility.status === "public"
+        ? query.eq("user_id", visibility.userId)
+        : query.in("username", usernameLookupCandidates(username));
+    const { data } = await query.limit(1).maybeSingle();
     if (!data) return null;
     const { data: cars } = await supabase
       .from("garage_cars")
@@ -107,18 +113,28 @@ export function fetchProfileSeo(username: string) {
       .eq("user_id", data.user_id)
       .eq("ownership_status", "current")
       .limit(5);
-    return { ...data, cars: cars ?? [] };
+    return { ...data, cars: cars ?? [], isPublic: visibility.status === "public" };
   });
 }
 
-export function fetchGarageCarSeo(id: string) {
+export function fetchGarageCarSeo(id: string, username: string) {
   return safely(async () => {
+    const visibility = await fetchPublicProfile(username);
+    if (visibility.status === "private") return null;
     const { data } = await supabase
       .from("garage_cars")
-      .select("id, nickname, make, model, year, generation, spec, bio, photo_url, horsepower")
+      .select(
+        "id, user_id, nickname, make, model, year, generation, spec, bio, photo_url, horsepower",
+      )
       .eq("id", id)
       .maybeSingle();
-    return data;
+    if (!data) return null;
+    if (visibility.status === "public" && data.user_id !== visibility.userId) return null;
+    return {
+      ...data,
+      isPublic: visibility.status === "public",
+      ownerUsername: visibility.status === "public" ? visibility.username : username,
+    };
   });
 }
 

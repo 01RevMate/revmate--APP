@@ -8,6 +8,7 @@ been run live in `applied/` for reference.
 |---|------|--------------|--------|
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
+| 19 | `19_public_profiles.sql` | Adults' profiles and garages viewable signed out and in Google; under-18s stay private | Needed — quick, no setup |
 
 Already applied (in `applied/`): 1–4 on 27 Sep 2026, 5–12 on 28 Sep 2026,
 and 15–18 on 1 Oct 2026.
@@ -32,4 +33,5 @@ File 15 is a copy of `drizzle/migrations/0047_live_messages.sql` with a short he
 File 16 is a copy of `drizzle/migrations/0048_diagnostics_audio_category.sql` with a short header added.
 File 18 is a copy of `drizzle/migrations/0052_group_covers_and_socials.sql` with a short header added.
 File 17 is a copy of `drizzle/migrations/0051_marketplace_upgrade.sql` with a short header added.
+File 19 is a copy of `drizzle/migrations/0055_public_profiles.sql` with a short header added.
 File 13 is a copy of `drizzle/migrations/0032_push_notifications.sql` with a short header added.

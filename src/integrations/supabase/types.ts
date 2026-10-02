@@ -3705,6 +3705,14 @@ export type Database = {
           longest_streak: number
         }[]
       }
+      public_profile: {
+        Args: { target_username: string }
+        Returns: { user_id: string; username: string }[]
+      }
+      public_profile_handles: {
+        Args: { max_rows?: number }
+        Returns: { created_at: string; username: string }[]
+      }
       record_listing_view: {
         Args: { target_listing: string }
         Returns: undefined

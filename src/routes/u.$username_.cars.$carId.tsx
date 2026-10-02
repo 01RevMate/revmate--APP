@@ -16,7 +16,7 @@ import { BuildTimeline } from "@/components/BuildTimeline";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
 export const Route = createFileRoute("/u/$username_/cars/$carId")({
-  loader: ({ params }) => fetchGarageCarSeo(params.carId),
+  loader: ({ params }) => fetchGarageCarSeo(params.carId, params.username),
   head: ({ params, loaderData }) =>
     garageCarHead(params.username, params.carId, loaderData ?? null),
   component: CarProfilePage,

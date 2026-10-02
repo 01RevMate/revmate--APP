@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchPublicProfile, PROFILE_PAGE } from "@/lib/publicProfiles";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   BadgePoundSterling,
@@ -100,6 +102,36 @@ export function AuthGate({ children }: { children: ReactNode }) {
   if (user || isPublicPath(pathname)) return <>{children}</>;
   // Don't flash the join screen at people who are signed in while we check.
   if (loading) return <div className="min-h-[60vh]" />;
+  const profileMatch = PROFILE_PAGE.exec(pathname);
+  if (profileMatch) {
+    return (
+      <PublicProfileGate username={profileMatch[1]!} pathname={pathname} href={href}>
+        {children}
+      </PublicProfileGate>
+    );
+  }
+  return <JoinWall pathname={pathname} redirect={safeRedirect(href)} />;
+}
+
+/** Adults' profiles and cars are public; everyone else's need an account. */
+function PublicProfileGate({
+  username,
+  pathname,
+  href,
+  children,
+}: {
+  username: string;
+  pathname: string;
+  href: string;
+  children: ReactNode;
+}) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["public-profile", username.toLowerCase()],
+    queryFn: () => fetchPublicProfile(username),
+    staleTime: 5 * 60_000,
+  });
+  if (isLoading) return <div className="min-h-[60vh]" />;
+  if (data?.status === "public") return <>{children}</>;
   return <JoinWall pathname={pathname} redirect={safeRedirect(href)} />;
 }
 

@@ -1,4 +1,5 @@
 import "./lib/error-capture";
+import { canonicalRedirect } from "./lib/siteDomains";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
@@ -72,6 +73,14 @@ function withSecurityHeaders(response: Response): Response {
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    // One address for Google and share links: other RevMate domains forward
+    // to the main one, keeping the page path (e.g. /u/jorderz).
+    const redirectTo = canonicalRedirect(request.url);
+    if (redirectTo) {
+      return withSecurityHeaders(
+        new Response(null, { status: 301, headers: { Location: redirectTo } }),
+      );
+    }
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

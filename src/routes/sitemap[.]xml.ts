@@ -41,6 +41,9 @@ export const Route = createFileRoute("/sitemap.xml")({
           .eq("status", "active")
           .limit(5000);
 
+        // Adults' public profiles (0055); skipped until that SQL has run.
+        const { data: profiles } = await supabase.rpc("public_profile_handles", { max_rows: 5000 });
+
         const urls = [
           ...STATIC_PAGES.map(
             (page) =>
@@ -57,6 +60,10 @@ export const Route = createFileRoute("/sitemap.xml")({
               .join("");
             return `<url><loc>${escapeXml(absoluteUrl(`/marketplace/${listing.id}`))}</loc><lastmod>${listing.created_at.slice(0, 10)}</lastmod><changefreq>daily</changefreq><priority>0.8</priority>${images}</url>`;
           }),
+          ...(profiles ?? []).map(
+            (p) =>
+              `<url><loc>${escapeXml(absoluteUrl(`/u/${encodeURIComponent(p.username.replace(/^@/, ""))}`))}</loc><lastmod>${p.created_at.slice(0, 10)}</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>`,
+          ),
           ...(businesses ?? []).map(
             (b) =>
               `<url><loc>${escapeXml(absoluteUrl(`/businesses/${b.id}`))}</loc><lastmod>${b.created_at.slice(0, 10)}</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>`,

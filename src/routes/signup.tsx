@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { PRIMARY_HOST } from "@/lib/siteDomains";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Check, Eye, EyeOff, ShieldCheck } from "lucide-react";
@@ -299,7 +300,7 @@ function SignupPage() {
             />
             {handle.length > 1 && (
               <span className="block text-xs text-muted-foreground">
-                Your profile: revmate.app/u/{handle.slice(1)}
+                Your profile: {PRIMARY_HOST}/u/{handle.slice(1)}
               </span>
             )}
           </label>

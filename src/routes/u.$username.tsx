@@ -299,12 +299,14 @@ function GarageProfilePage() {
                     Follow
                   </button>
                 ))}
-              <button
-                onClick={toggleBlock}
-                className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-accent ${block ? "border-destructive/40 text-destructive" : "border-input"}`}
-              >
-                <UserX className="size-3.5" /> {block ? "Unblock" : "Block"}
-              </button>
+              {user && (
+                <button
+                  onClick={toggleBlock}
+                  className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-accent ${block ? "border-destructive/40 text-destructive" : "border-input"}`}
+                >
+                  <UserX className="size-3.5" /> {block ? "Unblock" : "Block"}
+                </button>
+              )}
             </div>
           )}
         </div>

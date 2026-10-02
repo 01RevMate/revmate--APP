@@ -15,7 +15,17 @@ export async function fetchProfileByUsername(username: string): Promise<Profile 
     .limit(1)
     .maybeSingle();
   if (error) throw error;
-  return data;
+  if (data) return data;
+  // Links shouldn't care about capitals: /u/jorderz finds @Jorderz.
+  const handle = normalizeUsername(username).replace(/[\\%_]/g, (c) => `\\${c}`);
+  const { data: anyCase, error: caseError } = await supabase
+    .from("profiles")
+    .select("*")
+    .ilike("username", handle)
+    .limit(1)
+    .maybeSingle();
+  if (caseError) throw caseError;
+  return anyCase;
 }
 
 export async function updateProfile(

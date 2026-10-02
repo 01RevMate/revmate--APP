@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { PRIMARY_HOST } from "@/lib/siteDomains";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -195,7 +196,8 @@ function SettingsPage() {
           </button>
         </form>
         <p className="mt-1 text-xs text-muted-foreground">
-          This is also your public profile URL: revmate.app/u/{normalizeUsername(username) || "…"}
+          This is also your public profile URL: {PRIMARY_HOST}/u/
+          {normalizeUsername(username).replace(/^@/, "") || "…"}
         </p>
       </Section>
 

@@ -144,10 +144,12 @@ function PrivacyPage() {
         <h2>4. What other people can see</h2>
         <p>
           Your username, profile photo, bio, garage, public posts, comments, reactions, follower
-          counts and active listings are visible to other members, and some public pages (such as
-          listings and link previews of shared posts) can be seen by people who aren't signed in and
-          by search engines. Followers-only posts, private groups and messages are not public. Never
-          put your phone number, address or bank details in a public post or listing.
+          counts and active listings are visible to other members. Listings, link previews of shared
+          posts, and the profiles and garages of members aged 18 or over can also be seen by people
+          who aren't signed in and by search engines such as Google. Profiles of members under 18
+          are never shown to people who aren't signed in or to search engines. Followers-only posts,
+          private groups and messages are not public. Never put your phone number, address or bank
+          details in a public post or listing.
         </p>
       </section>
 
