@@ -184,9 +184,12 @@ function Home() {
       <Sidebar />
       <main className="min-w-0 flex-1">
         {homeMode === "essentials" ? (
-          <div className="mx-auto max-w-2xl space-y-4 px-3 py-4 sm:px-4 sm:py-6">
-            <HomeModeSwitch />
-            <EssentialsHome />
+          // iOS-style grouped background so the white cards stand out.
+          <div className="-mb-16 min-h-screen bg-[#f2f2f7] pb-20 dark:bg-black md:mb-0 md:pb-6">
+            <div className="mx-auto max-w-2xl space-y-4 px-4 py-4 sm:py-6">
+              <HomeModeSwitch />
+              <EssentialsHome />
+            </div>
           </div>
         ) : (
           <PullToRefresh onRefresh={refreshFeed}>
