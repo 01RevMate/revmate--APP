@@ -47,9 +47,11 @@ export type ListingDetail = Listing & {
   profiles: { username: string; avatar_url: string | null } | null;
 };
 
-// A car-for-sale listing needs enough photos to actually sell it — mirrors
-// what buyers expect from a Facebook Marketplace / AutoTrader listing.
-export const MIN_CAR_LISTING_PHOTOS = 5;
+// Only one photo is required, so listing is quick. More photos (and more
+// detail generally) raise the advert strength, which ranks it higher in
+// Buy & Sell — see advertStrength() in marketDeals.ts.
+export const MIN_CAR_LISTING_PHOTOS = 1;
+export const RECOMMENDED_CAR_LISTING_PHOTOS = 8;
 export const MAX_CAR_LISTING_PHOTOS = 15;
 
 export type ListingEndReason = "sold_revmate" | "sold_elsewhere" | "withdrawn" | "other";
@@ -180,6 +182,30 @@ export async function createListing(input: {
     .single();
   if (error) throw error;
   return data.id;
+}
+
+/** The seller edits their own advert (RLS: only the owner can update it). */
+export async function updateListing(
+  listingId: string,
+  userId: string,
+  patch: Partial<
+    Pick<
+      Listing,
+      "title" | "headline" | "description" | "price" | "mileage" | "photos" | "location_area"
+    >
+  > &
+    Partial<ListingSpecs> &
+    ListingExtras,
+) {
+  const { data, error } = await supabase
+    .from("listings")
+    .update(patch)
+    .eq("id", listingId)
+    .eq("user_id", userId)
+    .select("id")
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("This advert could not be updated.");
 }
 
 export async function endListing(input: {

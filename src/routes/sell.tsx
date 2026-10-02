@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useMarketplaceFeatures } from "@/lib/marketplace";
-import { Car, Loader2, Package, Upload, X } from "lucide-react";
+import { Car, Loader2, Package, Sparkles, Upload, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { VehicleSpecsFields } from "@/components/VehicleSpecsFields";
 import { EMPTY_SPECS, useListingDetailsFeature, type ListingSpecs } from "@/lib/vehicleSpecs";
@@ -19,6 +19,7 @@ import {
   fetchMySellableGarageCars,
   MAX_CAR_LISTING_PHOTOS,
   MIN_CAR_LISTING_PHOTOS,
+  RECOMMENDED_CAR_LISTING_PHOTOS,
 } from "@/lib/listings";
 import { createPost, attachImagesToPost } from "@/lib/posts";
 import { uploadImage, validateImageFile } from "@/lib/uploads";
@@ -326,16 +327,8 @@ function SellCarForm({
       toast.error("Pick a car from your garage first.");
       return;
     }
-    if (!price) {
-      toast.error("Set a price.");
-      return;
-    }
-    if (!mileage) {
-      toast.error("Confirm the mileage.");
-      return;
-    }
     if (allPhotos.length < MIN_CAR_LISTING_PHOTOS) {
-      toast.error(`Add at least ${MIN_CAR_LISTING_PHOTOS} photos — ${allPhotos.length} so far.`);
+      toast.error("Add at least one photo.");
       return;
     }
     if (allPhotos.length > MAX_CAR_LISTING_PHOTOS) {
@@ -353,8 +346,8 @@ function SellCarForm({
         type: "car",
         title: `${selectedCar.make} ${selectedCar.model}${selectedCar.generation ? ` (${selectedCar.generation})` : ""}`,
         description,
-        price: Number(price),
-        mileage: Number(mileage),
+        price: price ? Number(price) : null,
+        mileage: mileage ? Number(mileage) : null,
         photos: allPhotos,
         headline: headline.trim() || null,
         locationArea: market ? area : null,
@@ -373,7 +366,9 @@ function SellCarForm({
         try {
           const postId = await createPost({
             userId,
-            body: description || `${selectedCar.nickname} is up for sale — £${price}`,
+            body:
+              description ||
+              `${selectedCar.nickname} is up for sale${price ? ` — £${Number(price).toLocaleString("en-GB")}` : ""}`,
             carId: selectedCar.car_id || undefined,
             postedAsGarageCarId: selectedCar.id,
             category: "for_sale",
@@ -400,6 +395,7 @@ function SellCarForm({
         ← Back
       </button>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight">Sell a car from your garage</h1>
+      <EasyListingNote required="your car and one photo are" />
 
       {isLoading && <p className="mt-4 text-sm text-muted-foreground">Loading your garage…</p>}
       {!isLoading && cars?.length === 0 && (
@@ -484,27 +480,27 @@ function SellCarForm({
           )}
           {market && <AreaField value={area} onChange={setArea} />}
 
-          <Field label="Price (£)">
-            <input
-              type="number"
-              min="0"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              required
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            />
-          </Field>
-
-          <Field label="Confirm mileage">
-            <input
-              type="number"
-              min="0"
-              value={mileage}
-              onChange={(e) => setMileage(e.target.value)}
-              required
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            />
-          </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Price (£)">
+              <input
+                type="number"
+                min="0"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="Blank = POA"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+            </Field>
+            <Field label="Mileage">
+              <input
+                type="number"
+                min="0"
+                value={mileage}
+                onChange={(e) => setMileage(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+            </Field>
+          </div>
 
           {detailsOn && <VehicleSpecsFields value={specs} onChange={setSpecs} />}
           {upgrade && <RunningCostFields value={costs} onChange={setCosts} />}
@@ -514,9 +510,8 @@ function SellCarForm({
               Photos ({allPhotos.length}/{MAX_CAR_LISTING_PHOTOS})
             </p>
             <p className="text-xs text-muted-foreground">
-              Add at least {MIN_CAR_LISTING_PHOTOS}. You can select several photos at once, up to a
-              maximum of
-              {` ${MAX_CAR_LISTING_PHOTOS}`}.
+              One photo is enough to list. {RECOMMENDED_CAR_LISTING_PHOTOS}+ photos rank much higher
+              — select several at once (up to {MAX_CAR_LISTING_PHOTOS}).
             </p>
             <PhotoGuide count={allPhotos.length} />
             {existingPhotos && existingPhotos.length > 0 && (
@@ -757,8 +752,9 @@ function SellSomethingElseForm({
         ← Back
       </button>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight">Sell a part or other item</h1>
+      <EasyListingNote required="a title is" />
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <Field label="Which car does this fit?">
+        <Field label="Which car does it fit? (optional)">
           <CarPicker value={carId} onChange={setCarId} />
         </Field>
         <Field label="Title">
@@ -866,7 +862,7 @@ function SellSomethingElseForm({
         />
         <button
           type="submit"
-          disabled={saving || !carId}
+          disabled={saving}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {saving ? "Publishing…" : "Publish listing"}
@@ -877,6 +873,22 @@ function SellSomethingElseForm({
 }
 
 const MAX_PART_PHOTOS = 10;
+
+/** Sets expectations: quick to list, but detail is rewarded. */
+function EasyListingNote({ required }: { required: string }) {
+  return (
+    <p className="mt-2 flex items-start gap-2 rounded-lg bg-primary/5 p-3 text-sm text-muted-foreground">
+      <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
+      <span>
+        Only {required} needed — everything else is optional.{" "}
+        <span className="font-medium text-foreground">
+          The more detail you add, the higher your advert ranks
+        </span>{" "}
+        and the faster it tends to sell. You can always add more later.
+      </span>
+    </p>
+  );
+}
 
 function AreaField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   return (

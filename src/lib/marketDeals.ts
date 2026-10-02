@@ -559,3 +559,57 @@ export function useCompareList(): [string[], (ids: string[]) => void] {
   }, []);
   return [ids, writeCompare];
 }
+
+// ---------- Advert strength & ranking ----------
+
+const SPEC_KEYS = [
+  "make",
+  "model",
+  "year",
+  "fuel_type",
+  "transmission",
+  "body_type",
+  "engine_size_cc",
+  "power_bhp",
+  "colour",
+  "doors",
+  "seats",
+  "previous_owners",
+  "mot_expiry",
+  "service_history",
+  "ulez_compliant",
+  "v5c_present",
+] as const;
+
+/**
+ * How complete an advert is (0–100), using the same checks the seller sees
+ * while listing. Nothing is required — but stronger adverts rank higher.
+ */
+export function advertStrength(listing: MarketListing) {
+  const row = listing as unknown as Record<string, unknown>;
+  const isCar = listing.type === "car";
+  return listingQuality({
+    isCar,
+    photos: listing.photos?.length ?? 0,
+    description: listing.description ?? "",
+    headline: listing.headline ?? "",
+    specsFilled: isCar
+      ? SPEC_KEYS.filter((k) => row[k] != null && row[k] !== "").length
+      : (listing.part_category ? 1 : 0) + (listing.item_condition ? 1 : 0),
+    motDate: !!listing.mot_expiry,
+    serviceHistory: !!listing.service_history,
+    location: !!listing.location_district || !!listing.location_area,
+  });
+}
+
+/**
+ * "Best match" order: detail counts for about half, freshness for the rest
+ * (a brand-new advert still gets seen, and old ones gently sink).
+ */
+export function rankScore(listing: MarketListing, now = Date.now()) {
+  const strength = advertStrength(listing).score; // 0–100
+  const ageDays = Math.max(0, (now - new Date(listing.created_at).getTime()) / 86_400_000);
+  const freshness = 100 * Math.exp(-ageDays / 10); // halves roughly every week
+  const priceSet = listing.price != null ? 5 : 0;
+  return strength * 0.55 + freshness * 0.45 + priceSet;
+}

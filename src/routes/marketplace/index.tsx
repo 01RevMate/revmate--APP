@@ -28,6 +28,7 @@ import {
   listingMiles,
   PART_CATEGORY_LABELS,
   priceGuide,
+  rankScore,
   readSavedPlace,
   savePlace,
   useMarketUpgradeFeature,
@@ -71,7 +72,14 @@ import {
 
 type ListingFilter = "car" | "part";
 type Sort =
-  "newest" | "price_low" | "price_high" | "watched" | "mileage_low" | "year_new" | "nearest";
+  | "best"
+  | "newest"
+  | "price_low"
+  | "price_high"
+  | "watched"
+  | "mileage_low"
+  | "year_new"
+  | "nearest";
 
 const PRICE_BANDS: { id: string; label: string; min: number; max: number }[] = [
   { id: "any", label: "Any price", min: 0, max: Infinity },
@@ -105,7 +113,7 @@ function MarketplacePage() {
   const { type } = Route.useSearch();
   const market = useMarketplaceFeatures();
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<Sort>("newest");
+  const [sort, setSort] = useState<Sort>("best");
   const [band, setBand] = useState("any");
   const [watchlistOnly, setWatchlistOnly] = useState(false);
   const [carFilters, setCarFilters] = useState<CarFilters>(NO_CAR_FILTERS);
@@ -218,6 +226,10 @@ function MarketplacePage() {
       if (sort === "watched") return (b.saves_count ?? 0) - (a.saves_count ?? 0);
       if (sort === "mileage_low") return (a.mileage ?? Infinity) - (b.mileage ?? Infinity);
       if (sort === "year_new") return (listingYear(b) ?? 0) - (listingYear(a) ?? 0);
+      if (sort === "best") {
+        const featured = Number(isFeatured(b)) - Number(isFeatured(a));
+        return featured || rankScore(b) - rankScore(a);
+      }
       if (sort === "nearest")
         return (listingMiles(a, place) ?? Infinity) - (listingMiles(b, place) ?? Infinity);
       // Newest, with paid Featured listings pinned to the top.
@@ -494,7 +506,7 @@ function MarketplacePage() {
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>
             {visible.length} {visible.length === 1 ? "result" : "results"}
-            {newSinceVisit > 0 && sort === "newest" && (
+            {newSinceVisit > 0 && (sort === "newest" || sort === "best") && (
               <span className="ml-1 font-semibold text-emerald-600">
                 · {newSinceVisit} new since your last visit
               </span>
@@ -516,6 +528,7 @@ function MarketplacePage() {
               aria-label="Sort listings"
               className="rounded-md border border-input bg-background px-2 py-1 text-xs"
             >
+              <option value="best">Best match</option>
               <option value="newest">Newest first</option>
               <option value="price_low">Price: low to high</option>
               <option value="price_high">Price: high to low</option>
@@ -548,8 +561,8 @@ function MarketplacePage() {
             setPlace(next);
             setRadius(nextRadius);
             savePlace(next);
-            if (next && sort === "newest") setSort("nearest");
-            if (!next && sort === "nearest") setSort("newest");
+            if (next && (sort === "newest" || sort === "best")) setSort("nearest");
+            if (!next && sort === "nearest") setSort("best");
           }}
         />
       )}

@@ -83,66 +83,70 @@ function ComparePage() {
         </p>
       )}
       {picked.length > 0 && (
-        <div className="-mx-4 mt-4 overflow-x-auto px-4">
-          <table
-            className="w-full table-fixed border-separate border-spacing-x-1.5 text-sm"
-            style={{ minWidth: 76 + picked.length * 150 }}
+        <div className="-mx-4 mt-4 overflow-x-auto px-4 pb-2">
+          {/* A grid, not a table: every column is the same width and every photo
+              the same shape, whatever size the original photos are. */}
+          <div
+            className="grid gap-x-2 text-sm"
+            style={{
+              gridTemplateColumns: `72px repeat(${picked.length}, minmax(132px, 280px))`,
+              minWidth: 72 + picked.length * 140,
+            }}
           >
-            <thead>
-              <tr>
-                <th className="w-[76px]" />
-                {picked.map((l) => {
-                  const guide = priceGuide(l, listings ?? []);
-                  return (
-                    <th key={l.id} className="align-top font-normal">
-                      <div className="relative overflow-hidden rounded-lg border border-border bg-card text-left">
-                        <button
-                          type="button"
-                          aria-label={`Remove ${l.title}`}
-                          onClick={() => setIds(ids.filter((id) => id !== l.id))}
-                          className="absolute right-1 top-1 z-10 rounded-full bg-black/55 p-1 text-white"
-                        >
-                          <X className="size-3.5" />
-                        </button>
-                        <Link to="/marketplace/$listingId" params={{ listingId: l.id }}>
-                          <div className="aspect-[4/3] bg-muted">
-                            {l.photos?.[0] && (
-                              <img src={l.photos[0]} alt="" className="size-full object-cover" />
-                            )}
-                          </div>
-                          <div className="p-2">
-                            <p className="text-lg font-extrabold">{formatPrice(l.price)}</p>
-                            <p className="line-clamp-2 text-xs font-medium">{l.title}</p>
-                            {guide && <PriceGuideBadge guide={guide} compact />}
-                          </div>
-                        </Link>
-                      </div>
-                    </th>
-                  );
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => {
-                const winner = best(row);
-                return (
-                  <tr key={row}>
-                    <th className="border-b border-border py-2 text-left text-xs font-semibold text-muted-foreground">
-                      {row}
-                    </th>
-                    {picked.map((l, i) => (
-                      <td
-                        key={l.id}
-                        className={`border-b border-border py-2 ${winner === i ? "font-bold text-emerald-700 dark:text-emerald-400" : ""}`}
-                      >
-                        {value(i, row)}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+            <div />
+            {picked.map((l) => {
+              const guide = priceGuide(l, listings ?? []);
+              return (
+                <div
+                  key={l.id}
+                  className="relative min-w-0 overflow-hidden rounded-lg border border-border bg-card"
+                >
+                  <button
+                    type="button"
+                    aria-label={`Remove ${l.title}`}
+                    onClick={() => setIds(ids.filter((id) => id !== l.id))}
+                    className="absolute right-1 top-1 z-10 rounded-full bg-black/55 p-1 text-white"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                  <Link to="/marketplace/$listingId" params={{ listingId: l.id }} className="block">
+                    {l.photos?.[0] ? (
+                      <img
+                        src={l.photos[0]}
+                        alt=""
+                        className="block aspect-[4/3] h-auto w-full bg-muted object-cover"
+                      />
+                    ) : (
+                      <div className="aspect-[4/3] w-full bg-muted" />
+                    )}
+                    <div className="p-2">
+                      <p className="text-base font-extrabold sm:text-lg">{formatPrice(l.price)}</p>
+                      <p className="line-clamp-2 text-xs font-medium">{l.title}</p>
+                      {guide && <PriceGuideBadge guide={guide} compact />}
+                    </div>
+                  </Link>
+                </div>
+              );
+            })}
+            {rows.map((row) => {
+              const winner = best(row);
+              return (
+                <div key={row} className="contents">
+                  <div className="border-b border-border py-2 text-xs font-semibold text-muted-foreground">
+                    {row}
+                  </div>
+                  {picked.map((l, i) => (
+                    <div
+                      key={l.id}
+                      className={`min-w-0 break-words border-b border-border py-2 ${winner === i ? "font-bold text-emerald-700 dark:text-emerald-400" : ""}`}
+                    >
+                      {value(i, row)}
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
           {picked.length < 2 && (
             <p className="mt-3 text-sm text-muted-foreground">
               Add another car to see them side by side.

@@ -52,6 +52,7 @@ import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as ReviewListingIdRouteImport } from './routes/review.$listingId'
 import { Route as TagsTagRouteImport } from './routes/tags.$tag'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as MarketplaceListingIdEditRouteImport } from './routes/marketplace/$listingId_.edit'
 import { Route as CarsMakeModelGenerationRouteImport } from './routes/cars/$make.$model.$generation'
 import { Route as UUsernameCarsCarIdRouteImport } from './routes/u.$username_.cars.$carId'
 
@@ -270,6 +271,12 @@ const UUsernameRoute = UUsernameRouteImport.update({
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketplaceListingIdEditRoute =
+  MarketplaceListingIdEditRouteImport.update({
+    id: '/marketplace/$listingId_/edit',
+    path: '/marketplace/$listingId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CarsMakeModelGenerationRoute = CarsMakeModelGenerationRouteImport.update({
   id: '/cars/$make/$model/$generation',
   path: '/cars/$make/$model/$generation',
@@ -325,6 +332,7 @@ export interface FileRoutesByFullPath {
   '/groups/': typeof GroupsIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/meets/': typeof MeetsIndexRoute
+  '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
@@ -372,6 +380,7 @@ export interface FileRoutesByTo {
   '/groups': typeof GroupsIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/meets': typeof MeetsIndexRoute
+  '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
@@ -420,6 +429,7 @@ export interface FileRoutesById {
   '/groups/': typeof GroupsIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/meets/': typeof MeetsIndexRoute
+  '/marketplace/$listingId_/edit': typeof MarketplaceListingIdEditRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username_/cars/$carId': typeof UUsernameCarsCarIdRoute
 }
@@ -469,6 +479,7 @@ export interface FileRouteTypes {
     | '/groups/'
     | '/marketplace/'
     | '/meets/'
+    | '/marketplace/$listingId/edit'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
   fileRoutesByTo: FileRoutesByTo
@@ -516,6 +527,7 @@ export interface FileRouteTypes {
     | '/groups'
     | '/marketplace'
     | '/meets'
+    | '/marketplace/$listingId/edit'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
   id:
@@ -563,6 +575,7 @@ export interface FileRouteTypes {
     | '/groups/'
     | '/marketplace/'
     | '/meets/'
+    | '/marketplace/$listingId_/edit'
     | '/cars/$make/$model/$generation'
     | '/u/$username_/cars/$carId'
   fileRoutesById: FileRoutesById
@@ -610,6 +623,7 @@ export interface RootRouteChildren {
   GroupsIndexRoute: typeof GroupsIndexRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   MeetsIndexRoute: typeof MeetsIndexRoute
+  MarketplaceListingIdEditRoute: typeof MarketplaceListingIdEditRoute
   CarsMakeModelGenerationRoute: typeof CarsMakeModelGenerationRoute
   UUsernameCarsCarIdRoute: typeof UUsernameCarsCarIdRoute
 }
@@ -917,6 +931,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/marketplace/$listingId_/edit': {
+      id: '/marketplace/$listingId_/edit'
+      path: '/marketplace/$listingId/edit'
+      fullPath: '/marketplace/$listingId/edit'
+      preLoaderRoute: typeof MarketplaceListingIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cars/$make/$model/$generation': {
       id: '/cars/$make/$model/$generation'
       path: '/cars/$make/$model/$generation'
@@ -989,6 +1010,7 @@ const rootRouteChildren: RootRouteChildren = {
   GroupsIndexRoute: GroupsIndexRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,
   MeetsIndexRoute: MeetsIndexRoute,
+  MarketplaceListingIdEditRoute: MarketplaceListingIdEditRoute,
   CarsMakeModelGenerationRoute: CarsMakeModelGenerationRoute,
   UUsernameCarsCarIdRoute: UUsernameCarsCarIdRoute,
 }

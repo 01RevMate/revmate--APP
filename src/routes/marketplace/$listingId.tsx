@@ -8,6 +8,7 @@ import {
   Heart,
   Loader2,
   MessageCircle,
+  Pencil,
   Send,
   Settings2,
   Star,
@@ -49,6 +50,7 @@ import {
   SimilarListings,
 } from "@/components/ListingDealPanels";
 import { PriceGuideBadge } from "@/components/PriceGuideBadge";
+import { AdvertStrengthCard } from "@/components/AdvertStrengthCard";
 import {
   fetchMyCurrentCars,
   fitsMyCar,
@@ -373,19 +375,32 @@ function ListingDetailPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <div className="flex items-center justify-between gap-3">
-        <Link to="/marketplace" className="text-sm text-muted-foreground hover:text-foreground">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Link
+          to="/marketplace"
+          className="whitespace-nowrap text-sm text-muted-foreground hover:text-foreground"
+        >
           ← Back to Buy & Sell
         </Link>
         {isOwner && (
-          <button
-            type="button"
-            onClick={() => setManageOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-md border border-input px-3 py-1.5 text-sm font-medium hover:bg-accent"
-          >
-            <Settings2 className="size-4" />
-            Manage advert
-          </button>
+          <div className="flex gap-2">
+            <Link
+              to="/marketplace/$listingId/edit"
+              params={{ listingId: listing.id }}
+              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+            >
+              <Pencil className="size-4" />
+              Edit advert
+            </Link>
+            <button
+              type="button"
+              onClick={() => setManageOpen(true)}
+              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-input px-3 py-1.5 text-sm font-medium hover:bg-accent"
+            >
+              <Settings2 className="size-4" />
+              Sold / remove
+            </button>
+          </div>
         )}
       </div>
 
@@ -481,6 +496,7 @@ function ListingDetailPage() {
           )}
         </div>
       )}
+      {isOwner && <AdvertStrengthCard listing={asMarket} />}
       {isOwner && isFeatured(listing) && (
         <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-amber-600">
           <Star className="size-4" fill="currentColor" /> Featured — pinned to the top of Buy & Sell

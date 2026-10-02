@@ -24,6 +24,20 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.15.0",
+    date: "2026-10-02",
+    title: "Edit your adverts & quicker selling",
+    status: "live",
+    highlights: [
+      "Edit your adverts any time: title, headline, price, mileage, photos (and which one is the cover), description, car details, running costs, part details, location and offers",
+      "Quicker to list: a car needs just one photo, and price (or POA) and mileage are optional; parts only need a title",
+      'Advert strength: a score with tips shows sellers what to add, and stronger adverts rank higher in the new "Best match" order on Buy & Sell',
+    ],
+    fixes: [
+      "Compare now shows every car's photo at the same size, whatever shape the original photos are",
+    ],
+  },
+  {
     version: "1.14.0",
     date: "2026-10-01",
     title: "A better Buy & Sell",
