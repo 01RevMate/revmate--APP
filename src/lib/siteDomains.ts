@@ -13,12 +13,7 @@ export const PRIMARY_ORIGIN = configuredOrigin() ?? "https://revmate.co.uk";
 export const PRIMARY_HOST = PRIMARY_ORIGIN.replace(/^https?:\/\//, "");
 
 /** Other RevMate addresses that should forward to the main one. */
-export const REVMATE_HOSTS = [
-  "revmate.co.uk",
-  "www.revmate.co.uk",
-  "revmate.app",
-  "www.revmate.app",
-];
+export const REVMATE_HOSTS = ["revmate.co.uk", "www.revmate.co.uk"];
 
 /** Where a request on another RevMate domain should be sent, if anywhere. */
 export function canonicalRedirect(requestUrl: string): string | null {

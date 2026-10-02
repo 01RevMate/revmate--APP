@@ -19,7 +19,7 @@ const corsHeaders = {
 
 const publicKey = Deno.env.get("VAPID_PUBLIC_KEY") ?? "";
 const privateKey = Deno.env.get("VAPID_PRIVATE_KEY") ?? "";
-const subject = Deno.env.get("VAPID_SUBJECT") ?? "mailto:hello@revmate.app";
+const subject = Deno.env.get("VAPID_SUBJECT") ?? "mailto:hello@revmate.co.uk";
 const webhookSecret = Deno.env.get("PUSH_WEBHOOK_SECRET") ?? "";
 
 if (publicKey && privateKey) webpush.setVapidDetails(subject, publicKey, privateKey);
