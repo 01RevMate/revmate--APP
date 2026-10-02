@@ -8,10 +8,9 @@ been run live in `applied/` for reference.
 |---|------|--------------|--------|
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
-| 19 | `19_public_profiles.sql` | Adults' profiles and garages viewable signed out and in Google; under-18s stay private | Needed — quick, no setup |
 
 Already applied (in `applied/`): 1–4 on 27 Sep 2026, 5–12 on 28 Sep 2026,
-and 15–18 on 1 Oct 2026.
+15–18 on 1 Oct 2026 and 19 on 2 Oct 2026.
 
 ## Two ways to run them
 

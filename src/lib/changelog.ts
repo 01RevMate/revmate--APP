@@ -27,7 +27,7 @@ export const RELEASES: Release[] = [
     version: "1.16.0",
     date: "2026-10-02",
     title: "Profiles you can share and find on Google",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "Profile and garage links open for anyone, even without an account, and show a proper preview when shared (adults only — under-18s stay private)",
       "Profiles can appear in Google, with your handle, cars and photo",
