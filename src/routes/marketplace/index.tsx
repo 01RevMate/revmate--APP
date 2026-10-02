@@ -5,6 +5,9 @@ import {
   ArrowRight,
   BadgePoundSterling,
   Bell,
+  CarFront,
+  LayoutGrid,
+  Wrench,
   Bookmark,
   Heart,
   History,
@@ -376,24 +379,37 @@ function MarketplacePage() {
             className="w-full rounded-full border border-input bg-muted/50 py-2.5 pl-9 pr-3 text-sm focus:bg-background"
           />
         </div>
-        <div className="-mx-3 flex gap-1.5 overflow-x-auto px-3 [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0">
+        {/* All / Cars / Parts: a big, easy-to-hit switch on its own row. */}
+        <div
+          role="tablist"
+          aria-label="What are you looking for?"
+          className="grid grid-cols-3 gap-1 rounded-xl bg-muted p-1"
+        >
           {(
             [
-              [undefined, "All"],
-              ["car", "Cars"],
-              ["part", "Parts"],
+              [undefined, "All", LayoutGrid],
+              ["car", "Cars", CarFront],
+              ["part", "Parts", Wrench],
             ] as const
-          ).map(([value, label]) => (
-            <Link
-              key={label}
-              to="/marketplace"
-              search={value ? { type: value } : {}}
-              onClick={() => setWatchlistOnly(false)}
-              className={chip(type === value && !watchlistOnly)}
-            >
-              {label}
-            </Link>
-          ))}
+          ).map(([value, label, Icon]) => {
+            const active = type === value && !watchlistOnly;
+            return (
+              <Link
+                key={label}
+                role="tab"
+                aria-selected={active}
+                to="/marketplace"
+                search={value ? { type: value } : {}}
+                onClick={() => setWatchlistOnly(false)}
+                className={`flex min-h-11 items-center justify-center gap-1.5 rounded-lg text-sm font-bold transition-colors ${active ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <Icon className="size-4" />
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+        <div className="-mx-3 flex gap-1.5 overflow-x-auto px-3 [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0">
           {market && (
             <button
               type="button"
@@ -691,7 +707,7 @@ function MarketplacePage() {
 }
 
 function chip(active: boolean) {
-  return `flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${active ? "border-transparent bg-foreground text-background" : "border-border bg-background hover:bg-accent"}`;
+  return `flex min-h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${active ? "border-transparent bg-foreground text-background" : "border-border bg-background hover:bg-accent"}`;
 }
 
 /** A listing, plus a sponsored tile after every PARTNER_EVERY listings. */
