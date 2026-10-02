@@ -37,6 +37,8 @@ export const RELEASES: Release[] = [
     fixes: [
       "Compare now shows every car's photo at the same size, whatever shape the original photos are",
       "Vehicle details boxes no longer overlap on iPhone, and all the boxes are the same height",
+      'Date and time boxes no longer overlap anywhere on iPhone; on Post a meet the end time is now an optional "+ Add end time" button instead of showing the current time',
+      "The Track day meet cover now has the chequered finish line across the track",
     ],
   },
   {

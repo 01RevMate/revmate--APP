@@ -243,6 +243,7 @@ function CreateMeetForm({ userId, onDone }: { userId: string; onDone: () => void
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("10:00");
   const [endTime, setEndTime] = useState("");
+  const [showEnd, setShowEnd] = useState(false);
   const [locationName, setLocationName] = useState("");
   const [address, setAddress] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
@@ -299,7 +300,8 @@ function CreateMeetForm({ userId, onDone }: { userId: string; onDone: () => void
     }
   }
 
-  const input = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
+  const input =
+    "block h-10 w-full min-w-0 max-w-full rounded-md border border-input bg-background px-3 text-sm";
   return (
     <form
       onSubmit={handleSubmit}
@@ -315,18 +317,18 @@ function CreateMeetForm({ userId, onDone }: { userId: string; onDone: () => void
         placeholder="Name, e.g. Sunday Cars & Coffee"
         className={input}
       />
-      <div className="grid grid-cols-3 gap-2">
-        <label className="col-span-3 text-xs font-medium sm:col-span-1">
-          Date
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-            className={`${input} mt-1`}
-          />
-        </label>
-        <label className="text-xs font-medium">
+      <label className="block text-xs font-medium">
+        Date
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          required
+          className={`${input} mt-1`}
+        />
+      </label>
+      <div className="grid grid-cols-2 gap-2">
+        <label className="min-w-0 text-xs font-medium">
           Starts
           <input
             type="time"
@@ -336,15 +338,48 @@ function CreateMeetForm({ userId, onDone }: { userId: string; onDone: () => void
             className={`${input} mt-1`}
           />
         </label>
-        <label className="text-xs font-medium">
-          Ends (optional)
-          <input
-            type="time"
-            value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
-            className={`${input} mt-1`}
-          />
-        </label>
+        {/* An empty time box on iPhone shows the current time, which looks like
+            a real end time — so the end time is only shown once asked for. */}
+        {showEnd ? (
+          <label className="min-w-0 text-xs font-medium">
+            <span className="flex items-center justify-between">
+              Ends
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEnd(false);
+                  setEndTime("");
+                }}
+                className="font-normal text-muted-foreground underline"
+              >
+                Remove
+              </button>
+            </span>
+            <input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              className={`${input} mt-1`}
+            />
+          </label>
+        ) : (
+          <div className="min-w-0 text-xs font-medium">
+            <span className="invisible">Ends</span>
+            <button
+              type="button"
+              onClick={() => {
+                const [h, m] = (startTime || "10:00").split(":").map(Number);
+                setEndTime(
+                  `${String(((h ?? 10) + 3) % 24).padStart(2, "0")}:${String(m ?? 0).padStart(2, "0")}`,
+                );
+                setShowEnd(true);
+              }}
+              className="mt-1 flex h-10 w-full items-center justify-center rounded-md border border-dashed border-input text-sm font-medium text-muted-foreground hover:bg-accent"
+            >
+              + Add end time
+            </button>
+          </div>
+        )}
       </div>
       <input
         value={locationName}
@@ -368,7 +403,7 @@ function CreateMeetForm({ userId, onDone }: { userId: string; onDone: () => void
         maxLength={2000}
         rows={3}
         placeholder="What's the plan? Entry fee, parking, rules…"
-        className={`${input} resize-none`}
+        className="block w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
       />
       <MeetCoverPicker userId={userId} value={coverUrl} onChange={setCoverUrl} />
       <div className="flex justify-end">
