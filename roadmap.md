@@ -8,4 +8,4 @@
 - Created @MiaAMG with her Mercedes A45, three posts, replies, car likes, and follows
 
 ## Open
-- None
+- Connect revmate.app and www.revmate.app (BYO via 123 reg) — waiting on user to add DNS records at 123 reg: A @ and A www → 185.158.133.1, TXT _lovable → lovable_verify value from the connect dialog
