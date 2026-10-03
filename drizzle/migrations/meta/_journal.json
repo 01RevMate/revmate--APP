@@ -407,6 +407,13 @@
       "when": 1790904008485,
       "tag": "0057_remove_post_location",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1790904068485,
+      "tag": "0058_security_hardening",
+      "breakpoints": true
     }
   ]
 }

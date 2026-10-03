@@ -70,7 +70,10 @@ export function SocialLinksDisplay({ profile }: { profile: Profile }) {
   const [leaving, setLeaving] = useState<{ platform: SocialPlatform; url: string } | null>(null);
   const active = SOCIAL_PLATFORMS.flatMap((platform) => {
     const url = (profile as Record<string, unknown>)[platform.key];
-    return typeof url === "string" && url.startsWith("https://") ? [{ platform, url }] : [];
+    // Only real links to that site — an "Instagram" button can't go anywhere else.
+    return typeof url === "string" && url.startsWith("https://") && platform.validate(url)
+      ? [{ platform, url }]
+      : [];
   });
   if (active.length === 0) return null;
 

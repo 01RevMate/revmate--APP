@@ -43,8 +43,15 @@ export const RELEASES: Release[] = [
       'Removed leftover "coming soon" screens and the "MOT data" and "Parts" placeholders on car pages',
       'Removed the unused "Save on running costs" choice when you first sign up',
       "Faster start-up: the app no longer checks for features that are all live now",
+      'Security: like, follower and "going" counts can\'t be faked any more (any faked numbers are put back to the real ones), so Rankings are fair',
+      "Safety: people who aren't signed in (and Google) only see members known to be 18 or over",
+      "Profile social buttons only open the real Instagram, Facebook, TikTok, YouTube, Snapchat or X site",
+      "Only RevMate admins can add cars and common faults to the research pages",
     ],
-    requiredSql: ["drizzle/migrations/0057_remove_post_location.sql"],
+    requiredSql: [
+      "drizzle/migrations/0057_remove_post_location.sql",
+      "drizzle/migrations/0058_security_hardening.sql",
+    ],
   },
   {
     version: "1.16.0",

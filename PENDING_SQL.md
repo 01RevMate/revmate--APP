@@ -20,7 +20,18 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
   on posts (and the old Near you lookup), so they can't be read from the
   database any more. Safe to re-run.
 
-### 2. Phone push notifications (optional, needs a few setup steps)
+### 2. Security fixes
+
+- File: `drizzle/migrations/0058_security_hardening.sql` (`sql-to-run/21_security_hardening.sql`).
+- Added: 2026-10-03
+- What it does: stops members faking like, follower and "going" counts
+  (and puts any faked numbers back to the real ones); signed-out visitors
+  only see members known to be 18+; only admins can add cars and common
+  faults; Instagram, Facebook and TikTok links must be https; signed-out
+  visitors can't check who is an admin. Nothing in the app changes for
+  signed-in members. Safe to re-run.
+
+### 3. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27

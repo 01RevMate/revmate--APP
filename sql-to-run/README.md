@@ -7,6 +7,7 @@ been run live in `applied/` for reference.
 | # | File | What it does | Status |
 |---|------|--------------|--------|
 | 20 | `20_remove_post_location.sql` | Deletes the rough locations stored on posts (old Near you page) | Run this |
+| 21 | `21_security_hardening.sql` | Security fixes: no faked counts, signed-out visitors only see adults, admin-only research edits | Run this |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 
@@ -25,7 +26,8 @@ run, and wait for it to finish before starting the next one.
 
 Files only *add* things — no posts, cars, profiles or messages are deleted
 or changed — except file 20, which removes the location columns from posts
-(the posts themselves are kept). They were test-run against a copy of the full database
+(the posts themselves are kept), and file 21, which puts any faked like,
+follower or "going" counts back to the real numbers. They were test-run against a copy of the full database
 schema before being committed.
 
 The app already works without them: each feature simply stays hidden until
@@ -38,3 +40,4 @@ File 17 is a copy of `drizzle/migrations/0051_marketplace_upgrade.sql` with a sh
 File 19 is a copy of `drizzle/migrations/0055_public_profiles.sql` with a short header added.
 File 13 is a copy of `drizzle/migrations/0032_push_notifications.sql` with a short header added.
 File 20 is a copy of `drizzle/migrations/0057_remove_post_location.sql`.
+File 21 is a copy of `drizzle/migrations/0058_security_hardening.sql`.
