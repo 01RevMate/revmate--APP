@@ -86,9 +86,6 @@ function BusinessesPage() {
         ))}
       </div>
 
-      {!enabled && (
-        <p className="mt-8 text-sm text-muted-foreground">The business directory is coming soon.</p>
-      )}
       {isLoading && enabled && <p className="mt-6 text-sm text-muted-foreground">Loading…</p>}
       <ul className="mt-4 space-y-2">
         {businesses?.map((b) => (

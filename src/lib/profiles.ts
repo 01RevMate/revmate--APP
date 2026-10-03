@@ -172,13 +172,7 @@ export function socialHandle(url: string): string | null {
 
 /** YouTube, Snapchat and X links (0052). */
 export function useExtraSocialsFeature(): boolean {
-  const { data } = useQuery({
-    queryKey: ["feature", "extra-socials"],
-    queryFn: async () => !(await supabase.from("profiles").select("social_youtube").limit(1)).error,
-    staleTime: Infinity,
-    retry: false,
-  });
-  return data === true;
+  return true;
 }
 
 /** What to show in the editor box: the handle for standard links, else the link. */

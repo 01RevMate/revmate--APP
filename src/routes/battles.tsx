@@ -1,19 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Crown, Loader2, SkipForward, Swords } from "lucide-react";
+import { Crown, Loader2, SkipForward } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { CarLogo } from "@/components/CarLogo";
-import { useEngagementFeaturesStatus } from "@/lib/features";
+import { TopCarsTabs } from "@/components/TopCarsTabs";
 import { fetchBattle, fetchCarOfTheWeek, voteBattle, type BattleCar } from "@/lib/engagement";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
 export const Route = createFileRoute("/battles")({
   head: () => ({
     meta: [
-      { title: "Car Battles — RevMate" },
+      { title: "Car Battles — Top cars on RevMate" },
       {
         name: "description",
         content: "Two cars, one vote. Pick your favourite and crown Car of the Week.",
@@ -30,7 +30,6 @@ function BattlesPage() {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();
-  const status = useEngagementFeaturesStatus();
   const [pair, setPair] = useState<BattleCar[] | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
   const [votes, setVotes] = useState(0);
@@ -41,7 +40,6 @@ function BattlesPage() {
   const { data: champion } = useQuery({
     queryKey: ["car-of-the-week"],
     queryFn: fetchCarOfTheWeek,
-    enabled: status === "on",
   });
 
   async function loadNext() {
@@ -64,8 +62,8 @@ function BattlesPage() {
   }
 
   useEffect(() => {
-    if (status === "on") void loadNext();
-  }, [status]);
+    void loadNext();
+  }, []);
 
   async function pick(winner: BattleCar, loser: BattleCar) {
     if (!user) return openAuthModal("Create a free account to vote in Car Battles.");
@@ -82,34 +80,19 @@ function BattlesPage() {
     window.setTimeout(() => void loadNext(), 450);
   }
 
-  if (status !== "on") {
-    return (
-      <main className="mx-auto max-w-2xl px-4 py-10 text-center">
-        <Swords className="mx-auto size-10 text-muted-foreground" />
-        <h1 className="mt-3 text-2xl font-semibold tracking-tight">
-          {status === "checking" ? "Loading…" : "Car Battles are coming soon"}
-        </h1>
-      </main>
-    );
-  }
-
   const car = champion?.garage_cars;
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-5">
-      <header className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-            <Swords className="size-6 text-rose-500" /> Car Battles
-          </h1>
-          <p className="text-sm text-muted-foreground">Tap the one you'd rather have.</p>
-        </div>
+      <TopCarsTabs active="/battles" />
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">Tap the one you'd rather have.</p>
         {votes > 0 && (
           <span className="rounded-full bg-muted px-3 py-1 text-sm font-semibold tabular-nums">
             {votes} {votes === 1 ? "vote" : "votes"}
           </span>
         )}
-      </header>
+      </div>
 
       {pair && pair.length === 2 ? (
         <div className="relative mt-4 grid grid-cols-2 gap-2 sm:gap-4">

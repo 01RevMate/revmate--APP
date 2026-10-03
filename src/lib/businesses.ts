@@ -60,13 +60,7 @@ export function trustLevel(b: Pick<Business, "rating_avg" | "reviews_count" | "r
 }
 
 export function useBusinessesFeature(): boolean {
-  const { data } = useQuery({
-    queryKey: ["feature", "businesses"],
-    queryFn: async () => !(await supabase.from("businesses").select("id").limit(1)).error,
-    staleTime: Infinity,
-    retry: false,
-  });
-  return data === true;
+  return true;
 }
 
 export async function fetchBusinesses(filters: {
@@ -126,15 +120,13 @@ export async function saveReview(
         .from("business_reviews")
         .update({ rating, body: body.trim() })
         .eq("id", existingId)
-    : await supabase
-        .from("business_reviews")
-        .insert({
-          id: crypto.randomUUID(),
-          business_id: businessId,
-          user_id: userId,
-          rating,
-          body: body.trim(),
-        });
+    : await supabase.from("business_reviews").insert({
+        id: crypto.randomUUID(),
+        business_id: businessId,
+        user_id: userId,
+        rating,
+        body: body.trim(),
+      });
   if (error) throw error;
 }
 

@@ -192,46 +192,33 @@ function CarPage() {
             </p>
           )}
         </div>
-      </Section>
-
-      <Section title="MOT data">
-        <p className="text-sm text-muted-foreground">
-          MOT pass rates and top failure points will appear here once the DVSA data feed is
-          connected.
-        </p>
-      </Section>
-
-      <Section title="Parts">
-        <p className="text-sm text-muted-foreground">
-          Parts catalogue placeholder — parts listings for this generation will appear here.
-        </p>
-      </Section>
-
-      <Section title="Discussion & Q&A">
-        <Link to="/ask" className="text-sm underline">
-          Ask a question about this car
+        <Link to="/ask" className="mt-3 inline-block text-sm font-medium text-primary underline">
+          Ask for help with this car
         </Link>
-        <ul className="mt-4 space-y-3">
-          {questions.data?.map((question) => (
-            <li
-              key={question.id}
-              id={`question-${question.id}`}
-              className="scroll-mt-24 rounded-lg border border-border p-4"
-            >
-              <p className="font-medium">{question.title}</p>
-              {question.body && (
-                <p className="mt-1 text-sm text-muted-foreground">{question.body}</p>
-              )}
-              <p className="mt-2 text-xs text-muted-foreground">
-                {question.answers.length} answer{question.answers.length === 1 ? "" : "s"}
-              </p>
-            </li>
-          ))}
-          {questions.data?.length === 0 && (
-            <li className="text-sm text-muted-foreground">No questions yet — be the first.</li>
-          )}
-        </ul>
       </Section>
+
+      {/* Older questions from before help posts. New ones go in the feed. */}
+      {!!questions.data?.length && (
+        <Section title="Questions">
+          <ul className="space-y-3">
+            {questions.data?.map((question) => (
+              <li
+                key={question.id}
+                id={`question-${question.id}`}
+                className="scroll-mt-24 rounded-lg border border-border p-4"
+              >
+                <p className="font-medium">{question.title}</p>
+                {question.body && (
+                  <p className="mt-1 text-sm text-muted-foreground">{question.body}</p>
+                )}
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {question.answers.length} answer{question.answers.length === 1 ? "" : "s"}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
 
       <Section title="Listings">
         <Link to="/sell" search={{ garageCarId: undefined }} className="text-sm underline">

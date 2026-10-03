@@ -34,13 +34,7 @@ export function issueSystemName(id: string | null | undefined) {
 
 /** True once 0045 has been applied. */
 export function useDiagnosticsFeature(): boolean {
-  const { data } = useQuery({
-    queryKey: ["feature", "diagnostics"],
-    queryFn: async () => !(await supabase.from("posts").select("issue_status").limit(1)).error,
-    staleTime: Infinity,
-    retry: false,
-  });
-  return data === true;
+  return true;
 }
 
 export async function setIssueStatus(

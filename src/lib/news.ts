@@ -38,13 +38,7 @@ export function blankNews(): NewsDraft {
 
 /** True once 0044_revmate_news.sql has been applied. */
 export function useNewsFeature(): boolean {
-  const { data } = useQuery({
-    queryKey: ["feature", "news"],
-    queryFn: async () => !(await supabase.from("news_posts").select("id").limit(1)).error,
-    staleTime: Infinity,
-    retry: false,
-  });
-  return data === true;
+  return true;
 }
 
 /** Live news for the feed, newest first (RLS hides drafts and scheduled posts). */

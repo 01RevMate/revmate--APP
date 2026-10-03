@@ -17,7 +17,6 @@ import {
   type Story,
 } from "@/lib/engagement";
 import { uploadPostImage } from "@/lib/posts";
-import { uploadPostVideo, validateVideoFile } from "@/lib/social";
 import { validateImageFile } from "@/lib/uploads";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
@@ -75,22 +74,24 @@ export function StoriesRow() {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file || !user) return;
-    const isVideo = file.type.startsWith("video/");
-    const problem = isVideo ? validateVideoFile(file) : validateImageFile(file);
+    // Pit Stops are photos; videos belong in Revs.
+    if (file.type.startsWith("video/")) {
+      toast.error("Pit Stops are for photos — post videos to the feed and they'll show in Revs.");
+      return;
+    }
+    const problem = validateImageFile(file);
     if (problem) {
       toast.error(problem);
       return;
     }
     setUploading(true);
     try {
-      const mediaUrl = isVideo
-        ? await uploadPostVideo(user.id, file)
-        : await uploadPostImage(user.id, file);
+      const mediaUrl = await uploadPostImage(user.id, file);
       const caption = window.prompt("Add a caption? (optional)") ?? "";
       await createStory({
         userId: user.id,
         mediaUrl,
-        mediaType: isVideo ? "video" : "image",
+        mediaType: "image",
         caption,
       });
       toast.success("Added to your Pit Stop — it disappears in 24 hours");
@@ -109,7 +110,9 @@ export function StoriesRow() {
           <div className="flex w-16 shrink-0 flex-col items-center gap-1">
             <button
               type="button"
-              onClick={() => (myGroupIndex >= 0 ? setViewing(myGroupIndex) : fileRef.current?.click())}
+              onClick={() =>
+                myGroupIndex >= 0 ? setViewing(myGroupIndex) : fileRef.current?.click()
+              }
               disabled={uploading}
               className={`relative rounded-full p-0.5 ${myGroupIndex >= 0 ? "bg-gradient-to-tr from-orange-500 to-fuchsia-500" : ""}`}
               aria-label={myGroupIndex >= 0 ? "View your Pit Stop" : "Add a Pit Stop"}
@@ -166,7 +169,7 @@ export function StoriesRow() {
         <input
           ref={fileRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm"
+          accept="image/jpeg,image/png,image/webp,image/gif"
           className="hidden"
           onChange={handleFile}
         />

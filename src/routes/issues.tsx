@@ -127,9 +127,6 @@ function IssuesPage() {
         ))}
       </div>
 
-      {!enabled && (
-        <p className="mt-6 text-sm text-muted-foreground">Problems &amp; fixes is coming soon.</p>
-      )}
       <div className="mt-4 space-y-4">
         {isLoading &&
           enabled &&

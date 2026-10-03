@@ -13,13 +13,7 @@ import type { MarketListing } from "@/lib/marketplace";
 
 /** True once 0051 has run (saved searches, offers, reviews, parts fields, distance). */
 export function useMarketUpgradeFeature(): boolean {
-  const { data } = useQuery({
-    queryKey: ["feature", "market-upgrade"],
-    queryFn: async () => !(await supabase.from("saved_searches").select("id").limit(1)).error,
-    staleTime: Infinity,
-    retry: false,
-  });
-  return data === true;
+  return true;
 }
 
 // ---------- Parts ----------

@@ -1,13 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  BadgePoundSterling,
-  Check,
-  Fuel,
-  MessageCircleQuestion,
-  Search,
-  Users,
-} from "lucide-react";
+import { BadgePoundSterling, Check, MessageCircleQuestion, Search, Users } from "lucide-react";
 import { setHomeMode } from "@/hooks/useHomeMode";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -63,12 +56,6 @@ const USES = [
     label: "Get help and research cars",
     hint: "Faults, fixes and specs",
     icon: MessageCircleQuestion,
-  },
-  {
-    id: "running_costs",
-    label: "Save on running costs",
-    hint: "Fuel prices and EV chargers — coming soon",
-    icon: Fuel,
   },
 ];
 

@@ -11,7 +11,16 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
-### 1. Phone push notifications (optional, needs a few setup steps)
+### 1. Remove location from posts
+
+- File: `drizzle/migrations/0057_remove_post_location.sql` (`sql-to-run/20_remove_post_location.sql`).
+- Added: 2026-10-03
+- Needed by: nothing breaks before it runs — the app already stopped adding
+  locations to posts. Running it deletes the rough locations already stored
+  on posts (and the old Near you lookup), so they can't be read from the
+  database any more. Safe to re-run.
+
+### 2. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27

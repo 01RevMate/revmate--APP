@@ -11,8 +11,7 @@ import { AGE_LIMITS, useOldEnough } from "@/lib/legal";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { MeetCoverPicker } from "@/components/MeetCoverPicker";
 import { meetCoverSrc } from "@/lib/meetCovers";
-import { MeetsComingSoon } from "@/components/MeetsComingSoon";
-import { useEngagementFeatures, useSocialFeaturesStatus } from "@/lib/features";
+import { useEngagementFeatures } from "@/lib/features";
 import { geocodeAddress, setMeetLocation } from "@/lib/engagement";
 import {
   createMeet,
@@ -39,8 +38,6 @@ export const Route = createFileRoute("/meets/")({
 function MeetsPage() {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
-  const socialStatus = useSocialFeaturesStatus();
-  const social = socialStatus === "on";
   const [tab, setTab] = useState<"upcoming" | "mine">("upcoming");
   const [creating, setCreating] = useState(false);
   const oldEnoughToHost = useOldEnough(AGE_LIMITS.meets);
@@ -51,23 +48,17 @@ function MeetsPage() {
   const { data: upcoming, isLoading } = useQuery({
     queryKey: ["meets", "upcoming"],
     queryFn: fetchUpcomingMeets,
-    enabled: social,
   });
   const { data: mine } = useQuery({
     queryKey: ["meets", "mine", user?.id],
     queryFn: () => fetchMyMeets(user!.id),
-    enabled: social && !!user && tab === "mine",
+    enabled: !!user && tab === "mine",
   });
   const { data: rsvps } = useQuery({
     queryKey: ["meets", "rsvps", user?.id],
     queryFn: () => fetchMyRsvps(user!.id),
-    enabled: social && !!user,
+    enabled: !!user,
   });
-
-  if (socialStatus === "checking") {
-    return <p className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
-  }
-  if (!social) return <MeetsComingSoon />;
 
   const milesTo = (meet: MeetWithOrganizer) =>
     myPlace && meet.latitude != null && meet.longitude != null

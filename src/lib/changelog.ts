@@ -24,6 +24,29 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.17.0",
+    date: "2026-10-03",
+    title: "A simpler, tidier RevMate",
+    status: "needs_database_update",
+    highlights: [
+      "Shorter menu: Leaderboard and Car Battles are now one Top cars section with Battles and Rankings tabs",
+      "Ask for help now makes a help post in the feed, so owners can reply and you can mark it fixed (it used to save your question somewhere you couldn't see it)",
+      "Essentials in the menu now opens the Essentials view of Home instead of a separate copy of it",
+      "Car pages: the Ask link now starts a help post, and old questions only show if there are some",
+      "Home shortcuts: Battles, Revs and Meets",
+      "Pit Stops are now photos only (they still disappear after 24 hours); videos go in the feed and show in Revs",
+    ],
+    fixes: [
+      "Removed the Near you page — Meets already shows how far away each meet is and can sort nearest first",
+      "Posts can no longer have a location attached, and the rough locations already on posts are deleted, so nobody can read them from the app's data",
+      "Removed the daily streak flame from the top bar",
+      'Removed leftover "coming soon" screens and the "MOT data" and "Parts" placeholders on car pages',
+      'Removed the unused "Save on running costs" choice when you first sign up',
+      "Faster start-up: the app no longer checks for features that are all live now",
+    ],
+    requiredSql: ["drizzle/migrations/0057_remove_post_location.sql"],
+  },
+  {
     version: "1.16.0",
     date: "2026-10-02",
     title: "Profiles you can share and find on Google",

@@ -22,14 +22,7 @@ const MARKET_SELECT =
   "*, cars(make, model, generation), garage_cars(id, nickname, make, model, year, likes_count)";
 
 export function useMarketplaceFeatures(): boolean {
-  const { data } = useQuery({
-    queryKey: ["feature", "marketplace-pack"],
-    queryFn: async () =>
-      !(await supabase.from("saved_listings").select("listing_id").limit(1)).error,
-    staleTime: Infinity,
-    retry: false,
-  });
-  return data === true;
+  return true;
 }
 
 export async function fetchMarketListings(): Promise<MarketListing[]> {

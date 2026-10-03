@@ -4,7 +4,23 @@ Steps 1–12 in `sql-to-run/` have all been applied (the latest, 8–12, on 28
 September 2026). Steps 15 (live unread badge), 16 (Speakers / Sound
 diagnostics), 17 (Buy & Sell upgrade), 18 (group covers + more social
 links) and 19 (public profile pages) were applied on 1–2 October 2026.
-Left to do: only the optional phone notifications setup.
+Left to do: step 20 (remove location from posts) and the optional phone
+notifications setup.
+
+---
+
+## ⭐ Prompt A — remove location from posts
+
+```
+Please run sql-to-run/20_remove_post_location.sql on the connected Supabase
+database, exactly as committed (a copy of
+drizzle/migrations/0057_remove_post_location.sql, safe to re-run). It drops
+the public.nearby_posts function, the round_post_location trigger and its
+function, the posts_location_adults_only policy, the posts_location_idx
+index, and the latitude/longitude columns on public.posts. Meet locations
+(car_meets) are not touched. Then regenerate the Supabase TypeScript types
+and confirm the app builds.
+```
 
 ---
 

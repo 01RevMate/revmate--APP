@@ -1,24 +1,17 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { useAuthModal } from "@/hooks/useAuthModal";
-import { CarPicker } from "@/components/CarPicker";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { Stethoscope } from "lucide-react";
+import { PostComposer } from "@/components/PostComposer";
 
 export const Route = createFileRoute("/ask")({
   head: () => ({
     meta: [
-      { title: "Ask a question — RevMate" },
+      { title: "Ask for help — RevMate" },
       {
         name: "description",
-        content: "Post a question to the owners and enthusiasts of a specific car generation.",
+        content: "Got a fault, a warning light or a noise? Ask other owners on RevMate.",
       },
-      { property: "og:title", content: "Ask a question — RevMate" },
-      {
-        property: "og:description",
-        content: "Post a question to the owners and enthusiasts of a specific car generation.",
-      },
+      { property: "og:title", content: "Ask for help — RevMate" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -26,76 +19,37 @@ export const Route = createFileRoute("/ask")({
   component: AskPage,
 });
 
+// One way to ask for help: a help post in the feed. Owners can reply, the
+// asker can mark it fixed, and fixes feed the "Problems & fixes" lists.
 function AskPage() {
-  const { user } = useAuth();
-  const { open: openAuthModal } = useAuthModal();
   const navigate = useNavigate();
-  const [carId, setCarId] = useState("");
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!user) {
-      openAuthModal("Create a free account to ask a question.");
-      return;
-    }
-    setSaving(true);
-    const { error } = await supabase
-      .from("questions")
-      .insert({ car_id: carId, user_id: user.id, title, body });
-    setSaving(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Question posted");
-    navigate({ to: "/garage" });
-  }
+  const queryClient = useQueryClient();
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">Ask a question</h1>
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <Field label="Car">
-          <CarPicker value={carId} onChange={setCarId} />
-        </Field>
-        <Field label="Title">
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onFocus={() => !user && openAuthModal("Create a free account to ask a question.")}
-            required
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-          />
-        </Field>
-        <Field label="Details">
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            onFocus={() => !user && openAuthModal("Create a free account to ask a question.")}
-            rows={6}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-          />
-        </Field>
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-        >
-          {saving ? "Posting…" : "Post question"}
-        </button>
-      </form>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block space-y-1.5">
-      <span className="text-sm font-medium">{label}</span>
-      {children}
-    </label>
+    <main className="mx-auto max-w-xl px-4 py-6">
+      <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
+        <Stethoscope className="size-6 text-primary" /> Ask for help
+      </h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Describe the problem and tag your car. It goes in the feed so owners can help, and you can
+        mark it fixed when it's sorted.
+      </p>
+      <div className="mt-4">
+        <PostComposer
+          helpPost
+          onPosted={() => {
+            void queryClient.invalidateQueries({ queryKey: ["feed"] });
+            void navigate({ to: "/" });
+          }}
+        />
+      </div>
+      <p className="mt-4 text-sm text-muted-foreground">
+        Someone may have had it already —{" "}
+        <Link to="/issues" className="font-medium text-primary underline">
+          look through problems &amp; fixes
+        </Link>
+        .
+      </p>
+    </main>
   );
 }

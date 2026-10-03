@@ -234,64 +234,9 @@ export async function deleteChallenge(challengeId: string) {
   if (error) throw error;
 }
 
-// ---------- Near you ----------
+// ---------- Meet locations ----------
 
-/** Rounded to 2 decimal places (~1km) so exact locations never leave the phone. */
-export function roundCoordinate(value: number) {
-  return Math.round(value * 100) / 100;
-}
-
-export function getApproximateLocation(): Promise<{ lat: number; lng: number }> {
-  return new Promise((resolve, reject) => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      reject(new Error("Location isn't available on this device."));
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) =>
-        resolve({
-          lat: roundCoordinate(position.coords.latitude),
-          lng: roundCoordinate(position.coords.longitude),
-        }),
-      () => reject(new Error("Allow location access to see what's near you.")),
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 10 * 60 * 1000 },
-    );
-  });
-}
-
-export async function fetchNearbyMeets(
-  lat: number,
-  lng: number,
-  radiusKm: number,
-): Promise<CarMeet[]> {
-  const { data, error } = await supabase.rpc("nearby_meets", { lat, lng, radius_km: radiusKm });
-  if (error) throw error;
-  return data;
-}
-
-export async function fetchNearbyPosts(
-  lat: number,
-  lng: number,
-  radiusKm: number,
-): Promise<PostWithAuthor[]> {
-  const { data, error } = await supabase
-    .rpc("nearby_posts", { lat, lng, radius_km: radiusKm })
-    .select(POST_SELECT);
-  if (error) throw error;
-  return resolvePostPhotos(data as unknown as PostWithAuthor[]);
-}
-
-export function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-  return 6371 * 2 * Math.asin(Math.sqrt(a));
-}
-
-/** Free OpenStreetMap lookup so a meet's address can be placed on the Near you map. */
+/** Free OpenStreetMap lookup so a meet's address can be placed on a map. */
 export async function geocodeAddress(query: string): Promise<{ lat: number; lng: number } | null> {
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=gb&q=${encodeURIComponent(query)}`;

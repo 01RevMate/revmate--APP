@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Clapperboard, Crown, MapPin, Swords, Trophy } from "lucide-react";
+import { CalendarDays, Clapperboard, Crown, Swords, Trophy } from "lucide-react";
 import { fetchActiveChallenge, fetchCarOfTheWeek } from "@/lib/engagement";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
@@ -37,9 +37,9 @@ export function FeedHighlights() {
           className="from-violet-600 to-fuchsia-500"
         />
         <QuickLink
-          to="/near-you"
-          icon={MapPin}
-          label="Near you"
+          to="/meets"
+          icon={CalendarDays}
+          label="Meets"
           className="from-emerald-600 to-teal-500"
         />
       </div>
@@ -94,7 +94,7 @@ function QuickLink({
   label,
   className,
 }: {
-  to: "/battles" | "/revs" | "/near-you";
+  to: "/battles" | "/revs" | "/meets";
   icon: typeof Swords;
   label: string;
   className: string;

@@ -51,7 +51,6 @@ const PITCHES: { match: RegExp; title: string; pitch: string }[] = [
     title: "Meets & events",
     pitch: "Find car meets near you, see who's going and get a reminder the day before.",
   },
-  { match: /^\/near-you/, title: "Near you", pitch: "See meets and cars spotted in your area." },
   {
     match: /^\/u\//,
     title: "Owner profiles",

@@ -100,13 +100,7 @@ export function isAutomatic(transmission: string | null | undefined) {
 
 /** True once 0043_listing_details.sql has been applied. */
 export function useListingDetailsFeature(): boolean {
-  const { data } = useQuery({
-    queryKey: ["feature", "listing-details"],
-    queryFn: async () => !(await supabase.from("listings").select("body_type").limit(1)).error,
-    staleTime: Infinity,
-    retry: false,
-  });
-  return data === true;
+  return true;
 }
 
 /**

@@ -2,103 +2,43 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 // New features ship in the app before their SQL has been run on the
-// database (see PENDING_SQL.md). Each probe checks whether its migration
-// has landed, so the UI simply hides a feature until the database supports
-// it instead of showing buttons that error.
+// database (see PENDING_SQL.md). A probe checks whether its migration has
+// landed, so the UI hides a feature until the database supports it instead
+// of showing buttons that error. Once the SQL is live the probe just returns
+// true (no network check) — the hooks stay so callers don't need touching.
 
-async function tableExists(
-  table: "car_meets" | "push_subscriptions" | "stories" | "group_questions" | "announcements",
-): Promise<boolean> {
-  const { error } = await supabase.from(table).select("id").limit(1);
-  return !error;
-}
-
-/**
- * True once 0031_social_features.sql has been applied: meets, comment
- * replies and likes, saved posts, reposts, polls, spotted posts, video
- * uploads and verified badges all ship in that one transaction.
- */
+/** Meets, comment replies, saved posts, reposts, polls, videos (0031 — live). */
 export function useSocialFeatures(): boolean {
-  return useSocialFeaturesStatus() === "on";
-}
-
-/** Like useSocialFeatures, but tells "still checking" apart from "not yet". */
-export function useSocialFeaturesStatus(): "checking" | "on" | "off" {
-  const { data } = useQuery({
-    queryKey: ["feature", "social-pack"],
-    queryFn: () => tableExists("car_meets"),
-    staleTime: Infinity,
-    retry: false,
-  });
-  if (data === undefined) return "checking";
-  return data ? "on" : "off";
+  return true;
 }
 
 /** True once 0032_push_notifications.sql has been applied. */
 export function usePushFeature(): boolean {
   const { data } = useQuery({
     queryKey: ["feature", "push"],
-    queryFn: () => tableExists("push_subscriptions"),
+    queryFn: async () => !(await supabase.from("push_subscriptions").select("id").limit(1)).error,
     staleTime: Infinity,
     retry: false,
   });
   return data === true;
 }
 
-/**
- * True once 0033_engagement.sql has been applied: For You feed, onboarding,
- * Car Battles, recaps, streaks & levels, Revs, Stories, challenges, Near
- * you, reactions and notification settings all ship in that transaction.
- */
+/** For You, Battles, Revs, Pit Stops, streaks, challenges, reactions (0033 — live). */
 export function useEngagementFeatures(): boolean {
-  return useEngagementFeaturesStatus() === "on";
+  return true;
 }
 
-export function useEngagementFeaturesStatus(): "checking" | "on" | "off" {
-  const { data } = useQuery({
-    queryKey: ["feature", "engagement-pack"],
-    queryFn: () => tableExists("stories"),
-    staleTime: Infinity,
-    retry: false,
-  });
-  if (data === undefined) return "checking";
-  return data ? "on" : "off";
-}
-
-/**
- * True once 0036_group_rules.sql has been applied: group entry rules (same
- * brand / same car), entry questions, rules agreement and the no-sales
- * setting. Until then groups keep working exactly as before.
- */
+/** Group entry rules and questions (0036 — live). */
 export function useGroupRulesFeature(): boolean {
-  const { data } = useQuery({
-    queryKey: ["feature", "group-rules"],
-    queryFn: () => tableExists("group_questions"),
-    staleTime: Infinity,
-    retry: false,
-  });
-  return data === true;
+  return true;
 }
 
-/** True once 0052 has run (group cover images). */
+/** Group cover images (0052 — live). */
 export function useGroupCoversFeature(): boolean {
-  const { data } = useQuery({
-    queryKey: ["feature", "group-covers"],
-    queryFn: async () =>
-      !(await supabase.from("community_groups").select("cover_url").limit(1)).error,
-    staleTime: Infinity,
-    retry: false,
-  });
-  return data === true;
+  return true;
 }
 
-/** True once 0038_announcements.sql has been applied (pop-up announcements). */
+/** Pop-up announcements (0038 — live). */
 export function useAnnouncementsFeature(): boolean {
-  const { data } = useQuery({
-    queryKey: ["feature", "announcements"],
-    queryFn: () => tableExists("announcements"),
-    staleTime: Infinity,
-    retry: false,
-  });
-  return data === true;
+  return true;
 }

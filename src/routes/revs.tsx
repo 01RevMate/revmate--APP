@@ -17,7 +17,6 @@ import { Avatar } from "@/components/Avatar";
 import { RichText } from "@/components/RichText";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { fetchRevs } from "@/lib/engagement";
-import { useEngagementFeaturesStatus } from "@/lib/features";
 import { fetchMyLikedPostIds, likePost, unlikePost, type PostWithAuthor } from "@/lib/posts";
 import { isVideoUrl } from "@/lib/social";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
@@ -42,7 +41,6 @@ const PAGE = 10;
 
 function RevsPage() {
   const { user } = useAuth();
-  const status = useEngagementFeaturesStatus();
   const navigate = useNavigate();
   const [muted, setMuted] = useState(true);
 
@@ -51,7 +49,6 @@ function RevsPage() {
     queryFn: ({ pageParam }) => fetchRevs(pageParam),
     initialPageParam: 0,
     getNextPageParam: (last, all) => (last.length === PAGE ? all.length * PAGE : undefined),
-    enabled: status === "on",
   });
   const revs = useMemo(
     () => [...new Map((data?.pages.flat() ?? []).map((post) => [post.id, post])).values()],
@@ -109,21 +106,13 @@ function RevsPage() {
             }}
           />
         ))}
-        {status !== "on" || (!isLoading && revs.length === 0) ? (
+        {!isLoading && revs.length === 0 ? (
           <div className="flex h-full snap-start flex-col items-center justify-center p-6 text-center text-white">
             <Clapperboard className="size-10 text-white/60" />
-            <p className="mt-3 font-semibold">
-              {status === "checking"
-                ? "Loading…"
-                : status === "off"
-                  ? "Revs are coming soon"
-                  : "No Revs yet"}
+            <p className="mt-3 font-semibold">No Revs yet</p>
+            <p className="mt-1 text-sm text-white/70">
+              Post a video from the feed and it'll show up here.
             </p>
-            {status === "on" && (
-              <p className="mt-1 text-sm text-white/70">
-                Post a video from the feed and it'll show up here.
-              </p>
-            )}
             <Link
               to="/"
               className="mt-4 rounded-full bg-white px-4 py-2 text-sm font-semibold text-black"

@@ -12,13 +12,7 @@ export const GOV_LINKS = {
 
 /** True once 0045 has been applied. */
 export function useCarCareFeature(): boolean {
-  const { data } = useQuery({
-    queryKey: ["feature", "car-care"],
-    queryFn: async () => !(await supabase.from("garage_cars").select("mot_due").limit(1)).error,
-    staleTime: Infinity,
-    retry: false,
-  });
-  return data === true;
+  return true;
 }
 
 export function daysUntil(isoDate: string): number {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Home,
+  Stethoscope,
   Car,
   Warehouse,
   Users,
@@ -13,12 +14,9 @@ import {
   MessageCircle,
   Trophy,
   CalendarDays,
-  Swords,
   Clapperboard,
-  MapPin,
   Wrench,
 } from "lucide-react";
-import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
@@ -88,8 +86,6 @@ function NavLink({
 
 export function Sidebar() {
   const { isAdmin } = useProfile();
-  const social = useSocialFeatures();
-  const engagement = useEngagementFeatures();
   const unread = useUnreadMessages();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -124,19 +120,11 @@ export function Sidebar() {
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/essentials" icon={Wrench} label="Essentials" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
-        <NavLink to="/leaderboard" icon={Trophy} label="Leaderboard" collapsed={collapsed} />
-        {engagement && (
-          <>
-            <NavLink to="/battles" icon={Swords} label="Car Battles" collapsed={collapsed} />
-            <NavLink to="/revs" icon={Clapperboard} label="Revs" collapsed={collapsed} />
-            <NavLink to="/near-you" icon={MapPin} label="Near you" collapsed={collapsed} />
-          </>
-        )}
-        {social && (
-          <NavLink to="/meets" icon={CalendarDays} label="Meets & Events" collapsed={collapsed} />
-        )}
+        <NavLink to="/meets" icon={CalendarDays} label="Meets & Events" collapsed={collapsed} />
+        <NavLink to="/battles" icon={Trophy} label="Top cars" collapsed={collapsed} />
+        <NavLink to="/revs" icon={Clapperboard} label="Revs" collapsed={collapsed} />
         <NavLink to="/groups" icon={Users} label="Groups" collapsed={collapsed} requireAuth />
-        <NavLink to="/ask" icon={MessageCircle} label="Ask for help" collapsed={collapsed} />
+        <NavLink to="/ask" icon={Stethoscope} label="Ask for help" collapsed={collapsed} />
         <NavLink
           to="/garage"
           icon={Warehouse}

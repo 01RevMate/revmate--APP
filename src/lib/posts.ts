@@ -119,7 +119,6 @@ export async function createPost(input: {
   audience?: Post["audience"] | undefined;
   listingId?: string | undefined;
   spottedGarageCarId?: string | undefined;
-  location?: { lat: number; lng: number } | undefined;
   /** Diagnostics: which part of the car (0045). */
   issueSystem?: string | undefined;
   /** "What car is this about?" tag (0045). */
@@ -140,7 +139,6 @@ export async function createPost(input: {
     listing_id: input.listingId || null,
     // Only sent when used, so posting still works before the spotted SQL runs.
     ...(input.spottedGarageCarId ? { spotted_garage_car_id: input.spottedGarageCarId } : {}),
-    ...(input.location ? { latitude: input.location.lat, longitude: input.location.lng } : {}),
     ...(input.issueSystem ? { issue_system: input.issueSystem } : {}),
     ...(input.carTag?.make
       ? {

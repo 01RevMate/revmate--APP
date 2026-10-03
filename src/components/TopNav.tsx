@@ -9,7 +9,6 @@ import { fetchGarage } from "@/lib/garage";
 import { BrandLogo } from "@/components/BrandLogo";
 import { PostingIdentitySwitcher } from "@/components/PostingIdentitySwitcher";
 import { NotificationCenter } from "@/components/NotificationCenter";
-import { StreakBadge } from "@/components/EngagementPulse";
 import { MobileMenu } from "@/components/MobileMenu";
 
 const navLink = "text-sm text-muted-foreground transition-colors hover:text-foreground";
@@ -81,7 +80,6 @@ export function TopNav() {
         <MobileMenu />
         {user && profile && (
           <div className="ml-auto flex items-center gap-3">
-            <StreakBadge />
             <NotificationCenter />
             <Link
               to="/search"

@@ -24,8 +24,6 @@ import { Avatar } from "@/components/Avatar";
 import { RichText } from "@/components/RichText";
 import { MapEmbed } from "@/components/MapEmbed";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
-import { MeetsComingSoon } from "@/components/MeetsComingSoon";
-import { useSocialFeaturesStatus } from "@/lib/features";
 import {
   cancelMeet,
   deleteMeet,
@@ -60,24 +58,20 @@ function MeetPage() {
   const { open: openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const socialStatus = useSocialFeaturesStatus();
-  const social = socialStatus === "on";
   const [busy, setBusy] = useState(false);
   const [coverOpen, setCoverOpen] = useState(false);
 
   const { data: meet, isLoading } = useQuery({
     queryKey: ["meet", meetId],
     queryFn: () => fetchMeet(meetId),
-    enabled: social,
   });
   const { data: attendees } = useQuery({
     queryKey: ["meet", meetId, "attendees"],
     queryFn: () => fetchAttendees(meetId),
-    enabled: social && !!meet,
+    enabled: !!meet,
   });
 
-  if (socialStatus === "off") return <MeetsComingSoon />;
-  if (!social || isLoading) {
+  if (isLoading) {
     return <p className="mx-auto max-w-2xl px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
   }
   if (!meet) {

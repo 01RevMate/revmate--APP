@@ -5,7 +5,6 @@ import {
   Check,
   ChevronDown,
   Eye,
-  MapPin,
   Gauge,
   ImagePlus,
   MessagesSquare,
@@ -34,7 +33,6 @@ import {
 } from "@/lib/posts";
 import { validateImageFile } from "@/lib/uploads";
 import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
-import { getApproximateLocation } from "@/lib/engagement";
 import {
   createPollOptions,
   MAX_POLL_OPTIONS,
@@ -92,6 +90,7 @@ export function PostComposer({
   onGarageCarSelected,
   audience = "public",
   bare = false,
+  helpPost = false,
 }: {
   onPosted: () => void;
   lockedGroup?: { id: string; name: string; postPolicy: "member" | "moderated" };
@@ -105,6 +104,9 @@ export function PostComposer({
   /** Drops the card chrome (border/background/padding) — for when it's
    * already inside its own container, like a dialog. */
   bare?: boolean;
+  /** "Ask for help": always a help post, so skip the category list and go
+   * straight to "Which part of the car?". */
+  helpPost?: boolean;
 }) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
@@ -133,26 +135,7 @@ export function PostComposer({
   const [carTag, setCarTag] = useState<CarTag>(EMPTY_CAR_TAG);
   const mirrorRef = useRef<HTMLDivElement>(null);
   const engagement = useEngagementFeatures();
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locating, setLocating] = useState(false);
-  const oldEnoughForLocation = useOldEnough(AGE_LIMITS.location);
-  const canAddLocation =
-    engagement && !lockedGroup && audience === "public" && oldEnoughForLocation;
 
-  async function toggleLocation() {
-    if (location) {
-      setLocation(null);
-      return;
-    }
-    setLocating(true);
-    try {
-      setLocation(await getApproximateLocation());
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't get your location");
-    } finally {
-      setLocating(false);
-    }
-  }
   // Videos go to the public bucket, so they're only offered on public posts.
   const canAddVideo = social && !lockedGroup && audience === "public";
   const { data: spotResults } = useQuery({
@@ -289,7 +272,6 @@ export function PostComposer({
     setSpotSearch("");
     setSpottedCar(null);
     setMentionQuery(null);
-    setLocation(null);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -312,6 +294,7 @@ export function PostComposer({
       void publishPost("spotted");
       return;
     }
+    if (helpPost && diagnosticsOn) setIssueStep(true);
     setCategoryOpen(true);
   }
 
@@ -329,7 +312,6 @@ export function PostComposer({
         groupId: lockedGroup?.id,
         audience,
         spottedGarageCarId: category === "spotted" ? spottedCar?.id : undefined,
-        location: canAddLocation && location ? location : undefined,
         issueSystem: category === "diagnostics" ? issueSystem : undefined,
         carTag: tagging && diagnosticsOn && carTag.make ? carTag : undefined,
       });
@@ -495,9 +477,11 @@ export function PostComposer({
           }}
           onFocus={() => !user && openAuthModal("Create a free account to post to the feed.")}
           placeholder={
-            pollOptions
-              ? "Ask your question…"
-              : "What are you working on? Use @ to mention and # to tag"
+            helpPost
+              ? "What's the problem? Say what happens, when, and anything you've tried."
+              : pollOptions
+                ? "Ask your question…"
+                : "What are you working on? Use @ to mention and # to tag"
           }
           maxLength={10000}
           rows={3}
@@ -798,23 +782,6 @@ export function PostComposer({
             <Eye className="size-5" />
           </button>
         )}
-        {canAddLocation && (
-          <button
-            type="button"
-            onClick={() =>
-              user
-                ? void toggleLocation()
-                : openAuthModal("Create a free account to post to the feed.")
-            }
-            disabled={locating}
-            title={location ? "Remove location" : "Add your area (shows in Near you)"}
-            aria-label={location ? "Remove location" : "Add your area"}
-            className={`flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-medium hover:bg-accent hover:text-foreground disabled:opacity-50 ${location ? "bg-emerald-600/10 text-emerald-600" : "text-muted-foreground"}`}
-          >
-            <MapPin className="size-5" />
-            {location ? "Area added" : null}
-          </button>
-        )}
         <button
           type="submit"
           disabled={saving || !body.trim() || !pollReady || (requiredCarIdentity && !postingAs)}
@@ -829,7 +796,7 @@ export function PostComposer({
         onOpenChange={(open) => {
           if (saving) return;
           setCategoryOpen(open);
-          if (!open) setIssueStep(false);
+          if (!open && !helpPost) setIssueStep(false);
         }}
       >
         <DialogContent className="max-w-[calc(100%-2rem)] rounded-2xl p-4 sm:max-w-md sm:p-6">
@@ -854,14 +821,16 @@ export function PostComposer({
                   </button>
                 ))}
               </div>
-              <button
-                type="button"
-                disabled={saving}
-                onClick={() => setIssueStep(false)}
-                className="text-left text-xs text-muted-foreground underline"
-              >
-                ← Back to categories
-              </button>
+              {!helpPost && (
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => setIssueStep(false)}
+                  className="text-left text-xs text-muted-foreground underline"
+                >
+                  ← Back to categories
+                </button>
+              )}
             </>
           ) : (
             <>

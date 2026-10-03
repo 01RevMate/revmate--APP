@@ -11,9 +11,12 @@ rules. If something new can't follow them, it doesn't ship until it can.
 |------|-------|----------------|----------|
 | **Your area**: the first half of a postcode (e.g. `LS6`) | `member_areas` (0046) | Only the member (RLS) | Distances on Buy & Sell, meets and local businesses; local sponsored posts |
 | Advert location: district plus a centre rounded to 2 dp (~1 km) | `listings.location_district/lat/lng` (0051) | Public, but the app shows a rounded distance and the district | "12 mi away", search near me, saved-search radius |
-| Post location (opt-in, 18+) rounded to ~1 km | `posts.latitude/longitude` | Same as the post | Near you |
-| Meet location | `car_meets.latitude/longitude` | Public | Meets near you; it's a public event |
+| Meet location | `car_meets.latitude/longitude` | Public | Distance to each meet; it's a public event the organiser chose to publish |
 | "Near me" postcode on Buy & Sell | Device only (localStorage) | Nobody | Distance filter |
+
+Posts used to carry an optional ~1 km location for the old "Near you" page.
+That was removed in 0057 (the columns are dropped): a rounded point on a
+public post could still be read straight from the API, which breaks rule 3.
 
 ## The rules
 

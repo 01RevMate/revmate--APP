@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Heart, ThumbsDown, Trophy } from "lucide-react";
 import { CarLogo } from "@/components/CarLogo";
 import { GarageCarTile } from "@/components/GarageCarTile";
+import { TopCarsTabs } from "@/components/TopCarsTabs";
 import {
   fetchGarageCarBrandLeaderboard,
   fetchGarageCarLeaderboard,
@@ -14,12 +15,12 @@ import {
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
     meta: [
-      { title: "Leaderboard — RevMate" },
+      { title: "Car rankings — Top cars on RevMate" },
       {
         name: "description",
         content: "The highest-ranked brands, models and individual cars on RevMate.",
       },
-      { property: "og:title", content: "Leaderboard — RevMate" },
+      { property: "og:title", content: "Car rankings — Top cars on RevMate" },
       {
         property: "og:description",
         content: "The highest-ranked brands, models and individual cars on RevMate.",
@@ -38,9 +39,9 @@ function LeaderboardPage() {
   const [filterMake, setFilterMake] = useState<string | null>(null);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">Leaderboard</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
+    <div className="mx-auto max-w-3xl px-4 py-5">
+      <TopCarsTabs active="/leaderboard" />
+      <p className="mt-4 text-sm text-muted-foreground">
         Ranked by net score — likes minus dislikes.
       </p>
 
@@ -73,7 +74,9 @@ function LeaderboardPage() {
           }}
         />
       )}
-      {tab === "models" && <ModelsTab filterMake={filterMake} onClearFilter={() => setFilterMake(null)} />}
+      {tab === "models" && (
+        <ModelsTab filterMake={filterMake} onClearFilter={() => setFilterMake(null)} />
+      )}
       {tab === "cars" && <CarsTab />}
     </div>
   );
@@ -187,7 +190,13 @@ function CarsTab() {
 function RankBadge({ rank }: { rank: number }) {
   return (
     <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold">
-      {rank <= 3 ? <Trophy className={`size-4 ${rank === 1 ? "text-yellow-500" : rank === 2 ? "text-slate-400" : "text-amber-700"}`} /> : `#${rank}`}
+      {rank <= 3 ? (
+        <Trophy
+          className={`size-4 ${rank === 1 ? "text-yellow-500" : rank === 2 ? "text-slate-400" : "text-amber-700"}`}
+        />
+      ) : (
+        `#${rank}`
+      )}
     </span>
   );
 }

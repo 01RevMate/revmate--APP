@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import {
   Menu,
   Home,
+  Stethoscope,
   Car,
   ShoppingBag,
   Users,
@@ -12,12 +13,9 @@ import {
   ShieldCheck,
   Trophy,
   CalendarDays,
-  Swords,
   Clapperboard,
-  MapPin,
   Wrench,
 } from "lucide-react";
-import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
@@ -73,8 +71,6 @@ function MenuLink({
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
   const { isAdmin } = useProfile();
-  const social = useSocialFeatures();
-  const engagement = useEngagementFeatures();
   const unread = useUnreadMessages();
 
   function close() {
@@ -101,19 +97,11 @@ export function MobileMenu() {
           <MenuLink to="/cars" icon={Car} label="Browse Cars" onNavigate={close} />
           <MenuLink to="/essentials" icon={Wrench} label="Essentials" onNavigate={close} />
           <MenuLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" onNavigate={close} />
-          <MenuLink to="/leaderboard" icon={Trophy} label="Leaderboard" onNavigate={close} />
-          {engagement && (
-            <>
-              <MenuLink to="/battles" icon={Swords} label="Car Battles" onNavigate={close} />
-              <MenuLink to="/revs" icon={Clapperboard} label="Revs" onNavigate={close} />
-              <MenuLink to="/near-you" icon={MapPin} label="Near you" onNavigate={close} />
-            </>
-          )}
-          {social && (
-            <MenuLink to="/meets" icon={CalendarDays} label="Meets & Events" onNavigate={close} />
-          )}
+          <MenuLink to="/meets" icon={CalendarDays} label="Meets & Events" onNavigate={close} />
+          <MenuLink to="/battles" icon={Trophy} label="Top cars" onNavigate={close} />
+          <MenuLink to="/revs" icon={Clapperboard} label="Revs" onNavigate={close} />
           <MenuLink to="/groups" icon={Users} label="Groups" requireAuth onNavigate={close} />
-          <MenuLink to="/ask" icon={MessageCircle} label="Ask for help" onNavigate={close} />
+          <MenuLink to="/ask" icon={Stethoscope} label="Ask for help" onNavigate={close} />
           <MenuLink
             to="/garage"
             icon={Warehouse}
