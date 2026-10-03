@@ -5,7 +5,6 @@ import { canonicalApprovedVehicleMake } from "@/lib/approvedVehicleMakes";
 export type Car = Tables<"cars">;
 export type CarFault = Tables<"car_faults">;
 export type Listing = Tables<"listings">;
-export type Question = Tables<"questions">;
 
 export function slugify(value: string) {
   return value.toLowerCase().trim().replace(/\s+/g, "-");

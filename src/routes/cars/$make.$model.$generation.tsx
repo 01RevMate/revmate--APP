@@ -18,7 +18,7 @@ export const Route = createFileRoute("/cars/$make/$model/$generation")({
     const path = `/cars/${params.make}/${params.model}/${params.generation}`;
     return seo({
       title: `${pretty} — specs, common faults & for sale | RevMate`,
-      description: `${pretty}: specs, common faults and how owners fixed them, owner questions and cars for sale in the UK.`,
+      description: `${pretty}: specs, common faults and how owners fixed them, and cars for sale in the UK.`,
       path,
       jsonLd: breadcrumbs([
         { name: "Cars", path: "/cars" },
@@ -64,20 +64,6 @@ function CarPage() {
         .select("*")
         .eq("car_id", car!.id)
         .order("upvotes", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const questions = useQuery({
-    queryKey: ["questions", car?.id],
-    enabled: !!car,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("questions")
-        .select("*, answers(id, body, created_at)")
-        .eq("car_id", car!.id)
-        .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -196,29 +182,6 @@ function CarPage() {
           Ask for help with this car
         </Link>
       </Section>
-
-      {/* Older questions from before help posts. New ones go in the feed. */}
-      {!!questions.data?.length && (
-        <Section title="Questions">
-          <ul className="space-y-3">
-            {questions.data?.map((question) => (
-              <li
-                key={question.id}
-                id={`question-${question.id}`}
-                className="scroll-mt-24 rounded-lg border border-border p-4"
-              >
-                <p className="font-medium">{question.title}</p>
-                {question.body && (
-                  <p className="mt-1 text-sm text-muted-foreground">{question.body}</p>
-                )}
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {question.answers.length} answer{question.answers.length === 1 ? "" : "s"}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </Section>
-      )}
 
       <Section title="Listings">
         <Link to="/sell" search={{ garageCarId: undefined }} className="text-sm underline">

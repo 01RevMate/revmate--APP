@@ -130,20 +130,6 @@ function GarageProfilePage() {
     enabled: !!user && !!savedPosts && savedPosts.length > 0,
   });
 
-  const { data: questions } = useQuery({
-    queryKey: ["my-questions", profile?.user_id],
-    enabled: !!profile,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("questions")
-        .select("*, cars(make, model, generation)")
-        .eq("user_id", profile!.user_id)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const currentGarageCars = (garage ?? []).filter((car) => car.ownership_status !== "previous");
   const previousGarageCars = (garage ?? []).filter((car) => car.ownership_status === "previous");
 
@@ -498,24 +484,6 @@ function GarageProfilePage() {
               )}
             </div>
           )}
-        </Section>
-
-        <Section title="Questions asked">
-          <ul className="space-y-2">
-            {questions?.map((question) => (
-              <li key={question.id} className="rounded-lg border border-border p-3">
-                <p className="text-sm font-medium">{question.title}</p>
-                {question.cars && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {carLabel(question.cars as Car)}
-                  </p>
-                )}
-              </li>
-            ))}
-            {questions?.length === 0 && (
-              <li className="text-sm text-muted-foreground">No questions posted yet.</li>
-            )}
-          </ul>
         </Section>
       </div>
     </div>

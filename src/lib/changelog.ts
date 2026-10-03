@@ -32,7 +32,7 @@ export const RELEASES: Release[] = [
       "Shorter menu: Leaderboard and Car Battles are now one Top cars section with Battles and Rankings tabs",
       "Ask for help now makes a help post in the feed, so owners can reply and you can mark it fixed (it used to save your question somewhere you couldn't see it)",
       "Essentials in the menu now opens the Essentials view of Home instead of a separate copy of it",
-      "Car pages: the Ask link now starts a help post, and old questions only show if there are some",
+      "Removed the old Questions sections from car pages and profiles — asking for help is just a post in the feed now, and car pages link straight to it",
       "Home shortcuts: Battles, Revs and Meets",
       "Pit Stops are now photos only (they still disappear after 24 hours); videos go in the feed and show in Revs",
     ],
