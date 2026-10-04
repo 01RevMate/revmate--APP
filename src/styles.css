@@ -300,3 +300,11 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
     animation: none;
   }
 }
+
+/* Map tiles in dark mode: darken the light OpenStreetMap tiles. */
+.dark .revmate-tiles {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
+}
+.leaflet-container {
+  font-family: inherit;
+}

@@ -24,6 +24,19 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.18.0",
+    date: "2026-10-04",
+    title: "EV charger map",
+    status: "live",
+    highlights: [
+      "New EV charger map in Essentials: every public charging point on a proper map, coloured by speed (ultra-rapid, rapid, fast, slow)",
+      "Search a postcode or town, or tap Near me; it starts on your area if you've set one",
+      "Filter by speed (7, 50 or 150 kW+), plug type (Type 2, CCS, CHAdeMO, Tesla) and free chargers",
+      "Tap a charger for plugs and speeds, cost, opening hours, how to pay, and one-tap directions in Google Maps, Apple Maps or Waze",
+      "Works without an account and can be found on Google",
+    ],
+  },
+  {
     version: "1.17.0",
     date: "2026-10-03",
     title: "A simpler, tidier RevMate",

@@ -13,6 +13,7 @@ rules. If something new can't follow them, it doesn't ship until it can.
 | Advert location: district plus a centre rounded to 2 dp (~1 km) | `listings.location_district/lat/lng` (0051) | Public, but the app shows a rounded distance and the district | "12 mi away", search near me, saved-search radius |
 | Meet location | `car_meets.latitude/longitude` | Public | Distance to each meet; it's a public event the organiser chose to publish |
 | "Near me" postcode on Buy & Sell | Device only (localStorage) | Nobody | Distance filter |
+| "Near me" on the EV charger map | Device only, never stored or sent to RevMate | Nobody | Centres the map; OpenStreetMap only receives the map's edges to find chargers |
 
 Posts used to carry an optional ~1 km location for the old "Near you" page.
 That was removed in 0057 (the columns are dropped): a rounded point on a

@@ -33,7 +33,17 @@ import { formatPrice } from "@/lib/marketplace";
 
 type LinkTarget =
   | { to: "/marketplace"; search: { type?: "car" | "part" } }
-  | { to: "/sell" | "/ask" | "/cars" | "/garage" | "/meets" | "/issues" | "/businesses" };
+  | {
+      to:
+        | "/sell"
+        | "/ask"
+        | "/cars"
+        | "/garage"
+        | "/meets"
+        | "/issues"
+        | "/businesses"
+        | "/ev-chargers";
+    };
 
 /** An iOS-style app icon: white glyph on a coloured rounded square. */
 function AppIcon({
@@ -376,19 +386,25 @@ export function EssentialsHome() {
       )}
 
       <Group
+        title="On the road"
+        rows={[
+          {
+            title: "EV chargers near you",
+            hint: "Map of rapid and fast chargers, plugs and directions",
+            icon: PlugZap,
+            colour: "bg-[#34c759]",
+            link: { to: "/ev-chargers" },
+          },
+        ]}
+      />
+
+      <Group
         title="Coming soon"
         rows={[
           {
             title: "Cheapest fuel near you",
             hint: "Live petrol and diesel prices",
             icon: Fuel,
-            colour: "bg-[#8e8e93]",
-            soon: true,
-          },
-          {
-            title: "EV chargers near you",
-            hint: "Find a charger nearby",
-            icon: PlugZap,
             colour: "bg-[#8e8e93]",
             soon: true,
           },
