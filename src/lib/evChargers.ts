@@ -1,5 +1,6 @@
 // Public EV charge points from OpenStreetMap (free, no key, good UK
-// coverage). We ask the Overpass API for the chargers inside the part of the
+// coverage), merged with Open Charge Map when VITE_OCM_KEY is set (free key
+// from openchargemap.org; fills gaps and adds "not working" reports). We ask the Overpass API for the chargers inside the part of the
 // map you're looking at. Nothing about the viewer is stored: the request
 // only carries the map's edges, the same as any map app.
 //
@@ -21,7 +22,11 @@ export type Connector = {
 
 export type Charger = {
   id: string;
-  osmUrl: string;
+  /** Where to correct the details: the OpenStreetMap or Open Charge Map page. */
+  fixUrl: string;
+  sources: ("osm" | "ocm")[];
+  /** false when Open Charge Map has it reported as not working. */
+  working: boolean | null;
   lat: number;
   lng: number;
   name: string;
@@ -146,6 +151,23 @@ type OsmElement = {
   tags?: OsmTags;
 };
 
+/** The fastest listed output, or a guess from the plug types if none is. */
+function topSpeed(connectors: Connector[], extraKw: (number | null)[] = []) {
+  const listed = [...connectors.map((c) => c.kw), ...extraKw].filter(
+    (kw): kw is number => kw !== null,
+  );
+  let maxKw = listed.length ? Math.max(...listed) : null;
+  let kwEstimated = false;
+  if (maxKw === null) {
+    // No output listed: rapid-only plugs mean a rapid charger.
+    if (connectors.some((c) => c.key === "tesla" && c.label === "Tesla")) maxKw = 150;
+    else if (connectors.some((c) => c.key === "ccs" || c.key === "chademo")) maxKw = 50;
+    else if (connectors.some((c) => c.key === "type2")) maxKw = 7;
+    kwEstimated = maxKw !== null;
+  }
+  return { maxKw, kwEstimated };
+}
+
 export function parseCharger(el: OsmElement): Charger | null {
   const tags: OsmTags = el.tags ?? {};
   const lat = el.lat ?? el.center?.lat;
@@ -170,20 +192,10 @@ export function parseCharger(el: OsmElement): Charger | null {
     });
   }
 
-  const listedKw = [
-    ...connectors.map((c) => c.kw),
+  const { maxKw, kwEstimated } = topSpeed(connectors, [
     parseKw(tags["charging_station:output"]),
     parseKw(tags.maxpower),
-  ].filter((kw): kw is number => kw !== null);
-  let maxKw = listedKw.length ? Math.max(...listedKw) : null;
-  let kwEstimated = false;
-  if (maxKw === null) {
-    // No output tagged: rapid-only plugs mean a rapid charger.
-    if (connectors.some((c) => c.key === "tesla" && c.label === "Tesla")) maxKw = 150;
-    else if (connectors.some((c) => c.key === "ccs" || c.key === "chademo")) maxKw = 50;
-    else if (connectors.some((c) => c.key === "type2")) maxKw = 7;
-    kwEstimated = maxKw !== null;
-  }
+  ]);
 
   const operator = tags.operator || tags.network || tags.brand || null;
   const street = [tags["addr:housenumber"], tags["addr:street"]].filter(Boolean).join(" ");
@@ -202,7 +214,9 @@ export function parseCharger(el: OsmElement): Charger | null {
 
   return {
     id: `${el.type}/${el.id}`,
-    osmUrl: `https://www.openstreetmap.org/${el.type}/${el.id}`,
+    fixUrl: `https://www.openstreetmap.org/${el.type}/${el.id}`,
+    sources: ["osm"],
+    working: null,
     lat,
     lng,
     name: tags.name || (operator ? `${operator} charger` : "EV charger"),
@@ -238,7 +252,7 @@ export function roundBounds(b: Bounds): Bounds {
   };
 }
 
-export async function fetchChargers(bounds: Bounds, signal?: AbortSignal): Promise<Charger[]> {
+async function fetchOsm(bounds: Bounds, signal?: AbortSignal): Promise<Charger[]> {
   const body = new URLSearchParams({ data: query(bounds) });
   let lastError: unknown = null;
   for (const endpoint of ENDPOINTS) {
@@ -262,6 +276,185 @@ export async function fetchChargers(bounds: Bounds, signal?: AbortSignal): Promi
   }
   console.warn("Charger lookup failed on every server", lastError);
   throw new Error("Couldn't load chargers right now. Try again in a minute.");
+}
+
+// ---------- Open Charge Map ----------
+
+const OCM_KEY = import.meta.env["VITE_OCM_KEY"] as string | undefined;
+export const OCM_ENABLED = !!OCM_KEY;
+
+type OcmPoi = {
+  ID: number;
+  UsageCost?: string | null;
+  NumberOfPoints?: number | null;
+  AddressInfo?: {
+    Title?: string | null;
+    AddressLine1?: string | null;
+    Town?: string | null;
+    Postcode?: string | null;
+    Latitude: number;
+    Longitude: number;
+  } | null;
+  OperatorInfo?: { Title?: string | null } | null;
+  UsageType?: { Title?: string | null } | null;
+  StatusType?: { Title?: string | null; IsOperational?: boolean | null } | null;
+  Connections?: {
+    ConnectionTypeID?: number | null;
+    ConnectionType?: { Title?: string | null } | null;
+    PowerKW?: number | null;
+    Quantity?: number | null;
+  }[];
+};
+
+// Open Charge Map connection type IDs.
+const OCM_TYPES: Record<number, { key: ConnectorKey; label: string; tethered?: boolean }> = {
+  33: { key: "ccs", label: "CCS" },
+  2: { key: "chademo", label: "CHAdeMO" },
+  27: { key: "tesla", label: "Tesla" },
+  30: { key: "tesla", label: "Tesla destination" },
+  25: { key: "type2", label: "Type 2" },
+  1036: { key: "type2", label: "Type 2 (cable)", tethered: true },
+  32: { key: "ccs", label: "CCS1" },
+  1: { key: "type1", label: "Type 1" },
+  3: { key: "plug", label: "3-pin plug" },
+  28: { key: "plug", label: "Schuko plug" },
+};
+
+function ocmConnectorType(id: number | null | undefined, title: string | null | undefined) {
+  if (id && OCM_TYPES[id]) return OCM_TYPES[id];
+  const t = (title ?? "").toLowerCase();
+  if (t.includes("ccs")) return { key: "ccs" as const, label: "CCS" };
+  if (t.includes("chademo")) return { key: "chademo" as const, label: "CHAdeMO" };
+  if (t.includes("tesla")) return { key: "tesla" as const, label: "Tesla" };
+  if (t.includes("type 2")) return { key: "type2" as const, label: "Type 2" };
+  if (t.includes("type 1")) return { key: "type1" as const, label: "Type 1" };
+  if (t.includes("bs1363") || t.includes("3 pin"))
+    return { key: "plug" as const, label: "3-pin plug" };
+  return null;
+}
+
+export function parseOcmPoi(poi: OcmPoi): Charger | null {
+  const a = poi.AddressInfo;
+  if (!a || typeof a.Latitude !== "number" || typeof a.Longitude !== "number") return null;
+  const usage = poi.UsageType?.Title ?? "";
+  if (/^private/i.test(usage)) return null;
+  const status = poi.StatusType?.Title ?? "";
+  if (/removed|decommissioned|planned/i.test(status)) return null;
+
+  const byLabel = new Map<string, Connector>();
+  for (const conn of poi.Connections ?? []) {
+    const type = ocmConnectorType(conn.ConnectionTypeID, conn.ConnectionType?.Title);
+    if (!type) continue;
+    const existing = byLabel.get(type.label);
+    const kw = conn.PowerKW && conn.PowerKW > 0 ? conn.PowerKW : null;
+    const count = conn.Quantity && conn.Quantity > 0 ? conn.Quantity : 1;
+    if (existing) {
+      existing.count = (existing.count ?? 0) + count;
+      if (kw && (!existing.kw || kw > existing.kw)) existing.kw = kw;
+    } else {
+      byLabel.set(type.label, {
+        key: type.key,
+        label: type.label,
+        count,
+        kw,
+        ...("tethered" in type && type.tethered ? { tethered: true } : {}),
+      });
+    }
+  }
+  const connectors = [...byLabel.values()];
+  const { maxKw, kwEstimated } = topSpeed(connectors);
+  const operatorTitle = poi.OperatorInfo?.Title ?? "";
+  const operator = !operatorTitle || operatorTitle.startsWith("(") ? null : operatorTitle;
+  const cost = poi.UsageCost?.trim() || null;
+  const address = [a.AddressLine1, a.Town, a.Postcode].filter(Boolean).join(", ") || null;
+  return {
+    id: `ocm/${poi.ID}`,
+    fixUrl: `https://map.openchargemap.io/?id=${poi.ID}`,
+    sources: ["ocm"],
+    working:
+      poi.StatusType?.IsOperational === false ? false : poi.StatusType?.IsOperational ? true : null,
+    lat: a.Latitude,
+    lng: a.Longitude,
+    name: a.Title || (operator ? `${operator} charger` : "EV charger"),
+    operator,
+    address,
+    connectors,
+    maxKw,
+    kwEstimated,
+    speed: speedFor(maxKw),
+    capacity: poi.NumberOfPoints && poi.NumberOfPoints > 0 ? poi.NumberOfPoints : null,
+    fee: cost
+      ? /free/i.test(cost)
+        ? "free"
+        : /£|\d+p\b|pence|per kwh/i.test(cost)
+          ? "paid"
+          : null
+      : null,
+    charge: cost,
+    hours: null,
+    customersOnly: /customer|visitor/i.test(usage),
+    parkingFee: null,
+    payment: [],
+  };
+}
+
+async function fetchOcm(bounds: Bounds, signal?: AbortSignal): Promise<Charger[]> {
+  if (!OCM_KEY) return [];
+  const params = new URLSearchParams({
+    output: "json",
+    countrycode: "GB",
+    maxresults: "500",
+    compact: "false",
+    verbose: "false",
+    boundingbox: `(${bounds.north},${bounds.west}),(${bounds.south},${bounds.east})`,
+    key: OCM_KEY,
+  });
+  const res = await fetch(`https://api.openchargemap.io/v3/poi/?${params}`, {
+    signal: signal ?? null,
+  });
+  if (!res.ok) throw new Error(`Open Charge Map lookup failed (${res.status})`);
+  const json = (await res.json()) as OcmPoi[];
+  return json.map(parseOcmPoi).filter((c): c is Charger => c !== null);
+}
+
+/** Same charger in both lists (within ~60 m): keep one, filling its gaps. */
+export function mergeChargers(osm: Charger[], ocm: Charger[]): Charger[] {
+  const merged = osm.map((c) => ({ ...c }));
+  for (const extra of ocm) {
+    const twin = merged.find(
+      (c) => c.sources.includes("osm") && kmBetween(c.lat, c.lng, extra.lat, extra.lng) < 0.06,
+    );
+    if (!twin) {
+      merged.push(extra);
+      continue;
+    }
+    twin.sources = ["osm", "ocm"];
+    twin.working = extra.working;
+    twin.operator ??= extra.operator;
+    twin.address ??= extra.address;
+    twin.charge ??= extra.charge;
+    twin.fee ??= extra.fee;
+    twin.capacity ??= extra.capacity;
+    if (twin.connectors.length === 0) twin.connectors = extra.connectors;
+    if (extra.maxKw !== null && !extra.kwEstimated && (twin.kwEstimated || twin.maxKw === null)) {
+      twin.maxKw = extra.maxKw;
+      twin.kwEstimated = false;
+      twin.speed = extra.speed;
+    }
+    if (twin.name === "EV charger" || twin.name.endsWith(" charger")) twin.name = extra.name;
+  }
+  return merged;
+}
+
+/** Chargers in the box from every source we have; one source failing is fine. */
+export async function fetchChargers(bounds: Bounds, signal?: AbortSignal): Promise<Charger[]> {
+  const [osm, ocm] = await Promise.allSettled([fetchOsm(bounds, signal), fetchOcm(bounds, signal)]);
+  if (osm.status === "rejected" && (ocm.status === "rejected" || !OCM_ENABLED)) throw osm.reason;
+  if (ocm.status === "rejected") console.warn("Open Charge Map lookup failed", ocm.reason);
+  return mergeChargers(
+    osm.status === "fulfilled" ? osm.value : [],
+    ocm.status === "fulfilled" ? ocm.value : [],
+  );
 }
 
 /** A box roughly `km` each way around a point, for "chargers near me". */

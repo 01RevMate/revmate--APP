@@ -19,6 +19,7 @@ import { ChargerMap, type MapView } from "@/components/ChargerMap";
 import {
   CONNECTOR_FILTERS,
   MIN_CHARGER_ZOOM,
+  OCM_ENABLED,
   SPEED_FILTERS,
   SPEED_INFO,
   boundsAround,
@@ -495,6 +496,20 @@ function EvChargersPage() {
         >
           OpenStreetMap
         </a>
+        {OCM_ENABLED && (
+          <>
+            {" "}
+            and{" "}
+            <a
+              href="https://openchargemap.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Open Charge Map
+            </a>
+          </>
+        )}
         , mapped by volunteers. Distances are as the crow flies. We can't show whether a charger is
         in use or working right now — check the operator's app before a long trip. Your location
         stays on your phone.
@@ -525,6 +540,7 @@ function ChargerRow({
           <span className="block truncate text-[15px] font-semibold">{c.name}</span>
           <span className="block truncate text-xs text-muted-foreground">
             {[
+              c.working === false ? "⚠️ Reported not working" : null,
               c.operator && c.operator !== c.name.replace(/ charger$/, "") ? c.operator : null,
               c.fee === "free" ? "Free" : null,
               c.customersOnly ? "Customers only" : null,
@@ -676,6 +692,11 @@ function ChargerCard({
             {c.fee === "free" ? "Free to charge" : "Paid"}
           </span>
         )}
+        {c.working === false && (
+          <span className="rounded-full bg-destructive/15 px-2.5 py-1 text-destructive">
+            Reported not working
+          </span>
+        )}
         {c.customersOnly && (
           <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-amber-700 dark:text-amber-400">
             Customers only
@@ -749,7 +770,7 @@ function ChargerCard({
           Waze
         </a>
         <a
-          href={c.osmUrl}
+          href={c.fixUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="flex min-h-10 items-center justify-center gap-1 rounded-full bg-muted text-xs font-semibold"

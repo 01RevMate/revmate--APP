@@ -36,6 +36,7 @@ export const RELEASES: Release[] = [
       "Filter by speed (7, 50 or 150 kW+), plug type (Type 2, CCS, CHAdeMO, Tesla) and free chargers",
       "Tap a charger for plugs and speeds, cost, opening hours, how to pay, and one-tap directions in Google Maps, Apple Maps or Waze",
       "Works without an account and can be found on Google",
+      'With an Open Charge Map key set, chargers from both OpenStreetMap and Open Charge Map are combined (duplicates shown once), with "Reported not working" warnings',
     ],
   },
   {
