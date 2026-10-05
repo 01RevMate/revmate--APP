@@ -2382,10 +2382,8 @@ export type Database = {
           issue_status: string | null
           issue_system: string | null
           last_resolve_prompt_at: string | null
-          latitude: number | null
           likes_count: number
           listing_id: string | null
-          longitude: number | null
           moderation_status: string
           posted_as_garage_car_id: string | null
           reaction_counts: Json
@@ -2415,10 +2413,8 @@ export type Database = {
           issue_status?: string | null
           issue_system?: string | null
           last_resolve_prompt_at?: string | null
-          latitude?: number | null
           likes_count?: number
           listing_id?: string | null
-          longitude?: number | null
           moderation_status?: string
           posted_as_garage_car_id?: string | null
           reaction_counts?: Json
@@ -2448,10 +2444,8 @@ export type Database = {
           issue_status?: string | null
           issue_system?: string | null
           last_resolve_prompt_at?: string | null
-          latitude?: number | null
           likes_count?: number
           listing_id?: string | null
-          longitude?: number | null
           moderation_status?: string
           posted_as_garage_car_id?: string | null
           reaction_counts?: Json
@@ -3433,10 +3427,8 @@ export type Database = {
           issue_status: string | null
           issue_system: string | null
           last_resolve_prompt_at: string | null
-          latitude: number | null
           likes_count: number
           listing_id: string | null
-          longitude: number | null
           moderation_status: string
           posted_as_garage_car_id: string | null
           reaction_counts: Json
@@ -3477,10 +3469,8 @@ export type Database = {
           issue_status: string | null
           issue_system: string | null
           last_resolve_prompt_at: string | null
-          latitude: number | null
           likes_count: number
           listing_id: string | null
-          longitude: number | null
           moderation_status: string
           posted_as_garage_car_id: string | null
           reaction_counts: Json
@@ -3565,53 +3555,6 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "car_meets"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
-      nearby_posts: {
-        Args: {
-          lat: number
-          lng: number
-          page_offset?: number
-          radius_km?: number
-        }
-        Returns: {
-          audience: Database["public"]["Enums"]["post_audience"]
-          body: string
-          car_id: string | null
-          category: Database["public"]["Enums"]["post_category"]
-          comments_count: number
-          created_at: string
-          group_id: string | null
-          has_poll: boolean
-          id: string
-          image_url: string | null
-          issue_fix: string | null
-          issue_status: string | null
-          issue_system: string | null
-          last_resolve_prompt_at: string | null
-          latitude: number | null
-          likes_count: number
-          listing_id: string | null
-          longitude: number | null
-          moderation_status: string
-          posted_as_garage_car_id: string | null
-          reaction_counts: Json
-          repost_of_id: string | null
-          reposts_count: number
-          resolve_prompts: number
-          resolved_at: string | null
-          spotted_garage_car_id: string | null
-          tagged_engine: string | null
-          tagged_make: string | null
-          tagged_model: string | null
-          tagged_year: number | null
-          user_id: string
-        }[]
-        SetofOptions: {
-          from: "*"
-          to: "posts"
           isOneToOne: false
           isSetofReturn: true
         }
@@ -3760,10 +3703,8 @@ export type Database = {
           issue_status: string | null
           issue_system: string | null
           last_resolve_prompt_at: string | null
-          latitude: number | null
           likes_count: number
           listing_id: string | null
-          longitude: number | null
           moderation_status: string
           posted_as_garage_car_id: string | null
           reaction_counts: Json

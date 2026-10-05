@@ -3,35 +3,27 @@
 Steps 1–12 in `sql-to-run/` have all been applied (the latest, 8–12, on 28
 September 2026). Steps 15 (live unread badge), 16 (Speakers / Sound
 diagnostics), 17 (Buy & Sell upgrade), 18 (group covers + more social
-links) and 19 (public profile pages) were applied on 1–2 October 2026.
-Left to do: step 20 (remove location from posts), step 21 (security fixes)
-and the optional phone notifications setup.
+links) and 19 (public profile pages) were applied on 1–2 October 2026, and
+step 21 (security fixes) on 5 October 2026. Left to do: step 20 (remove
+location from posts) and the optional phone notifications setup.
 
 ---
 
-## ⭐ Prompt A — remove location from posts + security fixes
+## ⭐ Prompt A — remove location from posts
+
+Step 20 deletes the latitude/longitude columns on posts, so first change
+the Lovable Cloud tool preference "Execute backward incompatible database
+migrations" from "Never allow" to "Ask each time" (or "Always allow"),
+then send:
 
 ```
-Please run these two files on the connected Supabase database, in order,
-exactly as committed (both are safe to re-run):
-
-1. sql-to-run/20_remove_post_location.sql (copy of
-   drizzle/migrations/0057_remove_post_location.sql): drops
-   public.nearby_posts, the round_post_location trigger and its function,
-   the posts_location_adults_only policy, the posts_location_idx index and
-   the latitude/longitude columns on public.posts. Meet locations
-   (car_meets) are not touched.
-
-2. sql-to-run/21_security_hardening.sql (copy of
-   drizzle/migrations/0058_security_hardening.sql): adds a counter guard
-   trigger (private.guard_member_counters) on posts, garage_cars,
-   car_meets, post_comments and stories and recounts any counts that are
-   wrong; adds private.is_known_adult and restrictive anon-only SELECT
-   policies (anon_adults_only) on profiles, garage_cars, garage_car_photos,
-   garage_mods, posts, post_comments, stories, meet_attendees and
-   profile_follows; limits inserts on cars and car_faults to admins; adds
-   NOT VALID https checks on profiles.social_instagram/facebook/tiktok; and
-   revokes public.is_admin(uuid) from anon.
+Please run sql-to-run/20_remove_post_location.sql on the connected
+Supabase database, exactly as committed (safe to re-run; copy of
+drizzle/migrations/0057_remove_post_location.sql): it drops
+public.nearby_posts, the round_post_location trigger and its function,
+the posts_location_adults_only policy, the posts_location_idx index and
+the latitude/longitude columns on public.posts. Meet locations
+(car_meets) are not touched.
 
 Then regenerate the Supabase TypeScript types and confirm the app builds.
 ```

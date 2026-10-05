@@ -19,19 +19,12 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
   locations to posts. Running it deletes the rough locations already stored
   on posts (and the old Near you lookup), so they can't be read from the
   database any more. Safe to re-run.
+- Blocked: Lovable refuses to delete the latitude/longitude columns while
+  the "Execute backward incompatible database migrations" tool preference is
+  "Never allow". Change it to "Ask each time" or "Always allow", then ask
+  Lovable to run the file.
 
-### 2. Security fixes
-
-- File: `drizzle/migrations/0058_security_hardening.sql` (`sql-to-run/21_security_hardening.sql`).
-- Added: 2026-10-03
-- What it does: stops members faking like, follower and "going" counts
-  (and puts any faked numbers back to the real ones); signed-out visitors
-  only see members known to be 18+; only admins can add cars and common
-  faults; Instagram, Facebook and TikTok links must be https; signed-out
-  visitors can't check who is an admin. Nothing in the app changes for
-  signed-in members. Safe to re-run.
-
-### 3. Phone push notifications (optional, needs a few setup steps)
+### 2. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27
@@ -58,6 +51,14 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
   (Share → Add to Home Screen) and opened from there.
 
 ## Applied
+
+- 2026-10-05: security fixes — 0058/0059 (`sql-to-run/21`). Applied by
+  Lovable exactly as committed: counter guard triggers on posts,
+  garage_cars, car_meets, post_comments and stories with recounts;
+  private.is_known_adult + anon_adults_only restrictive policies on nine
+  tables; admin-only inserts on cars and car_faults; NOT VALID https checks
+  on the three social link columns; public.is_admin revoked from anon.
+  Types regenerated; build OK. File moved to `sql-to-run/applied/`.
 
 - 2026-10-02: public profile pages — 0055/0056 (`sql-to-run/19`).
   Applied by Lovable and verified live: `public.public_profile(text)` and
