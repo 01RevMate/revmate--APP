@@ -42,7 +42,8 @@ type LinkTarget =
         | "/meets"
         | "/issues"
         | "/businesses"
-        | "/ev-chargers";
+        | "/ev-chargers"
+        | "/fuel-prices";
     };
 
 /** An iOS-style app icon: white glyph on a coloured rounded square. */
@@ -389,6 +390,13 @@ export function EssentialsHome() {
         title="On the road"
         rows={[
           {
+            title: "Cheapest fuel near you",
+            hint: "Today's petrol and diesel prices, cheapest first",
+            icon: Fuel,
+            colour: "bg-[#ff9500]",
+            link: { to: "/fuel-prices" },
+          },
+          {
             title: "EV chargers near you",
             hint: "Map of rapid and fast chargers, plugs and directions",
             icon: PlugZap,
@@ -401,13 +409,6 @@ export function EssentialsHome() {
       <Group
         title="Coming soon"
         rows={[
-          {
-            title: "Cheapest fuel near you",
-            hint: "Live petrol and diesel prices",
-            icon: Fuel,
-            colour: "bg-[#8e8e93]",
-            soon: true,
-          },
           {
             title: "Running cost calculator",
             hint: "What your car really costs",

@@ -33,6 +33,7 @@ const PUBLIC_PATHS: RegExp[] = [
   /^\/meets(\/[^/]+)?\/?$/,
   /^\/groups\/?$/,
   /^\/ev-chargers\/?$/,
+  /^\/fuel-prices\/?$/,
 ];
 
 // What people were trying to open, so the join screen can sell exactly that.

@@ -24,6 +24,19 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.19.0",
+    date: "2026-10-05",
+    title: "Fuel prices near you",
+    status: "live",
+    highlights: [
+      "New in Essentials: today's petrol and diesel prices at stations near you, from the open price data UK fuel retailers publish",
+      "Unleaded, diesel, super unleaded and premium diesel, sorted cheapest or nearest; RevMate remembers which fuel you buy",
+      "A banner shows the cheapest station near you and roughly how much you save on a 50-litre fill",
+      "List or map view, with prices on the map coloured green, amber and red, and one-tap directions",
+      "Warns you when a station's prices haven't been updated for a few days",
+    ],
+  },
+  {
     version: "1.18.0",
     date: "2026-10-04",
     title: "EV charger map",

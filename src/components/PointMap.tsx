@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { SPEED_INFO, type Bounds, type Charger } from "@/lib/evChargers";
+import type { Bounds } from "@/lib/evChargers";
 import {
   loadLeaflet,
   TILE_ATTRIBUTION,
   TILE_URL,
   type LatLngTuple,
   type LeafletCircleMarker,
+  type LeafletLayer,
   type LeafletLayerGroup,
   type LeafletMap,
   type LeafletStatic,
@@ -14,9 +15,15 @@ import {
 
 export type MapView = { bounds: Bounds; zoom: number; center: { lat: number; lng: number } };
 
-/** A Leaflet map of chargers: coloured dots by speed, tap one to select it. */
-export function ChargerMap({
-  chargers,
+/** A place on the map: a coloured dot, or a coloured tag when it has a label. */
+export type MapPoint = { id: string; lat: number; lng: number; colour: string; label?: string };
+
+const escapeHtml = (text: string) => text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+/** A Leaflet map of places (chargers, fuel stations): tap one to select it. */
+export function PointMap({
+  points,
+  ariaLabel,
   selectedId,
   onSelect,
   onViewChange,
@@ -24,7 +31,8 @@ export function ChargerMap({
   flyTo,
   me,
 }: {
-  chargers: Charger[];
+  points: MapPoint[];
+  ariaLabel: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
   onViewChange: (view: MapView) => void;
@@ -97,23 +105,34 @@ export function ChargerMap({
     const L = leaflet.current;
     if (!L || !dots.current || status !== "ready") return;
     dots.current.clearLayers();
-    let selected: LeafletCircleMarker | null = null;
-    for (const c of chargers) {
-      const isSelected = c.id === selectedId;
-      const dot = L.circleMarker([c.lat, c.lng], {
-        renderer: renderer.current,
-        radius: isSelected ? 11 : 7,
-        color: "#ffffff",
-        weight: isSelected ? 3 : 2,
-        fillColor: SPEED_INFO[c.speed].colour,
-        fillOpacity: 1,
-      });
-      dot.on("click", () => handlers.current.onSelect(c.id));
-      dot.addTo(dots.current);
-      if (isSelected) selected = dot;
+    let selected: LeafletLayer | null = null;
+    for (const p of points) {
+      const isSelected = p.id === selectedId;
+      const layer: LeafletLayer = p.label
+        ? L.marker([p.lat, p.lng], {
+            icon: L.divIcon({
+              className: "",
+              html: `<span class="revmate-pin${isSelected ? " is-selected" : ""}" style="background:${p.colour}">${escapeHtml(p.label)}</span>`,
+              iconSize: null,
+              iconAnchor: [0, 0],
+            }),
+            zIndexOffset: isSelected ? 1000 : 0,
+            keyboard: false,
+          })
+        : L.circleMarker([p.lat, p.lng], {
+            renderer: renderer.current,
+            radius: isSelected ? 11 : 7,
+            color: "#ffffff",
+            weight: isSelected ? 3 : 2,
+            fillColor: p.colour,
+            fillOpacity: 1,
+          });
+      layer.on("click", () => handlers.current.onSelect(p.id));
+      layer.addTo(dots.current);
+      if (isSelected) selected = layer;
     }
-    selected?.bringToFront();
-  }, [chargers, selectedId, status]);
+    if (selected && "bringToFront" in selected) (selected as LeafletCircleMarker).bringToFront();
+  }, [points, selectedId, status]);
 
   useEffect(() => {
     const L = leaflet.current;
@@ -133,7 +152,7 @@ export function ChargerMap({
 
   return (
     <div className="relative isolate overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
-      <div ref={el} className="h-[52vh] min-h-[320px] w-full" aria-label="Map of EV chargers" />
+      <div ref={el} className="h-[52vh] min-h-[320px] w-full" aria-label={ariaLabel} />
       {status !== "ready" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-muted text-sm text-muted-foreground">
           {status === "loading" ? (

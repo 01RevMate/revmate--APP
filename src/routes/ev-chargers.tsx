@@ -15,7 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
-import { ChargerMap, type MapView } from "@/components/ChargerMap";
+import { PointMap, type MapView } from "@/components/PointMap";
 import {
   CONNECTOR_FILTERS,
   MIN_CHARGER_ZOOM,
@@ -317,8 +317,14 @@ function EvChargersPage() {
       {mode === "map" && (
         <>
           <div className="relative mt-3">
-            <ChargerMap
-              chargers={visible.map((v) => v.c)}
+            <PointMap
+              ariaLabel="Map of EV chargers"
+              points={visible.map(({ c }) => ({
+                id: c.id,
+                lat: c.lat,
+                lng: c.lng,
+                colour: SPEED_INFO[c.speed].colour,
+              }))}
               selectedId={selectedId}
               onSelect={(id) => setSelectedId(id)}
               onViewChange={(next) => {

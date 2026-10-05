@@ -46,6 +46,8 @@ export interface LeafletStatic {
   map(el: HTMLElement, options?: Record<string, unknown>): LeafletMap;
   tileLayer(url: string, options?: Record<string, unknown>): LeafletLayer;
   circleMarker(at: LatLngTuple, options?: Record<string, unknown>): LeafletCircleMarker;
+  marker(at: LatLngTuple, options?: Record<string, unknown>): LeafletLayer;
+  divIcon(options: Record<string, unknown>): unknown;
   layerGroup(): LeafletLayerGroup;
   canvas(options?: Record<string, unknown>): unknown;
   control: { zoom(options?: Record<string, unknown>): LeafletLayer };

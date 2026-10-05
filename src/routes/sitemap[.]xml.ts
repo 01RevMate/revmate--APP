@@ -15,6 +15,7 @@ const STATIC_PAGES: { path: string; changefreq: string; priority: string }[] = [
   { path: "/issues", changefreq: "daily", priority: "0.7" },
   { path: "/meets", changefreq: "daily", priority: "0.7" },
   { path: "/ev-chargers", changefreq: "weekly", priority: "0.7" },
+  { path: "/fuel-prices", changefreq: "daily", priority: "0.7" },
   { path: "/groups", changefreq: "daily", priority: "0.6" },
   { path: "/signup", changefreq: "monthly", priority: "0.5" },
   { path: "/community-standards", changefreq: "monthly", priority: "0.3" },

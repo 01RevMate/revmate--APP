@@ -18,6 +18,7 @@ import { Route as CommunityStandardsRouteImport } from './routes/community-stand
 import { Route as EssentialsRouteImport } from './routes/essentials'
 import { Route as EvChargersRouteImport } from './routes/ev-chargers'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as FuelPricesRouteImport } from './routes/fuel-prices'
 import { Route as GarageRouteImport } from './routes/garage'
 import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
@@ -32,6 +33,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as UpdatesDotjsonRouteImport } from './routes/updates[.]json'
+import { Route as ApiFuelPricesRouteImport } from './routes/api.fuel-prices'
 import { Route as BusinessesIndexRouteImport } from './routes/businesses/index'
 import { Route as BusinessesBusinessIdRouteImport } from './routes/businesses/$businessId'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
@@ -99,6 +101,11 @@ const EvChargersRoute = EvChargersRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FuelPricesRoute = FuelPricesRouteImport.update({
+  id: '/fuel-prices',
+  path: '/fuel-prices',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GarageRoute = GarageRouteImport.update({
@@ -169,6 +176,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const UpdatesDotjsonRoute = UpdatesDotjsonRouteImport.update({
   id: '/updates.json',
   path: '/updates.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiFuelPricesRoute = ApiFuelPricesRouteImport.update({
+  id: '/api/fuel-prices',
+  path: '/api/fuel-prices',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BusinessesIndexRoute = BusinessesIndexRouteImport.update({
@@ -298,6 +310,7 @@ export interface FileRoutesByFullPath {
   '/essentials': typeof EssentialsRoute
   '/ev-chargers': typeof EvChargersRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/fuel-prices': typeof FuelPricesRoute
   '/garage': typeof GarageRoute
   '/issues': typeof IssuesRoute
   '/leaderboard': typeof LeaderboardRoute
@@ -312,6 +325,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
+  '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/cookies': typeof LegalCookiesRoute
@@ -346,6 +360,7 @@ export interface FileRoutesByTo {
   '/essentials': typeof EssentialsRoute
   '/ev-chargers': typeof EvChargersRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/fuel-prices': typeof FuelPricesRoute
   '/garage': typeof GarageRoute
   '/issues': typeof IssuesRoute
   '/leaderboard': typeof LeaderboardRoute
@@ -360,6 +375,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
+  '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/cookies': typeof LegalCookiesRoute
@@ -395,6 +411,7 @@ export interface FileRoutesById {
   '/essentials': typeof EssentialsRoute
   '/ev-chargers': typeof EvChargersRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/fuel-prices': typeof FuelPricesRoute
   '/garage': typeof GarageRoute
   '/issues': typeof IssuesRoute
   '/leaderboard': typeof LeaderboardRoute
@@ -409,6 +426,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
+  '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/cookies': typeof LegalCookiesRoute
@@ -445,6 +463,7 @@ export interface FileRouteTypes {
     | '/essentials'
     | '/ev-chargers'
     | '/forgot-password'
+    | '/fuel-prices'
     | '/garage'
     | '/issues'
     | '/leaderboard'
@@ -459,6 +478,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap.xml'
     | '/updates.json'
+    | '/api/fuel-prices'
     | '/businesses/$businessId'
     | '/groups/$slug'
     | '/legal/cookies'
@@ -493,6 +513,7 @@ export interface FileRouteTypes {
     | '/essentials'
     | '/ev-chargers'
     | '/forgot-password'
+    | '/fuel-prices'
     | '/garage'
     | '/issues'
     | '/leaderboard'
@@ -507,6 +528,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap.xml'
     | '/updates.json'
+    | '/api/fuel-prices'
     | '/businesses/$businessId'
     | '/groups/$slug'
     | '/legal/cookies'
@@ -541,6 +563,7 @@ export interface FileRouteTypes {
     | '/essentials'
     | '/ev-chargers'
     | '/forgot-password'
+    | '/fuel-prices'
     | '/garage'
     | '/issues'
     | '/leaderboard'
@@ -555,6 +578,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap.xml'
     | '/updates.json'
+    | '/api/fuel-prices'
     | '/businesses/$businessId'
     | '/groups/$slug'
     | '/legal/cookies'
@@ -590,6 +614,7 @@ export interface RootRouteChildren {
   EssentialsRoute: typeof EssentialsRoute
   EvChargersRoute: typeof EvChargersRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  FuelPricesRoute: typeof FuelPricesRoute
   GarageRoute: typeof GarageRoute
   IssuesRoute: typeof IssuesRoute
   LeaderboardRoute: typeof LeaderboardRoute
@@ -604,6 +629,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UpdatesDotjsonRoute: typeof UpdatesDotjsonRoute
+  ApiFuelPricesRoute: typeof ApiFuelPricesRoute
   BusinessesBusinessIdRoute: typeof BusinessesBusinessIdRoute
   GroupsSlugRoute: typeof GroupsSlugRoute
   LegalCookiesRoute: typeof LegalCookiesRoute
@@ -691,6 +717,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fuel-prices': {
+      id: '/fuel-prices'
+      path: '/fuel-prices'
+      fullPath: '/fuel-prices'
+      preLoaderRoute: typeof FuelPricesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/garage': {
@@ -789,6 +822,13 @@ declare module '@tanstack/react-router' {
       path: '/updates.json'
       fullPath: '/updates.json'
       preLoaderRoute: typeof UpdatesDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/fuel-prices': {
+      id: '/api/fuel-prices'
+      path: '/api/fuel-prices'
+      fullPath: '/api/fuel-prices'
+      preLoaderRoute: typeof ApiFuelPricesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/businesses/': {
@@ -977,6 +1017,7 @@ const rootRouteChildren: RootRouteChildren = {
   EssentialsRoute: EssentialsRoute,
   EvChargersRoute: EvChargersRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  FuelPricesRoute: FuelPricesRoute,
   GarageRoute: GarageRoute,
   IssuesRoute: IssuesRoute,
   LeaderboardRoute: LeaderboardRoute,
@@ -991,6 +1032,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UpdatesDotjsonRoute: UpdatesDotjsonRoute,
+  ApiFuelPricesRoute: ApiFuelPricesRoute,
   BusinessesBusinessIdRoute: BusinessesBusinessIdRoute,
   GroupsSlugRoute: GroupsSlugRoute,
   LegalCookiesRoute: LegalCookiesRoute,
