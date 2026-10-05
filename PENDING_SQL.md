@@ -11,18 +11,7 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
-### 1. Remove location from posts
-
-- File: `drizzle/migrations/0057_remove_post_location.sql` (`sql-to-run/20_remove_post_location.sql`).
-- Added: 2026-10-03
-- Needed by: nothing breaks before it runs — the app already stopped adding
-  locations to posts. Running it wipes the rough locations already stored on
-  posts and makes the database throw away any new ones, so they can't be
-  read any more. Non-breaking: the columns stay (always empty), so older
-  copies of the app keep working and Lovable's "backward incompatible"
-  setting doesn't block it. Safe to re-run.
-
-### 2. Phone push notifications (optional, needs a few setup steps)
+### 1. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27
@@ -49,6 +38,16 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
   (Share → Add to Home Screen) and opened from there.
 
 ## Applied
+
+- 2026-10-05: remove location from posts — 0057 (`sql-to-run/20`). Found
+  already applied to the live database by hand: `posts.latitude` /
+  `posts.longitude`, `private.round_post_location()`, its trigger,
+  `public.nearby_posts`, the `posts_location_adults_only` policy and the
+  `posts_location_idx` index are all gone (verified via information_schema).
+  The committed re-runnable copy therefore has nothing left to do; file
+  moved to `sql-to-run/applied/`. Types regenerated — the only remaining
+  location fields are on car_meets / nearby_meets (meet locations, kept on
+  purpose). Build OK.
 
 - 2026-10-05: security fixes — 0058/0059 (`sql-to-run/21`). Applied by
   Lovable exactly as committed: counter guard triggers on posts,
