@@ -30,7 +30,9 @@ export const RELEASES: Release[] = [
     status: "live",
     highlights: [
       "New EV charger map in Essentials: every public charging point on a proper map, coloured by speed (ultra-rapid, rapid, fast, slow)",
-      "Search a postcode or town, or tap Near me; it starts on your area if you've set one",
+      "Opens as a list of the nearest chargers, closest first, with plugs, speeds and one-tap directions; switch to the map any time",
+      "Search a postcode or town, or tap Near me; if you've allowed location it finds chargers straight away, otherwise it starts on your area",
+      "Tap Details on any charger, then Show on map to see exactly where it is",
       "Filter by speed (7, 50 or 150 kW+), plug type (Type 2, CCS, CHAdeMO, Tesla) and free chargers",
       "Tap a charger for plugs and speeds, cost, opening hours, how to pay, and one-tap directions in Google Maps, Apple Maps or Waze",
       "Works without an account and can be found on Google",
@@ -40,7 +42,7 @@ export const RELEASES: Release[] = [
     version: "1.17.0",
     date: "2026-10-03",
     title: "A simpler, tidier RevMate",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "Shorter menu: Leaderboard and Car Battles are now one Top cars section with Battles and Rankings tabs",
       "Ask for help now makes a help post in the feed, so owners can reply and you can mark it fixed (it used to save your question somewhere you couldn't see it)",

@@ -1,11 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   Clock,
   ExternalLink,
+  List,
   Loader2,
   LocateFixed,
+  Map as MapIcon,
   Navigation,
   PlugZap,
   Search,
@@ -19,6 +21,7 @@ import {
   MIN_CHARGER_ZOOM,
   SPEED_FILTERS,
   SPEED_INFO,
+  boundsAround,
   chargerDistance,
   directionsLinks,
   fetchChargers,
@@ -55,8 +58,15 @@ export const Route = createFileRoute("/ev-chargers")({
 const UK: { center: LatLngTuple; zoom: number } = { center: [54.2, -2.6], zoom: 6 };
 const LIST_STEP = 30;
 
+type Origin = { lat: number; lng: number; label: string };
+type Mode = "list" | "map";
+const RADII_KM = [8, 25];
+
 function EvChargersPage() {
   const myPlace = useMyPlace();
+  const [mode, setMode] = useState<Mode>("list");
+  const [origin, setOrigin] = useState<Origin | null>(null);
+  const [radiusKm, setRadiusKm] = useState(RADII_KM[0]!);
   const [view, setView] = useState<MapView | null>(null);
   const [filters, setFilters] = useState<ChargerFilters>({
     minKw: 0,
@@ -72,16 +82,68 @@ function EvChargersPage() {
     null,
   );
   const [shown, setShown] = useState(LIST_STEP);
-  const [startedFromArea, setStartedFromArea] = useState(false);
 
-  // Start on your area if you've set one (it's only a postcode district).
-  if (myPlace && !startedFromArea) {
-    setStartedFromArea(true);
-    setFlyTo({ center: [myPlace.lat, myPlace.lng], zoom: 13, key: Date.now() });
+  function goTo(next: Origin, zoom = 13) {
+    setOrigin(next);
+    setRadiusKm(RADII_KM[0]!);
+    setSelectedId(null);
+    setShown(LIST_STEP);
+    setFlyTo({ center: [next.lat, next.lng], zoom, key: Date.now() });
   }
 
+  function locate(quiet = false) {
+    if (!navigator.geolocation) {
+      if (!quiet)
+        toast.error("Location isn't available on this device — search a postcode instead.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const here = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setMe(here);
+        goTo({ ...here, label: "you" }, 14);
+        setLocating(false);
+      },
+      () => {
+        if (!quiet) toast.error("Allow location access, or search a postcode or town.");
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
+  }
+
+  // If you've already let RevMate use your location, find chargers straight
+  // away; otherwise start on your area (a postcode district) if you've set one.
+  useEffect(() => {
+    let cancelled = false;
+    void navigator.permissions
+      ?.query({ name: "geolocation" as PermissionName })
+      .then((status) => {
+        if (!cancelled && status.state === "granted") locate(true);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (myPlace && !origin && !locating) {
+      goTo({ lat: myPlace.lat, lng: myPlace.lng, label: myPlace.district });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [myPlace]);
+
   const zoomedIn = (view?.zoom ?? 0) >= MIN_CHARGER_ZOOM;
-  const area = view && zoomedIn ? roundBounds(view.bounds) : null;
+  const area =
+    mode === "list"
+      ? origin
+        ? boundsAround(origin.lat, origin.lng, radiusKm)
+        : null
+      : view && zoomedIn
+        ? roundBounds(view.bounds)
+        : null;
   const {
     data: chargers,
     isFetching,
@@ -96,44 +158,25 @@ function EvChargersPage() {
     retry: 1,
   });
 
-  const from = me ?? view?.center ?? null;
+  const from = mode === "list" ? origin : (me ?? view?.center ?? origin);
   const visible = useMemo(() => {
-    if (!chargers || !view || !zoomedIn) return [];
-    const b = view.bounds;
+    if (!chargers || !area) return [];
+    const inView = (c: Charger) =>
+      mode === "list"
+        ? true
+        : !!view &&
+          c.lat >= view.bounds.south &&
+          c.lat <= view.bounds.north &&
+          c.lng >= view.bounds.west &&
+          c.lng <= view.bounds.east;
     return chargers
-      .filter(
-        (c) =>
-          c.lat >= b.south &&
-          c.lat <= b.north &&
-          c.lng >= b.west &&
-          c.lng <= b.east &&
-          matchesFilters(c, filters),
-      )
+      .filter((c) => inView(c) && matchesFilters(c, filters))
       .map((c) => ({ c, km: from ? kmBetween(from.lat, from.lng, c.lat, c.lng) : 0 }))
+      .filter((v) => mode === "map" || v.km <= radiusKm)
       .sort((a, b) => a.km - b.km);
-  }, [chargers, view, zoomedIn, filters, from]);
+  }, [chargers, area, mode, view, filters, from, radiusKm]);
   const selected = visible.find((v) => v.c.id === selectedId) ?? null;
-
-  function locate() {
-    if (!navigator.geolocation) {
-      toast.error("Location isn't available on this device — search a postcode instead.");
-      return;
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const here = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setMe(here);
-        setFlyTo({ center: [here.lat, here.lng], zoom: 14, key: Date.now() });
-        setLocating(false);
-      },
-      () => {
-        toast.error("Allow location access, or search a postcode or town.");
-        setLocating(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
-    );
-  }
+  const loading = isFetching && (!chargers || visible.length === 0);
 
   async function runSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -150,11 +193,17 @@ function EvChargersPage() {
         toast.error(`We couldn't find "${q}". Try a postcode or town name.`);
         return;
       }
-      setSelectedId(null);
-      setFlyTo({ center: [spot.lat, spot.lng], zoom: 13, key: Date.now() });
+      goTo({ ...spot, label: q });
     } finally {
       setSearching(false);
     }
+  }
+
+  function showOnMap(c: Charger) {
+    setSelectedId(c.id);
+    setFlyTo({ center: [c.lat, c.lng], zoom: 15, key: Date.now() });
+    setMode("map");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   const toggleConnector = (key: ConnectorKey) =>
@@ -164,18 +213,49 @@ function EvChargersPage() {
         ? f.connectors.filter((k) => k !== key)
         : [...f.connectors, key],
     }));
+  const filtered = filters.minKw > 0 || filters.connectors.length > 0 || filters.freeOnly;
+  const mapStart: { center: LatLngTuple; zoom: number } = selected
+    ? { center: [selected.c.lat, selected.c.lng], zoom: 15 }
+    : origin
+      ? { center: [origin.lat, origin.lng], zoom: 13 }
+      : UK;
 
   return (
     <main className="mx-auto max-w-3xl px-3 py-4 sm:px-4">
-      <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
-        <span className="flex size-9 items-center justify-center rounded-xl bg-[#34c759] text-white">
-          <PlugZap className="size-5" />
-        </span>
-        EV chargers
-      </h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Public charging points near you, with plug types, speeds and directions.
-      </p>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-[#34c759] text-white">
+            <PlugZap className="size-5" />
+          </span>
+          EV chargers
+        </h1>
+        <div
+          role="tablist"
+          aria-label="View"
+          className="grid grid-cols-2 rounded-full bg-muted p-1"
+        >
+          {(
+            [
+              ["list", "List", List],
+              ["map", "Map", MapIcon],
+            ] as const
+          ).map(([id, label, Icon]) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={mode === id}
+              onClick={() => setMode(id)}
+              className={`flex min-h-9 items-center justify-center gap-1.5 rounded-full px-3.5 text-sm font-semibold ${
+                mode === id ? "bg-background shadow-sm" : "text-muted-foreground"
+              }`}
+            >
+              <Icon className="size-4" />
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <form onSubmit={runSearch} className="mt-3 flex gap-2">
         <label className="flex min-h-11 flex-1 items-center gap-2 rounded-full border border-input bg-background px-4">
@@ -191,7 +271,7 @@ function EvChargersPage() {
         </label>
         <button
           type="button"
-          onClick={locate}
+          onClick={() => locate()}
           disabled={locating}
           className="flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60"
         >
@@ -205,14 +285,14 @@ function EvChargersPage() {
       </form>
 
       <div className="-mx-3 mt-3 flex gap-2 overflow-x-auto px-3 pb-1 [&::-webkit-scrollbar]:hidden">
-        {SPEED_FILTERS.map((s) => (
+        {SPEED_FILTERS.map((sp) => (
           <Chip
-            key={s.min}
-            active={filters.minKw === s.min}
-            onClick={() => setFilters((f) => ({ ...f, minKw: s.min }))}
+            key={sp.min}
+            active={filters.minKw === sp.min}
+            onClick={() => setFilters((f) => ({ ...f, minKw: sp.min }))}
           >
-            {s.min > 0 && <Zap className="size-3.5" />}
-            {s.label}
+            {sp.min > 0 && <Zap className="size-3.5" />}
+            {sp.label}
           </Chip>
         ))}
         <span className="w-px shrink-0 bg-border" />
@@ -233,40 +313,51 @@ function EvChargersPage() {
         </Chip>
       </div>
 
-      <div className="relative mt-3">
-        <ChargerMap
-          chargers={visible.map((v) => v.c)}
-          selectedId={selectedId}
-          onSelect={(id) => setSelectedId(id)}
-          onViewChange={(next) => {
-            setView(next);
-            setShown(LIST_STEP);
-          }}
-          start={myPlace ? { center: [myPlace.lat, myPlace.lng], zoom: 13 } : UK}
-          flyTo={flyTo}
-          me={me}
-        />
-        <div className="pointer-events-none absolute inset-x-0 top-3 z-10 flex justify-center px-14">
-          <span className="rounded-full bg-background/95 px-3 py-1.5 text-xs font-semibold shadow">
-            {!zoomedIn ? (
-              "Zoom in or search a town to see chargers"
-            ) : isFetching ? (
-              <span className="flex items-center gap-1.5">
-                <Loader2 className="size-3.5 animate-spin" /> Finding chargers…
+      {mode === "map" && (
+        <>
+          <div className="relative mt-3">
+            <ChargerMap
+              chargers={visible.map((v) => v.c)}
+              selectedId={selectedId}
+              onSelect={(id) => setSelectedId(id)}
+              onViewChange={(next) => {
+                setView(next);
+                setShown(LIST_STEP);
+              }}
+              start={mapStart}
+              flyTo={flyTo}
+              me={me}
+            />
+            <div className="pointer-events-none absolute inset-x-0 top-3 z-10 flex justify-center px-14">
+              <span className="rounded-full bg-background/95 px-3 py-1.5 text-xs font-semibold shadow">
+                {!zoomedIn ? (
+                  "Zoom in or search a town to see chargers"
+                ) : isFetching ? (
+                  <span className="flex items-center gap-1.5">
+                    <Loader2 className="size-3.5 animate-spin" /> Finding chargers…
+                  </span>
+                ) : error ? (
+                  "Couldn't load chargers"
+                ) : (
+                  `${visible.length} charger${visible.length === 1 ? "" : "s"} here`
+                )}
               </span>
-            ) : error ? (
-              "Couldn't load chargers"
-            ) : (
-              `${visible.length} charger${visible.length === 1 ? "" : "s"} here`
-            )}
-          </span>
-        </div>
-        <Legend />
-      </div>
+            </div>
+            <Legend />
+          </div>
+          {selected && (
+            <ChargerCard
+              charger={selected.c}
+              km={from ? selected.km : null}
+              onClose={() => setSelectedId(null)}
+            />
+          )}
+        </>
+      )}
 
-      {error && zoomedIn && (
+      {error && !!area && (
         <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive">
-          The charger map is busy right now.
+          The charger lookup is busy right now.
           <button
             type="button"
             onClick={() => void refetch()}
@@ -277,57 +368,79 @@ function EvChargersPage() {
         </div>
       )}
 
-      {selected && (
-        <ChargerCard
-          charger={selected.c}
-          km={from ? selected.km : null}
-          onClose={() => setSelectedId(null)}
-        />
+      {mode === "list" && !origin && (
+        <section className="mt-4 flex flex-col items-center rounded-3xl bg-card p-6 text-center shadow-sm ring-1 ring-border">
+          <span className="flex size-14 items-center justify-center rounded-2xl bg-[#34c759] text-white">
+            <PlugZap className="size-7" />
+          </span>
+          <h2 className="mt-3 text-lg font-bold">Find chargers near you</h2>
+          <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+            Use your location or search a postcode or town to see the nearest chargers, closest
+            first.
+          </p>
+          <button
+            type="button"
+            onClick={() => locate()}
+            disabled={locating}
+            className="mt-4 flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+          >
+            {locating ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <LocateFixed className="size-4" />
+            )}
+            Use my location
+          </button>
+        </section>
       )}
 
-      {zoomedIn && visible.length > 0 && (
+      {mode === "list" && origin && loading && (
+        <div className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" /> Finding chargers near {origin.label}…
+        </div>
+      )}
+
+      {((mode === "list" && origin) || (mode === "map" && zoomedIn)) && visible.length > 0 && (
         <section className="mt-4">
           <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {me ? "Nearest to you" : "Nearest to the middle of the map"}
+            {mode === "list"
+              ? `${visible.length} within ${Math.round(radiusKm / 1.609)} miles of ${origin?.label}`
+              : me
+                ? "Nearest to you"
+                : "Nearest to the middle of the map"}
           </h2>
-          <ul className="mt-1.5 overflow-hidden rounded-2xl bg-card shadow-sm">
-            {visible.slice(0, shown).map(({ c, km }, i) => (
-              <li key={c.id}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedId(c.id);
-                    setFlyTo({
-                      center: [c.lat, c.lng],
-                      zoom: Math.max(view?.zoom ?? 14, 14),
-                      key: Date.now(),
-                    });
-                  }}
-                  className={`flex w-full items-center gap-3 px-3 py-2.5 text-left active:bg-accent ${i > 0 ? "border-t border-border/70" : ""} ${c.id === selectedId ? "bg-accent" : ""}`}
-                >
-                  <SpeedBadge charger={c} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[15px] font-medium">{c.name}</span>
-                    <span className="block truncate text-xs text-muted-foreground">
-                      {[
-                        c.operator && c.operator !== c.name.replace(/ charger$/, "")
-                          ? c.operator
-                          : null,
-                        connectorSummary(c),
-                        c.fee === "free" ? "Free" : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ") || "Details not listed"}
-                    </span>
-                  </span>
-                  {from && (
-                    <span className="shrink-0 text-xs font-semibold text-muted-foreground">
-                      {chargerDistance(km)}
-                    </span>
-                  )}
-                </button>
-              </li>
-            ))}
+          <ul className="mt-1.5 space-y-2">
+            {visible.slice(0, shown).map(({ c, km }) =>
+              mode === "list" && c.id === selectedId ? (
+                <li key={c.id}>
+                  <ChargerCard
+                    charger={c}
+                    km={from ? km : null}
+                    onClose={() => setSelectedId(null)}
+                    onShowOnMap={() => showOnMap(c)}
+                  />
+                </li>
+              ) : (
+                <li key={c.id}>
+                  <ChargerRow
+                    charger={c}
+                    km={from ? km : null}
+                    active={c.id === selectedId}
+                    onOpen={() => {
+                      setSelectedId(c.id);
+                      if (mode === "map") {
+                        setFlyTo({
+                          center: [c.lat, c.lng],
+                          zoom: Math.max(view?.zoom ?? 14, 14),
+                          key: Date.now(),
+                        });
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }
+                    }}
+                  />
+                </li>
+              ),
+            )}
           </ul>
           {visible.length > shown && (
             <button
@@ -341,14 +454,36 @@ function EvChargersPage() {
         </section>
       )}
 
-      {zoomedIn && !isFetching && !error && chargers && visible.length === 0 && (
-        <p className="mt-4 rounded-2xl bg-muted/60 p-4 text-center text-sm text-muted-foreground">
-          No chargers match here.{" "}
-          {filters.minKw || filters.connectors.length || filters.freeOnly
-            ? "Try fewer filters or zoom out."
-            : "Try zooming out."}
-        </p>
+      {!isFetching && !error && chargers && visible.length === 0 && !!area && (
+        <div className="mt-4 rounded-2xl bg-muted/60 p-4 text-center text-sm text-muted-foreground">
+          {filtered ? "No chargers match those filters here." : "No chargers found here."}
+          {mode === "list" && radiusKm < RADII_KM[RADII_KM.length - 1]! ? (
+            <button
+              type="button"
+              onClick={() => setRadiusKm(RADII_KM[RADII_KM.length - 1]!)}
+              className="mx-auto mt-3 block rounded-full bg-background px-4 py-2 text-sm font-semibold text-foreground"
+            >
+              Search wider (15 miles)
+            </button>
+          ) : (
+            <span> {filtered ? "Try fewer filters." : "Try zooming out or another town."}</span>
+          )}
+        </div>
       )}
+
+      {mode === "list" &&
+        origin &&
+        visible.length > 0 &&
+        visible.length < 5 &&
+        radiusKm < RADII_KM[RADII_KM.length - 1]! && (
+          <button
+            type="button"
+            onClick={() => setRadiusKm(RADII_KM[RADII_KM.length - 1]!)}
+            className="mt-2 w-full rounded-full bg-muted py-2.5 text-sm font-semibold"
+          >
+            Search wider (15 miles)
+          </button>
+        )}
 
       <p className="mt-4 px-1 text-xs text-muted-foreground">
         Charger locations come from{" "}
@@ -360,10 +495,79 @@ function EvChargersPage() {
         >
           OpenStreetMap
         </a>
-        , mapped by volunteers. We can't show whether a charger is in use or working right now —
-        check the operator's app before a long trip. Your location stays on your phone.
+        , mapped by volunteers. Distances are as the crow flies. We can't show whether a charger is
+        in use or working right now — check the operator's app before a long trip. Your location
+        stays on your phone.
       </p>
     </main>
+  );
+}
+
+function ChargerRow({
+  charger: c,
+  km,
+  active,
+  onOpen,
+}: {
+  charger: Charger;
+  km: number | null;
+  active: boolean;
+  onOpen: () => void;
+}) {
+  const links = directionsLinks(c);
+  return (
+    <div
+      className={`rounded-2xl bg-card p-3 shadow-sm ring-1 ${active ? "ring-primary" : "ring-border"}`}
+    >
+      <button type="button" onClick={onOpen} className="flex w-full items-center gap-3 text-left">
+        <SpeedBadge charger={c} />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[15px] font-semibold">{c.name}</span>
+          <span className="block truncate text-xs text-muted-foreground">
+            {[
+              c.operator && c.operator !== c.name.replace(/ charger$/, "") ? c.operator : null,
+              c.fee === "free" ? "Free" : null,
+              c.customersOnly ? "Customers only" : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || SPEED_INFO[c.speed].label}
+          </span>
+        </span>
+        {km !== null && (
+          <span className="shrink-0 text-sm font-bold tabular-nums">
+            {km < 0.16 ? "Here" : `~${chargerDistance(km)}`}
+          </span>
+        )}
+      </button>
+      {c.connectors.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {c.connectors.slice(0, 4).map((k) => (
+            <span key={k.label} className="rounded-lg bg-muted px-2 py-1 text-xs font-semibold">
+              {k.count ? `${k.count}× ` : ""}
+              {k.label}
+              {k.kw ? ` · ${k.kw} kW` : ""}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="mt-2.5 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={onOpen}
+          className="flex min-h-10 items-center justify-center rounded-full bg-muted text-sm font-semibold"
+        >
+          Details
+        </button>
+        <a
+          href={links.google}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-primary text-sm font-semibold text-primary-foreground"
+        >
+          <Navigation className="size-4" /> Directions
+        </a>
+      </div>
+    </div>
   );
 }
 
@@ -427,19 +631,17 @@ function SpeedBadge({ charger }: { charger: Charger }) {
   );
 }
 
-function connectorSummary(c: Charger) {
-  const names = [...new Set(c.connectors.map((k) => k.label.replace(/ \(.*\)$/, "")))];
-  return names.slice(0, 3).join(", ");
-}
-
 function ChargerCard({
   charger: c,
   km,
   onClose,
+  onShowOnMap,
 }: {
   charger: Charger;
   km: number | null;
   onClose: () => void;
+  /** List view: switch to the map with this charger picked. */
+  onShowOnMap?: () => void;
 }) {
   const links = directionsLinks(c);
   const speed = SPEED_INFO[c.speed];
@@ -521,6 +723,15 @@ function ChargerCard({
         >
           <Navigation className="size-4" /> Directions (Google Maps)
         </a>
+        {onShowOnMap && (
+          <button
+            type="button"
+            onClick={onShowOnMap}
+            className="col-span-3 flex min-h-10 items-center justify-center gap-2 rounded-full bg-muted text-sm font-semibold"
+          >
+            <MapIcon className="size-4" /> Show on map
+          </button>
+        )}
         <a
           href={links.apple}
           target="_blank"

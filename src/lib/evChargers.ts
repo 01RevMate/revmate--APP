@@ -43,10 +43,13 @@ export type Charger = {
 
 export type Bounds = { south: number; west: number; north: number; east: number };
 
+// Public Overpass servers; if one is busy or slow we try the next.
 const ENDPOINTS = [
   "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
   "https://overpass.private.coffee/api/interpreter",
 ];
+const ENDPOINT_TIMEOUT_MS = 15000;
 
 /** Fewer than this zoom and the area is too big to ask for in one go. */
 export const MIN_CHARGER_ZOOM = 11;
@@ -239,19 +242,33 @@ export async function fetchChargers(bounds: Bounds, signal?: AbortSignal): Promi
   const body = new URLSearchParams({ data: query(bounds) });
   let lastError: unknown = null;
   for (const endpoint of ENDPOINTS) {
+    const attempt = new AbortController();
+    const onAbort = () => attempt.abort();
+    signal?.addEventListener("abort", onAbort);
+    const timer = setTimeout(() => attempt.abort(), ENDPOINT_TIMEOUT_MS);
     try {
-      const res = await fetch(endpoint, { method: "POST", body, signal: signal ?? null });
+      // A form body keeps this a "simple" request, so no CORS preflight.
+      const res = await fetch(endpoint, { method: "POST", body, signal: attempt.signal });
       if (!res.ok) throw new Error(`Charger lookup failed (${res.status})`);
       const json = (await res.json()) as { elements?: OsmElement[] };
       return (json.elements ?? []).map(parseCharger).filter((c): c is Charger => c !== null);
     } catch (err) {
       if (signal?.aborted) throw err;
       lastError = err;
+    } finally {
+      clearTimeout(timer);
+      signal?.removeEventListener("abort", onAbort);
     }
   }
-  throw lastError instanceof Error
-    ? lastError
-    : new Error("Couldn't load chargers right now. Try again in a minute.");
+  console.warn("Charger lookup failed on every server", lastError);
+  throw new Error("Couldn't load chargers right now. Try again in a minute.");
+}
+
+/** A box roughly `km` each way around a point, for "chargers near me". */
+export function boundsAround(lat: number, lng: number, km: number): Bounds {
+  const dLat = km / 111;
+  const dLng = km / (111 * Math.cos((lat * Math.PI) / 180));
+  return roundBounds({ south: lat - dLat, west: lng - dLng, north: lat + dLat, east: lng + dLng });
 }
 
 export type ChargerFilters = { minKw: number; connectors: ConnectorKey[]; freeOnly: boolean };
