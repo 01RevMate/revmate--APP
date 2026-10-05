@@ -4,24 +4,9 @@ Steps 1–12 in `sql-to-run/` have all been applied (the latest, 8–12, on 28
 September 2026). Steps 15 (live unread badge), 16 (Speakers / Sound
 diagnostics), 17 (Buy & Sell upgrade), 18 (group covers + more social
 links) and 19 (public profile pages) were applied on 1–2 October 2026, and
-step 21 (security fixes) on 5 October 2026. Left to do: step 20 (remove
-location from posts) and the optional phone notifications setup.
-
----
-
-## ⭐ Prompt A — clear location from posts
-
-Step 20 no longer deletes any columns, so no setting needs changing:
-
-```
-Please run sql-to-run/20_remove_post_location.sql on the connected
-Supabase database, exactly as committed (safe to re-run; copy of
-drizzle/migrations/0057_remove_post_location.sql). It is not a backward
-incompatible change: no columns, tables or functions are dropped. It
-replaces private.round_post_location() so any latitude/longitude sent with
-a post is set to NULL, and sets latitude/longitude to NULL on existing
-public.posts rows. Meet locations (car_meets) are not touched.
-```
+steps 20 (remove location from posts — found already applied by hand) and
+21 (security fixes) on 5 October 2026. Left to do: only the optional phone
+notifications setup.
 
 ---
 
