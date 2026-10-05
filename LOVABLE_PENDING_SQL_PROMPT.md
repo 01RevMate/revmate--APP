@@ -9,23 +9,18 @@ location from posts) and the optional phone notifications setup.
 
 ---
 
-## ⭐ Prompt A — remove location from posts
+## ⭐ Prompt A — clear location from posts
 
-Step 20 deletes the latitude/longitude columns on posts, so first change
-the Lovable Cloud tool preference "Execute backward incompatible database
-migrations" from "Never allow" to "Ask each time" (or "Always allow"),
-then send:
+Step 20 no longer deletes any columns, so no setting needs changing:
 
 ```
 Please run sql-to-run/20_remove_post_location.sql on the connected
 Supabase database, exactly as committed (safe to re-run; copy of
-drizzle/migrations/0057_remove_post_location.sql): it drops
-public.nearby_posts, the round_post_location trigger and its function,
-the posts_location_adults_only policy, the posts_location_idx index and
-the latitude/longitude columns on public.posts. Meet locations
-(car_meets) are not touched.
-
-Then regenerate the Supabase TypeScript types and confirm the app builds.
+drizzle/migrations/0057_remove_post_location.sql). It is not a backward
+incompatible change: no columns, tables or functions are dropped. It
+replaces private.round_post_location() so any latitude/longitude sent with
+a post is set to NULL, and sets latitude/longitude to NULL on existing
+public.posts rows. Meet locations (car_meets) are not touched.
 ```
 
 ---

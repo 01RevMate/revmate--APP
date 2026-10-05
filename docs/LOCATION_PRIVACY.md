@@ -16,7 +16,7 @@ rules. If something new can't follow them, it doesn't ship until it can.
 | "Near me" on the EV charger map | Device only, never stored or sent to RevMate | Nobody | Centres the map; OpenStreetMap only receives the map's edges to find chargers |
 
 Posts used to carry an optional ~1 km location for the old "Near you" page.
-That was removed in 0057 (the columns are dropped): a rounded point on a
+That was removed in 0057 (stored points wiped, new ones discarded): a rounded point on a
 public post could still be read straight from the API, which breaks rule 3.
 
 ## The rules

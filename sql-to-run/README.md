@@ -6,13 +6,12 @@ been run live in `applied/` for reference.
 
 | # | File | What it does | Status |
 |---|------|--------------|--------|
-| 20 | `20_remove_post_location.sql` | Deletes the rough locations stored on posts (old Near you page) | Run this |
-| 21 | `21_security_hardening.sql` | Security fixes: no faked counts, signed-out visitors only see adults, admin-only research edits | Run this |
+| 20 | `20_remove_post_location.sql` | Wipes the rough locations stored on posts (old Near you page) | Run this |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 
 Already applied (in `applied/`): 1–4 on 27 Sep 2026, 5–12 on 28 Sep 2026,
-15–18 on 1 Oct 2026 and 19 on 2 Oct 2026.
+15–18 on 1 Oct 2026, 19 on 2 Oct 2026 and 21 on 5 Oct 2026.
 
 ## Two ways to run them
 
@@ -25,7 +24,7 @@ them) and paste it into Lovable.
 run, and wait for it to finish before starting the next one.
 
 Files only *add* things — no posts, cars, profiles or messages are deleted
-or changed — except file 20, which removes the location columns from posts
+or changed — except file 20, which empties the location fields on posts
 (the posts themselves are kept), and file 21, which puts any faked like,
 follower or "going" counts back to the real numbers. They were test-run against a copy of the full database
 schema before being committed.
