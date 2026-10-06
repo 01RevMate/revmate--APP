@@ -298,37 +298,41 @@ function FuelPricesPage() {
         </section>
       )}
 
-      {origin && cheapestStation && cheapest !== undefined && average !== null && (
-        <button
-          type="button"
-          onClick={() => setSelectedId(cheapestStation.id)}
-          className="mt-3 flex w-full items-center gap-3 rounded-3xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-4 text-left text-white shadow-sm"
-        >
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white/15">
-            <TrendingDown className="size-6" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-xs font-semibold uppercase tracking-wide text-white/80">
-              Cheapest {fuelLabel.short.toLowerCase()} near {origin.label}
+      {mode === "list" &&
+        origin &&
+        cheapestStation &&
+        cheapest !== undefined &&
+        average !== null && (
+          <button
+            type="button"
+            onClick={() => setSelectedId(cheapestStation.id)}
+            className="mt-3 flex w-full items-center gap-3 rounded-3xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-4 text-left text-white shadow-sm"
+          >
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+              <TrendingDown className="size-6" />
             </span>
-            <span className="block text-2xl font-extrabold tabular-nums">
-              {formatPence(cheapest)}
-            </span>
-            <span className="block truncate text-sm text-white/90">
-              {cheapestStation.brand} · {cheapestStation.address} ·{" "}
-              {chargerDistance(cheapestStation.km)}
-            </span>
-            {average - cheapest >= 1 && (
-              <span className="mt-1 block text-xs font-semibold text-white/90">
-                About £{(((average - cheapest) * TANK_LITRES) / 100).toFixed(2)} less than average
-                on a {TANK_LITRES}-litre fill
+            <span className="min-w-0 flex-1">
+              <span className="block text-xs font-semibold uppercase tracking-wide text-white/80">
+                Cheapest {fuelLabel.short.toLowerCase()} near {origin.label}
               </span>
-            )}
-          </span>
-        </button>
-      )}
+              <span className="block text-2xl font-extrabold tabular-nums">
+                {formatPence(cheapest)}
+              </span>
+              <span className="block truncate text-sm text-white/90">
+                {cheapestStation.brand} · {cheapestStation.address} ·{" "}
+                {chargerDistance(cheapestStation.km)}
+              </span>
+              {average - cheapest >= 1 && (
+                <span className="mt-1 block text-xs font-semibold text-white/90">
+                  About £{(((average - cheapest) * TANK_LITRES) / 100).toFixed(2)} less than average
+                  on a {TANK_LITRES}-litre fill
+                </span>
+              )}
+            </span>
+          </button>
+        )}
 
-      {origin && (
+      {mode === "list" && origin && (
         <div className="mt-3 flex items-center justify-between gap-2 px-1">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {stations.length} station{stations.length === 1 ? "" : "s"} within{" "}
@@ -378,6 +382,11 @@ function FuelPricesPage() {
             }
             flyTo={flyTo}
             me={me}
+            fitKey={
+              selectedId || !data || !origin
+                ? null
+                : `${origin.lat},${origin.lng}|${radiusKm}|${fuel}|${stations.length}`
+            }
           />
           {selected && (
             <StationCard

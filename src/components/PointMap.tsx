@@ -50,6 +50,7 @@ export function PointMap({
   onViewChange,
   start,
   flyTo,
+  fitKey,
   me,
 }: {
   points: MapPoint[];
@@ -62,6 +63,8 @@ export function PointMap({
   flyTo: { center: LatLngTuple; zoom: number; key: number } | null;
   /** The viewer's own position, shown as a blue dot. Never leaves the phone. */
   me: { lat: number; lng: number } | null;
+  /** Change this to zoom the map so every point (and you) fits on screen. */
+  fitKey?: string | null;
 }) {
   const el = useRef<HTMLDivElement>(null);
   const leaflet = useRef<LeafletStatic | null>(null);
@@ -121,6 +124,15 @@ export function PointMap({
     if (flyTo && map.current) map.current.flyTo(flyTo.center, flyTo.zoom, { duration: 0.8 });
   }, [flyTo]);
 
+  useEffect(() => {
+    if (!fitKey || !map.current || status !== "ready" || points.length === 0) return;
+    const all: LatLngTuple[] = points.map((p) => [p.lat, p.lng]);
+    if (me) all.push([me.lat, me.lng]);
+    map.current.fitBounds(all, { padding: [56, 56], maxZoom: 15 });
+    // Only refit when the caller says so, not every time a point changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fitKey, status, points.length > 0]);
+
   // Redraw the dots whenever the list or the selection changes.
   useEffect(() => {
     const L = leaflet.current;
@@ -179,7 +191,11 @@ export function PointMap({
 
   return (
     <div className="relative isolate overflow-hidden rounded-3xl border border-border bg-muted shadow-sm">
-      <div ref={el} className="h-[52vh] min-h-[320px] w-full" aria-label={ariaLabel} />
+      <div
+        ref={el}
+        className="h-[min(46vh,420px)] min-h-[260px] w-full sm:h-[min(56vh,560px)]"
+        aria-label={ariaLabel}
+      />
       {status !== "ready" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-muted text-sm text-muted-foreground">
           {status === "loading" ? (

@@ -28,6 +28,7 @@ export interface LeafletLayerGroup extends LeafletLayer {
 export interface LeafletMap {
   setView(center: LatLngTuple, zoom: number, options?: { animate?: boolean }): this;
   flyTo(center: LatLngTuple, zoom?: number, options?: { duration?: number }): this;
+  fitBounds(bounds: LatLngTuple[], options?: Record<string, unknown>): this;
   panTo(center: LatLngTuple, options?: { animate?: boolean }): this;
   getZoom(): number;
   getCenter(): { lat: number; lng: number };
