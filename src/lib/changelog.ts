@@ -37,6 +37,7 @@ export const RELEASES: Release[] = [
       "EV charger map: chargers now show as little charger pins coloured by speed, and the buttons are simpler — one big Directions button plus Map, Ask drivers and Fix info",
       "Ask drivers: one tap starts a post asking if a charger is working, with the charger's name and address already filled in",
       "Build Showcase posts now need a photo (or video): the option is greyed out with a reminder until you add one",
+      "Directions on EV chargers and fuel stations now let you pick Google Maps, Apple Maps or Waze, with the one you used last at the top",
     ],
   },
   {

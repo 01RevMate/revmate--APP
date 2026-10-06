@@ -489,12 +489,3 @@ export function chargerDistance(km: number): string {
   if (miles < 0.1) return "Here";
   return miles < 10 ? `${miles.toFixed(1)} mi` : `${Math.round(miles)} mi`;
 }
-
-export function directionsLinks(c: Charger) {
-  const dest = `${c.lat},${c.lng}`;
-  return {
-    google: `https://www.google.com/maps/dir/?api=1&destination=${dest}`,
-    apple: `https://maps.apple.com/?daddr=${dest}`,
-    waze: `https://waze.com/ul?ll=${dest}&navigate=yes`,
-  };
-}

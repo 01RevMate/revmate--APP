@@ -10,7 +10,6 @@ import {
   LocateFixed,
   Map as MapIcon,
   MessageCircle,
-  Navigation,
   PlugZap,
   Search,
   X,
@@ -19,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { PointMap, type MapView } from "@/components/PointMap";
 import { CreatePostModal } from "@/components/CreatePostModal";
+import { DirectionsButton } from "@/components/DirectionsButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import {
@@ -29,7 +29,6 @@ import {
   SPEED_INFO,
   boundsAround,
   chargerDistance,
-  directionsLinks,
   fetchChargers,
   kmBetween,
   matchesFilters,
@@ -601,15 +600,7 @@ function ChargerRow({
             {km < 0.16 ? "Here" : chargerDistance(km)}
           </span>
         )}
-        <a
-          href={directionsLinks(c).google}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`Directions to ${c.name}`}
-          className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground"
-        >
-          <Navigation className="size-4" />
-        </a>
+        <DirectionsButton variant="icon" lat={c.lat} lng={c.lng} name={c.name} />
       </div>
     </div>
   );
@@ -692,7 +683,6 @@ function ChargerCard({
   /** List view: switch to the map with this charger picked. */
   onShowOnMap?: () => void;
 }) {
-  const links = directionsLinks(c);
   const speed = SPEED_INFO[c.speed];
   return (
     <section className="mt-3 rounded-3xl bg-card p-4 shadow-sm ring-1 ring-border">
@@ -768,39 +758,14 @@ function ChargerCard({
         {c.payment.length > 0 && <DetailRow label="Pay by" value={c.payment.join(", ")} />}
       </dl>
 
-      <a
-        href={links.google}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-4 flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary text-[15px] font-semibold text-primary-foreground"
-      >
-        <Navigation className="size-5" /> Directions
-      </a>
+      <div className="mt-4">
+        <DirectionsButton lat={c.lat} lng={c.lng} name={c.name} />
+      </div>
       <div className={`mt-2 grid gap-2 ${onShowOnMap ? "grid-cols-3" : "grid-cols-2"}`}>
         {onShowOnMap && <ActionTile icon={MapIcon} label="Map" onClick={onShowOnMap} />}
         <ActionTile icon={MessageCircle} label="Ask drivers" onClick={onAsk} />
         <ActionTile icon={Flag} label="Fix info" href={c.fixUrl} />
       </div>
-      <p className="mt-3 text-center text-xs text-muted-foreground">
-        Or open in{" "}
-        <a
-          href={links.apple}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-semibold underline"
-        >
-          Apple Maps
-        </a>{" "}
-        ·{" "}
-        <a
-          href={links.waze}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-semibold underline"
-        >
-          Waze
-        </a>
-      </p>
     </section>
   );
 }

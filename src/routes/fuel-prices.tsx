@@ -8,13 +8,13 @@ import {
   Loader2,
   LocateFixed,
   Map as MapIcon,
-  Navigation,
   Search,
   TrendingDown,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { PointMap } from "@/components/PointMap";
+import { DirectionsButton } from "@/components/DirectionsButton";
 import {
   FUEL_TYPES,
   fetchFuelPrices,
@@ -433,35 +433,43 @@ function FuelPricesPage() {
               </li>
             ) : (
               <li key={s.id}>
-                <button
-                  type="button"
-                  onClick={() => setSelectedId(s.id)}
-                  className="flex w-full items-center gap-3 rounded-2xl bg-card p-3 text-left shadow-sm ring-1 ring-border"
-                >
-                  <span
-                    className="flex h-12 w-[4.5rem] shrink-0 flex-col items-center justify-center rounded-xl text-white"
-                    style={{ background: band(s.prices[fuel]!) }}
+                <div className="flex items-center gap-2 rounded-2xl bg-card p-3 shadow-sm ring-1 ring-border">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId(s.id)}
+                    className="flex min-w-0 flex-1 items-center gap-3 text-left"
                   >
-                    <span className="text-lg font-extrabold leading-none tabular-nums">
-                      {s.prices[fuel]!.toFixed(1)}
-                    </span>
-                    <span className="text-[10px] font-semibold opacity-90">pence/litre</span>
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[15px] font-semibold">{s.brand}</span>
-                    <span className="block truncate text-xs text-muted-foreground">
-                      {s.address}
-                    </span>
                     <span
-                      className={`block text-[11px] ${isStale(s.updated) ? "text-amber-600" : "text-muted-foreground"}`}
+                      className="flex h-12 w-[4.5rem] shrink-0 flex-col items-center justify-center rounded-xl text-white"
+                      style={{ background: band(s.prices[fuel]!) }}
                     >
-                      {priceAge(s.updated) ? `Updated ${priceAge(s.updated)}` : null}
+                      <span className="text-lg font-extrabold leading-none tabular-nums">
+                        {s.prices[fuel]!.toFixed(1)}
+                      </span>
+                      <span className="text-[10px] font-semibold opacity-90">pence/litre</span>
                     </span>
-                  </span>
-                  <span className="shrink-0 text-sm font-bold tabular-nums">
-                    {chargerDistance(s.km)}
-                  </span>
-                </button>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[15px] font-semibold">{s.brand}</span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {s.address}
+                      </span>
+                      <span
+                        className={`block text-[11px] ${isStale(s.updated) ? "text-amber-600" : "text-muted-foreground"}`}
+                      >
+                        {priceAge(s.updated) ? `Updated ${priceAge(s.updated)}` : null}
+                      </span>
+                    </span>
+                  </button>
+                  <div className="flex shrink-0 flex-col items-end gap-1.5">
+                    <span className="text-sm font-bold tabular-nums">{chargerDistance(s.km)}</span>
+                    <DirectionsButton
+                      variant="icon"
+                      lat={s.lat}
+                      lng={s.lng}
+                      name={`${s.brand}, ${s.address}`}
+                    />
+                  </div>
+                </div>
               </li>
             ),
           )}
@@ -522,7 +530,6 @@ function StationCard({
   onClose: () => void;
   onShowOnMap?: () => void;
 }) {
-  const dest = `${s.lat},${s.lng}`;
   return (
     <section className="mt-3 rounded-3xl bg-card p-4 shadow-sm ring-1 ring-border first:mt-0">
       <div className="flex items-start gap-3">
@@ -575,40 +582,17 @@ function StationCard({
         </p>
       )}
 
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <a
-          href={`https://www.google.com/maps/dir/?api=1&destination=${dest}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="col-span-2 flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary text-sm font-semibold text-primary-foreground"
-        >
-          <Navigation className="size-4" /> Directions (Google Maps)
-        </a>
+      <div className="mt-4 space-y-2">
+        <DirectionsButton lat={s.lat} lng={s.lng} name={`${s.brand}, ${s.address}`} />
         {onShowOnMap && (
           <button
             type="button"
             onClick={onShowOnMap}
-            className="col-span-2 flex min-h-10 items-center justify-center gap-2 rounded-full bg-muted text-sm font-semibold"
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-muted text-sm font-semibold"
           >
             <MapIcon className="size-4" /> Show on map
           </button>
         )}
-        <a
-          href={`https://maps.apple.com/?daddr=${dest}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex min-h-10 items-center justify-center rounded-full bg-muted text-xs font-semibold"
-        >
-          Apple Maps
-        </a>
-        <a
-          href={`https://waze.com/ul?ll=${dest}&navigate=yes`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex min-h-10 items-center justify-center rounded-full bg-muted text-xs font-semibold"
-        >
-          Waze
-        </a>
       </div>
     </section>
   );
