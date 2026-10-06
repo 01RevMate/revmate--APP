@@ -329,3 +329,10 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
   font-size: 14px;
   outline: 3px solid rgb(0 0 0 / 0.75);
 }
+
+/* EV charger pins on the charger map. */
+.revmate-charger-pin {
+  display: block;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
+  cursor: pointer;
+}

@@ -3,11 +3,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   Clock,
-  ExternalLink,
+  EvCharger,
+  Flag,
   List,
   Loader2,
   LocateFixed,
   Map as MapIcon,
+  MessageCircle,
   Navigation,
   PlugZap,
   Search,
@@ -16,6 +18,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { PointMap, type MapView } from "@/components/PointMap";
+import { CreatePostModal } from "@/components/CreatePostModal";
+import { useAuth } from "@/hooks/useAuth";
+import { useAuthModal } from "@/hooks/useAuthModal";
 import {
   CONNECTOR_FILTERS,
   MIN_CHARGER_ZOOM,
@@ -83,6 +88,17 @@ function EvChargersPage() {
     null,
   );
   const [shown, setShown] = useState(LIST_STEP);
+  const { user } = useAuth();
+  const { open: openAuthModal } = useAuthModal();
+  const [askAbout, setAskAbout] = useState<Charger | null>(null);
+
+  function ask(c: Charger) {
+    if (!user) {
+      openAuthModal("Create a free account to ask other drivers about a charger.");
+      return;
+    }
+    setAskAbout(c);
+  }
 
   function goTo(next: Origin, zoom = 13) {
     setOrigin(next);
@@ -324,6 +340,7 @@ function EvChargersPage() {
                 lat: c.lat,
                 lng: c.lng,
                 colour: SPEED_INFO[c.speed].colour,
+                icon: "charger" as const,
               }))}
               selectedId={selectedId}
               onSelect={(id) => setSelectedId(id)}
@@ -357,6 +374,7 @@ function EvChargersPage() {
               charger={selected.c}
               km={from ? selected.km : null}
               onClose={() => setSelectedId(null)}
+              onAsk={() => ask(selected.c)}
             />
           )}
         </>
@@ -425,6 +443,7 @@ function EvChargersPage() {
                     km={from ? km : null}
                     onClose={() => setSelectedId(null)}
                     onShowOnMap={() => showOnMap(c)}
+                    onAsk={() => ask(c)}
                   />
                 </li>
               ) : (
@@ -520,6 +539,12 @@ function EvChargersPage() {
         in use or working right now — check the operator's app before a long trip. Your location
         stays on your phone.
       </p>
+      <CreatePostModal
+        open={!!askAbout}
+        onOpenChange={(open) => !open && setAskAbout(null)}
+        title="Ask other drivers"
+        {...(askAbout ? { initialBody: askText(askAbout) } : {})}
+      />
     </main>
   );
 }
@@ -535,18 +560,19 @@ function ChargerRow({
   active: boolean;
   onOpen: () => void;
 }) {
-  const links = directionsLinks(c);
   return (
     <div
-      className={`rounded-2xl bg-card p-3 shadow-sm ring-1 ${active ? "ring-primary" : "ring-border"}`}
+      className={`flex items-stretch gap-2 rounded-2xl bg-card p-3 shadow-sm ring-1 ${active ? "ring-primary" : "ring-border"}`}
     >
-      <button type="button" onClick={onOpen} className="flex w-full items-center gap-3 text-left">
+      <button type="button" onClick={onOpen} className="flex min-w-0 flex-1 gap-3 text-left">
         <SpeedBadge charger={c} />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[15px] font-semibold">{c.name}</span>
-          <span className="block truncate text-xs text-muted-foreground">
+          <span
+            className={`block truncate text-xs ${c.working === false ? "font-semibold text-destructive" : "text-muted-foreground"}`}
+          >
             {[
-              c.working === false ? "⚠️ Reported not working" : null,
+              c.working === false ? "Reported not working" : null,
               c.operator && c.operator !== c.name.replace(/ charger$/, "") ? c.operator : null,
               c.fee === "free" ? "Free" : null,
               c.customersOnly ? "Customers only" : null,
@@ -554,39 +580,35 @@ function ChargerRow({
               .filter(Boolean)
               .join(" · ") || SPEED_INFO[c.speed].label}
           </span>
+          {c.connectors.length > 0 && (
+            <span className="mt-1.5 flex flex-wrap gap-1">
+              {c.connectors.slice(0, 3).map((k) => (
+                <span
+                  key={k.label}
+                  className="rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-semibold"
+                >
+                  {k.label}
+                  {k.kw ? ` ${k.kw}kW` : ""}
+                </span>
+              ))}
+            </span>
+          )}
         </span>
+      </button>
+      <div className="flex shrink-0 flex-col items-end justify-between gap-2">
         {km !== null && (
-          <span className="shrink-0 text-sm font-bold tabular-nums">
-            {km < 0.16 ? "Here" : `~${chargerDistance(km)}`}
+          <span className="text-sm font-bold tabular-nums">
+            {km < 0.16 ? "Here" : chargerDistance(km)}
           </span>
         )}
-      </button>
-      {c.connectors.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {c.connectors.slice(0, 4).map((k) => (
-            <span key={k.label} className="rounded-lg bg-muted px-2 py-1 text-xs font-semibold">
-              {k.count ? `${k.count}× ` : ""}
-              {k.label}
-              {k.kw ? ` · ${k.kw} kW` : ""}
-            </span>
-          ))}
-        </div>
-      )}
-      <div className="mt-2.5 grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={onOpen}
-          className="flex min-h-10 items-center justify-center rounded-full bg-muted text-sm font-semibold"
-        >
-          Details
-        </button>
         <a
-          href={links.google}
+          href={directionsLinks(c).google}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-primary text-sm font-semibold text-primary-foreground"
+          aria-label={`Directions to ${c.name}`}
+          className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground"
         >
-          <Navigation className="size-4" /> Directions
+          <Navigation className="size-4" />
         </a>
       </div>
     </div>
@@ -622,9 +644,11 @@ function Legend() {
       {(["ultra", "rapid", "fast", "slow"] as const).map((s) => (
         <div key={s} className="flex items-center gap-1.5">
           <span
-            className="size-2.5 rounded-full ring-2 ring-white"
+            className="flex size-4 items-center justify-center rounded-full text-white"
             style={{ background: SPEED_INFO[s].colour }}
-          />
+          >
+            <EvCharger className="size-2.5" strokeWidth={2.5} />
+          </span>
           {SPEED_INFO[s].label}
         </div>
       ))}
@@ -658,10 +682,13 @@ function ChargerCard({
   km,
   onClose,
   onShowOnMap,
+  onAsk,
 }: {
   charger: Charger;
   km: number | null;
   onClose: () => void;
+  /** Start a post asking other drivers about this charger. */
+  onAsk: () => void;
   /** List view: switch to the map with this charger picked. */
   onShowOnMap?: () => void;
 }) {
@@ -741,51 +768,77 @@ function ChargerCard({
         {c.payment.length > 0 && <DetailRow label="Pay by" value={c.payment.join(", ")} />}
       </dl>
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        <a
-          href={links.google}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="col-span-3 flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary text-sm font-semibold text-primary-foreground"
-        >
-          <Navigation className="size-4" /> Directions (Google Maps)
-        </a>
-        {onShowOnMap && (
-          <button
-            type="button"
-            onClick={onShowOnMap}
-            className="col-span-3 flex min-h-10 items-center justify-center gap-2 rounded-full bg-muted text-sm font-semibold"
-          >
-            <MapIcon className="size-4" /> Show on map
-          </button>
-        )}
+      <a
+        href={links.google}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-4 flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary text-[15px] font-semibold text-primary-foreground"
+      >
+        <Navigation className="size-5" /> Directions
+      </a>
+      <div className={`mt-2 grid gap-2 ${onShowOnMap ? "grid-cols-3" : "grid-cols-2"}`}>
+        {onShowOnMap && <ActionTile icon={MapIcon} label="Map" onClick={onShowOnMap} />}
+        <ActionTile icon={MessageCircle} label="Ask drivers" onClick={onAsk} />
+        <ActionTile icon={Flag} label="Fix info" href={c.fixUrl} />
+      </div>
+      <p className="mt-3 text-center text-xs text-muted-foreground">
+        Or open in{" "}
         <a
           href={links.apple}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex min-h-10 items-center justify-center rounded-full bg-muted text-xs font-semibold"
+          className="font-semibold underline"
         >
           Apple Maps
-        </a>
+        </a>{" "}
+        ·{" "}
         <a
           href={links.waze}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex min-h-10 items-center justify-center rounded-full bg-muted text-xs font-semibold"
+          className="font-semibold underline"
         >
           Waze
         </a>
-        <a
-          href={c.fixUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex min-h-10 items-center justify-center gap-1 rounded-full bg-muted text-xs font-semibold"
-        >
-          Fix info <ExternalLink className="size-3" />
-        </a>
-      </div>
+      </p>
     </section>
   );
+}
+
+function ActionTile({
+  icon: Icon,
+  label,
+  onClick,
+  href,
+}: {
+  icon: typeof MapIcon;
+  label: string;
+  onClick?: () => void;
+  href?: string;
+}) {
+  const className =
+    "flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl bg-muted text-xs font-semibold active:bg-accent";
+  const body = (
+    <>
+      <Icon className="size-5" />
+      {label}
+    </>
+  );
+  return href ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+      {body}
+    </a>
+  ) : (
+    <button type="button" onClick={onClick} className={className}>
+      {body}
+    </button>
+  );
+}
+
+/** What "Ask drivers" starts the post with. */
+function askText(c: Charger) {
+  const where = c.address ? `${c.name}, ${c.address}` : c.name;
+  return `Has anyone used the ${where} charger recently? Is it working OK? ⚡ #EVcharging `;
 }
 
 function DetailRow({ label, value }: { label: string; value: string }) {

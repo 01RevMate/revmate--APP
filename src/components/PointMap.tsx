@@ -15,8 +15,29 @@ import {
 
 export type MapView = { bounds: Bounds; zoom: number; center: { lat: number; lng: number } };
 
-/** A place on the map: a coloured dot, or a coloured tag when it has a label. */
-export type MapPoint = { id: string; lat: number; lng: number; colour: string; label?: string };
+/** A place on the map: a coloured tag when it has a label, a charger pin, or a dot. */
+export type MapPoint = {
+  id: string;
+  lat: number;
+  lng: number;
+  colour: string;
+  label?: string;
+  icon?: "charger";
+};
+
+// Lucide's "EV charger" glyph, drawn white inside a map pin.
+const CHARGER_GLYPH =
+  '<path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0v-6.998a2 2 0 0 0-.59-1.42L18 5"/><path d="M14 21V5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v16"/><path d="M2 21h13"/><path d="M3 7h11"/><path d="m9 11-2 3h3l-2 3"/>';
+
+function chargerPin(colour: string, selected: boolean) {
+  const w = selected ? 42 : 32;
+  const h = selected ? 54 : 42;
+  return {
+    html: `<svg class="revmate-charger-pin" width="${w}" height="${h}" viewBox="0 0 32 42" aria-hidden="true"><path d="M16 1C7.7 1 1 7.6 1 15.8 1 26.9 16 41 16 41s15-14.1 15-25.2C31 7.6 24.3 1 16 1z" fill="${colour}" stroke="#fff" stroke-width="2"/><g transform="translate(7 6.6) scale(0.75)" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${CHARGER_GLYPH}</g></svg>`,
+    iconSize: [w, h],
+    iconAnchor: [w / 2, h - 1],
+  };
+}
 
 const escapeHtml = (text: string) => text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
@@ -108,25 +129,31 @@ export function PointMap({
     let selected: LeafletLayer | null = null;
     for (const p of points) {
       const isSelected = p.id === selectedId;
-      const layer: LeafletLayer = p.label
+      const layer: LeafletLayer = p.icon
         ? L.marker([p.lat, p.lng], {
-            icon: L.divIcon({
-              className: "",
-              html: `<span class="revmate-pin${isSelected ? " is-selected" : ""}" style="background:${p.colour}">${escapeHtml(p.label)}</span>`,
-              iconSize: null,
-              iconAnchor: [0, 0],
-            }),
+            icon: L.divIcon({ className: "", ...chargerPin(p.colour, isSelected) }),
             zIndexOffset: isSelected ? 1000 : 0,
             keyboard: false,
           })
-        : L.circleMarker([p.lat, p.lng], {
-            renderer: renderer.current,
-            radius: isSelected ? 11 : 7,
-            color: "#ffffff",
-            weight: isSelected ? 3 : 2,
-            fillColor: p.colour,
-            fillOpacity: 1,
-          });
+        : p.label
+          ? L.marker([p.lat, p.lng], {
+              icon: L.divIcon({
+                className: "",
+                html: `<span class="revmate-pin${isSelected ? " is-selected" : ""}" style="background:${p.colour}">${escapeHtml(p.label)}</span>`,
+                iconSize: null,
+                iconAnchor: [0, 0],
+              }),
+              zIndexOffset: isSelected ? 1000 : 0,
+              keyboard: false,
+            })
+          : L.circleMarker([p.lat, p.lng], {
+              renderer: renderer.current,
+              radius: isSelected ? 11 : 7,
+              color: "#ffffff",
+              weight: isSelected ? 3 : 2,
+              fillColor: p.colour,
+              fillOpacity: 1,
+            });
       layer.on("click", () => handlers.current.onSelect(p.id));
       layer.addTo(dots.current);
       if (isSelected) selected = layer;

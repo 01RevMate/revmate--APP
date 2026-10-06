@@ -34,6 +34,8 @@ export const RELEASES: Release[] = [
       "A banner shows the cheapest station near you and roughly how much you save on a 50-litre fill",
       "List or map view, with prices on the map coloured green, amber and red, and one-tap directions",
       "Warns you when a station's prices haven't been updated for a few days",
+      "EV charger map: chargers now show as little charger pins coloured by speed, and the buttons are simpler — one big Directions button plus Map, Ask drivers and Fix info",
+      "Ask drivers: one tap starts a post asking if a charger is working, with the charger's name and address already filled in",
     ],
   },
   {

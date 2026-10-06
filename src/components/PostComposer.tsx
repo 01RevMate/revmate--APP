@@ -91,6 +91,7 @@ export function PostComposer({
   audience = "public",
   bare = false,
   helpPost = false,
+  initialBody = "",
 }: {
   onPosted: () => void;
   lockedGroup?: { id: string; name: string; postPolicy: "member" | "moderated" };
@@ -107,11 +108,13 @@ export function PostComposer({
   /** "Ask for help": always a help post, so skip the category list and go
    * straight to "Which part of the car?". */
   helpPost?: boolean;
+  /** Text to start with, e.g. "Is the Tesco charger working?" from the charger map. */
+  initialBody?: string;
 }) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
   const { data: profile } = useProfile();
-  const [body, setBody] = useState("");
+  const [body, setBody] = useState(initialBody);
   const [carId, setCarId] = useState("");
   const [tagging, setTagging] = useState(false);
   const [selectedGarageCarId, setSelectedGarageCarId] = useState("");

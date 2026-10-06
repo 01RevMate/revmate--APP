@@ -5,9 +5,13 @@ import { PostComposer } from "@/components/PostComposer";
 export function CreatePostModal({
   open,
   onOpenChange,
+  initialBody,
+  title = "New post",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialBody?: string;
+  title?: string;
 }) {
   const queryClient = useQueryClient();
 
@@ -15,10 +19,11 @@ export function CreatePostModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>New post</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <PostComposer
           bare
+          {...(initialBody ? { initialBody } : {})}
           onPosted={() => {
             queryClient.invalidateQueries({ queryKey: ["feed"] });
             onOpenChange(false);
