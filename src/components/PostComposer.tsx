@@ -849,11 +849,13 @@ export function PostComposer({
                 ).map(([value, label]) => {
                   const Icon = CATEGORY_DETAILS[value].icon;
                   const isPublishing = saving && publishingCategory === value;
+                  // Build Showcase is for showing the car off, so it needs a picture.
+                  const needsPhoto = value === "showcase" && images.length === 0 && !video;
                   return (
                     <button
                       key={value}
                       type="button"
-                      disabled={saving}
+                      disabled={saving || needsPhoto}
                       onClick={() =>
                         value === "diagnostics" && diagnosticsOn
                           ? setIssueStep(true)
@@ -869,7 +871,9 @@ export function PostComposer({
                           {isPublishing ? "Posting…" : label}
                         </span>
                         <span className="block text-xs text-muted-foreground">
-                          {CATEGORY_DETAILS[value].description}
+                          {needsPhoto
+                            ? "Add a photo first — showcases need one"
+                            : CATEGORY_DETAILS[value].description}
                         </span>
                       </span>
                     </button>
