@@ -33,7 +33,7 @@ export const RELEASES: Release[] = [
       "Choose Automatic, Light or Dark in Settings → Appearance, or at the bottom of the menu",
       "No white flash when the app opens at night",
       "Night mode uses neutral dark greys (no blue tint) and the white RevMate logo",
-      "Appearance is now at the top of Settings, as a car headlight switch: lights off for light, AUTO to match your phone, headlights on for dark (with a green dashboard warning light)",
+      "Appearance is now at the top of Settings, as a car-style dial: sun for day, AUTO to match your phone, moon for night",
     ],
     fixes: ["Feed filter buttons and the 'Posting as' box now look right in dark mode"],
   },

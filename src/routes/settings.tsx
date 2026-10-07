@@ -163,7 +163,7 @@ function SettingsPage() {
       <Section title="Appearance">
         <HeadlightDial />
         <p className="mt-3 text-center text-xs text-muted-foreground">
-          Turn the dial or tap a symbol. AUTO goes dark when your phone does.
+          Turn the dial or tap a symbol: sun for day, AUTO to match your phone, moon for night.
         </p>
       </Section>
 
