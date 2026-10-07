@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { seo } from "@/lib/seo";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Lock, Plus, Users } from "lucide-react";
+import { Lock, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -11,15 +11,21 @@ import {
   EMPTY_GROUP_RULES,
   fetchGroups,
   fetchMyGroups,
+  groupIconUrl,
   groupRuleLabel,
+  memberCountLabel,
   type GroupRulesDraft,
 } from "@/lib/groups";
-import { CarLogo } from "@/components/CarLogo";
 import { MakeSelect } from "@/components/MakeSelect";
 import { ModelSelect } from "@/components/ModelSelect";
 import { GroupRulesEditor } from "@/components/GroupRulesEditor";
-import { useGroupCoversFeature, useGroupRulesFeature } from "@/lib/features";
-import { GroupCoverBanner, GroupCoverPicker } from "@/components/GroupCover";
+import { useGroupCoversFeature, useGroupIconsFeature, useGroupRulesFeature } from "@/lib/features";
+import {
+  GroupCoverBanner,
+  GroupCoverPicker,
+  GroupIcon,
+  GroupIconPicker,
+} from "@/components/GroupCover";
 
 export const Route = createFileRoute("/groups/")({
   head: () =>
@@ -52,6 +58,8 @@ function GroupsPage() {
   const groupRules = useGroupRulesFeature();
   const groupCovers = useGroupCoversFeature();
   const [coverUrl, setCoverUrl] = useState("");
+  const groupIcons = useGroupIconsFeature();
+  const [iconUrl, setIconUrl] = useState("");
   const [rules, setRules] = useState<GroupRulesDraft>(EMPTY_GROUP_RULES);
 
   // A brand/car gate needs the make (and model) it checks against.
@@ -102,6 +110,7 @@ function GroupsPage() {
           make_name: makeName || undefined,
           model_name: modelName || undefined,
           cover_url: groupCovers ? coverUrl || null : undefined,
+          icon_url: groupIcons ? iconUrl || null : undefined,
         },
         groupRules ? rules : undefined,
       );
@@ -148,6 +157,21 @@ function GroupsPage() {
               onChange={setCoverUrl}
               makeName={makeName || null}
             />
+          )}
+          {groupIcons && user && (
+            <div>
+              <p className="mb-2 text-sm font-medium">Group icon</p>
+              <GroupIconPicker
+                userId={user.id}
+                value={iconUrl}
+                onChange={setIconUrl}
+                makeName={makeName || null}
+              />
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Use your car brand's logo, or upload your own — handy for clubs that aren't about
+                one make.
+              </p>
+            </div>
           )}
           <div>
             <label className="text-sm font-medium">Group name</label>
@@ -313,14 +337,15 @@ function GroupsPage() {
             )}
             <div className="p-5">
               <div className="flex items-start justify-between gap-3">
+                {/* relative + z-10 so it sits over the cover photo, not under it. */}
                 <div
-                  className={`flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary ${groupCovers ? "-mt-10 border-2 border-card bg-card shadow" : ""}`}
+                  className={`relative z-10 rounded-[18px] ${groupCovers ? "-mt-11 bg-card p-1 shadow-md" : ""}`}
                 >
-                  {group.make_name ? (
-                    <CarLogo make={group.make_name} className="size-9" />
-                  ) : (
-                    <Users className="size-5" />
-                  )}
+                  <GroupIcon
+                    iconUrl={groupIconUrl(group)}
+                    makeName={group.make_name}
+                    className="size-12"
+                  />
                 </div>
                 {group.visibility === "private" && (
                   <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
@@ -341,7 +366,7 @@ function GroupsPage() {
                 </p>
               )}
               <p className="mt-3 text-xs text-muted-foreground">
-                {group.member_count} {group.member_count === 1 ? "member" : "members"}
+                {memberCountLabel(group.member_count)}
               </p>
             </div>
           </Link>

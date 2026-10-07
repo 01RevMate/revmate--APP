@@ -106,6 +106,8 @@ export async function createGroup(
     model_name?: string | undefined;
     /** Only passed once 0052 has run (useGroupCoversFeature). */
     cover_url?: string | null | undefined;
+    /** Only passed once 0060 has run (useGroupIconsFeature). */
+    icon_url?: string | null | undefined;
   },
   // Only passed once 0036_group_rules.sql has run (useGroupRulesFeature).
   rules?: GroupRulesSettings & { rules_text: string; questions: GroupQuestionDraft[] },
@@ -133,6 +135,8 @@ export async function createGroup(
       make_name: approvedMake,
       model_name: input.model_name?.trim() || null,
       ...(input.cover_url ? { cover_url: input.cover_url } : {}),
+      // icon_url isn't in the generated types until 0060 runs.
+      ...(input.icon_url ? ({ icon_url: input.icon_url } as Record<string, string>) : {}),
       ...(rules
         ? {
             entry_rule: rules.entry_rule,
@@ -351,9 +355,12 @@ export async function updateGroupSettings(
       | "model_name"
       | "cover_url"
     >
-  >,
+  > & { icon_url?: string | null },
 ) {
-  const { error } = await supabase.from("community_groups").update(settings).eq("id", id);
+  const { error } = await supabase
+    .from("community_groups")
+    .update(settings as Partial<CommunityGroup>)
+    .eq("id", id);
   if (error) throw error;
 }
 
@@ -366,4 +373,16 @@ export async function fetchGroupReports(groupId: string) {
     .order("created_at");
   if (error) throw error;
   return data;
+}
+
+/** The group's uploaded icon, if it has one (0060). */
+export function groupIconUrl(group: CommunityGroup): string | null {
+  return (group as CommunityGroup & { icon_url?: string | null }).icon_url ?? null;
+}
+
+/** "1 member", "950 members", "34K members" — like Facebook. */
+export function memberCountLabel(count: number) {
+  const n =
+    count >= 1000 ? new Intl.NumberFormat("en-GB", { notation: "compact" }).format(count) : count;
+  return `${n} ${count === 1 ? "member" : "members"}`;
 }

@@ -24,6 +24,21 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.21.0",
+    date: "2026-10-07",
+    title: "Better groups",
+    status: "needs_database_update",
+    highlights: [
+      "Group pages look like you'd expect: a big cover photo, the group's icon, name, Private/Public and member count, Join and Invite buttons",
+      "Tabs for Posts, About (description, privacy, who can join, rules) and Photos (every photo posted in the group); moderators get a Manage tab with a badge when something needs reviewing",
+      "A 'Write something…' bar at the top of the group, like Facebook",
+      "Groups that aren't about one car can have their own icon: use the car brand's logo or upload a picture",
+      "Member counts read like 34K members",
+    ],
+    fixes: ["The group's logo on the groups list no longer gets cut off by the cover photo"],
+    requiredSql: ["drizzle/migrations/0060_group_icons.sql"],
+  },
+  {
     version: "1.20.0",
     date: "2026-10-07",
     title: "Night mode",

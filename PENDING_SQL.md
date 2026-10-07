@@ -11,7 +11,16 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
-### 1. Phone push notifications (optional, needs a few setup steps)
+### 1. Group icons
+
+- File: `drizzle/migrations/0060_group_icons.sql` (`sql-to-run/22_group_icons.sql`).
+- Added: 2026-10-07
+- Needed by: the "Group icon" picker (upload your own picture instead of
+  the car logo) when creating or editing a group. Until it runs the picker
+  stays hidden and groups show the car logo or the generic icon, as now.
+  Additive and safe to re-run.
+
+### 2. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27

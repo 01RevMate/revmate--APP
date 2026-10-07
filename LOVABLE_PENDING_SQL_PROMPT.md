@@ -5,8 +5,22 @@ September 2026). Steps 15 (live unread badge), 16 (Speakers / Sound
 diagnostics), 17 (Buy & Sell upgrade), 18 (group covers + more social
 links) and 19 (public profile pages) were applied on 1–2 October 2026, and
 steps 20 (remove location from posts — found already applied by hand) and
-21 (security fixes) on 5 October 2026. Left to do: only the optional phone
-notifications setup.
+21 (security fixes) on 5 October 2026. Left to do: step 22 (group icons)
+and the optional phone notifications setup.
+
+---
+
+## ⭐ Prompt A — group icons
+
+```
+Please run sql-to-run/22_group_icons.sql on the connected Supabase
+database, exactly as committed (a copy of
+drizzle/migrations/0060_group_icons.sql, additive and safe to re-run). It
+adds a nullable icon_url column (https only, max 1000 chars) to
+public.community_groups and grants INSERT/UPDATE on that column to
+authenticated (row access is still limited by the existing group policies).
+Then regenerate the Supabase TypeScript types and confirm the app builds.
+```
 
 ---
 

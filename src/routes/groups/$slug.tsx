@@ -4,7 +4,20 @@ import { groupHead } from "@/lib/seoHeads";
 import { useProfile } from "@/hooks/useProfile";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Ban, Car, Check, Clock3, Lock, ShieldCheck, Users, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Ban,
+  Car,
+  Check,
+  Clock3,
+  Globe,
+  Image as ImageIcon,
+  Lock,
+  ShieldCheck,
+  UserPlus,
+  Users,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -15,7 +28,9 @@ import {
   fetchGroupBySlug,
   fetchGroupQuestions,
   fetchJoinAnswers,
+  groupIconUrl,
   groupRuleLabel,
+  memberCountLabel,
   joinGroup,
   saveGroupQuestions,
   fetchGroupReports,
@@ -31,15 +46,19 @@ import {
   setGroupPostStatus,
 } from "@/lib/groups";
 import { reviewReport } from "@/lib/moderation";
-import { CarLogo } from "@/components/CarLogo";
 import { fetchMyLikedPostIds } from "@/lib/posts";
 import { PostComposer } from "@/components/PostComposer";
 import { PostCard } from "@/components/PostCard";
 import { Avatar } from "@/components/Avatar";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { fetchGarage } from "@/lib/garage";
-import { useGroupCoversFeature, useGroupRulesFeature } from "@/lib/features";
-import { GroupCoverBanner, GroupCoverPicker } from "@/components/GroupCover";
+import { useGroupCoversFeature, useGroupIconsFeature, useGroupRulesFeature } from "@/lib/features";
+import {
+  GroupCoverBanner,
+  GroupCoverPicker,
+  GroupIcon,
+  GroupIconPicker,
+} from "@/components/GroupCover";
 import { JoinGroupDialog } from "@/components/JoinGroupDialog";
 import { GroupRulesEditor, type GroupRulesDraft } from "@/components/GroupRulesEditor";
 import { MakeSelect } from "@/components/MakeSelect";
@@ -54,7 +73,7 @@ export const Route = createFileRoute("/groups/$slug")({
 function GroupPage() {
   const { slug } = Route.useParams();
   const { user, loading } = useAuth();
-  const { isAdmin } = useProfile();
+  const { isAdmin, data: profile } = useProfile();
   const [busy, setBusy] = useState(false);
   const { open: openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();
@@ -115,6 +134,8 @@ function GroupPage() {
   const groupCovers = useGroupCoversFeature();
   const ruleLabel = group && groupRules ? groupRuleLabel(group) : null;
   const [joinOpen, setJoinOpen] = useState(false);
+  const [tab, setTab] = useState<"posts" | "about" | "photos" | "manage">("posts");
+  const [composerOpen, setComposerOpen] = useState(false);
   const { data: questions } = useQuery({
     queryKey: ["groups", group?.id, "questions"],
     enabled: !!group && groupRules,
@@ -253,431 +274,610 @@ function GroupPage() {
   const visiblePosts = (posts ?? []).filter(
     (post) => post.moderation_status === "published" || post.user_id === user?.id,
   );
+  const manageCount = (pendingMembers?.length ?? 0) + pendingPosts.length + (reports?.length ?? 0);
+  // Every photo posted in the group, newest first, for the Photos tab.
+  const groupPhotos = visiblePosts.flatMap((post) => {
+    const urls = post.post_images?.length
+      ? [...post.post_images].sort((a, b) => a.position - b.position).map((img) => img.image_url)
+      : post.image_url
+        ? [post.image_url]
+        : [];
+    return urls.map((url, i) => ({ key: `${post.id}-${i}`, postId: post.id, url }));
+  });
+
+  async function invite() {
+    const url = `${window.location.origin}/groups/${group!.slug}`;
+    const text = `Join ${group!.name} on RevMate`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: group!.name, text, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast.success("Group link copied — send it to your mates.");
+    } catch {
+      // Share sheet closed: nothing to do.
+    }
+  }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8">
-      <Link
-        to="/groups"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" /> All groups
-      </Link>
-      <section className="mt-4 overflow-hidden rounded-xl border border-border bg-card">
-        {groupCovers && (
-          <GroupCoverBanner
-            coverUrl={group.cover_url}
-            makeName={group.make_name}
-            className="aspect-[5/2] sm:aspect-[3/1]"
-          />
-        )}
-        <div className="flex flex-wrap items-start justify-between gap-4 p-6">
-          <div>
-            <div className="flex items-center gap-2">
-              {group.make_name && <CarLogo make={group.make_name} className="size-12" />}
-              <h1 className="text-2xl font-semibold">{group.name}</h1>
-              {group.visibility === "private" && <Lock className="size-4 text-muted-foreground" />}
-            </div>
-            {(group.make_name || group.model_name) && (
-              <p className="mt-1 text-sm font-medium text-primary">
-                {[group.make_name, group.model_name].filter(Boolean).join(" ")}
-              </p>
+    <main className="mx-auto max-w-3xl pb-8">
+      {/* Facebook-style header: full-width cover, icon, name, members, actions, tabs. */}
+      <div className="relative -mx-0 sm:mt-4 sm:overflow-hidden sm:rounded-2xl">
+        <GroupCoverBanner
+          coverUrl={groupCovers ? group.cover_url : null}
+          makeName={group.make_name}
+          className="aspect-[16/9] sm:aspect-[3/1]"
+        />
+        <Link
+          to="/groups"
+          aria-label="All groups"
+          className="absolute left-3 top-3 flex size-10 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur"
+        >
+          <ArrowLeft className="size-5" />
+        </Link>
+      </div>
+
+      <section className="px-4">
+        <div className="relative z-10 -mt-9 inline-block rounded-[22px] bg-background p-1 shadow-md">
+          <GroupIcon iconUrl={groupIconUrl(group)} makeName={group.make_name} className="size-16" />
+        </div>
+        <h1 className="mt-2 text-2xl font-extrabold leading-tight tracking-tight">{group.name}</h1>
+        <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
+          {group.visibility === "private" ? (
+            <Lock className="size-3.5" />
+          ) : (
+            <Globe className="size-3.5" />
+          )}
+          {group.visibility === "private" ? "Private group" : "Public group"} ·
+          <span className="font-semibold text-foreground">
+            {memberCountLabel(group.member_count)}
+          </span>
+          {(group.make_name || group.model_name) && (
+            <> · {[group.make_name, group.model_name].filter(Boolean).join(" ")}</>
+          )}
+        </p>
+        {groupRules && (ruleLabel || group.allow_sales === false) && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {ruleLabel && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                <Car className="size-3.5" /> {ruleLabel} owners only
+              </span>
             )}
-            <p className="mt-2 text-sm text-muted-foreground">
-              {group.description || "A RevMate community group."}
-            </p>
-            <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Users className="size-3.5" /> {group.member_count}{" "}
-              {group.member_count === 1 ? "member" : "members"}
-            </p>
-            {groupRules && (ruleLabel || group.allow_sales === false) && (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {ruleLabel && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                    <Car className="size-3.5" /> {ruleLabel} owners only
-                  </span>
-                )}
-                {group.allow_sales === false && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
-                    <Ban className="size-3.5" /> No sales posts
-                  </span>
-                )}
-              </div>
+            {group.allow_sales === false && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+                <Ban className="size-3.5" /> No sales posts
+              </span>
             )}
           </div>
+        )}
+
+        <div className="mt-3 flex gap-2">
           {!membership && (
-            <div className="flex flex-col items-end gap-1.5">
-              <button
-                onClick={join}
-                disabled={busy || eligibility?.eligible === false}
-                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-              >
-                {group.join_policy === "approval" ? "Request to join" : "Join group"}
-              </button>
-              {eligibility?.eligible === false && (
-                <p className="max-w-60 text-right text-xs text-muted-foreground">
-                  {eligibility.reason}{" "}
-                  <Link to="/garage" className="font-medium text-primary hover:underline">
-                    Go to garage
-                  </Link>
-                </p>
-              )}
-            </div>
+            <button
+              onClick={join}
+              disabled={busy || eligibility?.eligible === false}
+              className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+            >
+              <Users className="size-4" />
+              {group.join_policy === "approval" ? "Request to join" : "Join group"}
+            </button>
           )}
           {membership?.status === "pending" && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1.5 text-sm text-amber-700 dark:text-amber-300">
-              <Clock3 className="size-4" /> Awaiting approval
-            </span>
-          )}
-          {(approved || membership?.status === "pending") && membership?.role !== "owner" && (
             <button
               onClick={leave}
-              className="rounded-md border border-input px-4 py-2 text-sm hover:bg-accent"
+              className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-amber-500/15 px-4 text-sm font-semibold text-amber-700 dark:text-amber-300"
             >
-              {membership?.status === "pending" ? "Cancel request" : "Leave group"}
+              <Clock3 className="size-4" /> Requested · Cancel
+            </button>
+          )}
+          {approved && membership?.role !== "owner" && (
+            <button
+              onClick={() => {
+                if (window.confirm(`Leave ${group.name}?`)) void leave();
+              }}
+              className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-muted px-4 text-sm font-semibold"
+            >
+              <Check className="size-4" /> Joined
             </button>
           )}
           {membership?.role === "owner" && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
-              <ShieldCheck className="size-4" /> Owner
+            <span className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary/10 px-4 text-sm font-semibold text-primary">
+              <ShieldCheck className="size-4" /> You own this group
             </span>
           )}
+          <button
+            type="button"
+            onClick={() => void invite()}
+            className="flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-muted px-4 text-sm font-semibold"
+          >
+            <UserPlus className="size-4" /> Invite
+          </button>
         </div>
-      </section>
-
-      {canModerate && ((pendingMembers?.length ?? 0) > 0 || pendingPosts.length > 0) && (
-        <section className="mt-5 space-y-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-5">
-          <div>
-            <h2 className="font-semibold">Moderator queue</h2>
-            <p className="text-xs text-muted-foreground">
-              Approve people and posts before they enter the group.
-            </p>
-          </div>
-          {pendingMembers?.map((member) => (
-            <div key={member.id} className="rounded-md bg-background p-3">
-              <div className="flex items-center gap-3">
-                <Avatar
-                  photoUrl={member.profiles?.avatar_url}
-                  fallback={member.profiles?.username}
-                  className="size-8"
-                />
-                <span className="flex-1 text-sm font-medium">
-                  {displayUsernameWithoutAt(member.profiles?.username, "Member")}
-                </span>
-                <button
-                  onClick={() => reviewMember(member.user_id, "approved")}
-                  title="Approve"
-                  className="rounded-md bg-primary p-2 text-primary-foreground"
-                >
-                  <Check className="size-4" />
-                </button>
-                <button
-                  onClick={() => reviewMember(member.user_id, "rejected")}
-                  title="Reject"
-                  className="rounded-md border border-input p-2"
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
-              {joinAnswers?.[member.user_id] && (
-                <dl className="mt-2 space-y-1.5 border-t pt-2 text-xs">
-                  {joinAnswers[member.user_id]!.agreed_rules && (
-                    <p className="text-muted-foreground">✓ Agreed to the group rules</p>
-                  )}
-                  {joinAnswers[member.user_id]!.answers.map((answer) => (
-                    <div key={answer.question_id}>
-                      <dt className="text-muted-foreground">{answer.prompt}</dt>
-                      <dd className="font-medium">
-                        {answer.kind === "agree"
-                          ? "✓ Agreed"
-                          : answer.kind === "yes_no"
-                            ? answer.answer === "yes"
-                              ? "Yes"
-                              : "No"
-                            : answer.answer}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              )}
-            </div>
-          ))}
-          {pendingPosts.map((post) => (
-            <div key={post.id} className="rounded-md bg-background p-3">
-              <p className="text-sm">{post.body}</p>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {post.post_images
-                  .filter((image) => image.image_url)
-                  .map((image) => (
-                    <img
-                      key={image.id}
-                      src={image.image_url}
-                      alt="Post attachment for moderation"
-                      className="rounded object-cover"
-                    />
-                  ))}
-              </div>
-              <div className="mt-2 flex justify-end gap-2">
-                <button
-                  onClick={() => reviewPost(post.id, "published")}
-                  className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground"
-                >
-                  Approve post
-                </button>
-                <button
-                  onClick={() => reviewPost(post.id, "rejected")}
-                  className="rounded-md border border-input px-3 py-1.5 text-xs"
-                >
-                  Reject
-                </button>
-              </div>
-            </div>
-          ))}
-        </section>
-      )}
-
-      {canModerate && (
-        <section className="mt-5 space-y-3">
-          {reportsError && (
-            <p role="alert">
-              Could not load group reports. <button onClick={refresh}>Retry</button>
-            </p>
-          )}
-          {!!reports?.length && <h2 className="font-semibold">Reported posts</h2>}
-          {reports?.map((report) => (
-            <div key={report.id} className="rounded-lg border border-destructive/30 p-4">
-              <p className="text-xs font-semibold uppercase text-destructive">
-                {report.reason.replaceAll("_", " ")}
-              </p>
-              <p className="mt-2 text-sm">{report.posts.body}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{report.details}</p>
-              <div className="mt-3 flex gap-3">
-                <button
-                  disabled={busy}
-                  className="text-sm text-destructive"
-                  onClick={async () => {
-                    if (!report.post_id) return;
-                    setBusy(true);
-                    try {
-                      await setGroupPostStatus(report.post_id, "rejected");
-                      await reviewReport(report.id, "actioned");
-                      refresh();
-                    } catch {
-                      toast.error("Could not resolve this report.");
-                    } finally {
-                      setBusy(false);
-                    }
-                  }}
-                >
-                  Hide post and resolve
-                </button>
-                <button
-                  disabled={busy}
-                  className="text-sm text-muted-foreground"
-                  onClick={async () => {
-                    setBusy(true);
-                    try {
-                      await reviewReport(report.id, "dismissed");
-                      refresh();
-                    } catch {
-                      toast.error("Could not dismiss this report.");
-                    } finally {
-                      setBusy(false);
-                    }
-                  }}
-                >
-                  Dismiss report
-                </button>
-              </div>
-            </div>
-          ))}
-          {(posts ?? []).some((post) => post.moderation_status === "rejected") && (
-            <details className="rounded-lg border p-4">
-              <summary>Hidden posts</summary>
-              {posts
-                ?.filter((post) => post.moderation_status === "rejected")
-                .map((post) => (
-                  <div key={post.id} className="mt-3 border-t pt-3">
-                    <p className="text-sm">{post.body}</p>
-                    <button
-                      onClick={() => reviewPost(post.id, "published")}
-                      className="mt-2 text-sm text-primary"
-                    >
-                      Restore post
-                    </button>
-                  </div>
-                ))}
-            </details>
-          )}
-        </section>
-      )}
-      {group.rules && (
-        <section className="mt-5 rounded-xl border border-border p-4">
-          <h2 className="font-semibold">Group rules</h2>
-          <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{group.rules}</p>
-        </section>
-      )}
-      {canModerate && (
-        <details className="mt-5 rounded-xl border border-border p-4">
-          <summary className="cursor-pointer font-semibold">Manage members and rules</summary>
-          {membersError && (
-            <p role="alert" className="mt-3 text-sm text-destructive">
-              Could not load members. Please reload.
-            </p>
-          )}
-          {(membership?.role === "owner" || isAdmin) && (
-            <GroupSettingsForm group={group} groupRules={groupRules} onSaved={refresh} />
-          )}
-          {members
-            ?.filter((m) => m.status !== "pending")
-            .map((member) => {
-              const ranks: Record<string, number> = {
-                owner: 4,
-                admin: 3,
-                moderator: 2,
-                member: 1,
-              };
-              const canManage =
-                member.role !== "owner" &&
-                (isAdmin ||
-                  (membership && (ranks[membership.role] ?? 0) > (ranks[member.role] ?? 0)));
-              return (
-                <div
-                  key={member.id}
-                  className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-sm"
-                >
-                  <span className="mr-auto">
-                    {displayUsernameWithoutAt(member.profiles?.username, "Member")} · {member.role}{" "}
-                    · {member.status}
-                  </span>
-                  {canManage &&
-                    (membership?.role === "owner" || isAdmin) &&
-                    member.status === "approved" && (
-                      <select
-                        aria-label={`Role for ${displayUsernameWithoutAt(member.profiles?.username, "member")}`}
-                        value={member.role}
-                        onChange={async (e) => {
-                          try {
-                            await setGroupMemberRole(
-                              group.id,
-                              member.user_id,
-                              e.target.value as "admin" | "moderator" | "member",
-                            );
-                            refresh();
-                          } catch {
-                            toast.error("Could not change role.");
-                          }
-                        }}
-                        className="rounded-md border bg-background p-2"
-                      >
-                        <option value="member">Member</option>
-                        <option value="moderator">Moderator</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    )}
-                  {canManage && (
-                    <button
-                      className="rounded-md border px-3 py-2"
-                      onClick={() =>
-                        reviewMember(
-                          member.user_id,
-                          member.status === "banned" || member.status === "rejected"
-                            ? "approved"
-                            : "banned",
-                        )
-                      }
-                    >
-                      {member.status === "banned" || member.status === "rejected"
-                        ? "Approve member"
-                        : "Ban member"}
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-        </details>
-      )}
-      {membership?.status === "banned" && (
-        <p className="mt-4 text-sm text-destructive">
-          You have been removed from this group by a moderator.
-        </p>
-      )}
-      {membership?.status === "rejected" && (
-        <p className="mt-4 text-sm text-muted-foreground">Your join request was declined.</p>
-      )}
-      {approved && ruleLabel && !canModerate && garage && matchingCars.length === 0 && (
-        <div className="mt-5 rounded-xl border border-dashed border-border p-5 text-center text-sm">
-          <Car className="mx-auto size-5 text-muted-foreground" />
-          <p className="mt-2 font-medium">Posts here are made as your {ruleLabel}</p>
-          <p className="mt-1 text-muted-foreground">
-            There's no {ruleLabel} in your garage right now.{" "}
+        {!membership && eligibility?.eligible === false && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {eligibility.reason}{" "}
             <Link to="/garage" className="font-medium text-primary hover:underline">
               Go to garage
             </Link>
           </p>
-        </div>
-      )}
-      {approved && (!ruleLabel || canModerate || matchingCars.length > 0) && (
-        <div className="mt-5">
-          <PostComposer
-            onPosted={refresh}
-            lockedGroup={{
-              id: group.id,
-              name: group.name,
-              postPolicy: group.post_policy as "member" | "moderated",
-            }}
-            requiredCarIdentity={!!ruleLabel && !canModerate}
-            garageCars={matchingCars}
-            carIdentityNote={
-              ruleLabel
-                ? `This is a ${ruleLabel} group, so you post as your ${ruleLabel}.`
-                : undefined
-            }
-          />
-        </div>
-      )}
-      {joinOpen && (
-        <JoinGroupDialog
-          open={joinOpen}
-          onOpenChange={setJoinOpen}
-          group={group}
-          questions={questions ?? []}
-          busy={busy}
-          onSubmit={(answers, agreed) => void submitJoin(answers, agreed)}
-        />
-      )}
-      {!canViewPosts ? (
-        <div className="mt-5 rounded-xl border border-dashed border-border p-10 text-center">
-          <Lock className="mx-auto size-6 text-muted-foreground" />
-          <p className="mt-3 font-medium">Private group</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Approved members can see and take part in discussions.
-          </p>
-        </div>
-      ) : (
-        <div className="mt-5 space-y-4">
-          {visiblePosts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              liked={likedIds?.has(post.id) ?? false}
-              onDeleted={refresh}
-              canModerate={canModerate}
-              onHide={() => reviewPost(post.id, "rejected")}
-            />
+        )}
+
+        <div className="-mx-4 mt-4 flex gap-2 overflow-x-auto border-b border-border px-4 pb-3 [&::-webkit-scrollbar]:hidden">
+          {(
+            [
+              ["posts", "Posts"],
+              ["about", "About"],
+              ["photos", "Photos"],
+              ...(canModerate ? ([["manage", "Manage"]] as const) : []),
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTab(id)}
+              aria-pressed={tab === id}
+              className={`relative min-h-9 shrink-0 rounded-full px-4 text-sm font-semibold ${
+                tab === id ? "bg-foreground text-background" : "bg-muted text-foreground"
+              }`}
+            >
+              {label}
+              {id === "manage" && manageCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                  {manageCount}
+                </span>
+              )}
+            </button>
           ))}
-          {postsLoading && <p className="text-sm text-muted-foreground">Loading discussions…</p>}
-          {postsError && (
-            <p role="alert" className="text-sm text-destructive">
-              Could not load posts. <button onClick={refresh}>Try again</button>
-            </p>
-          )}
-          {!postsLoading && !postsError && visiblePosts.length === 0 && (
-            <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-              No approved posts yet.
-            </div>
-          )}
         </div>
-      )}
+      </section>
+
+      <div className="px-4">
+        {tab === "posts" && (
+          <>
+            {membership?.status === "banned" && (
+              <p className="mt-4 text-sm text-destructive">
+                You have been removed from this group by a moderator.
+              </p>
+            )}
+            {membership?.status === "rejected" && (
+              <p className="mt-4 text-sm text-muted-foreground">Your join request was declined.</p>
+            )}
+            {approved && ruleLabel && !canModerate && garage && matchingCars.length === 0 && (
+              <div className="mt-5 rounded-xl border border-dashed border-border p-5 text-center text-sm">
+                <Car className="mx-auto size-5 text-muted-foreground" />
+                <p className="mt-2 font-medium">Posts here are made as your {ruleLabel}</p>
+                <p className="mt-1 text-muted-foreground">
+                  There's no {ruleLabel} in your garage right now.{" "}
+                  <Link to="/garage" className="font-medium text-primary hover:underline">
+                    Go to garage
+                  </Link>
+                </p>
+              </div>
+            )}
+            {approved &&
+              (!ruleLabel || canModerate || matchingCars.length > 0) &&
+              !composerOpen && (
+                <button
+                  type="button"
+                  onClick={() => setComposerOpen(true)}
+                  className="mt-4 flex w-full items-center gap-3 rounded-2xl bg-card p-3 text-left shadow-sm ring-1 ring-border"
+                >
+                  <Avatar
+                    photoUrl={profile?.avatar_url}
+                    fallback={profile?.username}
+                    className="size-10"
+                  />
+                  <span className="flex-1 rounded-full bg-muted px-4 py-2.5 text-sm text-muted-foreground">
+                    Write something…
+                  </span>
+                  <ImageIcon className="size-5 text-muted-foreground" />
+                </button>
+              )}
+            {approved && (!ruleLabel || canModerate || matchingCars.length > 0) && composerOpen && (
+              <div className="mt-4">
+                <PostComposer
+                  onPosted={refresh}
+                  lockedGroup={{
+                    id: group.id,
+                    name: group.name,
+                    postPolicy: group.post_policy as "member" | "moderated",
+                  }}
+                  requiredCarIdentity={!!ruleLabel && !canModerate}
+                  garageCars={matchingCars}
+                  carIdentityNote={
+                    ruleLabel
+                      ? `This is a ${ruleLabel} group, so you post as your ${ruleLabel}.`
+                      : undefined
+                  }
+                />
+              </div>
+            )}
+            {!canViewPosts ? (
+              <div className="mt-5 rounded-xl border border-dashed border-border p-10 text-center">
+                <Lock className="mx-auto size-6 text-muted-foreground" />
+                <p className="mt-3 font-medium">Private group</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Approved members can see and take part in discussions.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-5 space-y-4">
+                {visiblePosts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    liked={likedIds?.has(post.id) ?? false}
+                    onDeleted={refresh}
+                    canModerate={canModerate}
+                    onHide={() => reviewPost(post.id, "rejected")}
+                  />
+                ))}
+                {postsLoading && (
+                  <p className="text-sm text-muted-foreground">Loading discussions…</p>
+                )}
+                {postsError && (
+                  <p role="alert" className="text-sm text-destructive">
+                    Could not load posts. <button onClick={refresh}>Try again</button>
+                  </p>
+                )}
+                {!postsLoading && !postsError && visiblePosts.length === 0 && (
+                  <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+                    No approved posts yet.
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        )}
+        {tab === "about" && (
+          <div className="mt-4 space-y-4">
+            <section className="rounded-2xl bg-card p-4 shadow-sm ring-1 ring-border">
+              <h2 className="font-bold">About this group</h2>
+              <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
+                {group.description || "A RevMate community group."}
+              </p>
+              <ul className="mt-4 space-y-3 text-sm">
+                <li className="flex gap-3">
+                  {group.visibility === "private" ? (
+                    <Lock className="mt-0.5 size-4 shrink-0" />
+                  ) : (
+                    <Globe className="mt-0.5 size-4 shrink-0" />
+                  )}
+                  <span>
+                    <span className="font-semibold">
+                      {group.visibility === "private" ? "Private" : "Public"}
+                    </span>
+                    <span className="block text-muted-foreground">
+                      {group.visibility === "private"
+                        ? "Only members can see who's in the group and what they post."
+                        : "Anyone can see the group and its posts."}
+                    </span>
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <Users className="mt-0.5 size-4 shrink-0" />
+                  <span>
+                    <span className="font-semibold">
+                      {group.member_count} {group.member_count === 1 ? "member" : "members"}
+                    </span>
+                    <span className="block text-muted-foreground">
+                      {group.join_policy === "approval"
+                        ? "Admins approve new members."
+                        : "Anyone can join."}
+                    </span>
+                  </span>
+                </li>
+                {(group.make_name || group.model_name) && (
+                  <li className="flex gap-3">
+                    <Car className="mt-0.5 size-4 shrink-0" />
+                    <span>
+                      <span className="font-semibold">
+                        {[group.make_name, group.model_name].filter(Boolean).join(" ")}
+                      </span>
+                      <span className="block text-muted-foreground">
+                        {ruleLabel ? `For ${ruleLabel} owners.` : "The car this group is about."}
+                      </span>
+                    </span>
+                  </li>
+                )}
+              </ul>
+            </section>
+            {group.rules && (
+              <section className="rounded-2xl bg-card p-4 shadow-sm ring-1 ring-border">
+                <h2 className="font-semibold">Group rules</h2>
+                <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
+                  {group.rules}
+                </p>
+              </section>
+            )}
+          </div>
+        )}
+        {tab === "photos" &&
+          (!canViewPosts ? (
+            <div className="mt-5 rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+              <Lock className="mx-auto size-6" />
+              <p className="mt-3">Join to see this group's photos.</p>
+            </div>
+          ) : groupPhotos.length === 0 ? (
+            <p className="mt-6 rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+              No photos yet — post one in the group.
+            </p>
+          ) : (
+            <div className="mt-4 grid grid-cols-3 gap-1 overflow-hidden rounded-2xl">
+              {groupPhotos.map((photo) => (
+                <Link
+                  key={photo.key}
+                  to="/posts/$postId"
+                  params={{ postId: photo.postId }}
+                  className="aspect-square bg-muted"
+                >
+                  <img src={photo.url} alt="" loading="lazy" className="size-full object-cover" />
+                </Link>
+              ))}
+            </div>
+          ))}
+        {tab === "manage" && canModerate && (
+          <>
+            {canModerate && ((pendingMembers?.length ?? 0) > 0 || pendingPosts.length > 0) && (
+              <section className="mt-5 space-y-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-5">
+                <div>
+                  <h2 className="font-semibold">Moderator queue</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Approve people and posts before they enter the group.
+                  </p>
+                </div>
+                {pendingMembers?.map((member) => (
+                  <div key={member.id} className="rounded-md bg-background p-3">
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        photoUrl={member.profiles?.avatar_url}
+                        fallback={member.profiles?.username}
+                        className="size-8"
+                      />
+                      <span className="flex-1 text-sm font-medium">
+                        {displayUsernameWithoutAt(member.profiles?.username, "Member")}
+                      </span>
+                      <button
+                        onClick={() => reviewMember(member.user_id, "approved")}
+                        title="Approve"
+                        className="rounded-md bg-primary p-2 text-primary-foreground"
+                      >
+                        <Check className="size-4" />
+                      </button>
+                      <button
+                        onClick={() => reviewMember(member.user_id, "rejected")}
+                        title="Reject"
+                        className="rounded-md border border-input p-2"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
+                    {joinAnswers?.[member.user_id] && (
+                      <dl className="mt-2 space-y-1.5 border-t pt-2 text-xs">
+                        {joinAnswers[member.user_id]!.agreed_rules && (
+                          <p className="text-muted-foreground">✓ Agreed to the group rules</p>
+                        )}
+                        {joinAnswers[member.user_id]!.answers.map((answer) => (
+                          <div key={answer.question_id}>
+                            <dt className="text-muted-foreground">{answer.prompt}</dt>
+                            <dd className="font-medium">
+                              {answer.kind === "agree"
+                                ? "✓ Agreed"
+                                : answer.kind === "yes_no"
+                                  ? answer.answer === "yes"
+                                    ? "Yes"
+                                    : "No"
+                                  : answer.answer}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    )}
+                  </div>
+                ))}
+                {pendingPosts.map((post) => (
+                  <div key={post.id} className="rounded-md bg-background p-3">
+                    <p className="text-sm">{post.body}</p>
+                    <div className="mt-2 grid grid-cols-3 gap-2">
+                      {post.post_images
+                        .filter((image) => image.image_url)
+                        .map((image) => (
+                          <img
+                            key={image.id}
+                            src={image.image_url}
+                            alt="Post attachment for moderation"
+                            className="rounded object-cover"
+                          />
+                        ))}
+                    </div>
+                    <div className="mt-2 flex justify-end gap-2">
+                      <button
+                        onClick={() => reviewPost(post.id, "published")}
+                        className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground"
+                      >
+                        Approve post
+                      </button>
+                      <button
+                        onClick={() => reviewPost(post.id, "rejected")}
+                        className="rounded-md border border-input px-3 py-1.5 text-xs"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </section>
+            )}
+
+            {canModerate && (
+              <section className="mt-5 space-y-3">
+                {reportsError && (
+                  <p role="alert">
+                    Could not load group reports. <button onClick={refresh}>Retry</button>
+                  </p>
+                )}
+                {!!reports?.length && <h2 className="font-semibold">Reported posts</h2>}
+                {reports?.map((report) => (
+                  <div key={report.id} className="rounded-lg border border-destructive/30 p-4">
+                    <p className="text-xs font-semibold uppercase text-destructive">
+                      {report.reason.replaceAll("_", " ")}
+                    </p>
+                    <p className="mt-2 text-sm">{report.posts.body}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{report.details}</p>
+                    <div className="mt-3 flex gap-3">
+                      <button
+                        disabled={busy}
+                        className="text-sm text-destructive"
+                        onClick={async () => {
+                          if (!report.post_id) return;
+                          setBusy(true);
+                          try {
+                            await setGroupPostStatus(report.post_id, "rejected");
+                            await reviewReport(report.id, "actioned");
+                            refresh();
+                          } catch {
+                            toast.error("Could not resolve this report.");
+                          } finally {
+                            setBusy(false);
+                          }
+                        }}
+                      >
+                        Hide post and resolve
+                      </button>
+                      <button
+                        disabled={busy}
+                        className="text-sm text-muted-foreground"
+                        onClick={async () => {
+                          setBusy(true);
+                          try {
+                            await reviewReport(report.id, "dismissed");
+                            refresh();
+                          } catch {
+                            toast.error("Could not dismiss this report.");
+                          } finally {
+                            setBusy(false);
+                          }
+                        }}
+                      >
+                        Dismiss report
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {(posts ?? []).some((post) => post.moderation_status === "rejected") && (
+                  <details className="rounded-lg border p-4">
+                    <summary>Hidden posts</summary>
+                    {posts
+                      ?.filter((post) => post.moderation_status === "rejected")
+                      .map((post) => (
+                        <div key={post.id} className="mt-3 border-t pt-3">
+                          <p className="text-sm">{post.body}</p>
+                          <button
+                            onClick={() => reviewPost(post.id, "published")}
+                            className="mt-2 text-sm text-primary"
+                          >
+                            Restore post
+                          </button>
+                        </div>
+                      ))}
+                  </details>
+                )}
+              </section>
+            )}
+            {canModerate && (
+              <details open className="mt-5 rounded-xl border border-border p-4">
+                <summary className="cursor-pointer font-semibold">Manage members and rules</summary>
+                {membersError && (
+                  <p role="alert" className="mt-3 text-sm text-destructive">
+                    Could not load members. Please reload.
+                  </p>
+                )}
+                {(membership?.role === "owner" || isAdmin) && (
+                  <GroupSettingsForm group={group} groupRules={groupRules} onSaved={refresh} />
+                )}
+                {members
+                  ?.filter((m) => m.status !== "pending")
+                  .map((member) => {
+                    const ranks: Record<string, number> = {
+                      owner: 4,
+                      admin: 3,
+                      moderator: 2,
+                      member: 1,
+                    };
+                    const canManage =
+                      member.role !== "owner" &&
+                      (isAdmin ||
+                        (membership && (ranks[membership.role] ?? 0) > (ranks[member.role] ?? 0)));
+                    return (
+                      <div
+                        key={member.id}
+                        className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-sm"
+                      >
+                        <span className="mr-auto">
+                          {displayUsernameWithoutAt(member.profiles?.username, "Member")} ·{" "}
+                          {member.role} · {member.status}
+                        </span>
+                        {canManage &&
+                          (membership?.role === "owner" || isAdmin) &&
+                          member.status === "approved" && (
+                            <select
+                              aria-label={`Role for ${displayUsernameWithoutAt(member.profiles?.username, "member")}`}
+                              value={member.role}
+                              onChange={async (e) => {
+                                try {
+                                  await setGroupMemberRole(
+                                    group.id,
+                                    member.user_id,
+                                    e.target.value as "admin" | "moderator" | "member",
+                                  );
+                                  refresh();
+                                } catch {
+                                  toast.error("Could not change role.");
+                                }
+                              }}
+                              className="rounded-md border bg-background p-2"
+                            >
+                              <option value="member">Member</option>
+                              <option value="moderator">Moderator</option>
+                              <option value="admin">Admin</option>
+                            </select>
+                          )}
+                        {canManage && (
+                          <button
+                            className="rounded-md border px-3 py-2"
+                            onClick={() =>
+                              reviewMember(
+                                member.user_id,
+                                member.status === "banned" || member.status === "rejected"
+                                  ? "approved"
+                                  : "banned",
+                              )
+                            }
+                          >
+                            {member.status === "banned" || member.status === "rejected"
+                              ? "Approve member"
+                              : "Ban member"}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+              </details>
+            )}
+          </>
+        )}
+        {joinOpen && (
+          <JoinGroupDialog
+            open={joinOpen}
+            onOpenChange={setJoinOpen}
+            group={group}
+            questions={questions ?? []}
+            busy={busy}
+            onSubmit={(answers, agreed) => void submitJoin(answers, agreed)}
+          />
+        )}
+      </div>
     </main>
   );
 }
@@ -714,6 +914,25 @@ function GroupSettingsForm({
   const [cover, setCover] = useState(group.cover_url ?? "");
 
   // The cover saves as soon as it's chosen — no need to hit Save.
+  const groupIcons = useGroupIconsFeature();
+  const [icon, setIcon] = useState(groupIconUrl(group) ?? "");
+
+  // Like the cover, the icon saves as soon as it's chosen.
+  async function changeIcon(url: string) {
+    const previous = icon;
+    setIcon(url);
+    try {
+      await updateGroupSettings(group.id, { icon_url: url || null });
+      onSaved();
+      toast.success(
+        url ? "Icon updated." : group.make_name ? "Using the car logo." : "Icon removed.",
+      );
+    } catch (err) {
+      setIcon(previous);
+      toast.error(err instanceof Error ? err.message : "Couldn't update the icon.");
+    }
+  }
+
   async function changeCover(url: string) {
     const previous = cover;
     setCover(url);
@@ -788,6 +1007,17 @@ function GroupSettingsForm({
           onChange={(url) => void changeCover(url)}
           makeName={group.make_name}
         />
+      )}
+      {groupIcons && user && (
+        <div>
+          <p className="mb-2 text-sm font-medium">Group icon</p>
+          <GroupIconPicker
+            userId={user.id}
+            value={icon}
+            onChange={(url) => void changeIcon(url)}
+            makeName={group.make_name}
+          />
+        </div>
       )}
       {groupRules && (
         <div className="grid gap-3 sm:grid-cols-2">

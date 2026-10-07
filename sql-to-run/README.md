@@ -6,6 +6,7 @@ been run live in `applied/` for reference.
 
 | # | File | What it does | Status |
 |---|------|--------------|--------|
+| 22 | `22_group_icons.sql` | Lets groups upload their own icon instead of the car logo | Run this |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 
@@ -37,3 +38,4 @@ File 19 is a copy of `drizzle/migrations/0055_public_profiles.sql` with a short 
 File 13 is a copy of `drizzle/migrations/0032_push_notifications.sql` with a short header added.
 File 20 is a copy of `drizzle/migrations/0057_remove_post_location.sql`.
 File 21 is a copy of `drizzle/migrations/0058_security_hardening.sql`.
+File 22 is a copy of `drizzle/migrations/0060_group_icons.sql`.

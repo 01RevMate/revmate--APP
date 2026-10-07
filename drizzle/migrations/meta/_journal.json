@@ -421,6 +421,13 @@
       "when": 1791165152797,
       "tag": "0059_security_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1791165212797,
+      "tag": "0060_group_icons",
+      "breakpoints": true
     }
   ]
 }
