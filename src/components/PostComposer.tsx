@@ -453,7 +453,7 @@ export function PostComposer({
         </div>
       )}
       {!lockedGroup && audience === "friends" && (
-        <div className="flex items-center gap-2 rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-900">
+        <div className="flex items-center gap-2 rounded-md border border-border bg-muted px-3 py-2 text-xs font-medium text-foreground">
           <UserRoundCheck className="size-4 shrink-0" />
           Followers only — only people who follow you can see this post.
         </div>

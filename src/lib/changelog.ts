@@ -24,6 +24,18 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.20.0",
+    date: "2026-10-07",
+    title: "Night mode",
+    status: "live",
+    highlights: [
+      "Night mode: RevMate now goes dark automatically when your phone is in dark mode, and switches back when your phone does",
+      "Choose Automatic, Light or Dark in Settings → Appearance, or at the bottom of the menu",
+      "No white flash when the app opens at night",
+    ],
+    fixes: ["Feed filter buttons and the 'Posting as' box now look right in dark mode"],
+  },
+  {
     version: "1.19.0",
     date: "2026-10-05",
     title: "Fuel prices near you",

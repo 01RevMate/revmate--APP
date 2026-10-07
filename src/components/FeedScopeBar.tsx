@@ -29,7 +29,7 @@ export function FeedScopeBar({
   showForYou?: boolean;
 }) {
   return (
-    <SlidingTabBar activeId={scope} gliderClassName="bg-black">
+    <SlidingTabBar activeId={scope} gliderClassName="bg-foreground">
       {(registerRef) =>
         SCOPES.filter(({ id }) => showForYou || id !== "for_you").map(
           ({ id, label, icon: Icon }) => {
@@ -48,10 +48,10 @@ export function FeedScopeBar({
                 disabled={disabled}
                 className={`relative z-10 flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
                   active
-                    ? "border-transparent text-white"
+                    ? "border-transparent text-background"
                     : disabled
-                      ? "cursor-not-allowed border-border bg-white text-slate-400"
-                      : "border-border bg-white text-slate-900 hover:border-slate-400"
+                      ? "cursor-not-allowed border-border bg-card text-muted-foreground/60"
+                      : "border-border bg-card text-foreground hover:border-foreground/40"
                 }`}
               >
                 <Icon className="size-3" />

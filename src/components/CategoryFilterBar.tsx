@@ -36,7 +36,7 @@ export function CategoryFilterBar({
   // "Spotted" only exists once the social features SQL has run.
   const social = useSocialFeatures();
   return (
-    <SlidingTabBar activeId={category} gliderClassName="bg-black">
+    <SlidingTabBar activeId={category} gliderClassName="bg-foreground">
       {(registerRef) => (
         <>
           <button
@@ -44,8 +44,8 @@ export function CategoryFilterBar({
             onClick={() => onCategoryChange("all")}
             className={`relative z-10 flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
               category === "all"
-                ? "border-transparent text-white"
-                : "border-border bg-white text-slate-900 hover:border-slate-400"
+                ? "border-transparent text-background"
+                : "border-border bg-card text-foreground hover:border-foreground/40"
             }`}
           >
             <LayoutGrid className="size-3" />
@@ -62,8 +62,8 @@ export function CategoryFilterBar({
                   onClick={() => onCategoryChange(id as Post["category"])}
                   className={`relative z-10 flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                     category === id
-                      ? "border-transparent text-white"
-                      : "border-border bg-white text-slate-900 hover:border-slate-400"
+                      ? "border-transparent text-background"
+                      : "border-border bg-card text-foreground hover:border-foreground/40"
                   }`}
                 >
                   <Icon className="size-3" />

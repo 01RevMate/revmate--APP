@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 import { HomeModeSwitch } from "@/components/HomeModeSwitch";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { useEngagementFeatures, usePushFeature } from "@/lib/features";
 import { NotificationSettingsForm } from "@/components/NotificationSettingsForm";
 import { PrivacyDataSettings } from "@/components/PrivacyDataSettings";
@@ -170,6 +171,13 @@ function SettingsPage() {
           <NotificationSettingsForm userId={user.id} />
         </Section>
       )}
+
+      <Section title="Appearance">
+        <ThemeSwitch />
+        <p className="mt-2 text-xs text-muted-foreground">
+          Automatic matches your phone: dark at night if your phone switches, light in the day.
+        </p>
+      </Section>
 
       <Section title="Home screen">
         <HomeModeSwitch />

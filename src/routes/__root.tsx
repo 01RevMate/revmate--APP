@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { THEME_BOOT_SCRIPT, ThemeWatcher } from "@/lib/theme";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TopNav } from "@/components/TopNav";
 import { BottomNav } from "@/components/BottomNav";
@@ -144,8 +145,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en-GB">
+    // The theme script sets the "dark" class before React loads, so the
+    // server's markup and the browser's can differ on that one attribute.
+    <html lang="en-GB" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
@@ -183,6 +187,7 @@ function RootComponent() {
             </div>
             <BottomNav />
             <Toaster />
+            <ThemeWatcher />
             <AuthPromptModal />
             <EngagementPulse />
             <OnboardingDialog />
