@@ -118,7 +118,7 @@ function MyCars() {
             openAuthModal("Create a free account to add your car and get MOT and tax reminders.");
           }
         }}
-        className="flex items-center gap-4 rounded-3xl bg-gradient-to-br from-slate-800 to-slate-950 p-5 text-white shadow-sm"
+        className="flex items-center gap-4 rounded-3xl bg-gradient-to-br from-slate-800 to-slate-950 p-5 dark:from-neutral-700 dark:to-neutral-900 text-white shadow-sm"
       >
         <span className="flex size-12 items-center justify-center rounded-2xl bg-white/15">
           <Plus className="size-6" />

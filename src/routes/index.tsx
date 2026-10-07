@@ -208,7 +208,7 @@ function Home() {
       <main className="min-w-0 flex-1">
         {homeMode === "essentials" ? (
           // iOS-style grouped background so the white cards stand out.
-          <div className="min-h-screen bg-[#f2f2f7] pb-6 dark:bg-black">
+          <div className="min-h-screen bg-[#f2f2f7] pb-6 dark:bg-background">
             <div className="mx-auto max-w-2xl space-y-4 px-4 py-4 sm:py-6">
               <HomeModeSwitch />
               <EssentialsHome />
