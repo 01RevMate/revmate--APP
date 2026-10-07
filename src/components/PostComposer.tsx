@@ -519,7 +519,7 @@ export function PostComposer({
                 >
                   <CarLogo
                     make={car.make}
-                    className="size-5 shrink-0 rounded-full bg-white p-0.5"
+                    className="size-5 shrink-0"
                   />
                   {car.nickname}
                 </button>

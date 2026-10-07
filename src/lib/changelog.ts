@@ -34,6 +34,7 @@ export const RELEASES: Release[] = [
       "No white flash when the app opens at night",
       "Night mode uses neutral dark greys (no blue tint) and the white RevMate logo",
       "Appearance is now at the top of Settings, as a car-style dial: sun for day, AUTO to match your phone, moon for night",
+      "Car brand logos always sit in a small white circle, so dark logos (Audi, Toyota, Mercedes…) show up clearly in night mode and next to profile pictures",
     ],
     fixes: ["Feed filter buttons and the 'Posting as' box now look right in dark mode"],
   },

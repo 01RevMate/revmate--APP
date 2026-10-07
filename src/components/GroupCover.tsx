@@ -24,7 +24,7 @@ export function GroupCoverBanner({
       ) : plain ? null : (
         <div className="flex size-full items-center justify-center opacity-40">
           {makeName ? (
-            <CarLogo make={makeName} className="size-14 brightness-0 invert" />
+            <CarLogo make={makeName} bare className="size-14 brightness-0 invert" />
           ) : (
             <Users className="size-10 text-white" />
           )}

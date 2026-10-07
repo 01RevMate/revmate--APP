@@ -273,7 +273,7 @@ function GroupPage() {
         <div className="flex flex-wrap items-start justify-between gap-4 p-6">
           <div>
             <div className="flex items-center gap-2">
-              {group.make_name && <CarLogo make={group.make_name} className="size-12 rounded-xl" />}
+              {group.make_name && <CarLogo make={group.make_name} className="size-12" />}
               <h1 className="text-2xl font-semibold">{group.name}</h1>
               {group.visibility === "private" && <Lock className="size-4 text-muted-foreground" />}
             </div>

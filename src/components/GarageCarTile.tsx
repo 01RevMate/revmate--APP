@@ -55,7 +55,7 @@ export function GarageCarTile({
         />
         <CarLogo
           make={car.make}
-          className="absolute -bottom-1 -right-1 size-5 rounded-full border border-background bg-background"
+          className="absolute -bottom-1 -right-1 size-5 border border-background"
         />
       </div>
       <div>

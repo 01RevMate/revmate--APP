@@ -225,7 +225,7 @@ export function OnboardingDialog() {
                     aria-pressed={selected}
                     className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${selected ? "border-primary bg-primary text-primary-foreground" : "border-input hover:bg-accent"}`}
                   >
-                    <CarLogo make={make} className="size-4 rounded-full bg-white p-0.5" />
+                    <CarLogo make={make} className="size-4" />
                     {make}
                     {selected && <Check className="size-3.5" />}
                   </button>

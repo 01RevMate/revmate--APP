@@ -459,7 +459,7 @@ export function PostCard({
                 />
                 <CarLogo
                   make={post.posted_as_garage_car.make}
-                  className="absolute -bottom-1 -right-1 size-4 rounded-full border border-background bg-background"
+                  className="absolute -bottom-1 -right-1 size-4 border border-background"
                 />
               </div>
               <div>

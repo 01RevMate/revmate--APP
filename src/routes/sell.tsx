@@ -432,7 +432,7 @@ function SellCarForm({
                 <Avatar photoUrl={car.photo_url} fallback={car.nickname} className="size-14" />
                 <CarLogo
                   make={car.make}
-                  className="absolute -bottom-1 -right-1 size-5 rounded-full border border-background bg-background"
+                  className="absolute -bottom-1 -right-1 size-5 border border-background"
                 />
               </div>
               <span className="text-sm font-medium">{car.nickname}</span>

@@ -73,7 +73,7 @@ export function PostingIdentitySwitcher({
         {activeCar && (
           <CarLogo
             make={activeCar.make}
-            className="absolute -bottom-1 -right-1 size-4 rounded-full border border-background bg-background"
+            className="absolute -bottom-1 -right-1 size-4 border border-background"
           />
         )}
       </button>
@@ -83,7 +83,7 @@ export function PostingIdentitySwitcher({
         className="flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent disabled:opacity-50"
       >
         {activeCar ? (
-          <CarLogo make={activeCar.make} className="size-4 shrink-0 rounded-full" />
+          <CarLogo make={activeCar.make} className="size-4 shrink-0" />
         ) : (
           <UserRound className="size-4 shrink-0" />
         )}
@@ -103,7 +103,7 @@ export function PostingIdentitySwitcher({
         </DropdownMenuItem>
         {cars.map((car) => (
           <DropdownMenuItem key={car.id} onClick={() => choose(car.id)} className="flex items-center gap-2">
-            <CarLogo make={car.make} className="size-4 shrink-0 rounded-full" />
+            <CarLogo make={car.make} className="size-4 shrink-0" />
             {car.nickname}
             {activeGarageCarId === car.id && <Check className="ml-auto size-3.5" />}
           </DropdownMenuItem>
