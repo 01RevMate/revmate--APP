@@ -21,7 +21,6 @@ import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { CountBadge } from "@/components/CountBadge";
-import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const item =
@@ -127,12 +126,6 @@ export function MobileMenu() {
           />
           {isAdmin && <MenuLink to="/admin" icon={ShieldCheck} label="Admin" onNavigate={close} />}
         </nav>
-        <div className="mt-6 border-t border-border pt-4">
-          <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Appearance
-          </p>
-          <ThemeSwitch />
-        </div>
       </SheetContent>
     </Sheet>
   );
