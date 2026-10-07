@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 import { HomeModeSwitch } from "@/components/HomeModeSwitch";
-import { ThemeSwitch } from "@/components/ThemeSwitch";
+import { HeadlightDial } from "@/components/HeadlightDial";
 import { useEngagementFeatures, usePushFeature } from "@/lib/features";
 import { NotificationSettingsForm } from "@/components/NotificationSettingsForm";
 import { PrivacyDataSettings } from "@/components/PrivacyDataSettings";
@@ -160,6 +160,13 @@ function SettingsPage() {
         </Link>
       )}
 
+      <Section title="Appearance">
+        <HeadlightDial />
+        <p className="mt-3 text-center text-xs text-muted-foreground">
+          Turn the dial or tap a symbol. AUTO goes dark when your phone does.
+        </p>
+      </Section>
+
       {pushAvailable && (
         <Section title="Phone notifications">
           <PushNotificationToggle userId={user.id} />
@@ -171,13 +178,6 @@ function SettingsPage() {
           <NotificationSettingsForm userId={user.id} />
         </Section>
       )}
-
-      <Section title="Appearance">
-        <ThemeSwitch />
-        <p className="mt-2 text-xs text-muted-foreground">
-          Automatic matches your phone: dark at night if your phone switches, light in the day.
-        </p>
-      </Section>
 
       <Section title="Home screen">
         <HomeModeSwitch />
