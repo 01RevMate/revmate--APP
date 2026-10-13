@@ -52,6 +52,7 @@ export function GarageCarTile({
           photoUrl={car.photo_url}
           fallback={car.nickname}
           className={`size-16 ${isPrevious ? "grayscale" : ""}`}
+          alt={`${[car.make, car.model].filter(Boolean).join(" ")}${car.nickname ? ` “${car.nickname}”` : ""}`}
         />
         <CarLogo
           make={car.make}
