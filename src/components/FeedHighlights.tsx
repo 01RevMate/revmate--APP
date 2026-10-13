@@ -23,13 +23,15 @@ export function FeedHighlights() {
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-3 gap-2">
-        <QuickLink
-          to="/battles"
-          icon={Swords}
-          label="Battles"
-          className="from-rose-500 to-orange-500"
-        />
+      <div className={`grid gap-2 ${BATTLES_ENABLED ? "grid-cols-3" : "grid-cols-2"}`}>
+        {BATTLES_ENABLED && (
+          <QuickLink
+            to="/battles"
+            icon={Swords}
+            label="Battles"
+            className="from-rose-500 to-orange-500"
+          />
+        )}
         <QuickLink
           to="/revs"
           icon={Clapperboard}
@@ -62,7 +64,7 @@ export function FeedHighlights() {
         </Link>
       )}
 
-      {champion && car?.profiles && (
+      {BATTLES_ENABLED && champion && car?.profiles && (
         <Link
           to="/u/$username/cars/$carId"
           params={{ username: car.profiles.username, carId: car.id }}

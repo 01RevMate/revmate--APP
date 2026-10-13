@@ -121,7 +121,9 @@ export function Sidebar() {
         <NavLink to="/essentials" icon={Wrench} label="Essentials" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
         <NavLink to="/meets" icon={CalendarDays} label="Meets & Events" collapsed={collapsed} />
-        <NavLink to="/battles" icon={Trophy} label="Top cars" collapsed={collapsed} />
+        {BATTLES_ENABLED && (
+          <NavLink to="/battles" icon={Trophy} label="Top cars" collapsed={collapsed} />
+        )}
         <NavLink to="/revs" icon={Clapperboard} label="Revs" collapsed={collapsed} />
         <NavLink to="/groups" icon={Users} label="Groups" collapsed={collapsed} requireAuth />
         <NavLink to="/ask" icon={Stethoscope} label="Ask for help" collapsed={collapsed} />
