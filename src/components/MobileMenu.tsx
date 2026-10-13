@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Menu,
@@ -15,7 +15,10 @@ import {
   CalendarDays,
   Clapperboard,
   Wrench,
+  Download,
 } from "lucide-react";
+import { isAppInstalled } from "@/lib/pwaInstall";
+import { openInstallPrompt } from "@/components/InstallAppPrompt";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
@@ -70,6 +73,10 @@ function MenuLink({
 // rest lives behind this hamburger next to the logo.
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
+  const [showInstall, setShowInstall] = useState(false);
+  useEffect(() => {
+    setShowInstall(!isAppInstalled());
+  }, [open]);
   const { isAdmin } = useProfile();
   const unread = useUnreadMessages();
 
@@ -124,6 +131,19 @@ export function MobileMenu() {
             requireAuth
             onNavigate={close}
           />
+          {showInstall && (
+            <button
+              type="button"
+              className={`${item} w-full`}
+              onClick={() => {
+                close();
+                openInstallPrompt();
+              }}
+            >
+              <Download className="size-5 shrink-0" />
+              Install the app
+            </button>
+          )}
           {isAdmin && <MenuLink to="/admin" icon={ShieldCheck} label="Admin" onNavigate={close} />}
         </nav>
       </SheetContent>

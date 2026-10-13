@@ -20,6 +20,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AuthModalProvider } from "@/hooks/useAuthModal";
 import { AuthPromptModal } from "@/components/AuthPromptModal";
+import { InstallAppPrompt } from "@/components/InstallAppPrompt";
 import { SplashScreen } from "@/components/SplashScreen";
 import { AuthGate } from "@/components/AuthGate";
 import { EngagementPulse } from "@/components/EngagementPulse";
@@ -189,6 +190,7 @@ function RootComponent() {
             </div>
             <BottomNav />
             <Toaster />
+            <InstallAppPrompt />
             <ThemeWatcher />
             <AuthPromptModal />
             <EngagementPulse />
