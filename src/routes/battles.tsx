@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Crown, Loader2, SkipForward } from "lucide-react";
 import { toast } from "sonner";
@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { CarLogo } from "@/components/CarLogo";
 import { TopCarsTabs } from "@/components/TopCarsTabs";
+import { BATTLES_ENABLED } from "@/lib/features";
 import { fetchBattle, fetchCarOfTheWeek, voteBattle, type BattleCar } from "@/lib/engagement";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
@@ -27,6 +28,9 @@ export const Route = createFileRoute("/battles")({
 });
 
 function BattlesPage() {
+  // Battles are temporarily hidden while the feature is reworked — anyone
+  // landing on /battles (old link, search result) goes to the Rankings page.
+  if (!BATTLES_ENABLED) return <Navigate to="/leaderboard" replace />;
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();

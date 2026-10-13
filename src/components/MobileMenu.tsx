@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { BATTLES_ENABLED } from "@/lib/features";
 import {
   Menu,
   Home,
@@ -105,7 +106,9 @@ export function MobileMenu() {
           <MenuLink to="/essentials" icon={Wrench} label="Essentials" onNavigate={close} />
           <MenuLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" onNavigate={close} />
           <MenuLink to="/meets" icon={CalendarDays} label="Meets & Events" onNavigate={close} />
-          <MenuLink to="/battles" icon={Trophy} label="Top cars" onNavigate={close} />
+          {BATTLES_ENABLED && (
+            <MenuLink to="/battles" icon={Trophy} label="Top cars" onNavigate={close} />
+          )}
           <MenuLink to="/revs" icon={Clapperboard} label="Revs" onNavigate={close} />
           <MenuLink to="/groups" icon={Users} label="Groups" requireAuth onNavigate={close} />
           <MenuLink to="/ask" icon={Stethoscope} label="Ask for help" onNavigate={close} />

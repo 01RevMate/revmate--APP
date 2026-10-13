@@ -182,7 +182,7 @@ function SettingsPage() {
       <Section title="Home screen">
         <HomeModeSwitch />
         <p className="mt-2 text-xs text-muted-foreground">
-          Community shows the feed, battles and stories. Essentials shows the practical side: buying
+          Community shows the feed and stories. Essentials shows the practical side: buying
           and selling, parts, help and research.
         </p>
       </Section>

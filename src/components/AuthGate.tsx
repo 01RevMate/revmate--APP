@@ -8,7 +8,6 @@ import {
   Clapperboard,
   Heart,
   MessageCircle,
-  Swords,
   Trophy,
   Users,
 } from "lucide-react";
@@ -89,7 +88,6 @@ const PITCHES: { match: RegExp; title: string; pitch: string }[] = [
 
 const PERKS = [
   { icon: Heart, text: "Like, comment and follow owners" },
-  { icon: Swords, text: "Vote in Car Battles and climb the leaderboard" },
   { icon: Clapperboard, text: "Revs, stories and your own garage" },
   { icon: CalendarDays, text: "Car meets near you" },
   { icon: BadgePoundSterling, text: "Watch listings and get price-drop alerts" },

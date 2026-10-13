@@ -50,6 +50,7 @@ import {
   SimilarListings,
 } from "@/components/ListingDealPanels";
 import { PriceGuideBadge } from "@/components/PriceGuideBadge";
+import { ShareListingButton } from "@/components/ShareListingButton";
 import { AdvertStrengthCard } from "@/components/AdvertStrengthCard";
 import {
   fetchMyCurrentCars,
@@ -588,36 +589,57 @@ function ListingDetailPage() {
           </Link>
           {upgrade && <SellerTrust sellerId={listing.user_id} />}
           {!isOwner && listing.status === "active" && (
-            <>
+            <div className="mt-3 flex gap-2">
               <button
                 type="button"
                 onClick={openMessageDialog}
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                className="flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 <MessageCircle className="size-4" />
                 Message seller
               </button>
-              {upgrade && (
-                <OfferPanel
-                  listing={listing}
-                  userId={user?.id ?? null}
-                  isOwner={false}
-                  onNeedAccount={() => openAuthModal("Create a free account to make an offer.")}
-                  onMessage={(text) => {
-                    setMessageBody(text);
-                    setMessageOpen(true);
-                  }}
-                />
-              )}
-              <button
-                type="button"
-                onClick={openReportDialog}
-                className="mt-2 flex w-full items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-destructive"
-              >
-                <Flag className="size-3.5" />
-                Report this seller
-              </button>
-            </>
+              <ShareListingButton
+                listingId={listing.id}
+                title={carName}
+                className="flex-1 border border-input hover:bg-accent"
+              />
+            </div>
+          )}
+          {isOwner && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              Share this advert to reach more buyers:
+            </p>
+          )}
+          {isOwner && (
+            <ShareListingButton
+              listingId={listing.id}
+              title={carName}
+              className="mt-1.5 w-full border border-input hover:bg-accent"
+            />
+          )}
+          {upgrade && !isOwner && listing.status === "active" && (
+            <div className="mt-3">
+              <OfferPanel
+                listing={listing}
+                userId={user?.id ?? null}
+                isOwner={false}
+                onNeedAccount={() => openAuthModal("Create a free account to make an offer.")}
+                onMessage={(text) => {
+                  setMessageBody(text);
+                  setMessageOpen(true);
+                }}
+              />
+            </div>
+          )}
+          {!isOwner && listing.status === "active" && (
+            <button
+              type="button"
+              onClick={openReportDialog}
+              className="mt-2 flex w-full items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-destructive"
+            >
+              <Flag className="size-3.5" />
+              Report this seller
+            </button>
           )}
         </div>
       )}

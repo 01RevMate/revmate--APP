@@ -59,3 +59,10 @@ export function useGroupIconsFeature(): boolean {
   });
   return data === true;
 }
+
+/**
+ * Car Battles are temporarily hidden while the feature is reworked.
+ * Flip this to true to restore every entry point (nav, feed strip,
+ * Top cars tabs and related copy) without touching anything else.
+ */
+export const BATTLES_ENABLED = false;
