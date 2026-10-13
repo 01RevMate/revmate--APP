@@ -24,27 +24,25 @@ export function ShareListingButton({
     setBusy(true);
     const url = absoluteUrl(`/marketplace/${listingId}`);
     const text = `${title} — for sale on RevMate`;
-    try {
-      if (typeof navigator.share === "function") {
+    // Native share sheet first (WhatsApp, Messages, etc.).
+    if (typeof navigator.share === "function") {
+      try {
         await navigator.share({ title, text, url });
         return;
+      } catch (err) {
+        // Closed the sheet without sharing — not an error.
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        // Anything else (unsupported share target) falls through to copying.
       }
+    }
+    // No share sheet — copy the link instead.
+    try {
       await navigator.clipboard.writeText(`${text} ${url}`);
       setCopied(true);
       toast.success("Link copied — paste it anywhere");
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      // The share sheet was closed without sharing — not an error.
-      if (err instanceof DOMException && err.name === "AbortError") return;
-      if (err instanceof DOMException && err.name === "NotAllowedError") return;
-      try {
-        await navigator.clipboard.writeText(`${text} ${url}`);
-        setCopied(true);
-        toast.success("Link copied — paste it anywhere");
-        setTimeout(() => setCopied(false), 2000);
-      } catch {
-        toast.error("Couldn't share this advert");
-      }
+    } catch {
+      toast.error("Couldn't share this advert — copy the link from the address bar");
     } finally {
       setBusy(false);
     }
