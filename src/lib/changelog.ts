@@ -24,6 +24,14 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.25.0",
+    date: "2026-10-14",
+    title: "Car pages that grow themselves",
+    status: "live",
+    highlights: ["Posting about a car now automatically creates or links its car page, so Browse cars fills up as members post.", "Added around 30 of the UK's most common cars with their best-known faults."],
+    requiredSql: ["drizzle/migrations/0062_auto_car_pages_from_posts.sql"],
+  },
+  {
     version: "1.24.0",
     date: "2026-10-14",
     title: "Home EV charger guide",
