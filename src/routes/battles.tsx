@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Crown, Loader2, SkipForward } from "lucide-react";
 import { toast } from "sonner";
@@ -27,6 +27,9 @@ export const Route = createFileRoute("/battles")({
 });
 
 function BattlesPage() {
+  // Battles are temporarily hidden while the feature is reworked — anyone
+  // landing on /battles (old link, search result) goes to the Rankings page.
+  if (!BATTLES_ENABLED) return <Navigate to="/leaderboard" replace />;
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();

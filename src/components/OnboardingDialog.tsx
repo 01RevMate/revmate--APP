@@ -42,7 +42,7 @@ const USES = [
   {
     id: "community",
     label: "Show off my car & chat",
-    hint: "The feed, battles, stories and meets",
+    hint: "The feed, stories and meets",
     icon: Users,
   },
   {
