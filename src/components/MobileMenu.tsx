@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { BATTLES_ENABLED } from "@/lib/features";
 import {
   Menu,
   Home,

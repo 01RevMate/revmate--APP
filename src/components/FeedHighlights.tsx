@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { CalendarDays, Clapperboard, Crown, Swords, Trophy } from "lucide-react";
 import { fetchActiveChallenge, fetchCarOfTheWeek } from "@/lib/engagement";
+import { BATTLES_ENABLED } from "@/lib/features";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
 /**
