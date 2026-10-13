@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Menu,
@@ -73,6 +73,10 @@ function MenuLink({
 // rest lives behind this hamburger next to the logo.
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
+  const [showInstall, setShowInstall] = useState(false);
+  useEffect(() => {
+    setShowInstall(!isAppInstalled());
+  }, [open]);
   const { isAdmin } = useProfile();
   const unread = useUnreadMessages();
 
