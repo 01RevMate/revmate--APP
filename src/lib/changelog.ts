@@ -28,7 +28,7 @@ export const RELEASES: Release[] = [
     date: "2026-10-14",
     title: "Car pages that grow themselves",
     status: "live",
-    highlights: ["Posting about a car now automatically creates or links its car page, so Browse cars fills up as members post.", "Added around 30 of the UK's most common cars with their best-known faults."],
+    highlights: ["Posting about a car now automatically creates or links its car page, so Browse cars fills up as members post.", "Added around 30 of the UK's most common cars with their best-known faults.", "Adverts now have a Share button — send the car to friends on WhatsApp, Messages or anywhere else."],
     fixes: ["Car Battles are hidden for now while we make them work better — the Rankings page is still there."],
     requiredSql: ["drizzle/migrations/0062_auto_car_pages_from_posts.sql"],
   },
