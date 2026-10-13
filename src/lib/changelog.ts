@@ -24,6 +24,16 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.22.0",
+    date: "2026-10-14",
+    title: "Easier to find on Google",
+    status: "live",
+    highlights: [
+      "RevMate is now verified in Google Search Console with the sitemap submitted, so Google can find every public page",
+      "The homepage has a clear main heading, and car, meet and marketplace photos now have proper descriptions for Google Images and screen readers",
+    ],
+  },
+  {
     version: "1.21.0",
     date: "2026-10-07",
     title: "Better groups",

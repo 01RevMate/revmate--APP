@@ -218,6 +218,9 @@ function Home() {
           <PullToRefresh onRefresh={refreshFeed}>
             <div className="mx-auto max-w-2xl py-4 sm:px-4 sm:py-6">
               <div className="space-y-4 px-3 sm:px-0">
+                <h1 className="text-lg font-bold leading-tight">
+                  RevMate — the UK car community
+                </h1>
                 <HomeModeSwitch />
                 {engagement && <StoriesRow />}
                 <FeedScopeBar

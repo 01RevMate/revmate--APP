@@ -143,7 +143,7 @@ function MyCars() {
           className={`relative flex h-44 shrink-0 snap-start flex-col justify-between overflow-hidden rounded-3xl bg-slate-900 p-4 text-white shadow-sm ${cars.length === 1 ? "w-full" : "w-[85%] sm:w-80"}`}
         >
           {car.photo_url && (
-            <img src={car.photo_url} alt="" className="absolute inset-0 size-full object-cover" />
+            <img src={car.photo_url} alt={`${[car.make, car.model].filter(Boolean).join(" ")}${car.nickname ? ` “${car.nickname}”` : ""}`} className="absolute inset-0 size-full object-cover" />
           )}
           <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
           <span className="relative">
@@ -370,7 +370,7 @@ export function EssentialsHome() {
                   {listing.photos?.[0] && (
                     <img
                       src={listing.photos[0]}
-                      alt=""
+                      alt={listing.title}
                       loading="lazy"
                       className="size-full object-cover"
                     />
