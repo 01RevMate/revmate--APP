@@ -15,7 +15,10 @@ import {
   CalendarDays,
   Clapperboard,
   Wrench,
+  Download,
 } from "lucide-react";
+import { isAppInstalled } from "@/lib/pwaInstall";
+import { openInstallPrompt } from "@/components/InstallAppPrompt";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
