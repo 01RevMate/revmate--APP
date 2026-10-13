@@ -32,7 +32,7 @@ const PUBLIC_PATHS: RegExp[] = [
   /^\/issues\/?$/,
   /^\/meets(\/[^/]+)?\/?$/,
   /^\/groups\/?$/,
-  /^\/ev-chargers\/?$/,
+  /^\/ev-chargers(\/home)?\/?$/,
   /^\/fuel-prices\/?$/,
 ];
 
