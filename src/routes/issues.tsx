@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Search, Stethoscope } from "lucide-react";
+import { LogIn, Search, Stethoscope } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { PostCard } from "@/components/PostCard";
 import { PostCardSkeleton } from "@/components/PostCardSkeleton";
@@ -88,6 +88,21 @@ function IssuesPage() {
       <p className="mt-1 text-sm text-muted-foreground">
         Find faults other owners have had and how they fixed them.
       </p>
+
+      {!user && (
+        <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-3">
+          <p className="text-sm text-muted-foreground">
+            Sign in to pick a car from your garage — or find any car below.
+          </p>
+          <Link
+            to="/login"
+            search={{ redirect: "/issues" }}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"
+          >
+            <LogIn className="size-4" /> Sign in
+          </Link>
+        </div>
+      )}
 
       {myCars.length > 0 && (
         <div className="mt-4">
