@@ -11,3 +11,6 @@
 - None (revmate.app dropped by user — not owned; revmate.co.uk + www already live, primary confirmed)
 - [ ] Broader SEO push: discoverability for EV chargers, fuel prices, posts, marketplace, Google Images, backlinks
 - [x] Google Search Console setup (verify + submit sitemap)
+- [x] Home EV charger guide (/ev-chargers/home) with member ratings
+- [x] Essentials: choose "find a car" or "use a car I own" (like the feed) when signed in
+- [ ] Later: promote home charger installers with ads (waiting on user go-ahead)

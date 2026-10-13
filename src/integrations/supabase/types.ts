@@ -867,6 +867,7 @@ export type Database = {
           created_at: string
           description: string
           entry_rule: string
+          icon_url: string | null
           id: string
           join_policy: string
           make_name: string | null
@@ -886,6 +887,7 @@ export type Database = {
           created_at?: string
           description?: string
           entry_rule?: string
+          icon_url?: string | null
           id?: string
           join_policy?: string
           make_name?: string | null
@@ -905,6 +907,7 @@ export type Database = {
           created_at?: string
           description?: string
           entry_rule?: string
+          icon_url?: string | null
           id?: string
           join_policy?: string
           make_name?: string | null
@@ -1447,6 +1450,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      home_charger_reviews: {
+        Row: {
+          body: string
+          charger_slug: string
+          created_at: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          charger_slug: string
+          created_at?: string
+          id?: string
+          rating: number
+          user_id?: string
+        }
+        Update: {
+          body?: string
+          charger_slug?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: []
       }
       listing_offers: {
         Row: {

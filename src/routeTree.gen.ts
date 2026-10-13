@@ -37,6 +37,7 @@ import { Route as ApiFuelPricesRouteImport } from './routes/api.fuel-prices'
 import { Route as BusinessesIndexRouteImport } from './routes/businesses/index'
 import { Route as BusinessesBusinessIdRouteImport } from './routes/businesses/$businessId'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
+import { Route as EvChargersHomeRouteImport } from './routes/ev-chargers_.home'
 import { Route as GroupsIndexRouteImport } from './routes/groups/index'
 import { Route as GroupsSlugRouteImport } from './routes/groups/$slug'
 import { Route as LegalCookiesRouteImport } from './routes/legal/cookies'
@@ -198,6 +199,11 @@ const CarsIndexRoute = CarsIndexRouteImport.update({
   path: '/cars/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EvChargersHomeRoute = EvChargersHomeRouteImport.update({
+  id: '/ev-chargers_/home',
+  path: '/ev-chargers/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GroupsIndexRoute = GroupsIndexRouteImport.update({
   id: '/groups/',
   path: '/groups/',
@@ -327,6 +333,7 @@ export interface FileRoutesByFullPath {
   '/updates.json': typeof UpdatesDotjsonRoute
   '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
+  '/ev-chargers/home': typeof EvChargersHomeRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/cookies': typeof LegalCookiesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -377,6 +384,7 @@ export interface FileRoutesByTo {
   '/updates.json': typeof UpdatesDotjsonRoute
   '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
+  '/ev-chargers/home': typeof EvChargersHomeRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/cookies': typeof LegalCookiesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -428,6 +436,7 @@ export interface FileRoutesById {
   '/updates.json': typeof UpdatesDotjsonRoute
   '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
+  '/ev-chargers_/home': typeof EvChargersHomeRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/cookies': typeof LegalCookiesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -480,6 +489,7 @@ export interface FileRouteTypes {
     | '/updates.json'
     | '/api/fuel-prices'
     | '/businesses/$businessId'
+    | '/ev-chargers/home'
     | '/groups/$slug'
     | '/legal/cookies'
     | '/legal/privacy'
@@ -530,6 +540,7 @@ export interface FileRouteTypes {
     | '/updates.json'
     | '/api/fuel-prices'
     | '/businesses/$businessId'
+    | '/ev-chargers/home'
     | '/groups/$slug'
     | '/legal/cookies'
     | '/legal/privacy'
@@ -580,6 +591,7 @@ export interface FileRouteTypes {
     | '/updates.json'
     | '/api/fuel-prices'
     | '/businesses/$businessId'
+    | '/ev-chargers_/home'
     | '/groups/$slug'
     | '/legal/cookies'
     | '/legal/privacy'
@@ -631,6 +643,7 @@ export interface RootRouteChildren {
   UpdatesDotjsonRoute: typeof UpdatesDotjsonRoute
   ApiFuelPricesRoute: typeof ApiFuelPricesRoute
   BusinessesBusinessIdRoute: typeof BusinessesBusinessIdRoute
+  EvChargersHomeRoute: typeof EvChargersHomeRoute
   GroupsSlugRoute: typeof GroupsSlugRoute
   LegalCookiesRoute: typeof LegalCookiesRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
@@ -852,6 +865,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CarsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ev-chargers_/home': {
+      id: '/ev-chargers_/home'
+      path: '/ev-chargers/home'
+      fullPath: '/ev-chargers/home'
+      preLoaderRoute: typeof EvChargersHomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/groups/': {
       id: '/groups/'
       path: '/groups'
@@ -1034,6 +1054,7 @@ const rootRouteChildren: RootRouteChildren = {
   UpdatesDotjsonRoute: UpdatesDotjsonRoute,
   ApiFuelPricesRoute: ApiFuelPricesRoute,
   BusinessesBusinessIdRoute: BusinessesBusinessIdRoute,
+  EvChargersHomeRoute: EvChargersHomeRoute,
   GroupsSlugRoute: GroupsSlugRoute,
   LegalCookiesRoute: LegalCookiesRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
