@@ -124,6 +124,19 @@ export function MobileMenu() {
             requireAuth
             onNavigate={close}
           />
+          {!isAppInstalled() && (
+            <button
+              type="button"
+              className={`${item} w-full`}
+              onClick={() => {
+                close();
+                openInstallPrompt();
+              }}
+            >
+              <Download className="size-5 shrink-0" />
+              Install the app
+            </button>
+          )}
           {isAdmin && <MenuLink to="/admin" icon={ShieldCheck} label="Admin" onNavigate={close} />}
         </nav>
       </SheetContent>

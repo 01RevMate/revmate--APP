@@ -189,6 +189,7 @@ function RootComponent() {
             </div>
             <BottomNav />
             <Toaster />
+            <InstallAppPrompt />
             <ThemeWatcher />
             <AuthPromptModal />
             <EngagementPulse />
