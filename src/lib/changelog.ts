@@ -24,6 +24,16 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.23.0",
+    date: "2026-10-14",
+    title: "Install the app from your phone",
+    status: "live",
+    highlights: [
+      "Signed-in members now get a one-time prompt to add RevMate to their phone's home screen — one tap on Android, easy steps on iPhone",
+      "The More menu has a permanent 'Install the app' entry so anyone can add it later",
+    ],
+  },
+  {
     version: "1.22.0",
     date: "2026-10-14",
     title: "Easier to find on Google",
