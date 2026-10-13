@@ -9,3 +9,5 @@
 
 ## Open
 - None (revmate.app dropped by user — not owned; revmate.co.uk + www already live, primary confirmed)
+- [ ] Broader SEO push: discoverability for EV chargers, fuel prices, posts, marketplace, Google Images, backlinks
+- [x] Google Search Console setup (verify + submit sitemap)
