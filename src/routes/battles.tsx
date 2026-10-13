@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { CarLogo } from "@/components/CarLogo";
 import { TopCarsTabs } from "@/components/TopCarsTabs";
+import { BATTLES_ENABLED } from "@/lib/features";
 import { fetchBattle, fetchCarOfTheWeek, voteBattle, type BattleCar } from "@/lib/engagement";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
