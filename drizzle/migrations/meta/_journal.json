@@ -435,6 +435,13 @@
       "when": 1791934533342,
       "tag": "0061_home_charger_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1791935560523,
+      "tag": "0062_auto_car_pages_from_posts",
+      "breakpoints": true
     }
   ]
 }
