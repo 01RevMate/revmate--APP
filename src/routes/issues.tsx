@@ -8,6 +8,7 @@ import { PostCardSkeleton } from "@/components/PostCardSkeleton";
 import { MakeSelect } from "@/components/MakeSelect";
 import { ModelSelect } from "@/components/ModelSelect";
 import { fetchMyLikedPostIds } from "@/lib/posts";
+import { fetchGarage } from "@/lib/garage";
 import { fetchIssuePosts, ISSUE_SYSTEMS, useDiagnosticsFeature } from "@/lib/diagnostics";
 import { seo } from "@/lib/seo";
 
@@ -46,6 +47,14 @@ function IssuesPage() {
   const [make, setMake] = useState(search.make ?? "");
   const [model, setModel] = useState(search.model ?? "");
   const setSearch = (next: IssueSearch) => void navigate({ search: next, replace: true });
+  const { data: garage } = useQuery({
+    queryKey: ["garage", user?.id],
+    enabled: !!user,
+    queryFn: () => fetchGarage(user!.id),
+  });
+  const myCars = (garage ?? []).filter(
+    (c) => c.ownership_status !== "previous" && c.make && c.model,
+  );
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ["issues", search],
@@ -79,6 +88,36 @@ function IssuesPage() {
       <p className="mt-1 text-sm text-muted-foreground">
         Find faults other owners have had and how they fixed them.
       </p>
+
+      {myCars.length > 0 && (
+        <div className="mt-4">
+          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Use a car you own
+          </p>
+          <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [&::-webkit-scrollbar]:hidden">
+            {myCars.map((car) => {
+              const active = search.make === car.make && search.model === car.model;
+              return (
+                <button
+                  key={car.id}
+                  type="button"
+                  onClick={() => {
+                    setMake(car.make);
+                    setModel(car.model);
+                    setSearch({ ...search, make: car.make, model: car.model });
+                  }}
+                  className={chip(active)}
+                >
+                  🚗 {car.nickname || `${car.make} ${car.model}`}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Or find any car
+          </p>
+        </div>
+      )}
 
       <form
         className="mt-4 grid grid-cols-2 gap-2"

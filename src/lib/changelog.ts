@@ -28,7 +28,7 @@ export const RELEASES: Release[] = [
     date: "2026-10-14",
     title: "Home EV charger guide",
     status: "live",
-    highlights: ["New home charger guide in EV chargers: compare popular models, rough prices, pros and cons, and rate the one you own."],
+    highlights: ["Fix a problem: tap one of your own cars instead of picking a make and model.", "New home charger guide in EV chargers: compare popular models, rough prices, pros and cons, and rate the one you own."],
     requiredSql: ["drizzle/migrations/0061_home_charger_reviews.sql"],
   },
   {
