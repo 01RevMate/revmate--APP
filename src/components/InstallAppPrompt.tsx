@@ -30,10 +30,15 @@ export function openInstallPrompt() {
  * openInstallPrompt() (e.g. the More menu's "Install the app" entry).
  */
 export function InstallAppPrompt() {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  const [installed, setInstalled] = useState(true); // hidden until mounted (SSR-safe)
   const [, setPromptVersion] = useState(0);
 
   useEffect(() => subscribeInstallPrompt(() => setPromptVersion((v) => v + 1)), []);
+  useEffect(() => {
+    setInstalled(isAppInstalled());
+  }, [open]);
 
   const close = useCallback((remember: boolean) => {
     if (remember) dismissInstallPrompt();
@@ -51,30 +56,15 @@ export function InstallAppPrompt() {
 
   // Auto-open once for signed-in users who haven't installed or dismissed it.
   useEffect(() => {
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const maybeShow = async () => {
-      if (isAppInstalled() || installPromptDismissed()) return;
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session) return;
-      timer = setTimeout(() => {
-        if (!isAppInstalled() && !installPromptDismissed()) setOpen(true);
-      }, 2500);
-    };
-    void maybeShow();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") void maybeShow();
-    });
-    return () => {
-      if (timer) clearTimeout(timer);
-      subscription.unsubscribe();
-    };
-  }, []);
+    if (!user) return;
+    if (isAppInstalled() || installPromptDismissed()) return;
+    const timer = setTimeout(() => {
+      if (!isAppInstalled() && !installPromptDismissed()) setOpen(true);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [user]);
 
-  if (isAppInstalled()) return null;
+  if (installed) return null;
 
   const nativePrompt = getDeferredInstallPrompt();
   const ios = isIosDevice();

@@ -127,7 +127,7 @@ export function MobileMenu() {
             requireAuth
             onNavigate={close}
           />
-          {!isAppInstalled() && (
+          {showInstall && (
             <button
               type="button"
               className={`${item} w-full`}
