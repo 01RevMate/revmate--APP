@@ -17,7 +17,7 @@ export type HomeCharger = {
 export const HOME_CHARGERS: HomeCharger[] = [
   {
     slug: "ohme-home-pro",
-    name: "Ohme Home Pro",
+    name: "Home Pro",
     maker: "Ohme",
     madeIn: "UK",
     power: "7.4 kW",
