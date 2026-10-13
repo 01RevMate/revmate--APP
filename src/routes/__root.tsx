@@ -118,6 +118,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         ...defaults.meta,
         { name: "author", content: SITE_NAME },
         { name: "format-detection", content: "telephone=no" },
+        // Google Search Console ownership check.
+        { name: "google-site-verification", content: "RgZaCsnTFO6nNsfcrgdwD8W3zQ3CRUEIjYancbq4n8Q" },
         // Home-screen install: full-screen app view with the RevMate icon.
         { name: "theme-color", content: "#000000" },
         { name: "mobile-web-app-capable", content: "yes" },
