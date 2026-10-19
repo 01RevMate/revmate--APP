@@ -4,7 +4,6 @@ import {
   BadgePoundSterling,
   BookOpen,
   CalendarDays,
-  Calculator,
   Car,
   ChevronRight,
   Fuel,
@@ -402,19 +401,6 @@ export function EssentialsHome() {
             icon: PlugZap,
             colour: "bg-[#34c759]",
             link: { to: "/ev-chargers" },
-          },
-        ]}
-      />
-
-      <Group
-        title="Coming soon"
-        rows={[
-          {
-            title: "Running cost calculator",
-            hint: "What your car really costs",
-            icon: Calculator,
-            colour: "bg-[#8e8e93]",
-            soon: true,
           },
         ]}
       />

@@ -13,32 +13,6 @@ import {
 
 const input = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 
-/** Reg lookup isn't live yet — the field shows what's coming and points to GOV.UK. */
-export function RegLookupComingSoon() {
-  return (
-    <div className="rounded-lg border border-dashed border-border bg-muted/40 p-3">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold">Registration lookup</p>
-        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-primary">
-          Coming soon
-        </span>
-      </div>
-      <div className="mt-2 flex gap-2">
-        <input
-          disabled
-          placeholder="AB12 CDE"
-          aria-label="Registration (coming soon)"
-          className="w-36 rounded-md border-2 border-neutral-800 bg-yellow-300 px-3 py-1.5 text-center font-mono text-sm font-bold uppercase tracking-widest text-neutral-900 opacity-60"
-        />
-        <p className="text-xs text-muted-foreground">
-          Soon you'll type your reg and we'll fill in the details and MOT history for you. For now,
-          fill them in below.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 /** Postcode → district + rough location, so buyers can search by distance. */
 export function LocationField({
   value,

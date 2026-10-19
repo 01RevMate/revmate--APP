@@ -1,4 +1,5 @@
 import { useCallback, useSyncExternalStore } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 // RevMate is an all-in-one car app: some people come for the community
 // (feed, battles, stories), others just want the practical bits (buying
@@ -12,14 +13,14 @@ const CHANGE_EVENT = "revmate:homeModeChange";
 // Fallback when storage is blocked, so the switch still works this visit.
 let memoryMode: HomeMode | null = null;
 
-function read(): HomeMode {
+function readSaved(): HomeMode | null {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved === "essentials" || saved === "community") return saved;
   } catch {
     // fall through
   }
-  return memoryMode ?? "community";
+  return memoryMode;
 }
 
 function subscribe(onChange: () => void) {
@@ -42,8 +43,11 @@ export function setHomeMode(mode: HomeMode) {
 }
 
 export function useHomeMode(): [HomeMode, (mode: HomeMode) => void] {
-  // The server always renders Community; the saved choice applies on load.
-  const mode = useSyncExternalStore(subscribe, read, () => "community" as const);
+  const saved = useSyncExternalStore(subscribe, readSaved, () => null);
+  const { user } = useAuth();
+  // Until someone picks: visitors land on Essentials (the tools work for
+  // anyone, on day one); members start on the Community feed.
+  const mode = saved ?? (user ? "community" : "essentials");
   const set = useCallback((next: HomeMode) => setHomeMode(next), []);
   return [mode, set];
 }

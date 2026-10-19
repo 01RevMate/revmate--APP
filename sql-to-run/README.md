@@ -6,7 +6,6 @@ been run live in `applied/` for reference.
 
 | # | File | What it does | Status |
 |---|------|--------------|--------|
-| 22 | `22_group_icons.sql` | Lets groups upload their own icon instead of the car logo | Run this |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 

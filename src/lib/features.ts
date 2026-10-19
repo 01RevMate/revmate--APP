@@ -43,21 +43,9 @@ export function useAnnouncementsFeature(): boolean {
   return true;
 }
 
-/** Uploaded group icons (0060). */
+/** Uploaded group icons (0060 — live). */
 export function useGroupIconsFeature(): boolean {
-  const { data } = useQuery({
-    queryKey: ["feature", "group-icons"],
-    queryFn: async () =>
-      !(
-        await supabase
-          .from("community_groups")
-          .select("icon_url" as "id")
-          .limit(1)
-      ).error,
-    staleTime: Infinity,
-    retry: false,
-  });
-  return data === true;
+  return true;
 }
 
 /**

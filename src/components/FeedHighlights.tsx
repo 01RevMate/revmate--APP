@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { CalendarDays, Clapperboard, Crown, Swords, Trophy } from "lucide-react";
-import { fetchActiveChallenge, fetchCarOfTheWeek } from "@/lib/engagement";
+import { fetchActiveChallenge, fetchCarOfTheWeek, useHasRevs } from "@/lib/engagement";
 import { BATTLES_ENABLED } from "@/lib/features";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
@@ -21,10 +21,14 @@ export function FeedHighlights() {
     staleTime: 10 * 60_000,
   });
   const car = champion?.garage_cars;
+  const hasRevs = useHasRevs();
+  const quickLinks = 1 + (BATTLES_ENABLED ? 1 : 0) + (hasRevs ? 1 : 0);
 
   return (
     <div className="space-y-3">
-      <div className={`grid gap-2 ${BATTLES_ENABLED ? "grid-cols-3" : "grid-cols-2"}`}>
+      <div
+        className={`grid gap-2 ${quickLinks === 3 ? "grid-cols-3" : quickLinks === 2 ? "grid-cols-2" : "grid-cols-1"}`}
+      >
         {BATTLES_ENABLED && (
           <QuickLink
             to="/battles"
@@ -33,12 +37,14 @@ export function FeedHighlights() {
             className="from-rose-500 to-orange-500"
           />
         )}
-        <QuickLink
-          to="/revs"
-          icon={Clapperboard}
-          label="Revs"
-          className="from-violet-600 to-fuchsia-500"
-        />
+        {hasRevs && (
+          <QuickLink
+            to="/revs"
+            icon={Clapperboard}
+            label="Revs"
+            className="from-violet-600 to-fuchsia-500"
+          />
+        )}
         <QuickLink
           to="/meets"
           icon={CalendarDays}

@@ -55,21 +55,16 @@ import { displayUsername } from "@/lib/usernames";
 
 type ListingRow = Tables<"listings">;
 
-/** Reg lookup isn't in the app yet — point buyers at the official MOT checker. */
+/** Points buyers at the official, free MOT history checker. */
 export function MotHistoryCard() {
   return (
     <div className="mt-6 rounded-xl border border-border bg-card p-4">
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <ClipboardCheck className="size-5 text-primary" /> MOT history
-        </h2>
-        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-primary">
-          In-app coming soon
-        </span>
-      </div>
+      <h2 className="flex items-center gap-2 text-lg font-semibold">
+        <ClipboardCheck className="size-5 text-primary" /> MOT history
+      </h2>
       <p className="mt-2 text-sm text-muted-foreground">
         See every MOT pass, fail, advisory and the recorded mileage for free on GOV.UK. Ask the
-        seller for the registration. MOT history inside RevMate is coming soon.
+        seller for the registration.
       </p>
       <a
         href="https://www.check-mot.service.gov.uk/"

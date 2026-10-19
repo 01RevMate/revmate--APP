@@ -36,7 +36,6 @@ import {
   ListingQualityMeter,
   LocationField,
   PartDetailsFields,
-  RegLookupComingSoon,
   RunningCostFields,
 } from "@/components/SellExtras";
 import { useMyPlace } from "@/lib/myArea";
@@ -480,8 +479,6 @@ function SellCarForm({
               A short line to grab attention — shown with the price.
             </span>
           </Field>
-
-          <RegLookupComingSoon />
 
           {upgrade && (
             <LocationField

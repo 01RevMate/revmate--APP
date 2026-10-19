@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { POST_SELECT, resolvePostPhotos, type PostWithAuthor } from "@/lib/posts";
@@ -117,6 +118,24 @@ export async function fetchRevs(offset = 0): Promise<PostWithAuthor[]> {
     .select(POST_SELECT);
   if (error) throw error;
   return resolvePostPhotos(data as unknown as PostWithAuthor[]);
+}
+
+/** True once at least one Rev is live, so nav links never lead to an empty page. */
+export function useHasRevs(): boolean {
+  const { data } = useQuery({
+    queryKey: ["revs", "any"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .rpc("revs_feed", { page_offset: 0 })
+        .select("id")
+        .limit(1);
+      if (error) return false;
+      return (data?.length ?? 0) > 0;
+    },
+    staleTime: 10 * 60_000,
+    retry: false,
+  });
+  return data === true;
 }
 
 // ---------- Stories ----------
