@@ -18,6 +18,7 @@ import {
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
+import { describeLocationError, getMyLocation } from "@/lib/geolocation";
 import { PointMap, type MapView } from "@/components/PointMap";
 import { CreatePostModal } from "@/components/CreatePostModal";
 import { DirectionsButton } from "@/components/DirectionsButton";
@@ -111,25 +112,18 @@ function EvChargersPage() {
   }
 
   function locate(quiet = false) {
-    if (!navigator.geolocation) {
-      if (!quiet)
-        toast.error("Location isn't available on this device — search a postcode instead.");
-      return;
-    }
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const here = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    getMyLocation()
+      .then((here) => {
         setMe(here);
         goTo({ ...here, label: "you" }, 14);
-        setLocating(false);
-      },
-      () => {
-        if (!quiet) toast.error("Allow location access, or search a postcode or town.");
-        setLocating(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
-    );
+      })
+      .catch((err: unknown) => {
+        if (quiet) return;
+        const problem = describeLocationError(err);
+        toast.error(problem.title, { description: problem.help, duration: 10000 });
+      })
+      .finally(() => setLocating(false));
   }
 
   // If you've already let RevMate use your location, find chargers straight

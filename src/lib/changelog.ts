@@ -35,6 +35,7 @@ export const RELEASES: Release[] = [
       "Home-screen shortcuts to Fuel prices, EV chargers, Buy & Sell and Sell.",
     ],
     fixes: [
+      '"Use my location" on fuel prices and EV chargers is much more reliable: it finds a rough position first, then waits longer for GPS, and explains exactly what to change if your phone blocks it.',
       "Meet reminders and partner click counts weren't being sent; they are now.",
       "Cookie and privacy policies updated.",
     ],
