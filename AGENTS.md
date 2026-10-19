@@ -36,3 +36,10 @@ coarse (postcode district or ~1 km). Other members only ever see rounded
 distances, never someone's area or coordinates. Under-18s are excluded from
 sharing, and blocks always apply. Planned features (Find a friend, Heartbeat)
 have their safety design written down there.
+
+## Marketing notes
+
+`TIKTOK_PIXEL_NOTES.md` holds the TikTok Pixel setup (how it's built, how
+to get the Pixel ID, ad settings). When the user asks about the TikTok
+Pixel or TikTok ads, start from that file. Wider TikTok and app store notes
+are in `APP_STORE_GUIDE.md`; payments and deals are in `MONETISATION_SETUP.md`.
