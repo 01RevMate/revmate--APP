@@ -44,6 +44,7 @@ import { postcodeDistrict } from "@/lib/businesses";
 import { geocodeAddress } from "@/lib/engagement";
 import { useMyPlace } from "@/lib/myArea";
 import type { LatLngTuple } from "@/lib/leaflet";
+import { DealsStrip } from "@/components/DealsStrip";
 
 export const Route = createFileRoute("/ev-chargers")({
   head: () => ({
@@ -556,6 +557,9 @@ function EvChargersPage() {
         in use or working right now — check the operator's app before a long trip. Your location
         stays on your phone.
       </p>
+      <div className="mt-6">
+        <DealsStrip placement="ev_chargers" title="Charging deals" />
+      </div>
       <CreatePostModal
         open={!!askAbout}
         onOpenChange={(open) => !open && setAskAbout(null)}

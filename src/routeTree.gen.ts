@@ -24,6 +24,7 @@ import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as PlusRouteImport } from './routes/plus'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RevsRouteImport } from './routes/revs'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
@@ -132,6 +133,11 @@ const LoginRoute = LoginRouteImport.update({
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlusRoute = PlusRouteImport.update({
+  id: '/plus',
+  path: '/plus',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -322,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/plus': typeof PlusRoute
   '/reset-password': typeof ResetPasswordRoute
   '/revs': typeof RevsRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -373,6 +380,7 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/plus': typeof PlusRoute
   '/reset-password': typeof ResetPasswordRoute
   '/revs': typeof RevsRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -425,6 +433,7 @@ export interface FileRoutesById {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/plus': typeof PlusRoute
   '/reset-password': typeof ResetPasswordRoute
   '/revs': typeof RevsRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -478,6 +487,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/messages'
+    | '/plus'
     | '/reset-password'
     | '/revs'
     | '/robots.txt'
@@ -529,6 +539,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/messages'
+    | '/plus'
     | '/reset-password'
     | '/revs'
     | '/robots.txt'
@@ -580,6 +591,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/messages'
+    | '/plus'
     | '/reset-password'
     | '/revs'
     | '/robots.txt'
@@ -632,6 +644,7 @@ export interface RootRouteChildren {
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRouteWithChildren
+  PlusRoute: typeof PlusRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RevsRoute: typeof RevsRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -772,6 +785,13 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plus': {
+      id: '/plus'
+      path: '/plus'
+      fullPath: '/plus'
+      preLoaderRoute: typeof PlusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -1043,6 +1063,7 @@ const rootRouteChildren: RootRouteChildren = {
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   MessagesRoute: MessagesRouteWithChildren,
+  PlusRoute: PlusRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RevsRoute: RevsRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,

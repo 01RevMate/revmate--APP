@@ -72,6 +72,7 @@ import {
   type MarketListing,
   type Partner,
 } from "@/lib/marketplace";
+import { useAdFree } from "@/lib/money";
 
 type ListingFilter = "car" | "part";
 type Sort =
@@ -175,14 +176,16 @@ function MarketplacePage() {
     queryFn: () => fetchMyWatchlistIds(user!.id),
     enabled: market && !!user,
   });
+  const adFree = useAdFree();
   const { data: partners } = useQuery({
     queryKey: ["marketplace-partners"],
     queryFn: () => fetchPartners(),
-    enabled: market,
+    enabled: market && !adFree,
     staleTime: 10 * 60_000,
   });
-  const gridPartners = (partners ?? []).filter((p) => p.placement === "grid");
-  const bannerPartner = (partners ?? []).find((p) => p.placement === "banner");
+  const shownPartners = adFree ? [] : (partners ?? []);
+  const gridPartners = shownPartners.filter((p) => p.placement === "grid");
+  const bannerPartner = shownPartners.find((p) => p.placement === "banner");
 
   const visible = useMemo(() => {
     const priceBand = PRICE_BANDS.find((b) => b.id === band) ?? PRICE_BANDS[0]!;

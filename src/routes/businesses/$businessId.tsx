@@ -20,6 +20,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { absoluteUrl, seo } from "@/lib/seo";
 import { displayUsername } from "@/lib/usernames";
+import { BusinessProCard } from "@/components/BusinessProCard";
+import { usePaidReturn } from "@/hooks/usePaidReturn";
 
 async function fetchBusinessSeo(id: string) {
   try {
@@ -87,6 +89,7 @@ function BusinessPage() {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();
+  usePaidReturn("You're on Business Pro. Thanks!", [["business"], ["businesses"]]);
   const { data: business, isLoading } = useQuery({
     queryKey: ["business", businessId],
     queryFn: () => fetchBusiness(businessId),
@@ -228,6 +231,8 @@ function BusinessPage() {
           )}
         </div>
       </section>
+
+      {isOwner && <BusinessProCard businessId={business.id} />}
 
       <section className="mt-6">
         <div className="flex items-center justify-between">

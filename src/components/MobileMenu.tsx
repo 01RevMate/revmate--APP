@@ -4,6 +4,7 @@ import { BATTLES_ENABLED } from "@/lib/features";
 import { useHasRevs } from "@/lib/engagement";
 import { useLaunchKitFeature } from "@/lib/launch";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
+import { useMoneySettings } from "@/lib/money";
 import {
   Menu,
   Home,
@@ -21,6 +22,8 @@ import {
   Wrench,
   Download,
   MessageSquareHeart,
+  Gem,
+  Shirt,
 } from "lucide-react";
 import { isAppInstalled } from "@/lib/pwaInstall";
 import { openInstallPrompt } from "@/components/InstallAppPrompt";
@@ -79,6 +82,7 @@ function MenuLink({
 export function MobileMenu() {
   const hasRevs = useHasRevs();
   const feedbackOn = useLaunchKitFeature();
+  const money = useMoneySettings();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [showInstall, setShowInstall] = useState(false);
@@ -153,6 +157,21 @@ export function MobileMenu() {
               <Download className="size-5 shrink-0" />
               Install the app
             </button>
+          )}
+          {money?.payments_enabled && (
+            <MenuLink to="/plus" icon={Gem} label="RevMate Plus" onNavigate={close} />
+          )}
+          {money?.shop_url && (
+            <a
+              href={money.shop_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${item} w-full`}
+              onClick={close}
+            >
+              <Shirt className="size-5 shrink-0" />
+              {money.shop_label}
+            </a>
           )}
           {feedbackOn && (
             <button

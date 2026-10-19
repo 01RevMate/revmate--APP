@@ -3,7 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { BadgeCheck, MapPin, Store } from "lucide-react";
 import { Stars, TrustBadge } from "@/components/TrustBadge";
-import { BUSINESS_CATEGORY_LABELS, fetchBusinesses, useBusinessesFeature } from "@/lib/businesses";
+import {
+  BUSINESS_CATEGORY_LABELS,
+  fetchBusinesses,
+  isPromotedBusiness,
+  useBusinessesFeature,
+} from "@/lib/businesses";
 import { seo } from "@/lib/seo";
 
 type DirSearch = { category?: string | undefined; area?: string | undefined };
@@ -107,6 +112,11 @@ function BusinessesPage() {
                   {b.name}
                   {b.verified && (
                     <BadgeCheck className="size-4 text-primary" aria-label="Verified by RevMate" />
+                  )}
+                  {isPromotedBusiness(b) && (
+                    <span className="ml-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                      Pro · Promoted
+                    </span>
                   )}
                 </p>
                 <p className="text-xs text-muted-foreground">

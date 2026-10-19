@@ -26,6 +26,7 @@ import { fetchGarage } from "@/lib/garage";
 import { daysUntil, dueState, useCarCareFeature, type DueState } from "@/lib/carCare";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { formatPrice } from "@/lib/marketplace";
+import { DealsStrip } from "@/components/DealsStrip";
 
 // Essentials: the practical, just-for-me side of RevMate, styled like an
 // iOS app — grey background, white rounded cards, big tap targets and
@@ -355,6 +356,8 @@ export function EssentialsHome() {
             : []),
         ]}
       />
+
+      <DealsStrip placement="essentials" />
 
       {latest.length > 0 && (
         <section className="space-y-2">

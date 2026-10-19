@@ -74,6 +74,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { BoostListingCard } from "@/components/BoostListingCard";
+import { usePaidReturn } from "@/hooks/usePaidReturn";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
   // Loaded on the server so shared links show the photo, price and car.
@@ -130,6 +132,7 @@ function ListingDetailPage() {
   const queryClient = useQueryClient();
   const [manageOpen, setManageOpen] = useState(false);
   const [endingReason, setEndingReason] = useState<ListingEndReason | null>(null);
+  usePaidReturn("Payment done — your advert is featured.", [["listing"], ["listings"]]);
   const [messageOpen, setMessageOpen] = useState(false);
   const [messageBody, setMessageBody] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
@@ -515,6 +518,7 @@ function ListingDetailPage() {
         </div>
       )}
       {isOwner && <AdvertStrengthCard listing={asMarket} />}
+      {isOwner && <BoostListingCard listingId={listing.id} status={listing.status} />}
       {isOwner && isFeatured(listing) && (
         <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-amber-600">
           <Star className="size-4" fill="currentColor" /> Featured — pinned to the top of Buy & Sell

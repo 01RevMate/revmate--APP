@@ -35,6 +35,7 @@ import { PostCard } from "@/components/PostCard";
 import { RichText } from "@/components/RichText";
 import { LevelBadge } from "@/components/LevelBadge";
 import { FoundingBadge } from "@/components/FoundingMember";
+import { PlusBadge } from "@/components/PlusBadge";
 import { useVerifiedProfiles, VerifiedBadge } from "@/components/VerifiedBadge";
 import { useSocialFeatures } from "@/lib/features";
 import { fetchSavedPosts, VERIFIED_LABELS } from "@/lib/social";
@@ -308,6 +309,7 @@ function GarageProfilePage() {
         </p>
         <LevelBadge userId={profile.user_id} streak={profile.current_streak} />
         <FoundingBadge userId={profile.user_id} />
+        <PlusBadge userId={profile.user_id} />
         {profile.bio && (
           <p className="mt-2 max-w-2xl whitespace-pre-wrap break-words text-[15px]">
             <RichText text={profile.bio} />

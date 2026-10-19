@@ -3,3 +3,14 @@ project_id = "gtackixgmvfrxqelrato"
 # and by the app to fetch the public key, so it doesn't require a user JWT.
 [functions.send-push]
 verify_jwt = false
+
+# Payments. Stripe calls the webhook (it checks the Stripe-Signature header
+# itself); the other two need a signed-in member.
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = true
+
+[functions.billing-portal]
+verify_jwt = true

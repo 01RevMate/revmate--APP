@@ -30,6 +30,7 @@ import { postcodeDistrict } from "@/lib/businesses";
 import { geocodeAddress } from "@/lib/engagement";
 import { useMyPlace } from "@/lib/myArea";
 import type { LatLngTuple } from "@/lib/leaflet";
+import { DealsStrip } from "@/components/DealsStrip";
 
 export const Route = createFileRoute("/fuel-prices")({
   head: () => ({
@@ -513,6 +514,9 @@ function FuelPricesPage() {
         through the day; always check the price at the pump. Distances are as the crow flies, and
         your location stays on your phone.
       </p>
+      <div className="mt-6">
+        <DealsStrip placement="fuel" title="Save on motoring" />
+      </div>
     </main>
   );
 }

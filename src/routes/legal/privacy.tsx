@@ -18,7 +18,7 @@ function PrivacyPage() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="28 September 2026"
+      updated="19 October 2026"
       intro={
         <p>
           This policy explains what personal information RevMate collects, why, who we share it with
@@ -99,6 +99,16 @@ function PrivacyPage() {
             type and request logs to deliver the service and protect it from attacks. If you turn on
             phone notifications, we store your browser's push subscription.
           </li>
+          <li>
+            <strong>Payments:</strong> if you buy something (for example RevMate Plus or a featured
+            advert) we keep what you bought, the amount, the date and a Stripe reference, so we can
+            provide it and keep accounts as the law requires. Card details go straight to Stripe; we
+            never see or store them.
+          </li>
+          <li>
+            <strong>Deals:</strong> when you tap a deal we count the click, without recording who
+            you are. The partner's own privacy policy applies on their site.
+          </li>
         </ul>
       </section>
 
@@ -165,6 +175,9 @@ function PrivacyPage() {
             notifications
           </li>
           <li>Google Maps — only when you tap to show a map on a meet</li>
+          <li>
+            Stripe — card payments, receipts and managing subscriptions, only if you buy something
+          </li>
         </ul>
         <p className="mt-2">
           Some providers may process data outside the UK. When they do, we rely on UK adequacy

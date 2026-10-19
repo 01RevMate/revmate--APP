@@ -28,6 +28,7 @@ import { fetchLiveNews, fetchMyNewsLikes, mergeNewsIntoFeed, useNewsFeature } fr
 import { PostCardSkeleton } from "@/components/PostCardSkeleton";
 import { FeedScopeBar, type FeedScope } from "@/components/FeedScopeBar";
 import { CategoryFilterBar, type CategoryFilter } from "@/components/CategoryFilterBar";
+import { useAdFree } from "@/lib/money";
 
 export const Route = createFileRoute("/")({
   head: () =>
@@ -170,12 +171,14 @@ function Home() {
   // Sponsored cards from the ads manager: one every 8 items, matched to the
   // member's area and cars by the database.
   const businessesOn = useBusinessesFeature();
-  const { data: ads } = useQuery({
+  const adFree = useAdFree();
+  const { data: adsData } = useQuery({
     queryKey: ["ads", "feed", user?.id],
     queryFn: () => fetchAdsForMe("feed"),
-    enabled: businessesOn && !!user,
+    enabled: businessesOn && !!user && !adFree,
     staleTime: 10 * 60_000,
   });
+  const ads = adFree ? undefined : adsData;
   const feedWithAds = useMemo(() => {
     type Item = (typeof feedItems)[number] | { kind: "ad"; ad: AdForMe };
     if (!ads?.length) return feedItems as Item[];
@@ -218,9 +221,7 @@ function Home() {
           <PullToRefresh onRefresh={refreshFeed}>
             <div className="mx-auto max-w-2xl py-4 sm:px-4 sm:py-6">
               <div className="space-y-4 px-3 sm:px-0">
-                <h1 className="text-lg font-bold leading-tight">
-                  RevMate — the UK car community
-                </h1>
+                <h1 className="text-lg font-bold leading-tight">RevMate — the UK car community</h1>
                 <HomeModeSwitch />
                 {engagement && <StoriesRow />}
                 <FeedScopeBar

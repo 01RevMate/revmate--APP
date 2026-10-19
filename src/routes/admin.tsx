@@ -16,6 +16,7 @@ import {
   Trophy,
   Handshake,
   Rocket,
+  PoundSterling,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +46,8 @@ import { AdminNews } from "@/components/AdminNews";
 import { AdminBusinesses } from "@/components/AdminBusinesses";
 import { AdminAds } from "@/components/AdminAds";
 import { AdminLaunch } from "@/components/AdminLaunch";
+import { AdminMoney } from "@/components/AdminMoney";
+import { useMoneyFeature } from "@/lib/money";
 import { useLaunchKitFeature } from "@/lib/launch";
 import { useBusinessesFeature } from "@/lib/businesses";
 import { useNewsFeature } from "@/lib/news";
@@ -91,6 +94,7 @@ export const Route = createFileRoute("/admin")({
 
 type AdminSection =
   | "launch"
+  | "money"
   | "reports"
   | "people"
   | "protect"
@@ -132,6 +136,7 @@ function AdminPage() {
   const newsOn = useNewsFeature();
   const businessesOn = useBusinessesFeature();
   const launchOn = useLaunchKitFeature();
+  const moneyOn = useMoneyFeature();
   const [reportFilter, setReportFilter] = useState<"open" | "all">("open");
   const [peopleSearch, setPeopleSearch] = useState("");
   const [newTerm, setNewTerm] = useState("");
@@ -319,6 +324,7 @@ function AdminPage() {
         {(
           [
             ...(launchOn ? ([["launch", "Launch", Rocket]] as const) : []),
+            ...(moneyOn ? ([["money", "Money", PoundSterling]] as const) : []),
             ["reports", "Reports", FileWarning],
             ["people", "People", UserCog],
             ["protect", "Protect Posts", Shield],
@@ -346,6 +352,7 @@ function AdminPage() {
       </nav>
 
       {section === "launch" && launchOn && <AdminLaunch />}
+      {section === "money" && moneyOn && <AdminMoney />}
 
       {section === "reports" && (
         <section className="mt-6">

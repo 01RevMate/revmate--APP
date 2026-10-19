@@ -24,6 +24,22 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.27.0",
+    date: "2026-10-19",
+    title: "Optional extras that keep RevMate free",
+    status: "needs_database_update",
+    highlights: [
+      "Everything social stays free. New optional extras help pay for the app, and none of them appear in the feed.",
+      "Sellers can feature an advert at the top of Buy & Sell.",
+      "RevMate Plus: back the app, get a Plus badge and see no ads or deals anywhere. Founding members get a lower price.",
+      "Business Pro puts garages and traders first in Find a mechanic, always labelled as promoted.",
+      "Handy deals on tyres, servicing, parts and home chargers on the Essentials, EV and fuel pages, clearly marked as ads.",
+      "Weekly challenges can now have a sponsor and a prize.",
+    ],
+    fixes: ["Terms and privacy policy updated to cover payments and deals."],
+    requiredSql: ["drizzle/migrations/0064_money.sql"],
+  },
+  {
     version: "1.26.0",
     date: "2026-10-19",
     title: "Getting ready for launch",
@@ -34,7 +50,7 @@ export const RELEASES: Release[] = [
       "The first 100 members get a numbered Founding member badge on their profile.",
     ],
     fixes: [
-      "Removed leftover \"coming soon\" sections.",
+      'Removed leftover "coming soon" sections.',
       "Revs only shows in the menu once there are videos to watch.",
     ],
     requiredSql: ["drizzle/migrations/0063_launch_kit.sql"],
@@ -44,8 +60,14 @@ export const RELEASES: Release[] = [
     date: "2026-10-14",
     title: "Car pages that grow themselves",
     status: "live",
-    highlights: ["Posting about a car now automatically creates or links its car page, so Browse cars fills up as members post.", "Added around 30 of the UK's most common cars with their best-known faults.", "Adverts now have a Share button — send the car to friends on WhatsApp, Messages or anywhere else."],
-    fixes: ["Car Battles are hidden for now while we make them work better — the Rankings page is still there."],
+    highlights: [
+      "Posting about a car now automatically creates or links its car page, so Browse cars fills up as members post.",
+      "Added around 30 of the UK's most common cars with their best-known faults.",
+      "Adverts now have a Share button — send the car to friends on WhatsApp, Messages or anywhere else.",
+    ],
+    fixes: [
+      "Car Battles are hidden for now while we make them work better — the Rankings page is still there.",
+    ],
     requiredSql: ["drizzle/migrations/0062_auto_car_pages_from_posts.sql"],
   },
   {
@@ -53,7 +75,10 @@ export const RELEASES: Release[] = [
     date: "2026-10-14",
     title: "Home EV charger guide",
     status: "live",
-    highlights: ["Fix a problem: tap one of your own cars instead of picking a make and model.", "New home charger guide in EV chargers: compare popular models, rough prices, pros and cons, and rate the one you own."],
+    highlights: [
+      "Fix a problem: tap one of your own cars instead of picking a make and model.",
+      "New home charger guide in EV chargers: compare popular models, rough prices, pros and cons, and rate the one you own.",
+    ],
     requiredSql: ["drizzle/migrations/0061_home_charger_reviews.sql"],
   },
   {

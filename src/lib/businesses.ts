@@ -63,6 +63,17 @@ export function useBusinessesFeature(): boolean {
   return true;
 }
 
+/** Business Pro (0064): paid placement, so it's always labelled "Promoted". */
+export function isPromotedBusiness(b: object) {
+  const until = (b as { promoted_until?: string | null }).promoted_until;
+  return !!until && new Date(until).getTime() > Date.now();
+}
+
+/** Promoted (Business Pro) first; otherwise keeps the existing order. */
+function promotedFirst<T extends object>(rows: T[]): T[] {
+  return [...rows].sort((a, b) => Number(isPromotedBusiness(b)) - Number(isPromotedBusiness(a)));
+}
+
 export async function fetchBusinesses(filters: {
   category?: string | undefined;
   area?: string | undefined;
@@ -77,11 +88,12 @@ export async function fetchBusinesses(filters: {
   if (filters.category) query = query.eq("category", filters.category);
   const { data, error } = await query;
   if (error) throw error;
+  const sorted = promotedFirst(data);
   const area = filters.area?.trim().toUpperCase();
-  if (!area) return data;
+  if (!area) return sorted;
   // Match the district, its wider area (LS6 → LS) or places they cover.
   const prefix = area.replace(/[0-9].*$/, "");
-  return data.filter(
+  return sorted.filter(
     (b) =>
       b.postcode_district?.startsWith(area) ||
       b.covers_areas.some(

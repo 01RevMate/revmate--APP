@@ -23,7 +23,22 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
   the admin-only `admin_launch_stats()`. Everyone who already has an account
   gets a founding number in sign-up order when it runs.
 
-### 2. Phone push notifications (optional, needs a few setup steps)
+### 2. Money (paid extras, Plus, Business Pro, deals, shop, sponsors)
+
+- File: `drizzle/migrations/0064_money.sql` (`sql-to-run/24_money.sql`). Run after item 1.
+- Added: 2026-10-19
+- Needed by: Admin → Money, Deals on Essentials / EV chargers / fuel prices,
+  the shop link, sponsored challenges, and (once payments are switched on)
+  featured adverts, RevMate Plus and Business Pro. Until it runs, all of
+  these stay hidden.
+- Adds `app_settings`, `paid_products`, `payments`, `subscriptions`,
+  `billing_customers`, `affiliate_deals`, `businesses.promoted_until`,
+  sponsor columns on `challenges`, and service-role-only `billing_*`
+  functions used by the `stripe-webhook` edge function.
+- Payments stay **off** until an admin switches them on. Card payments also
+  need Stripe set up — see `MONETISATION_SETUP.md`.
+
+### 3. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27

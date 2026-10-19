@@ -21,6 +21,8 @@ export function FeedHighlights() {
     staleTime: 10 * 60_000,
   });
   const car = champion?.garage_cars;
+  // Sponsor columns arrive with the money SQL (0064); older rows have none.
+  const sponsor = (challenge ?? {}) as { sponsor_name?: string | null; prize?: string | null };
   const hasRevs = useHasRevs();
   const quickLinks = 1 + (BATTLES_ENABLED ? 1 : 0) + (hasRevs ? 1 : 0);
 
@@ -67,6 +69,12 @@ export function FeedHighlights() {
             <p className="truncate text-xs text-muted-foreground">
               {challenge.description || `Post with #${challenge.tag} to enter`}
             </p>
+            {sponsor.sponsor_name && (
+              <p className="truncate text-[11px] font-medium text-amber-800 dark:text-amber-300">
+                {sponsor.prize ? `Prize: ${sponsor.prize} · ` : ""}Sponsored by{" "}
+                {sponsor.sponsor_name}
+              </p>
+            )}
           </div>
         </Link>
       )}

@@ -5,8 +5,8 @@ September 2026). Steps 15 (live unread badge), 16 (Speakers / Sound
 diagnostics), 17 (Buy & Sell upgrade), 18 (group covers + more social
 links) and 19 (public profile pages) were applied on 1–2 October 2026, and
 steps 20 (remove location from posts — found already applied by hand) and
-21 (security fixes) on 5 October 2026. Step 22 (group icons) has also run. Left to do: step 23 (launch kit) and the
-optional phone notifications setup.
+21 (security fixes) on 5 October 2026. Step 22 (group icons) has also run. Left to do: step 23 (launch kit), step 24
+(money) and the optional phone notifications setup.
 
 ---
 
@@ -22,6 +22,22 @@ exactly as committed. Don't change it; it's safe to re-run. It adds:
   public.admin_launch_stats() (admins only).
 Then regenerate the Supabase types and confirm that
 SELECT public.founding_spots_left(); returns a number.
+```
+
+---
+
+## Prompt B — money (run after Prompt A)
+
+```
+Please run sql-to-run/24_money.sql on the connected Supabase database,
+exactly as committed. Don't change it; it's safe to re-run. It adds
+app_settings, paid_products, payments, subscriptions, billing_customers and
+affiliate_deals tables, a promoted_until column on businesses, sponsor
+columns on challenges, and service-role-only billing_* functions.
+Then regenerate the Supabase types and confirm that
+SELECT key, value FROM public.app_settings; returns payments_enabled = false.
+Don't deploy the payment edge functions or add Stripe secrets yet — I'll do
+that separately once my Stripe account is ready.
 ```
 
 ---

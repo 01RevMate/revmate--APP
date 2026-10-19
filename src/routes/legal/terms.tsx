@@ -18,7 +18,7 @@ function TermsPage() {
   return (
     <LegalPage
       title="Terms of Service"
-      updated="28 September 2026"
+      updated="19 October 2026"
       intro={
         <p>
           These terms are the agreement between you and {operatorValue(OPERATOR.name)} ("RevMate",
@@ -144,7 +144,46 @@ function TermsPage() {
       </section>
 
       <section>
-        <h2>9. Our responsibility to you</h2>
+        <h2>9. Paid extras, deals and sponsors</h2>
+        <p>
+          Everything social on RevMate is free. Some optional extras cost money: featuring an
+          advert, RevMate Plus and Business Pro. Prices are shown before you pay, include any VAT
+          due, and payment is taken by Stripe.
+        </p>
+        <ul>
+          <li>
+            <strong>Featured adverts</strong> start as soon as you pay. Because you ask us to start
+            straight away, you lose the 14-day right to cancel once the feature has begun. If your
+            advert is removed for breaking these terms, the feature ends without a refund.
+          </li>
+          <li>
+            <strong>RevMate Plus and Business Pro</strong> renew every month until you cancel. You
+            can cancel any time in Settings → Plus &amp; billing; you keep the benefits until the
+            end of the month you've paid for. You can also cancel within 14 days of first
+            subscribing for a refund, less a fair amount for the days you've already used.
+          </li>
+          <li>
+            If we change a price, it applies from your next renewal and we'll tell you first, so you
+            can cancel before then.
+          </li>
+          <li>
+            <strong>Deals</strong> are adverts for other companies and are labelled "Ad". We may
+            earn a commission if you buy, at no extra cost to you. Your purchase is with that
+            company, not RevMate.
+          </li>
+          <li>
+            <strong>Promoted businesses and sponsored challenges</strong> are paid placements and
+            are always labelled. Promotion doesn't mean we've checked or recommend a business.
+          </li>
+        </ul>
+        <p>
+          Nothing here affects your legal rights, for example if something you paid for doesn't work
+          as described.
+        </p>
+      </section>
+
+      <section>
+        <h2>10. Our responsibility to you</h2>
         <p>
           We provide RevMate with reasonable care and skill, but we can't promise it will always be
           available or error-free. We aren't responsible for what members post or do, for
@@ -155,7 +194,7 @@ function TermsPage() {
       </section>
 
       <section>
-        <h2>10. Changes and contact</h2>
+        <h2>11. Changes and contact</h2>
         <p>
           We may update these terms as RevMate grows. For significant changes we'll ask you to agree
           again in the app. These terms are governed by the laws of England and Wales, and you can

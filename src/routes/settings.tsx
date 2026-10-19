@@ -3,7 +3,7 @@ import { PRIMARY_HOST } from "@/lib/siteDomains";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { MessageSquareHeart, ShieldCheck, UserX } from "lucide-react";
+import { MessageSquareHeart, ShieldCheck, ShoppingBag, UserX } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { updateProfile } from "@/lib/profiles";
@@ -14,6 +14,9 @@ import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 import { HomeModeSwitch } from "@/components/HomeModeSwitch";
 import { HeadlightDial } from "@/components/HeadlightDial";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
+import { BillingSettings } from "@/components/BillingSettings";
+import { useMoneyFeature, useMoneySettings } from "@/lib/money";
+import { usePaidReturn } from "@/hooks/usePaidReturn";
 import { useLaunchKitFeature } from "@/lib/launch";
 import { useEngagementFeatures, usePushFeature } from "@/lib/features";
 import { NotificationSettingsForm } from "@/components/NotificationSettingsForm";
@@ -54,6 +57,9 @@ function SettingsPage() {
   const pushAvailable = usePushFeature();
   const engagement = useEngagementFeatures();
   const feedbackOn = useLaunchKitFeature();
+  const moneyOn = useMoneyFeature();
+  const moneySettings = useMoneySettings();
+  usePaidReturn("Payment done. Thank you!", []);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   useEffect(() => {
@@ -327,6 +333,22 @@ function SettingsPage() {
       <Section title="Privacy & your data">
         <PrivacyDataSettings userId={user.id} email={user.email} />
       </Section>
+
+      {moneyOn && (
+        <Section title="Plus & billing">
+          <BillingSettings />
+          {moneySettings?.shop_url && (
+            <a
+              href={moneySettings.shop_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-input px-4 text-sm font-semibold"
+            >
+              <ShoppingBag className="size-4" /> {moneySettings.shop_label}
+            </a>
+          )}
+        </Section>
+      )}
 
       {feedbackOn && (
         <Section title="Feedback">

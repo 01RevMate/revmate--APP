@@ -1,21 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { looseDb } from "@/lib/looseDb";
 
 // Launch kit (0063_launch_kit.sql): in-app feedback, admin launch stats and
-// Founding member badges for the first 100 accounts. The generated Supabase
-// types don't know these tables until Lovable regenerates them after the SQL
-// runs, so this file talks to them through a loosely typed client.
+// Founding member badges for the first 100 accounts.
 
-type LooseQuery = PromiseLike<{ data: unknown; error: { message: string } | null }> &
-  Record<
-    "select" | "insert" | "update" | "delete" | "eq" | "order" | "limit" | "maybeSingle",
-    (...args: unknown[]) => LooseQuery
-  >;
-type LooseClient = {
-  from: (table: string) => LooseQuery;
-  rpc: (fn: string, args?: Record<string, unknown>) => LooseQuery;
-};
-const db = supabase as unknown as LooseClient;
+const db = looseDb;
 
 export const FOUNDING_SPOTS = 100;
 
