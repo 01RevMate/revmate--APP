@@ -190,12 +190,13 @@ function ToolTile({
   return (
     <Link
       {...link}
-      className="flex min-h-32 flex-col justify-between rounded-3xl bg-card p-4 shadow-sm transition-transform active:scale-[0.98]"
+      className="flex min-h-32 flex-col gap-5 rounded-3xl bg-card p-4 shadow-sm transition-transform active:scale-[0.98]"
     >
       <AppIcon icon={icon} colour={colour} size="lg" />
-      <span>
+      {/* Same gap under every icon; hints stay on one line so tiles match. */}
+      <span className="min-w-0">
         <span className="block text-base font-bold leading-tight">{title}</span>
-        <span className="block text-xs text-muted-foreground">{hint}</span>
+        <span className="block truncate text-xs text-muted-foreground">{hint}</span>
       </span>
     </Link>
   );
@@ -287,7 +288,7 @@ export function EssentialsHome() {
         />
         <ToolTile
           title="Find a mechanic"
-          hint="Garages, bodywork, EV & more"
+          hint="Garages, bodywork & EV"
           icon={Store}
           colour="bg-[#34c759]"
           link={{ to: "/businesses" }}
