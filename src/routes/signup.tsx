@@ -11,6 +11,7 @@ import { safeRedirect } from "@/lib/authRedirect";
 import { normalizeUsername, usernameLookupCandidates } from "@/lib/usernames";
 import { AGE_LIMITS, ageOn, MIN_AGE, PRIVACY_VERSION, TERMS_VERSION } from "@/lib/legal";
 import { seo } from "@/lib/seo";
+import { FoundingSpotsNote } from "@/components/FoundingMember";
 
 export const Route = createFileRoute("/signup")({
   // ?redirect=/battles sends people back to what they were trying to open.
@@ -214,6 +215,7 @@ function SignupPage() {
           <Button type="submit" className="w-full" disabled={!birthDate}>
             Next
           </Button>
+          <FoundingSpotsNote />
         </form>
       )}
 

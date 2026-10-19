@@ -6,17 +6,18 @@ been run live in `applied/` for reference.
 
 | # | File | What it does | Status |
 |---|------|--------------|--------|
+| 23 | `23_launch_kit.sql` | Feedback box, admin launch stats, Founding member badges | **Run this** |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 
 Already applied (in `applied/`): 1–4 on 27 Sep 2026, 5–12 on 28 Sep 2026,
-15–18 on 1 Oct 2026, 19 on 2 Oct 2026, and 20–21 on 5 Oct 2026.
+15–18 on 1 Oct 2026, 19 on 2 Oct 2026, 20–21 on 5 Oct 2026, and 22 by 19 Oct 2026.
 
 ## Two ways to run them
 
 **Easiest — ask Lovable.** Open `LOVABLE_PENDING_SQL_PROMPT.md` (in the main
-folder), copy Prompt 1 (phone notifications, if you want them) and paste it
-into Lovable.
+folder), copy Prompt A (launch kit) and, if you want them, Prompt 1 (phone
+notifications), and paste each into Lovable.
 
 **Or run them yourself** in the Supabase SQL editor (Lovable Cloud → Database
 → SQL editor): open each file here in order, copy the whole file, paste,
@@ -38,3 +39,4 @@ File 13 is a copy of `drizzle/migrations/0032_push_notifications.sql` with a sho
 File 20 is a copy of `drizzle/migrations/0057_remove_post_location.sql`.
 File 21 is a copy of `drizzle/migrations/0058_security_hardening.sql`.
 File 22 is a copy of `drizzle/migrations/0060_group_icons.sql`.
+File 23 is a copy of `drizzle/migrations/0063_launch_kit.sql` with a short header added.

@@ -17,6 +17,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { FoundingSpotsBanner } from "@/components/FoundingMember";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
 import { useSocialFeatures } from "@/lib/features";
@@ -142,7 +143,11 @@ function MyCars() {
           className={`relative flex h-44 shrink-0 snap-start flex-col justify-between overflow-hidden rounded-3xl bg-slate-900 p-4 text-white shadow-sm ${cars.length === 1 ? "w-full" : "w-[85%] sm:w-80"}`}
         >
           {car.photo_url && (
-            <img src={car.photo_url} alt={`${[car.make, car.model].filter(Boolean).join(" ")}${car.nickname ? ` “${car.nickname}”` : ""}`} className="absolute inset-0 size-full object-cover" />
+            <img
+              src={car.photo_url}
+              alt={`${[car.make, car.model].filter(Boolean).join(" ")}${car.nickname ? ` “${car.nickname}”` : ""}`}
+              className="absolute inset-0 size-full object-cover"
+            />
           )}
           <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
           <span className="relative">
@@ -263,6 +268,8 @@ export function EssentialsHome() {
         <h1 className="text-3xl font-bold tracking-tight">Essentials</h1>
         <p className="text-sm text-muted-foreground">Everything practical for your car.</p>
       </div>
+
+      <FoundingSpotsBanner />
 
       <section className="space-y-2">
         <h2 className="px-1 text-lg font-bold">My cars</h2>

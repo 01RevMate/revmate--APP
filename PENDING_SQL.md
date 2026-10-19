@@ -11,7 +11,19 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
-### 1. Phone push notifications (optional, needs a few setup steps)
+### 1. Launch kit (feedback, launch stats, Founding member badges)
+
+- File: `drizzle/migrations/0063_launch_kit.sql` (`sql-to-run/23_launch_kit.sql`).
+- Added: 2026-10-19
+- Needed by: **Send feedback** (Settings and the menu), the **Launch** tab in
+  Admin, and the **Founding member** badge and "spots left" invite. Until it
+  runs, all of these stay hidden.
+- Adds the `app_feedback` table (members can send, only admins can read),
+  `public.founding_members` with numbers 1–100, `founding_spots_left()` and
+  the admin-only `admin_launch_stats()`. Everyone who already has an account
+  gets a founding number in sign-up order when it runs.
+
+### 2. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27

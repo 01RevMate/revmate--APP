@@ -15,6 +15,7 @@ import {
   UserCog,
   Trophy,
   Handshake,
+  Rocket,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,17 +37,15 @@ import {
 } from "@/lib/moderation";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { sendAppUpdate } from "@/lib/notifications";
-import {
-  useAnnouncementsFeature,
-  useEngagementFeatures,
-  useSocialFeatures,
-} from "@/lib/features";
+import { useAnnouncementsFeature, useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import { AdminChallenges } from "@/components/AdminChallenges";
 import { AdminPartners } from "@/components/AdminPartners";
 import { AdminAnnouncements } from "@/components/AdminAnnouncements";
 import { AdminNews } from "@/components/AdminNews";
 import { AdminBusinesses } from "@/components/AdminBusinesses";
 import { AdminAds } from "@/components/AdminAds";
+import { AdminLaunch } from "@/components/AdminLaunch";
+import { useLaunchKitFeature } from "@/lib/launch";
 import { useBusinessesFeature } from "@/lib/businesses";
 import { useNewsFeature } from "@/lib/news";
 import { useMarketplaceFeatures } from "@/lib/marketplace";
@@ -91,6 +90,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 type AdminSection =
+  | "launch"
   | "reports"
   | "people"
   | "protect"
@@ -131,6 +131,7 @@ function AdminPage() {
   const announcementsOn = useAnnouncementsFeature();
   const newsOn = useNewsFeature();
   const businessesOn = useBusinessesFeature();
+  const launchOn = useLaunchKitFeature();
   const [reportFilter, setReportFilter] = useState<"open" | "all">("open");
   const [peopleSearch, setPeopleSearch] = useState("");
   const [newTerm, setNewTerm] = useState("");
@@ -317,6 +318,7 @@ function AdminPage() {
       <nav className="mt-6 flex gap-2 overflow-x-auto border-b border-border pb-3">
         {(
           [
+            ...(launchOn ? ([["launch", "Launch", Rocket]] as const) : []),
             ["reports", "Reports", FileWarning],
             ["people", "People", UserCog],
             ["protect", "Protect Posts", Shield],
@@ -342,6 +344,8 @@ function AdminPage() {
           </button>
         ))}
       </nav>
+
+      {section === "launch" && launchOn && <AdminLaunch />}
 
       {section === "reports" && (
         <section className="mt-6">
@@ -655,9 +659,7 @@ function AdminPage() {
       {section === "businesses" && businessesOn && user && <AdminBusinesses userId={user.id} />}
       {section === "ads" && businessesOn && user && <AdminAds userId={user.id} />}
 
-      {section === "updates" && announcementsOn && user && (
-        <AdminAnnouncements userId={user.id} />
-      )}
+      {section === "updates" && announcementsOn && user && <AdminAnnouncements userId={user.id} />}
 
       {section === "updates" && (
         <section className="mt-8 max-w-2xl">

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { BATTLES_ENABLED } from "@/lib/features";
 import { useHasRevs } from "@/lib/engagement";
+import { useLaunchKitFeature } from "@/lib/launch";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
 import {
   Menu,
   Home,
@@ -18,6 +20,7 @@ import {
   Clapperboard,
   Wrench,
   Download,
+  MessageSquareHeart,
 } from "lucide-react";
 import { isAppInstalled } from "@/lib/pwaInstall";
 import { openInstallPrompt } from "@/components/InstallAppPrompt";
@@ -75,6 +78,8 @@ function MenuLink({
 // rest lives behind this hamburger next to the logo.
 export function MobileMenu() {
   const hasRevs = useHasRevs();
+  const feedbackOn = useLaunchKitFeature();
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [showInstall, setShowInstall] = useState(false);
   useEffect(() => {
@@ -149,9 +154,23 @@ export function MobileMenu() {
               Install the app
             </button>
           )}
+          {feedbackOn && (
+            <button
+              type="button"
+              className={`${item} w-full`}
+              onClick={() => {
+                close();
+                setFeedbackOpen(true);
+              }}
+            >
+              <MessageSquareHeart className="size-5 shrink-0" />
+              Send feedback
+            </button>
+          )}
           {isAdmin && <MenuLink to="/admin" icon={ShieldCheck} label="Admin" onNavigate={close} />}
         </nav>
       </SheetContent>
+      <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     </Sheet>
   );
 }

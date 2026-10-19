@@ -24,6 +24,22 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.26.0",
+    date: "2026-10-19",
+    title: "Getting ready for launch",
+    status: "needs_database_update",
+    highlights: [
+      "New visitors now land on Essentials (fuel prices, EV chargers and your car's tools), which work from day one. Members still start on the Community feed.",
+      "Send feedback from Settings or the menu. Bugs and ideas go straight to the team.",
+      "The first 100 members get a numbered Founding member badge on their profile.",
+    ],
+    fixes: [
+      "Removed leftover \"coming soon\" sections.",
+      "Revs only shows in the menu once there are videos to watch.",
+    ],
+    requiredSql: ["drizzle/migrations/0063_launch_kit.sql"],
+  },
+  {
     version: "1.25.0",
     date: "2026-10-14",
     title: "Car pages that grow themselves",

@@ -3,7 +3,7 @@ import { PRIMARY_HOST } from "@/lib/siteDomains";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ShieldCheck, UserX } from "lucide-react";
+import { MessageSquareHeart, ShieldCheck, UserX } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { updateProfile } from "@/lib/profiles";
@@ -13,6 +13,8 @@ import { Avatar } from "@/components/Avatar";
 import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 import { HomeModeSwitch } from "@/components/HomeModeSwitch";
 import { HeadlightDial } from "@/components/HeadlightDial";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
+import { useLaunchKitFeature } from "@/lib/launch";
 import { useEngagementFeatures, usePushFeature } from "@/lib/features";
 import { NotificationSettingsForm } from "@/components/NotificationSettingsForm";
 import { PrivacyDataSettings } from "@/components/PrivacyDataSettings";
@@ -51,6 +53,8 @@ function SettingsPage() {
   const [savingPassword, setSavingPassword] = useState(false);
   const pushAvailable = usePushFeature();
   const engagement = useEngagementFeatures();
+  const feedbackOn = useLaunchKitFeature();
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   useEffect(() => {
     if (profile) setUsername(profile.username);
@@ -182,8 +186,8 @@ function SettingsPage() {
       <Section title="Home screen">
         <HomeModeSwitch />
         <p className="mt-2 text-xs text-muted-foreground">
-          Community shows the feed and stories. Essentials shows the practical side: buying
-          and selling, parts, help and research.
+          Community shows the feed and stories. Essentials shows the practical side: buying and
+          selling, parts, help and research.
         </p>
       </Section>
 
@@ -323,6 +327,22 @@ function SettingsPage() {
       <Section title="Privacy & your data">
         <PrivacyDataSettings userId={user.id} email={user.email} />
       </Section>
+
+      {feedbackOn && (
+        <Section title="Feedback">
+          <p className="mb-3 text-sm text-muted-foreground">
+            Spotted a bug or want something added? Tell us. We read every message.
+          </p>
+          <button
+            type="button"
+            onClick={() => setFeedbackOpen(true)}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground"
+          >
+            <MessageSquareHeart className="size-4" /> Send feedback
+          </button>
+          <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
+        </Section>
+      )}
 
       <Section title="About & legal">
         <ul className="space-y-2 text-sm">
