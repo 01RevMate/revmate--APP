@@ -12,6 +12,8 @@ import { normalizeUsername, usernameLookupCandidates } from "@/lib/usernames";
 import { AGE_LIMITS, ageOn, MIN_AGE, PRIVACY_VERSION, TERMS_VERSION } from "@/lib/legal";
 import { seo } from "@/lib/seo";
 import { FoundingSpotsNote } from "@/components/FoundingMember";
+import { getAttribution } from "@/lib/attribution";
+import { trackAdEvent } from "@/lib/tiktokPixel";
 
 export const Route = createFileRoute("/signup")({
   // ?redirect=/battles sends people back to what they were trying to open.
@@ -129,6 +131,7 @@ function SignupPage() {
     e.preventDefault();
     if (!agreeTerms || !agreePrivacy || !birthDate) return;
     setSaving(true);
+    const attribution = getAttribution();
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -140,6 +143,8 @@ function SignupPage() {
           terms_version: TERMS_VERSION,
           privacy_version: PRIVACY_VERSION,
           marketing_opt_in: marketing,
+          // Which campaign they came from, if any (see src/lib/attribution.ts).
+          ...(attribution ? { attribution } : {}),
         },
       },
     });
@@ -152,6 +157,8 @@ function SignupPage() {
       );
       return;
     }
+    // Tells TikTok an ad led to a sign-up (only if the pixel was allowed; never for under-18s).
+    if (birthDate && ageOn(birthDate) >= 18) trackAdEvent("CompleteRegistration");
     if (data.session) {
       goOn();
       return;

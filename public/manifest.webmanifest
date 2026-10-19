@@ -1,13 +1,22 @@
 {
-  "name": "RevMate — UK Car Community, Research & Marketplace",
+  "id": "/",
+  "name": "RevMate \u2014 UK Car Community, Research & Marketplace",
   "short_name": "RevMate",
   "description": "The all-in-one automotive social app for UK car enthusiasts. Research models, compare specs, discuss faults, and buy or sell cars and parts.",
+  "lang": "en-GB",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",
+  "categories": [
+    "lifestyle",
+    "social",
+    "shopping",
+    "travel"
+  ],
   "icons": [
     {
       "src": "/icon-192.png",
@@ -26,6 +35,60 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Fuel prices",
+      "short_name": "Fuel",
+      "description": "Cheapest fuel near you",
+      "url": "/fuel-prices",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "EV chargers",
+      "short_name": "Chargers",
+      "description": "EV chargers near you",
+      "url": "/ev-chargers",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Buy & Sell",
+      "short_name": "Buy & Sell",
+      "description": "Cars and parts for sale",
+      "url": "/marketplace",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Sell for free",
+      "short_name": "Sell",
+      "description": "List a car or parts",
+      "url": "/sell",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

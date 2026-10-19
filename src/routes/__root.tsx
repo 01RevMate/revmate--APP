@@ -14,6 +14,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { THEME_BOOT_SCRIPT, ThemeWatcher } from "@/lib/theme";
+import { captureAttribution } from "@/lib/attribution";
+import { AdsConsent } from "@/components/AdsConsent";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TopNav } from "@/components/TopNav";
 import { BottomNav } from "@/components/BottomNav";
@@ -120,7 +122,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { name: "author", content: SITE_NAME },
         { name: "format-detection", content: "telephone=no" },
         // Google Search Console ownership check.
-        { name: "google-site-verification", content: "RgZaCsnTFO6nNsfcrgdwD8W3zQ3CRUEIjYancbq4n8Q" },
+        {
+          name: "google-site-verification",
+          content: "RgZaCsnTFO6nNsfcrgdwD8W3zQ3CRUEIjYancbq4n8Q",
+        },
         // Home-screen install: full-screen app view with the RevMate icon.
         { name: "theme-color", content: "#000000" },
         { name: "mobile-web-app-capable", content: "yes" },
@@ -167,6 +172,9 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
+  // Which TikTok post or ad (if any) brought this visitor here.
+  useEffect(() => captureAttribution(), []);
+
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
@@ -196,6 +204,7 @@ function RootComponent() {
             <EngagementPulse />
             <OnboardingDialog />
             <ConsentGate />
+            <AdsConsent />
             <AnnouncementPopup />
             <SplashScreen />
           </TooltipProvider>

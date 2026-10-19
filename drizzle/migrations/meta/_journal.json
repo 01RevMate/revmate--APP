@@ -456,6 +456,13 @@
       "when": 1792452774820,
       "tag": "0064_money",
       "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1792453676040,
+      "tag": "0065_campaigns",
+      "breakpoints": true
     }
   ]
 }

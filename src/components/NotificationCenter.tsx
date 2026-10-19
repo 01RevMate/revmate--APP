@@ -217,7 +217,7 @@ export function NotificationCenter() {
   const social = useSocialFeatures();
   useEffect(() => {
     if (!user || !social) return;
-    void supabase.rpc("send_due_meet_reminders");
+    void supabase.rpc("send_due_meet_reminders").then(() => undefined);
   }, [user, social]);
   // Same for MOT/tax reminders and "did you fix it?" nudges (0045). Before
   // that SQL runs these calls just fail quietly.

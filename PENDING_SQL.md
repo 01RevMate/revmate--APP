@@ -38,7 +38,17 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 - Payments stay **off** until an admin switches them on. Card payments also
   need Stripe set up — see `MONETISATION_SETUP.md`.
 
-### 3. Phone push notifications (optional, needs a few setup steps)
+### 3. Campaigns (TikTok tracking without tracking people)
+
+- File: `drizzle/migrations/0065_campaigns.sql` (`sql-to-run/25_campaigns.sql`). Run after item 2.
+- Added: 2026-10-19
+- Needed by: Admin → Marketing "What's working" (visits and sign-ups per
+  campaign). Adds `campaign_visits` (daily counts, no personal data),
+  `signup_sources` (filled from the sign-up form's `attribution`), the
+  admin-only `admin_campaign_stats()`, and empty `tiktok_pixel_id`,
+  `android_package` and `android_fingerprint` settings.
+
+### 4. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27

@@ -34,11 +34,13 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as UpdatesDotjsonRouteImport } from './routes/updates[.]json'
+import { Route as DotwellKnownAssetlinksDotjsonRouteImport } from './routes/[.]well-known.assetlinks[.]json'
 import { Route as ApiFuelPricesRouteImport } from './routes/api.fuel-prices'
 import { Route as BusinessesIndexRouteImport } from './routes/businesses/index'
 import { Route as BusinessesBusinessIdRouteImport } from './routes/businesses/$businessId'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
 import { Route as EvChargersHomeRouteImport } from './routes/ev-chargers_.home'
+import { Route as GoCampaignRouteImport } from './routes/go.$campaign'
 import { Route as GroupsIndexRouteImport } from './routes/groups/index'
 import { Route as GroupsSlugRouteImport } from './routes/groups/$slug'
 import { Route as LegalCookiesRouteImport } from './routes/legal/cookies'
@@ -185,6 +187,12 @@ const UpdatesDotjsonRoute = UpdatesDotjsonRouteImport.update({
   path: '/updates.json',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotwellKnownAssetlinksDotjsonRoute =
+  DotwellKnownAssetlinksDotjsonRouteImport.update({
+    id: '/.well-known/assetlinks.json',
+    path: '/.well-known/assetlinks.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiFuelPricesRoute = ApiFuelPricesRouteImport.update({
   id: '/api/fuel-prices',
   path: '/api/fuel-prices',
@@ -208,6 +216,11 @@ const CarsIndexRoute = CarsIndexRouteImport.update({
 const EvChargersHomeRoute = EvChargersHomeRouteImport.update({
   id: '/ev-chargers_/home',
   path: '/ev-chargers/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GoCampaignRoute = GoCampaignRouteImport.update({
+  id: '/go/$campaign',
+  path: '/go/$campaign',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GroupsIndexRoute = GroupsIndexRouteImport.update({
@@ -338,9 +351,11 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
   '/ev-chargers/home': typeof EvChargersHomeRoute
+  '/go/$campaign': typeof GoCampaignRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/cookies': typeof LegalCookiesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -390,9 +405,11 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
   '/ev-chargers/home': typeof EvChargersHomeRoute
+  '/go/$campaign': typeof GoCampaignRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/cookies': typeof LegalCookiesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -443,9 +460,11 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
   '/ev-chargers_/home': typeof EvChargersHomeRoute
+  '/go/$campaign': typeof GoCampaignRoute
   '/groups/$slug': typeof GroupsSlugRoute
   '/legal/cookies': typeof LegalCookiesRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -497,9 +516,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap.xml'
     | '/updates.json'
+    | '/.well-known/assetlinks.json'
     | '/api/fuel-prices'
     | '/businesses/$businessId'
     | '/ev-chargers/home'
+    | '/go/$campaign'
     | '/groups/$slug'
     | '/legal/cookies'
     | '/legal/privacy'
@@ -549,9 +570,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap.xml'
     | '/updates.json'
+    | '/.well-known/assetlinks.json'
     | '/api/fuel-prices'
     | '/businesses/$businessId'
     | '/ev-chargers/home'
+    | '/go/$campaign'
     | '/groups/$slug'
     | '/legal/cookies'
     | '/legal/privacy'
@@ -601,9 +624,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap.xml'
     | '/updates.json'
+    | '/.well-known/assetlinks.json'
     | '/api/fuel-prices'
     | '/businesses/$businessId'
     | '/ev-chargers_/home'
+    | '/go/$campaign'
     | '/groups/$slug'
     | '/legal/cookies'
     | '/legal/privacy'
@@ -654,9 +679,11 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UpdatesDotjsonRoute: typeof UpdatesDotjsonRoute
+  DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
   ApiFuelPricesRoute: typeof ApiFuelPricesRoute
   BusinessesBusinessIdRoute: typeof BusinessesBusinessIdRoute
   EvChargersHomeRoute: typeof EvChargersHomeRoute
+  GoCampaignRoute: typeof GoCampaignRoute
   GroupsSlugRoute: typeof GroupsSlugRoute
   LegalCookiesRoute: typeof LegalCookiesRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
@@ -857,6 +884,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UpdatesDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.well-known/assetlinks.json': {
+      id: '/.well-known/assetlinks.json'
+      path: '/.well-known/assetlinks.json'
+      fullPath: '/.well-known/assetlinks.json'
+      preLoaderRoute: typeof DotwellKnownAssetlinksDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/fuel-prices': {
       id: '/api/fuel-prices'
       path: '/api/fuel-prices'
@@ -890,6 +924,13 @@ declare module '@tanstack/react-router' {
       path: '/ev-chargers/home'
       fullPath: '/ev-chargers/home'
       preLoaderRoute: typeof EvChargersHomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/go/$campaign': {
+      id: '/go/$campaign'
+      path: '/go/$campaign'
+      fullPath: '/go/$campaign'
+      preLoaderRoute: typeof GoCampaignRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/groups/': {
@@ -1073,9 +1114,11 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UpdatesDotjsonRoute: UpdatesDotjsonRoute,
+  DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
   ApiFuelPricesRoute: ApiFuelPricesRoute,
   BusinessesBusinessIdRoute: BusinessesBusinessIdRoute,
   EvChargersHomeRoute: EvChargersHomeRoute,
+  GoCampaignRoute: GoCampaignRoute,
   GroupsSlugRoute: GroupsSlugRoute,
   LegalCookiesRoute: LegalCookiesRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,

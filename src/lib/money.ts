@@ -14,6 +14,10 @@ export type MoneySettings = {
   payments_enabled: boolean;
   shop_url: string;
   shop_label: string;
+  /** Marketing (0065): empty until set in Admin → Marketing. */
+  tiktok_pixel_id: string;
+  android_package: string;
+  android_fingerprint: string;
 };
 
 /** App settings, or null until the money SQL has run. */
@@ -28,6 +32,9 @@ export function useMoneySettings(): MoneySettings | null {
         payments_enabled: map.get("payments_enabled") === "true",
         shop_url: map.get("shop_url") ?? "",
         shop_label: map.get("shop_label") || "RevMate shop",
+        tiktok_pixel_id: map.get("tiktok_pixel_id") ?? "",
+        android_package: map.get("android_package") ?? "",
+        android_fingerprint: map.get("android_fingerprint") ?? "",
       };
     },
     staleTime: 5 * 60_000,
@@ -251,7 +258,8 @@ export function useDeals(placement: DealPlacement): Deal[] {
 }
 
 export function recordDealClick(id: string) {
-  void db.rpc("record_deal_click", { deal_id: id });
+  // Supabase only sends the request once something waits on it.
+  void db.rpc("record_deal_click", { deal_id: id }).then(() => undefined);
 }
 
 export async function fetchAllDeals(): Promise<Deal[]> {

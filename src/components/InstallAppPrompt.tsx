@@ -17,6 +17,7 @@ import {
   isIosDevice,
   subscribeInstallPrompt,
 } from "@/lib/pwaInstall";
+import { detectInAppBrowser, IN_APP_NAMES } from "@/lib/inAppBrowser";
 
 export const OPEN_INSTALL_EVENT = "revmate:open-install";
 
@@ -55,8 +56,9 @@ export function InstallAppPrompt() {
   }, []);
 
   // Auto-open once for signed-in users who haven't installed or dismissed it.
+  // Not inside TikTok/Instagram's built-in browser, where installing isn't possible.
   useEffect(() => {
-    if (!user) return;
+    if (!user || detectInAppBrowser()) return;
     if (isAppInstalled() || installPromptDismissed()) return;
     const timer = setTimeout(() => {
       if (!isAppInstalled() && !installPromptDismissed()) setOpen(true);
@@ -68,6 +70,7 @@ export function InstallAppPrompt() {
 
   const nativePrompt = getDeferredInstallPrompt();
   const ios = isIosDevice();
+  const inApp = detectInAppBrowser();
 
   const installNow = async () => {
     if (!nativePrompt) return;
@@ -92,7 +95,13 @@ export function InstallAppPrompt() {
           </DialogDescription>
         </DialogHeader>
 
-        {nativePrompt ? (
+        {inApp ? (
+          <p className="rounded-lg border border-border bg-muted/40 p-4 text-sm">
+            You're in {IN_APP_NAMES[inApp]}'s browser, which can't add apps. Tap{" "}
+            <strong>•••</strong> (top or bottom corner), choose <strong>Open in browser</strong>,
+            then come back here.
+          </p>
+        ) : nativePrompt ? (
           <Button className="w-full" size="lg" onClick={() => void installNow()}>
             <Download className="mr-2 h-4 w-4" /> Install RevMate
           </Button>

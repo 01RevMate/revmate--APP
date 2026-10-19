@@ -15,6 +15,7 @@ import { HomeModeSwitch } from "@/components/HomeModeSwitch";
 import { HeadlightDial } from "@/components/HeadlightDial";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { BillingSettings } from "@/components/BillingSettings";
+import { AdsConsentSetting } from "@/components/AdsConsent";
 import { useMoneyFeature, useMoneySettings } from "@/lib/money";
 import { usePaidReturn } from "@/hooks/usePaidReturn";
 import { useLaunchKitFeature } from "@/lib/launch";
@@ -332,6 +333,9 @@ function SettingsPage() {
 
       <Section title="Privacy & your data">
         <PrivacyDataSettings userId={user.id} email={user.email} />
+        <div className="mt-4">
+          <AdsConsentSetting />
+        </div>
       </Section>
 
       {moneyOn && (

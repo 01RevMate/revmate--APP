@@ -8,6 +8,7 @@ been run live in `applied/` for reference.
 |---|------|--------------|--------|
 | 23 | `23_launch_kit.sql` | Feedback box, admin launch stats, Founding member badges | **Run this** |
 | 24 | `24_money.sql` | Paid extras, Plus, Business Pro, deals, shop link, sponsors | **Run this** (after 23) |
+| 25 | `25_campaigns.sql` | TikTok campaign counts, sign-up sources, Pixel and Android settings | **Run this** (after 24) |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 
@@ -17,7 +18,7 @@ Already applied (in `applied/`): 1–4 on 27 Sep 2026, 5–12 on 28 Sep 2026,
 ## Two ways to run them
 
 **Easiest — ask Lovable.** Open `LOVABLE_PENDING_SQL_PROMPT.md` (in the main
-folder), copy Prompt A (launch kit), Prompt B (money) and, if you want them, Prompt 1
+folder), copy Prompt A (launch kit), Prompt B (money), Prompt C (campaigns) and, if you want them, Prompt 1
 (phone notifications), and paste each into Lovable.
 
 **Or run them yourself** in the Supabase SQL editor (Lovable Cloud → Database
@@ -42,3 +43,4 @@ File 21 is a copy of `drizzle/migrations/0058_security_hardening.sql`.
 File 22 is a copy of `drizzle/migrations/0060_group_icons.sql`.
 File 23 is a copy of `drizzle/migrations/0063_launch_kit.sql` with a short header added.
 File 24 is a copy of `drizzle/migrations/0064_money.sql` with a short header added.
+File 25 is a copy of `drizzle/migrations/0065_campaigns.sql` with a short header added.

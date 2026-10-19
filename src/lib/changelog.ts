@@ -24,6 +24,23 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.28.0",
+    date: "2026-10-19",
+    title: "Ready for TikTok",
+    status: "needs_database_update",
+    highlights: [
+      "New landing pages for our TikTok posts and ads, each opening straight into fuel prices, EV chargers, selling and more.",
+      "Works smoothly inside TikTok's and Instagram's built-in browsers, with tips for adding RevMate to your home screen.",
+      "Optional TikTok ad cookies: we only use them if you tap Allow, and never for under-18s.",
+      "Home-screen shortcuts to Fuel prices, EV chargers, Buy & Sell and Sell.",
+    ],
+    fixes: [
+      "Meet reminders and partner click counts weren't being sent; they are now.",
+      "Cookie and privacy policies updated.",
+    ],
+    requiredSql: ["drizzle/migrations/0065_campaigns.sql"],
+  },
+  {
     version: "1.27.0",
     date: "2026-10-19",
     title: "Optional extras that keep RevMate free",

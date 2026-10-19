@@ -123,7 +123,7 @@ export async function fetchPartners(includeInactive = false): Promise<Partner[]>
 }
 
 export function recordPartnerClick(partnerId: string) {
-  void supabase.rpc("record_partner_click", { target_partner: partnerId });
+  void supabase.rpc("record_partner_click", { target_partner: partnerId }).then(() => undefined);
 }
 
 export async function savePartner(

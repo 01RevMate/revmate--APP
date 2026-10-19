@@ -17,6 +17,7 @@ import {
   Handshake,
   Rocket,
   PoundSterling,
+  TrendingUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,6 +48,7 @@ import { AdminBusinesses } from "@/components/AdminBusinesses";
 import { AdminAds } from "@/components/AdminAds";
 import { AdminLaunch } from "@/components/AdminLaunch";
 import { AdminMoney } from "@/components/AdminMoney";
+import { AdminMarketing } from "@/components/AdminMarketing";
 import { useMoneyFeature } from "@/lib/money";
 import { useLaunchKitFeature } from "@/lib/launch";
 import { useBusinessesFeature } from "@/lib/businesses";
@@ -95,6 +97,7 @@ export const Route = createFileRoute("/admin")({
 type AdminSection =
   | "launch"
   | "money"
+  | "marketing"
   | "reports"
   | "people"
   | "protect"
@@ -325,6 +328,7 @@ function AdminPage() {
           [
             ...(launchOn ? ([["launch", "Launch", Rocket]] as const) : []),
             ...(moneyOn ? ([["money", "Money", PoundSterling]] as const) : []),
+            ...(moneyOn ? ([["marketing", "Marketing", TrendingUp]] as const) : []),
             ["reports", "Reports", FileWarning],
             ["people", "People", UserCog],
             ["protect", "Protect Posts", Shield],
@@ -353,6 +357,7 @@ function AdminPage() {
 
       {section === "launch" && launchOn && <AdminLaunch />}
       {section === "money" && moneyOn && <AdminMoney />}
+      {section === "marketing" && moneyOn && <AdminMarketing />}
 
       {section === "reports" && (
         <section className="mt-6">

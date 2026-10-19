@@ -106,6 +106,17 @@ function PrivacyPage() {
             never see or store them.
           </li>
           <li>
+            <strong>Where you came from:</strong> if you arrive from one of our TikTok posts or ads,
+            we note the campaign name (for example "fuel" and "tiktok") with your account when you
+            sign up, and count visits to our campaign pages without recording who you are. This is
+            in our legitimate interest in knowing which adverts work.
+          </li>
+          <li>
+            <strong>TikTok Pixel:</strong> only if you allow ad cookies, TikTok receives information
+            about your visit (such as pages viewed and that you signed up) to measure our ads. You
+            can withdraw this at any time in Settings → Privacy or the Cookie policy.
+          </li>
+          <li>
             <strong>Deals:</strong> when you tap a deal we count the click, without recording who
             you are. The partner's own privacy policy applies on their site.
           </li>
