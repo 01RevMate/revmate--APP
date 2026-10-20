@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AskRouteImport } from './routes/ask'
+import { Route as BasketRouteImport } from './routes/basket'
 import { Route as BattlesRouteImport } from './routes/battles'
 import { Route as CommunityStandardsRouteImport } from './routes/community-standards'
 import { Route as DiagnoseRouteImport } from './routes/diagnose'
@@ -25,6 +26,7 @@ import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as PlusRouteImport } from './routes/plus'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RevsRouteImport } from './routes/revs'
@@ -60,6 +62,8 @@ import { Route as ReviewListingIdRouteImport } from './routes/review.$listingId'
 import { Route as ShopsIndexRouteImport } from './routes/shops/index'
 import { Route as ShopsSlugRouteImport } from './routes/shops/$slug'
 import { Route as ShopsNewRouteImport } from './routes/shops/new'
+import { Route as StoreIndexRouteImport } from './routes/store/index'
+import { Route as StoreSlugRouteImport } from './routes/store/$slug'
 import { Route as TagsTagRouteImport } from './routes/tags.$tag'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as MarketplaceListingIdEditRouteImport } from './routes/marketplace/$listingId_.edit'
@@ -84,6 +88,11 @@ const AnalyticsRoute = AnalyticsRouteImport.update({
 const AskRoute = AskRouteImport.update({
   id: '/ask',
   path: '/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BasketRoute = BasketRouteImport.update({
+  id: '/basket',
+  path: '/basket',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BattlesRoute = BattlesRouteImport.update({
@@ -144,6 +153,11 @@ const LoginRoute = LoginRouteImport.update({
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersRoute = OrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlusRoute = PlusRouteImport.update({
@@ -322,6 +336,16 @@ const ShopsNewRoute = ShopsNewRouteImport.update({
   path: '/shops/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StoreIndexRoute = StoreIndexRouteImport.update({
+  id: '/store/',
+  path: '/store/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoreSlugRoute = StoreSlugRouteImport.update({
+  id: '/store/$slug',
+  path: '/store/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TagsTagRoute = TagsTagRouteImport.update({
   id: '/tags/$tag',
   path: '/tags/$tag',
@@ -354,6 +378,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/analytics': typeof AnalyticsRoute
   '/ask': typeof AskRoute
+  '/basket': typeof BasketRoute
   '/battles': typeof BattlesRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/diagnose': typeof DiagnoseRoute
@@ -366,6 +391,7 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/orders': typeof OrdersRoute
   '/plus': typeof PlusRoute
   '/reset-password': typeof ResetPasswordRoute
   '/revs': typeof RevsRoute
@@ -395,6 +421,7 @@ export interface FileRoutesByFullPath {
   '/review/$listingId': typeof ReviewListingIdRoute
   '/shops/$slug': typeof ShopsSlugRoute
   '/shops/new': typeof ShopsNewRoute
+  '/store/$slug': typeof StoreSlugRoute
   '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
   '/businesses/': typeof BusinessesIndexRoute
@@ -403,6 +430,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/meets/': typeof MeetsIndexRoute
   '/shops/': typeof ShopsIndexRoute
+  '/store/': typeof StoreIndexRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
@@ -412,6 +440,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/analytics': typeof AnalyticsRoute
   '/ask': typeof AskRoute
+  '/basket': typeof BasketRoute
   '/battles': typeof BattlesRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/diagnose': typeof DiagnoseRoute
@@ -424,6 +453,7 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/orders': typeof OrdersRoute
   '/plus': typeof PlusRoute
   '/reset-password': typeof ResetPasswordRoute
   '/revs': typeof RevsRoute
@@ -453,6 +483,7 @@ export interface FileRoutesByTo {
   '/review/$listingId': typeof ReviewListingIdRoute
   '/shops/$slug': typeof ShopsSlugRoute
   '/shops/new': typeof ShopsNewRoute
+  '/store/$slug': typeof StoreSlugRoute
   '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
   '/businesses': typeof BusinessesIndexRoute
@@ -461,6 +492,7 @@ export interface FileRoutesByTo {
   '/marketplace': typeof MarketplaceIndexRoute
   '/meets': typeof MeetsIndexRoute
   '/shops': typeof ShopsIndexRoute
+  '/store': typeof StoreIndexRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
@@ -471,6 +503,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/analytics': typeof AnalyticsRoute
   '/ask': typeof AskRoute
+  '/basket': typeof BasketRoute
   '/battles': typeof BattlesRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/diagnose': typeof DiagnoseRoute
@@ -483,6 +516,7 @@ export interface FileRoutesById {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/orders': typeof OrdersRoute
   '/plus': typeof PlusRoute
   '/reset-password': typeof ResetPasswordRoute
   '/revs': typeof RevsRoute
@@ -512,6 +546,7 @@ export interface FileRoutesById {
   '/review/$listingId': typeof ReviewListingIdRoute
   '/shops/$slug': typeof ShopsSlugRoute
   '/shops/new': typeof ShopsNewRoute
+  '/store/$slug': typeof StoreSlugRoute
   '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
   '/businesses/': typeof BusinessesIndexRoute
@@ -520,6 +555,7 @@ export interface FileRoutesById {
   '/marketplace/': typeof MarketplaceIndexRoute
   '/meets/': typeof MeetsIndexRoute
   '/shops/': typeof ShopsIndexRoute
+  '/store/': typeof StoreIndexRoute
   '/marketplace/$listingId_/edit': typeof MarketplaceListingIdEditRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username_/cars/$carId': typeof UUsernameCarsCarIdRoute
@@ -531,6 +567,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/analytics'
     | '/ask'
+    | '/basket'
     | '/battles'
     | '/community-standards'
     | '/diagnose'
@@ -543,6 +580,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/messages'
+    | '/orders'
     | '/plus'
     | '/reset-password'
     | '/revs'
@@ -572,6 +610,7 @@ export interface FileRouteTypes {
     | '/review/$listingId'
     | '/shops/$slug'
     | '/shops/new'
+    | '/store/$slug'
     | '/tags/$tag'
     | '/u/$username'
     | '/businesses/'
@@ -580,6 +619,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/meets/'
     | '/shops/'
+    | '/store/'
     | '/marketplace/$listingId/edit'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
@@ -589,6 +629,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/analytics'
     | '/ask'
+    | '/basket'
     | '/battles'
     | '/community-standards'
     | '/diagnose'
@@ -601,6 +642,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/messages'
+    | '/orders'
     | '/plus'
     | '/reset-password'
     | '/revs'
@@ -630,6 +672,7 @@ export interface FileRouteTypes {
     | '/review/$listingId'
     | '/shops/$slug'
     | '/shops/new'
+    | '/store/$slug'
     | '/tags/$tag'
     | '/u/$username'
     | '/businesses'
@@ -638,6 +681,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/meets'
     | '/shops'
+    | '/store'
     | '/marketplace/$listingId/edit'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
@@ -647,6 +691,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/analytics'
     | '/ask'
+    | '/basket'
     | '/battles'
     | '/community-standards'
     | '/diagnose'
@@ -659,6 +704,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/messages'
+    | '/orders'
     | '/plus'
     | '/reset-password'
     | '/revs'
@@ -688,6 +734,7 @@ export interface FileRouteTypes {
     | '/review/$listingId'
     | '/shops/$slug'
     | '/shops/new'
+    | '/store/$slug'
     | '/tags/$tag'
     | '/u/$username'
     | '/businesses/'
@@ -696,6 +743,7 @@ export interface FileRouteTypes {
     | '/marketplace/'
     | '/meets/'
     | '/shops/'
+    | '/store/'
     | '/marketplace/$listingId_/edit'
     | '/cars/$make/$model/$generation'
     | '/u/$username_/cars/$carId'
@@ -706,6 +754,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AnalyticsRoute: typeof AnalyticsRoute
   AskRoute: typeof AskRoute
+  BasketRoute: typeof BasketRoute
   BattlesRoute: typeof BattlesRoute
   CommunityStandardsRoute: typeof CommunityStandardsRoute
   DiagnoseRoute: typeof DiagnoseRoute
@@ -718,6 +767,7 @@ export interface RootRouteChildren {
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRouteWithChildren
+  OrdersRoute: typeof OrdersRoute
   PlusRoute: typeof PlusRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RevsRoute: typeof RevsRoute
@@ -746,6 +796,7 @@ export interface RootRouteChildren {
   ReviewListingIdRoute: typeof ReviewListingIdRoute
   ShopsSlugRoute: typeof ShopsSlugRoute
   ShopsNewRoute: typeof ShopsNewRoute
+  StoreSlugRoute: typeof StoreSlugRoute
   TagsTagRoute: typeof TagsTagRoute
   UUsernameRoute: typeof UUsernameRoute
   BusinessesIndexRoute: typeof BusinessesIndexRoute
@@ -754,6 +805,7 @@ export interface RootRouteChildren {
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   MeetsIndexRoute: typeof MeetsIndexRoute
   ShopsIndexRoute: typeof ShopsIndexRoute
+  StoreIndexRoute: typeof StoreIndexRoute
   MarketplaceListingIdEditRoute: typeof MarketplaceListingIdEditRoute
   CarsMakeModelGenerationRoute: typeof CarsMakeModelGenerationRoute
   UUsernameCarsCarIdRoute: typeof UUsernameCarsCarIdRoute
@@ -787,6 +839,13 @@ declare module '@tanstack/react-router' {
       path: '/ask'
       fullPath: '/ask'
       preLoaderRoute: typeof AskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/basket': {
+      id: '/basket'
+      path: '/basket'
+      fullPath: '/basket'
+      preLoaderRoute: typeof BasketRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/battles': {
@@ -871,6 +930,13 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders': {
+      id: '/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof OrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/plus': {
@@ -1118,6 +1184,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/store/': {
+      id: '/store/'
+      path: '/store'
+      fullPath: '/store/'
+      preLoaderRoute: typeof StoreIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/store/$slug': {
+      id: '/store/$slug'
+      path: '/store/$slug'
+      fullPath: '/store/$slug'
+      preLoaderRoute: typeof StoreSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tags/$tag': {
       id: '/tags/$tag'
       path: '/tags/$tag'
@@ -1173,6 +1253,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AnalyticsRoute: AnalyticsRoute,
   AskRoute: AskRoute,
+  BasketRoute: BasketRoute,
   BattlesRoute: BattlesRoute,
   CommunityStandardsRoute: CommunityStandardsRoute,
   DiagnoseRoute: DiagnoseRoute,
@@ -1185,6 +1266,7 @@ const rootRouteChildren: RootRouteChildren = {
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   MessagesRoute: MessagesRouteWithChildren,
+  OrdersRoute: OrdersRoute,
   PlusRoute: PlusRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RevsRoute: RevsRoute,
@@ -1213,6 +1295,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReviewListingIdRoute: ReviewListingIdRoute,
   ShopsSlugRoute: ShopsSlugRoute,
   ShopsNewRoute: ShopsNewRoute,
+  StoreSlugRoute: StoreSlugRoute,
   TagsTagRoute: TagsTagRoute,
   UUsernameRoute: UUsernameRoute,
   BusinessesIndexRoute: BusinessesIndexRoute,
@@ -1221,6 +1304,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceIndexRoute: MarketplaceIndexRoute,
   MeetsIndexRoute: MeetsIndexRoute,
   ShopsIndexRoute: ShopsIndexRoute,
+  StoreIndexRoute: StoreIndexRoute,
   MarketplaceListingIdEditRoute: MarketplaceListingIdEditRoute,
   CarsMakeModelGenerationRoute: CarsMakeModelGenerationRoute,
   UUsernameCarsCarIdRoute: UUsernameCarsCarIdRoute,

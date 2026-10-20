@@ -6,8 +6,8 @@ diagnostics), 17 (Buy & Sell upgrade), 18 (group covers + more social
 links) and 19 (public profile pages) were applied on 1–2 October 2026, and
 steps 20 (remove location from posts — found already applied by hand) and
 21 (security fixes) on 5 October 2026. Step 22 (group icons) has also run. Left to do: step 23 (launch kit), step 24
-(money), step 25 (campaigns), step 26 (diagnosis & shops) and the optional phone notifications
-setup.
+(money), step 25 (campaigns), step 26 (diagnosis & shops), steps 27–29 (store, auctions, feed & badges)
+and the optional phone notifications setup.
 
 ---
 
@@ -65,6 +65,36 @@ ai_usage with a service-role-only ai_take_credit() function, the admin-only
 admin_ai_usage(), shops and shop_products tables with their policies and
 triggers, record_shop_click(), and three app_settings rows. Then regenerate
 the Supabase types.
+```
+
+---
+
+## Prompt E — store (run after Prompt D)
+
+```
+Please run sql-to-run/27_store.sql on the connected Supabase database, exactly as
+committed. Don't change it; it's safe to re-run. It adds: RevMate Store (products, suppliers, orders) + new notification kinds.
+Then regenerate the Supabase types.
+```
+
+---
+
+## Prompt F — auctions (run after Prompt E)
+
+```
+Please run sql-to-run/28_auctions.sql on the connected Supabase database, exactly as
+committed. Don't change it; it's safe to re-run. It adds: Auctions on Buy & Sell (bids, hidden reserve, anti-sniping).
+Then regenerate the Supabase types.
+```
+
+---
+
+## Prompt G — feed & badges (run after Prompt F)
+
+```
+Please run sql-to-run/29_feed_and_badges.sql on the connected Supabase database, exactly as
+committed. Don't change it; it's safe to re-run. It adds: Fresher For You feed (seen posts) + badges.
+Then regenerate the Supabase types.
 ```
 
 ---

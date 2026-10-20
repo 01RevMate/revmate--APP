@@ -1,4 +1,5 @@
-// Stripe tells RevMate what was paid for. Point a Stripe webhook endpoint at
+// Stripe tells RevMate what was paid for (paid extras and RevMate Store
+// orders). Point a Stripe webhook endpoint at
 // this function with these events:
 //   checkout.session.completed, invoice.paid, customer.subscription.created,
 //   customer.subscription.updated, customer.subscription.deleted, charge.refunded
@@ -95,6 +96,24 @@ async function handle(event: Obj) {
   switch (event.type) {
     case "checkout.session.completed": {
       const meta = obj.metadata ?? {};
+      // RevMate Store order (store-checkout function).
+      if (meta.order_id && obj.payment_status === "paid") {
+        // Newer API versions moved shipping details under collected_information.
+        const shipping =
+          obj.collected_information?.shipping_details ?? obj.shipping_details ?? null;
+        await rpc("store_mark_paid", {
+          p_order: uuidOrNull(meta.order_id),
+          p_session: obj.id,
+          p_intent: typeof obj.payment_intent === "string" ? obj.payment_intent : null,
+          p_amount: obj.amount_total ?? null,
+          p_name: shipping?.name ?? obj.customer_details?.name ?? null,
+          p_address: shipping?.address
+            ? { ...shipping.address, phone: obj.customer_details?.phone ?? null }
+            : null,
+          p_email: obj.customer_details?.email ?? null,
+        });
+        return;
+      }
       if (!meta.product) return;
       if (obj.mode === "payment" && obj.payment_status === "paid") {
         await rpc("billing_record_payment", {
@@ -138,6 +157,7 @@ async function handle(event: Obj) {
     case "charge.refunded":
       if (obj.refunded && typeof obj.payment_intent === "string") {
         await rpc("billing_mark_refunded", { p_intent: obj.payment_intent });
+        await rpc("store_mark_refunded", { p_intent: obj.payment_intent });
       }
       return;
   }

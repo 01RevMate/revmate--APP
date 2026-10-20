@@ -63,7 +63,39 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 - AI also needs the `diagnose` edge function deployed and an
   `ANTHROPIC_API_KEY` secret — see `AI_DIAGNOSIS_SETUP.md`.
 
-### 5. Phone push notifications (optional, needs a few setup steps)
+### 5. RevMate Store
+
+- File: `drizzle/migrations/0067_store.sql` (`sql-to-run/27_store.sql`). Run after item 4.
+- Added: 2026-10-20
+- Needed by: the RevMate Store (`/store`, basket, `/orders`, Admin → Store).
+  Adds `store_products`, admin-only `store_suppliers` (cost prices, where to
+  order), `store_orders` (customers see their own; admins update status and
+  tracking, which notifies the customer), service-role-only checkout
+  functions used by the `store-checkout` and `stripe-webhook` edge functions,
+  and the notification kinds for store, auctions and badges.
+- Also needs Stripe set up and the `store-checkout` function deployed — see
+  `STORE_SETUP.md`.
+
+### 6. Auctions
+
+- File: `drizzle/migrations/0068_auctions.sql` (`sql-to-run/28_auctions.sql`). Run after item 5.
+- Added: 2026-10-20
+- Needed by: the Fixed price / Auction choice when selling, and bidding on
+  listings. Adds auction columns on `listings`, `listing_bids`,
+  `listing_auctions` (hidden reserve, top bidder), `place_bid()`,
+  `set_auction_reserve()`, `auction_bids()`, `my_auction_status()`,
+  `auction_counterparty()` and `settle_due_auctions()`.
+
+### 7. Fresher feed + badges
+
+- File: `drizzle/migrations/0069_feed_and_badges.sql` (`sql-to-run/29_feed_and_badges.sql`). Run after item 6.
+- Added: 2026-10-20
+- Replaces `public.for_you_feed` (same scoring plus: posts you've seen sink,
+  posts taking off rise, new members' first posts get a boost, one account
+  can't flood the feed). Adds `post_impressions` + `record_post_impressions()`
+  and `user_badges` + `award_my_badges()`.
+
+### 8. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27

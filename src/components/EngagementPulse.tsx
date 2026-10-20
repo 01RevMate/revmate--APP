@@ -3,6 +3,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useEngagementFeatures } from "@/lib/features";
 import { runDailyPulse } from "@/lib/engagement";
+import { toast } from "sonner";
+import { awardMyBadges, BADGES } from "@/lib/badges";
 
 /**
  * Once per app open: records today's visit, and lets the database
@@ -18,10 +20,18 @@ export function EngagementPulse() {
   useEffect(() => {
     if (!user || !enabled) return;
     let cancelled = false;
-    void runDailyPulse().then(() => {
-      if (cancelled) return;
-      queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
-    });
+    void runDailyPulse()
+      // Badges after the pulse, so today's streak counts.
+      .then(() => awardMyBadges())
+      .then((earned) => {
+        if (cancelled) return;
+        for (const code of earned) {
+          const b = BADGES[code];
+          if (b) toast.success(`${b.emoji} New badge: ${b.label}`, { description: b.how });
+        }
+        queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
+        if (earned.length) queryClient.invalidateQueries({ queryKey: ["badges", user.id] });
+      });
     return () => {
       cancelled = true;
     };

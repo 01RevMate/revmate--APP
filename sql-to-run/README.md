@@ -10,6 +10,9 @@ been run live in `applied/` for reference.
 | 24 | `24_money.sql` | Paid extras, Plus, Business Pro, deals, shop link, sponsors | **Run this** (after 23) |
 | 25 | `25_campaigns.sql` | TikTok campaign counts, sign-up sources, Pixel and Android settings | **Run this** (after 24) |
 | 26 | `26_diagnosis_and_shops.sql` | AI diagnosis daily limits, Shops directory | **Run this** (after 25) |
+| 27 | `27_store.sql` | RevMate Store (products, suppliers, orders) + new notification kinds | **Run this** (after 26) |
+| 28 | `28_auctions.sql` | Auctions on Buy & Sell (bids, hidden reserve, anti-sniping) | **Run this** (after 27) |
+| 29 | `29_feed_and_badges.sql` | Fresher For You feed (seen posts) + badges | **Run this** (after 28) |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 
@@ -19,7 +22,7 @@ Already applied (in `applied/`): 1–4 on 27 Sep 2026, 5–12 on 28 Sep 2026,
 ## Two ways to run them
 
 **Easiest — ask Lovable.** Open `LOVABLE_PENDING_SQL_PROMPT.md` (in the main
-folder), copy Prompts A–D (launch kit, money, campaigns, diagnosis & shops) and, if you want them, Prompt 1
+folder), copy Prompts A–G (launch kit, money, campaigns, diagnosis & shops, store, auctions, feed & badges) and, if you want them, Prompt 1
 (phone notifications), and paste each into Lovable.
 
 **Or run them yourself** in the Supabase SQL editor (Lovable Cloud → Database
@@ -46,3 +49,6 @@ File 23 is a copy of `drizzle/migrations/0063_launch_kit.sql` with a short heade
 File 24 is a copy of `drizzle/migrations/0064_money.sql` with a short header added.
 File 25 is a copy of `drizzle/migrations/0065_campaigns.sql` with a short header added.
 File 26 is a copy of `drizzle/migrations/0066_diagnosis_and_shops.sql` with a short header added.
+File 27 is a copy of `drizzle/migrations/0067_store.sql` with a short header added.
+File 28 is a copy of `drizzle/migrations/0068_auctions.sql` with a short header added.
+File 29 is a copy of `drizzle/migrations/0069_feed_and_badges.sql` with a short header added.

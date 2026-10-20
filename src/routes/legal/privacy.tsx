@@ -18,7 +18,7 @@ function PrivacyPage() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="19 October 2026"
+      updated="20 October 2026"
       intro={
         <p>
           This policy explains what personal information RevMate collects, why, who we share it with
@@ -115,6 +115,21 @@ function PrivacyPage() {
             <strong>TikTok Pixel:</strong> only if you allow ad cookies, TikTok receives information
             about your visit (such as pages viewed and that you signed up) to measure our ads. You
             can withdraw this at any time in Settings → Privacy or the Cookie policy.
+          </li>
+          <li>
+            <strong>Store orders:</strong> your name, delivery address, phone number, email and what
+            you ordered, so we can deliver it. We share the delivery details with the supplier,
+            partner or courier sending your order, and keep order records for six years as tax law
+            requires.
+          </li>
+          <li>
+            <strong>Auctions:</strong> the bids you place. Other members see bids as "Bidder 1, 2…",
+            never your name. When an auction ends, the winner and seller can see each other's
+            username so they can arrange the sale.
+          </li>
+          <li>
+            <strong>Feed:</strong> which posts you've already seen in your feed, for 30 days, so we
+            can show you something new each time. It's never shown to anyone.
           </li>
           <li>
             <strong>Deals:</strong> when you tap a deal we count the click, without recording who

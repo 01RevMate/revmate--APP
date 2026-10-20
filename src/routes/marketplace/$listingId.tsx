@@ -75,6 +75,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { BoostListingCard } from "@/components/BoostListingCard";
+import { AuctionPanel } from "@/components/AuctionPanel";
+import { isAuction } from "@/lib/auctions";
 import { usePaidReturn } from "@/hooks/usePaidReturn";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
@@ -447,7 +449,13 @@ function ListingDetailPage() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="text-right">
-            <PriceTiles price={listing.price} />
+            <PriceTiles
+              price={
+                isAuction(listing) && listing.current_bid != null
+                  ? Number(listing.current_bid)
+                  : listing.price
+              }
+            />
             {hasRecentPriceDrop(listing) && (
               <p className="mt-1 text-sm">
                 <span className="text-muted-foreground line-through">
@@ -518,6 +526,7 @@ function ListingDetailPage() {
         </div>
       )}
       {isOwner && <AdvertStrengthCard listing={asMarket} />}
+      {isAuction(listing) && <AuctionPanel listing={listing} isOwner={isOwner} />}
       {isOwner && <BoostListingCard listingId={listing.id} status={listing.status} />}
       {isOwner && isFeatured(listing) && (
         <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-amber-600">

@@ -157,6 +157,8 @@ export async function createListing(input: {
   specs?: Partial<ListingSpecs> | undefined;
   /** Parts details, location, running costs, offers (0051); only once that SQL has run. */
   extras?: ListingExtras | undefined;
+  /** Auction columns (0068), from auctionInsert(); only once that SQL has run. */
+  auction?: Record<string, unknown> | undefined;
 }): Promise<string> {
   const { data, error } = await supabase
     .from("listings")
@@ -177,6 +179,7 @@ export async function createListing(input: {
       ...(input.locationArea?.trim() ? { location_area: input.locationArea.trim() } : {}),
       ...(input.specs ?? {}),
       ...(input.extras ?? {}),
+      ...((input.auction ?? {}) as object),
     })
     .select("id")
     .single();

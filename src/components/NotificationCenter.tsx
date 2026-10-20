@@ -30,10 +30,14 @@ import {
   BadgePoundSterling,
   BellRing,
   Star,
+  Package,
+  Gavel,
+  Award,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { settleDueAuctions } from "@/lib/auctions";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { useSocialFeatures } from "@/lib/features";
@@ -181,6 +185,16 @@ function notificationDetails(notification: NotificationWithContext, actorLabel?:
       return { Icon: Star, text: notification.message ?? "How was your purchase? Leave a review" };
     case "resolve_prompt":
       return { Icon: Stethoscope, text: notification.message ?? "Did you fix your car problem?" };
+    case "order_update":
+      return { Icon: Package, text: notification.message ?? "Your order has been updated" };
+    case "auction_bid":
+    case "auction_outbid":
+    case "auction_ended":
+      return { Icon: Gavel, text: notification.message ?? "Auction update" };
+    case "auction_won":
+      return { Icon: Trophy, text: notification.message ?? "You won an auction!" };
+    case "badge":
+      return { Icon: Award, text: notification.message ?? "You earned a new badge" };
     default:
       return { Icon: Bell, text: "You have a new RevMate notification" };
   }
@@ -225,6 +239,8 @@ export function NotificationCenter() {
     if (!user) return;
     void supabase.rpc("send_my_car_reminders").then(() => undefined);
     void supabase.rpc("send_my_resolve_prompts").then(() => undefined);
+    // Close any finished auctions (0068) and tell winners and sellers.
+    settleDueAuctions();
   }, [user]);
   useEffect(() => {
     if (!user) return;

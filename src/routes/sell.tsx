@@ -41,6 +41,8 @@ import {
 import { useMyPlace } from "@/lib/myArea";
 import { fetchGarageFill, mergeEmpty } from "@/lib/garageAutofill";
 import { AutoFilledNote } from "@/components/AutoFilledNote";
+import { AuctionChoiceFields } from "@/components/AuctionFields";
+import { auctionInsert, setReserve, useAuctionsFeature, type AuctionChoice } from "@/lib/auctions";
 
 /** Starts the advert's location from the member's private area (they can change it). */
 function usePrefillPlace(
@@ -226,6 +228,13 @@ function SellCarForm({
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [price, setPrice] = useState("");
+  const auctionsOn = useAuctionsFeature();
+  const [auctionChoice, setAuctionChoice] = useState<AuctionChoice>({
+    format: "fixed",
+    days: 7,
+    reserve: "",
+  });
+  const asAuction = auctionsOn && auctionChoice.format === "auction";
   const [mileage, setMileage] = useState("");
   const [headline, setHeadline] = useState("");
   const [area, setArea] = useState("");
@@ -346,6 +355,14 @@ function SellCarForm({
       toast.error(`A listing can have up to ${MAX_CAR_LISTING_PHOTOS} photos.`);
       return;
     }
+    if (asAuction && !(Number(price) >= 1)) {
+      toast.error("Set a starting price for your auction.");
+      return;
+    }
+    if (asAuction && auctionChoice.reserve && Number(auctionChoice.reserve) < Number(price)) {
+      toast.error("The reserve must be at least the starting price.");
+      return;
+    }
     savingRef.current = true;
     setSaving(true);
     try {
@@ -360,6 +377,7 @@ function SellCarForm({
         price: price ? Number(price) : null,
         mileage: mileage ? Number(mileage) : null,
         photos: allPhotos,
+        auction: asAuction ? auctionInsert(auctionChoice, Number(price)) : undefined,
         headline: headline.trim() || null,
         locationArea: market ? area : null,
         specs: detailsOn ? specs : undefined,
@@ -373,6 +391,11 @@ function SellCarForm({
             }
           : undefined,
       });
+      if (asAuction && auctionChoice.reserve) {
+        await setReserve(listingId, Number(auctionChoice.reserve)).catch(() =>
+          toast.error("Listed, but the reserve couldn't be saved. Set it from your listing."),
+        );
+      }
       if (pushToFeed) {
         try {
           const postId = await createPost({
@@ -489,14 +512,15 @@ function SellCarForm({
           )}
           {market && <AreaField value={area} onChange={setArea} />}
 
+          {auctionsOn && <AuctionChoiceFields value={auctionChoice} onChange={setAuctionChoice} />}
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Price (£)">
+            <Field label={asAuction ? "Starting price (£)" : "Price (£)"}>
               <input
                 type="number"
                 min="0"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                placeholder="Blank = POA"
+                placeholder={asAuction ? "e.g. 1000" : "Blank = POA"}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               />
             </Field>
@@ -681,6 +705,13 @@ function SellSomethingElseForm({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const auctionsOn = useAuctionsFeature();
+  const [auctionChoice, setAuctionChoice] = useState<AuctionChoice>({
+    format: "fixed",
+    days: 7,
+    reserve: "",
+  });
+  const asAuction = auctionsOn && auctionChoice.format === "auction";
   const [saving, setSaving] = useState(false);
   const [area, setArea] = useState("");
   const market = useMarketplaceFeatures();
@@ -725,9 +756,17 @@ function SellSomethingElseForm({
       toast.error("Choose collection, postage or both.");
       return;
     }
+    if (asAuction && !(Number(price) >= 1)) {
+      toast.error("Set a starting price for your auction.");
+      return;
+    }
+    if (asAuction && auctionChoice.reserve && Number(auctionChoice.reserve) < Number(price)) {
+      toast.error("The reserve must be at least the starting price.");
+      return;
+    }
     setSaving(true);
     try {
-      await createListing({
+      const partListingId = await createListing({
         userId,
         carId,
         showCarStats: false,
@@ -736,6 +775,7 @@ function SellSomethingElseForm({
         description,
         price: price ? Number(price) : null,
         photos,
+        auction: asAuction ? auctionInsert(auctionChoice, Number(price)) : undefined,
         locationArea: market ? area : null,
         extras: upgrade
           ? {
@@ -747,7 +787,12 @@ function SellSomethingElseForm({
             }
           : undefined,
       });
-      toast.success("Listing created");
+      if (asAuction && auctionChoice.reserve) {
+        await setReserve(partListingId, Number(auctionChoice.reserve)).catch(() =>
+          toast.error("Listed, but the reserve couldn't be saved. Set it from your listing."),
+        );
+      }
+      toast.success(asAuction ? "Auction started" : "Listing created");
       navigate({ to: "/marketplace" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't create listing");
@@ -830,7 +875,8 @@ function SellSomethingElseForm({
         )}
         {market && <AreaField value={area} onChange={setArea} />}
 
-        <Field label="Price (£)">
+        {auctionsOn && <AuctionChoiceFields value={auctionChoice} onChange={setAuctionChoice} />}
+        <Field label={asAuction ? "Starting price (£)" : "Price (£)"}>
           <input
             type="number"
             min="0"

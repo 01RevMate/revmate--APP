@@ -24,6 +24,24 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.30.0",
+    date: "2026-10-20",
+    title: "RevMate Store, auctions and a fresher feed",
+    status: "needs_database_update",
+    highlights: [
+      "RevMate Store: car care, parts and accessories delivered to your door. Add to basket, pay securely and track your order in My orders.",
+      "Auctions on Buy & Sell: sell your car or parts to the highest bidder, with an optional secret reserve. Late bids add 2 minutes, so no sniping.",
+      "Your feed is fresh every time you open it: posts you've already seen make way for new ones, and new members' first posts get a boost.",
+      "Collect badges for posting, streaks, meets, helping others, Car of the Week and more. They show on your profile.",
+    ],
+    fixes: ["Terms and privacy policy updated for the Store, auctions and the feed."],
+    requiredSql: [
+      "drizzle/migrations/0067_store.sql",
+      "drizzle/migrations/0068_auctions.sql",
+      "drizzle/migrations/0069_feed_and_badges.sql",
+    ],
+  },
+  {
     version: "1.29.0",
     date: "2026-10-20",
     title: "Fix a problem, step by step — and Shops",

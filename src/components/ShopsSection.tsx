@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Plus, ShoppingBag, Truck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { SHOP_CATEGORIES, useShopCount } from "@/lib/shops";
+import { useStoreOpen } from "@/lib/store";
 
 /**
  * Essentials → Shop: one row of categories into the Shops directory. Shown
@@ -9,6 +10,34 @@ import { SHOP_CATEGORIES, useShopCount } from "@/lib/shops";
  * "list your shop" invite so the page never shows an empty section.
  */
 export function ShopsSection() {
+  const storeOpen = useStoreOpen();
+  return (
+    <>
+      {storeOpen && <StoreBanner />}
+      <IndependentShops />
+    </>
+  );
+}
+
+/** The RevMate Store: things RevMate sells and delivers. */
+function StoreBanner() {
+  return (
+    <Link
+      to="/store"
+      className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-neutral-900 to-neutral-700 p-4 text-white"
+    >
+      <ShoppingBag className="size-8 shrink-0" />
+      <span className="min-w-0 flex-1">
+        <span className="block font-bold">RevMate Store</span>
+        <span className="flex items-center gap-1 text-sm text-white/80">
+          <Truck className="size-3.5" /> Car care, parts & accessories delivered
+        </span>
+      </span>
+    </Link>
+  );
+}
+
+function IndependentShops() {
   const count = useShopCount();
   const { user } = useAuth();
   if (count === null) return null;
@@ -30,7 +59,7 @@ export function ShopsSection() {
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-between px-1">
-        <h2 className="text-lg font-bold">Shop</h2>
+        <h2 className="text-lg font-bold">Independent shops</h2>
         <Link to="/shops" className="text-sm font-medium text-primary">
           All shops
         </Link>

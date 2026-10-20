@@ -18,7 +18,7 @@ function TermsPage() {
   return (
     <LegalPage
       title="Terms of Service"
-      updated="19 October 2026"
+      updated="20 October 2026"
       intro={
         <p>
           These terms are the agreement between you and {operatorValue(OPERATOR.name)} ("RevMate",
@@ -108,6 +108,16 @@ function TermsPage() {
             Sponsored partner offers are always labelled "Sponsored". Your contract for those is
             with the partner, not RevMate.
           </li>
+          <li>
+            <strong>Auctions.</strong> Sellers can list a car or part as an auction with a starting
+            price, an end time and an optional reserve. A bid is a commitment to buy if you win and
+            the item is as described, and bids can't be withdrawn. A bid in the last two minutes
+            extends the auction by two minutes. If the reserve isn't met there's no sale. Once there
+            are bids, the seller can't change the terms or end the auction early. The winner and the
+            seller arrange viewing, payment and collection between themselves; the sale is between
+            them, not with RevMate. Don't bid on your own items or use another account to push the
+            price up (shill bidding); we'll remove accounts that do.
+          </li>
         </ul>
       </section>
 
@@ -170,6 +180,17 @@ function TermsPage() {
             <strong>Deals</strong> are adverts for other companies and are labelled "Ad". We may
             earn a commission if you buy, at no extra cost to you. Your purchase is with that
             company, not RevMate.
+          </li>
+          <li>
+            <strong>RevMate Store.</strong> Items in the RevMate Store are sold by RevMate and sent
+            either by us, a UK partner or a supplier on our behalf, to UK addresses only. Delivery
+            times shown are estimates. You can cancel any order within 14 days of receiving it for a
+            full refund of the item price and standard delivery (tell us within 14 days, then send
+            it back within another 14 days; you pay return postage unless it's faulty or not as
+            described). If something is faulty you have the right to a refund within 30 days, and to
+            a repair or replacement after that, under the Consumer Rights Act 2015. We refund within
+            14 days of getting the item back. Check parts fit your car before fitting them; fitted
+            or used items can only be returned if faulty.
           </li>
           <li>
             <strong>Shops</strong> are independent sellers. When you buy from one you buy on their

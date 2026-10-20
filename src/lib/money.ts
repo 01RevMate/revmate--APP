@@ -20,6 +20,9 @@ export type MoneySettings = {
   android_fingerprint: string;
   /** AI diagnosis (0066): admin switch in Admin → Shops & AI. */
   ai_diagnosis_enabled: boolean;
+  /** RevMate Store (0067): switched on in Admin → Store. */
+  store_enabled: boolean;
+  store_free_delivery_over: number;
 };
 
 /** App settings, or null until the money SQL has run. */
@@ -38,6 +41,8 @@ export function useMoneySettings(): MoneySettings | null {
         android_package: map.get("android_package") ?? "",
         android_fingerprint: map.get("android_fingerprint") ?? "",
         ai_diagnosis_enabled: map.get("ai_diagnosis_enabled") === "true",
+        store_enabled: map.get("store_enabled") === "true",
+        store_free_delivery_over: Number(map.get("store_free_delivery_over") ?? 0) || 0,
       };
     },
     staleTime: 5 * 60_000,

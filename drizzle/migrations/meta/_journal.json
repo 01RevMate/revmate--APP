@@ -470,6 +470,27 @@
       "when": 1792455610692,
       "tag": "0066_diagnosis_and_shops",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1792456907113,
+      "tag": "0067_store",
+      "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1792456907113,
+      "tag": "0068_auctions",
+      "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1792456907113,
+      "tag": "0069_feed_and_badges",
+      "breakpoints": true
     }
   ]
 }

@@ -18,6 +18,7 @@ import {
   Rocket,
   PoundSterling,
   TrendingUp,
+  ShoppingCart as ShoppingCartIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,6 +51,7 @@ import { AdminLaunch } from "@/components/AdminLaunch";
 import { AdminMoney } from "@/components/AdminMoney";
 import { AdminMarketing } from "@/components/AdminMarketing";
 import { AdminShopsAi } from "@/components/AdminShopsAi";
+import { AdminStore } from "@/components/AdminStore";
 import { useMoneyFeature } from "@/lib/money";
 import { useLaunchKitFeature } from "@/lib/launch";
 import { useBusinessesFeature } from "@/lib/businesses";
@@ -100,6 +102,7 @@ type AdminSection =
   | "money"
   | "marketing"
   | "shops"
+  | "store"
   | "reports"
   | "people"
   | "protect"
@@ -331,6 +334,7 @@ function AdminPage() {
             ...(launchOn ? ([["launch", "Launch", Rocket]] as const) : []),
             ...(moneyOn ? ([["money", "Money", PoundSterling]] as const) : []),
             ...(moneyOn ? ([["marketing", "Marketing", TrendingUp]] as const) : []),
+            ...(moneyOn ? ([["store", "Store", ShoppingCartIcon]] as const) : []),
             ...(moneyOn ? ([["shops", "Shops & AI", Store]] as const) : []),
             ["reports", "Reports", FileWarning],
             ["people", "People", UserCog],
@@ -361,6 +365,7 @@ function AdminPage() {
       {section === "launch" && launchOn && <AdminLaunch />}
       {section === "money" && moneyOn && <AdminMoney />}
       {section === "marketing" && moneyOn && <AdminMarketing />}
+      {section === "store" && moneyOn && <AdminStore />}
       {section === "shops" && moneyOn && <AdminShopsAi />}
 
       {section === "reports" && (

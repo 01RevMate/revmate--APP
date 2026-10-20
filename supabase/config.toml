@@ -18,3 +18,7 @@ verify_jwt = true
 # AI step of "Fix a problem" — signed-in members only.
 [functions.diagnose]
 verify_jwt = true
+
+# RevMate Store checkout — signed-in members only.
+[functions.store-checkout]
+verify_jwt = true

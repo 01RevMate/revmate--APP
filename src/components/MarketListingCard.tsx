@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNowStrict } from "date-fns";
-import { Camera, Eye, Heart, MapPin, Star, TrendingDown } from "lucide-react";
+import { Camera, Eye, Gavel, Heart, MapPin, Star, TrendingDown } from "lucide-react";
 import {
   formatPrice,
   hasRecentPriceDrop,
@@ -12,6 +12,7 @@ import { isAutomatic } from "@/lib/vehicleSpecs";
 import { PART_CATEGORY_LABELS, type MyCar, type PriceGuide } from "@/lib/marketDeals";
 import { PriceGuideBadge } from "@/components/PriceGuideBadge";
 import { roughMiles } from "@/lib/myArea";
+import { auctionEnded, isAuction, timeLeft } from "@/lib/auctions";
 
 /**
  * A marketplace tile built to be scanned fast: photo first, price as the
@@ -92,6 +93,14 @@ export function MarketListingCard({
           </div>
         )}
         <div className="absolute left-1.5 top-1.5 flex flex-col items-start gap-1">
+          {isAuction(listing) && listing.auction_ends_at && (
+            <Badge className="bg-violet-600 text-white">
+              <Gavel className="size-2.5" />{" "}
+              {auctionEnded(listing)
+                ? "Auction ended"
+                : `${listing.bid_count ?? 0} bid${listing.bid_count === 1 ? "" : "s"} · ${timeLeft(listing.auction_ends_at)}`}
+            </Badge>
+          )}
           {featured && (
             <Badge className="bg-amber-400 text-amber-950">
               <Star className="size-2.5" fill="currentColor" /> Featured

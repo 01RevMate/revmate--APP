@@ -29,6 +29,7 @@ import { PostCardSkeleton } from "@/components/PostCardSkeleton";
 import { FeedScopeBar, type FeedScope } from "@/components/FeedScopeBar";
 import { CategoryFilterBar, type CategoryFilter } from "@/components/CategoryFilterBar";
 import { useAdFree } from "@/lib/money";
+import { useSeenTracker } from "@/lib/impressions";
 
 export const Route = createFileRoute("/")({
   head: () =>
@@ -172,6 +173,8 @@ function Home() {
   // member's area and cars by the database.
   const businessesOn = useBusinessesFeature();
   const adFree = useAdFree();
+  // Posts seen in the feed sink next time, so every open feels fresh (0069).
+  const seenRef = useSeenTracker(!!user);
   const { data: adsData } = useQuery({
     queryKey: ["ads", "feed", user?.id],
     queryFn: () => fetchAdsForMe("feed"),
@@ -342,13 +345,14 @@ function Home() {
                       liked={newsLikes?.has(item.news.id) ?? false}
                     />
                   ) : (
-                    <PostCard
-                      key={item.post.id}
-                      post={item.post}
-                      liked={likedIds?.has(item.post.id) ?? false}
-                      onDeleted={refreshFeed}
-                      immersive
-                    />
+                    <div key={item.post.id} ref={seenRef} data-post-id={item.post.id}>
+                      <PostCard
+                        post={item.post}
+                        liked={likedIds?.has(item.post.id) ?? false}
+                        onDeleted={refreshFeed}
+                        immersive
+                      />
+                    </div>
                   ),
                 )}
                 {hasNextPage && (

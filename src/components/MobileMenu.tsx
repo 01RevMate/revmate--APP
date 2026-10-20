@@ -6,6 +6,7 @@ import { useLaunchKitFeature } from "@/lib/launch";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { useMoneySettings } from "@/lib/money";
 import { useShopCount } from "@/lib/shops";
+import { useStoreOpen } from "@/lib/store";
 import {
   Menu,
   Home,
@@ -26,6 +27,8 @@ import {
   Gem,
   Shirt,
   Store,
+  ShoppingCart,
+  Package,
 } from "lucide-react";
 import { isAppInstalled } from "@/lib/pwaInstall";
 import { openInstallPrompt } from "@/components/InstallAppPrompt";
@@ -86,6 +89,7 @@ export function MobileMenu() {
   const feedbackOn = useLaunchKitFeature();
   const money = useMoneySettings();
   const shopCount = useShopCount();
+  const storeOpen = useStoreOpen();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [showInstall, setShowInstall] = useState(false);
@@ -119,6 +123,18 @@ export function MobileMenu() {
           <MenuLink to="/cars" icon={Car} label="Browse Cars" onNavigate={close} />
           <MenuLink to="/essentials" icon={Wrench} label="Essentials" onNavigate={close} />
           <MenuLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" onNavigate={close} />
+          {storeOpen && (
+            <MenuLink to="/store" icon={ShoppingCart} label="RevMate Store" onNavigate={close} />
+          )}
+          {storeOpen && (
+            <MenuLink
+              to="/orders"
+              icon={Package}
+              label="My orders"
+              requireAuth
+              onNavigate={close}
+            />
+          )}
           {(shopCount ?? 0) > 0 && (
             <MenuLink to="/shops" icon={Store} label="Shops" onNavigate={close} />
           )}
