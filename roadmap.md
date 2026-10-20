@@ -9,8 +9,8 @@
 - Created @MiaAMG with her Mercedes A45, three posts, replies, car likes, and follows
 
 ## Open
-- [ ] Member-owned business creation and management with contact details and logo
-- [ ] Clearly labelled demo business with images and authenticated demo activity using the new tools
+- [x] Member-owned business creation and management with contact details and logo
+- [x] Clearly labelled demo business with images and authenticated demo activity using the new tools
 - None (revmate.app dropped by user — not owned; revmate.co.uk + www already live, primary confirmed)
 - [ ] Broader SEO push: discoverability for EV chargers, fuel prices, posts, marketplace, Google Images, backlinks
 - [x] Google Search Console setup (verify + submit sitemap)
