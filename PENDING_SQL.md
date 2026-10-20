@@ -11,23 +11,7 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
-### 1. Business profiles (photos, hours, replies, more sectors)
-
-- File: `drizzle/migrations/0070_business_profiles.sql` (`sql-to-run/30_business_profiles.sql`).
-- Added: 2026-10-20
-- Needed by: photo galleries on business pages (the 5-photo grid, Photos
-  tab), photos on reviews, owner replies, opening hours / "Open now",
-  address, email and services, and the new sectors (franchise, prestige, van
-  and motorbike dealers, specialists, windscreens, wraps, wheel refurb,
-  breakers, hire, storage, driving schools and more). Until it runs, business
-  pages work as before without these.
-- Adds `business_photos` (business photos by admins/owners, customer photos
-  only on the customer's own review, max 5 per review, RevMate storage
-  only), `address`, `email`, `opening_hours`, `services` on `businesses`, an
-  owner edit policy (owners can't change name, verified, status, owner or
-  Business Pro), `owner_reply` on reviews and `reply_to_review()`.
-
-### 2. Phone push notifications (optional, needs a few setup steps)
+### 1. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27
@@ -54,6 +38,11 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
   (Share → Add to Home Screen) and opened from there.
 
 ## Applied
+
+- 2026-10-20: step 30 business profiles applied exactly as committed as
+  `drizzle/migrations/0070_apply_business_profiles_step_30.sql`. Types
+  regenerated; `SELECT count(*) FROM public.business_photos;` returned 0.
+  Original moved unchanged to `sql-to-run/applied/30_business_profiles.sql`.
 
 - 2026-10-20: steps 23–29 run together with the master Lovable prompt —
   launch kit (0063), money (0064), campaigns (0065), diagnosis & shops (0066),

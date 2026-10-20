@@ -8,7 +8,8 @@ import { CONDITION_LABELS, fetchSellerStats } from "@/lib/marketDeals";
 import { formatPrice } from "@/lib/marketplace";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
-type SummaryListing = AuctionFields & {
+type SummaryListing = Omit<AuctionFields, "sale_format"> & {
+  sale_format?: string;
   id: string;
   user_id: string;
   type: string;
@@ -51,7 +52,7 @@ export function ListingSummary({
   onOffer?: (() => void) | undefined;
 }) {
   const auction = listing.sale_format === "auction";
-  const ended = auction && auctionEnded(listing);
+  const ended = auction && auctionEnded({ auction_ends_at: listing.auction_ends_at ?? null });
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!auction || ended) return;

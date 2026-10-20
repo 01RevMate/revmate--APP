@@ -491,6 +491,13 @@
       "when": 1792456907113,
       "tag": "0069_feed_and_badges",
       "breakpoints": true
+    },
+    {
+      "idx": 70,
+      "version": "7",
+      "when": 1792494134483,
+      "tag": "0070_apply_business_profiles_step_30",
+      "breakpoints": true
     }
   ]
 }
