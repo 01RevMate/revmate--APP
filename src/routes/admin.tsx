@@ -19,6 +19,9 @@ import {
   PoundSterling,
   TrendingUp,
   ShoppingCart as ShoppingCartIcon,
+  ArrowLeft,
+  ChevronRight,
+  type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -94,25 +97,40 @@ export const Route = createFileRoute("/admin")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): { section?: AdminSection } =>
+    typeof search["section"] === "string" &&
+    (ADMIN_SECTIONS as readonly string[]).includes(search["section"])
+      ? { section: search["section"] as AdminSection }
+      : {},
   component: AdminAccess,
 });
 
-type AdminSection =
-  | "launch"
-  | "money"
-  | "marketing"
-  | "shops"
-  | "store"
-  | "reports"
-  | "people"
-  | "protect"
-  | "updates"
-  | "news"
-  | "businesses"
-  | "ads"
-  | "cars"
-  | "challenges"
-  | "partners";
+const ADMIN_SECTIONS = [
+  "launch",
+  "money",
+  "marketing",
+  "shops",
+  "store",
+  "reports",
+  "people",
+  "protect",
+  "updates",
+  "news",
+  "businesses",
+  "ads",
+  "cars",
+  "challenges",
+  "partners",
+] as const;
+type AdminSection = (typeof ADMIN_SECTIONS)[number];
+
+type AdminTool = {
+  id: AdminSection;
+  group: string;
+  title: string;
+  blurb: string;
+  icon: LucideIcon;
+};
 
 /** Shows the admin tools only once the signed-in account is confirmed as an active admin. */
 function AdminAccess() {
@@ -139,7 +157,7 @@ function AdminAccess() {
 function AdminPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [section, setSection] = useState<AdminSection>("reports");
+  const search = Route.useSearch();
   const announcementsOn = useAnnouncementsFeature();
   const newsOn = useNewsFeature();
   const businessesOn = useBusinessesFeature();
@@ -321,46 +339,203 @@ function AdminPage() {
     }
   }
 
-  return (
-    <main className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Safety & Admin</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Review reports, protect the feed, manage accounts, and maintain car pages.
-      </p>
+  const openReports = (reportsQuery.data ?? []).filter((r) => r.status === "open").length;
+  const tools: AdminTool[] = [
+    {
+      id: "reports",
+      group: "Safety",
+      title: "Reports",
+      blurb: openReports ? `${openReports} open to review` : "Reported posts and accounts",
+      icon: FileWarning,
+    },
+    {
+      id: "people",
+      group: "Safety",
+      title: "People",
+      blurb: "Accounts, bans and badges",
+      icon: UserCog,
+    },
+    {
+      id: "protect",
+      group: "Safety",
+      title: "Protect posts",
+      blurb: "Blocked words and phrases",
+      icon: Shield,
+    },
+    {
+      id: "updates",
+      group: "Content",
+      title: "App updates",
+      blurb: "Announcements and in-app messages",
+      icon: Megaphone,
+    },
+    ...(newsOn
+      ? [
+          {
+            id: "news" as const,
+            group: "Content",
+            title: "RevMate News",
+            blurb: "News posts in the feed",
+            icon: Newspaper,
+          },
+        ]
+      : []),
+    {
+      id: "cars",
+      group: "Content",
+      title: "Car pages",
+      blurb: "Approve, hide and tidy car pages",
+      icon: Car,
+    },
+    ...(engagement
+      ? [
+          {
+            id: "challenges" as const,
+            group: "Content",
+            title: "Challenges",
+            blurb: "Weekly challenges and sponsors",
+            icon: Trophy,
+          },
+        ]
+      : []),
+    ...(moneyOn
+      ? [
+          {
+            id: "money" as const,
+            group: "Money & selling",
+            title: "Money",
+            blurb: "Payments, prices, deals",
+            icon: PoundSterling,
+          },
+          {
+            id: "store" as const,
+            group: "Money & selling",
+            title: "Store",
+            blurb: "Orders, products and suppliers",
+            icon: ShoppingCartIcon,
+          },
+          {
+            id: "shops" as const,
+            group: "Money & selling",
+            title: "Shops & AI",
+            blurb: "Shop applications and AI diagnosis use",
+            icon: Store,
+          },
+        ]
+      : []),
+    ...(businessesOn
+      ? [
+          {
+            id: "businesses" as const,
+            group: "Money & selling",
+            title: "Businesses",
+            blurb: "Local businesses and reviews",
+            icon: Store,
+          },
+          {
+            id: "ads" as const,
+            group: "Money & selling",
+            title: "Ads",
+            blurb: "Business adverts",
+            icon: BadgePercent,
+          },
+        ]
+      : []),
+    ...(market
+      ? [
+          {
+            id: "partners" as const,
+            group: "Money & selling",
+            title: "Partners",
+            blurb: "Marketplace partners and featured listings",
+            icon: Handshake,
+          },
+        ]
+      : []),
+    ...(launchOn
+      ? [
+          {
+            id: "launch" as const,
+            group: "Growth",
+            title: "Launch",
+            blurb: "Sign-ups, feedback and Founding members",
+            icon: Rocket,
+          },
+        ]
+      : []),
+    ...(moneyOn
+      ? [
+          {
+            id: "marketing" as const,
+            group: "Growth",
+            title: "Marketing",
+            blurb: "Campaign links, TikTok Pixel, app stores",
+            icon: TrendingUp,
+          },
+        ]
+      : []),
+  ];
+  const open = tools.find((tool) => tool.id === search.section);
 
-      <nav className="mt-6 flex gap-2 overflow-x-auto border-b border-border pb-3">
-        {(
-          [
-            ...(launchOn ? ([["launch", "Launch", Rocket]] as const) : []),
-            ...(moneyOn ? ([["money", "Money", PoundSterling]] as const) : []),
-            ...(moneyOn ? ([["marketing", "Marketing", TrendingUp]] as const) : []),
-            ...(moneyOn ? ([["store", "Store", ShoppingCartIcon]] as const) : []),
-            ...(moneyOn ? ([["shops", "Shops & AI", Store]] as const) : []),
-            ["reports", "Reports", FileWarning],
-            ["people", "People", UserCog],
-            ["protect", "Protect Posts", Shield],
-            ["updates", "App Updates", Megaphone],
-            ...(newsOn ? ([["news", "RevMate News", Newspaper]] as const) : []),
-            ...(businessesOn
-              ? ([
-                  ["businesses", "Businesses", Store],
-                  ["ads", "Ads", BadgePercent],
-                ] as const)
-              : []),
-            ["cars", "Car pages", Car],
-            ...(engagement ? ([["challenges", "Challenges", Trophy]] as const) : []),
-            ...(market ? ([["partners", "Partners", Handshake]] as const) : []),
-          ] as const
-        ).map(([id, label, Icon]) => (
-          <button
-            key={id}
-            onClick={() => setSection(id)}
-            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${section === id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}
-          >
-            <Icon className="size-4" /> {label}
-          </button>
-        ))}
-      </nav>
+  if (!open) {
+    const groups = [...new Set(tools.map((tool) => tool.group))];
+    return (
+      <main className="mx-auto max-w-4xl px-4 py-5 sm:py-8">
+        <h1 className="text-2xl font-bold tracking-tight">Safety & Admin</h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">Pick a section to open its tools.</p>
+        <div className="grid gap-x-6 md:grid-cols-2">
+          {groups.map((group) => (
+            <section key={group} className="mt-6 min-w-0">
+              <h2 className="px-1 text-sm font-bold text-muted-foreground">{group}</h2>
+              <ul className="mt-2 divide-y divide-border overflow-hidden rounded-2xl bg-card shadow-sm ring-1 ring-border">
+                {tools
+                  .filter((tool) => tool.group === group)
+                  .map((tool) => (
+                    <li key={tool.id}>
+                      <Link
+                        to="/admin"
+                        search={{ section: tool.id }}
+                        className="flex items-center gap-3 px-3 py-3 transition-colors hover:bg-accent"
+                      >
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted">
+                          <tool.icon className="size-5" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-semibold leading-tight">{tool.title}</span>
+                          <span className="block truncate text-sm text-muted-foreground">
+                            {tool.blurb}
+                          </span>
+                        </span>
+                        {tool.id === "reports" && openReports > 0 && (
+                          <span className="flex min-w-6 shrink-0 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-xs font-bold text-white">
+                            {openReports > 99 ? "99+" : openReports}
+                          </span>
+                        )}
+                        <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+                      </Link>
+                    </li>
+                  ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      </main>
+    );
+  }
+
+  const section = open.id;
+  return (
+    <main className="mx-auto max-w-6xl px-4 pb-8">
+      <header className="sticky top-0 z-10 -mx-4 flex items-center gap-2 border-b border-border bg-background/95 px-2 py-2 backdrop-blur sm:static sm:mx-0 sm:mt-6 sm:border-0 sm:px-0">
+        <Link
+          to="/admin"
+          aria-label="Back to admin"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-accent"
+        >
+          <ArrowLeft className="size-5" />
+        </Link>
+        <h1 className="truncate text-lg font-bold">{open.title}</h1>
+      </header>
 
       {section === "launch" && launchOn && <AdminLaunch />}
       {section === "money" && moneyOn && <AdminMoney />}
