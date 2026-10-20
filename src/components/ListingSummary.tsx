@@ -52,7 +52,7 @@ export function ListingSummary({
   onOffer?: (() => void) | undefined;
 }) {
   const auction = listing.sale_format === "auction";
-  const ended = auction && auctionEnded({ auction_ends_at: listing.auction_ends_at });
+  const ended = auction && auctionEnded({ auction_ends_at: listing.auction_ends_at ?? null });
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!auction || ended) return;
