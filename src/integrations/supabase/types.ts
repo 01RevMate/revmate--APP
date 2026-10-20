@@ -131,6 +131,69 @@ export type Database = {
           },
         ]
       }
+      affiliate_deals: {
+        Row: {
+          active: boolean
+          blurb: string
+          clicks: number
+          created_at: string
+          cta: string
+          id: string
+          image_url: string | null
+          partner: string
+          placement: string
+          sort_order: number
+          title: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          blurb?: string
+          clicks?: number
+          created_at?: string
+          cta?: string
+          id?: string
+          image_url?: string | null
+          partner: string
+          placement: string
+          sort_order?: number
+          title: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          blurb?: string
+          clicks?: number
+          created_at?: string
+          cta?: string
+          id?: string
+          image_url?: string | null
+          partner?: string
+          placement?: string
+          sort_order?: number
+          title?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      ai_usage: {
+        Row: {
+          calls: number
+          day: string
+          user_id: string
+        }
+        Insert: {
+          calls?: number
+          day?: string
+          user_id: string
+        }
+        Update: {
+          calls?: number
+          day?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       announcement_views: {
         Row: {
           announcement_id: string
@@ -258,6 +321,54 @@ export type Database = {
           },
         ]
       }
+      app_feedback: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          message: string
+          page: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          message: string
+          page?: string | null
+          status?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          message?: string
+          page?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       approved_vehicle_make_aliases: {
         Row: {
           alias_key: string
@@ -295,6 +406,82 @@ export type Database = {
           sort_order?: number
         }
         Relationships: []
+      }
+      billing_customers: {
+        Row: {
+          created_at: string
+          stripe_customer_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          stripe_customer_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          stripe_customer_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      business_photos: {
+        Row: {
+          business_id: string
+          caption: string
+          created_at: string
+          id: string
+          position: number
+          review_id: string | null
+          source: string
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          business_id: string
+          caption?: string
+          created_at?: string
+          id?: string
+          position?: number
+          review_id?: string | null
+          source?: string
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          business_id?: string
+          caption?: string
+          created_at?: string
+          id?: string
+          position?: number
+          review_id?: string | null
+          source?: string
+          uploaded_by?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_photos_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_photos_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "business_reviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_photos_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       business_reports: {
         Row: {
@@ -347,6 +534,8 @@ export type Database = {
           business_id: string
           created_at: string
           id: string
+          owner_replied_at: string | null
+          owner_reply: string | null
           rating: number
           updated_at: string
           user_id: string
@@ -356,6 +545,8 @@ export type Database = {
           business_id: string
           created_at?: string
           id?: string
+          owner_replied_at?: string | null
+          owner_reply?: string | null
           rating: number
           updated_at?: string
           user_id: string
@@ -365,6 +556,8 @@ export type Database = {
           business_id?: string
           created_at?: string
           id?: string
+          owner_replied_at?: string | null
+          owner_reply?: string | null
           rating?: number
           updated_at?: string
           user_id?: string
@@ -388,57 +581,72 @@ export type Database = {
       }
       businesses: {
         Row: {
+          address: string | null
           category: string
           covers_areas: string[]
           created_at: string
           description: string
+          email: string | null
           id: string
           logo_url: string | null
           name: string
+          opening_hours: Json | null
           owner_user_id: string | null
           phone: string | null
           postcode_district: string | null
+          promoted_until: string | null
           rating_avg: number
           reports_count: number
           reviews_count: number
+          services: string[]
           status: string
           town: string | null
           verified: boolean
           website: string | null
         }
         Insert: {
+          address?: string | null
           category: string
           covers_areas?: string[]
           created_at?: string
           description?: string
+          email?: string | null
           id?: string
           logo_url?: string | null
           name: string
+          opening_hours?: Json | null
           owner_user_id?: string | null
           phone?: string | null
           postcode_district?: string | null
+          promoted_until?: string | null
           rating_avg?: number
           reports_count?: number
           reviews_count?: number
+          services?: string[]
           status?: string
           town?: string | null
           verified?: boolean
           website?: string | null
         }
         Update: {
+          address?: string | null
           category?: string
           covers_areas?: string[]
           created_at?: string
           description?: string
+          email?: string | null
           id?: string
           logo_url?: string | null
           name?: string
+          opening_hours?: Json | null
           owner_user_id?: string | null
           phone?: string | null
           postcode_district?: string | null
+          promoted_until?: string | null
           rating_avg?: number
           reports_count?: number
           reviews_count?: number
+          services?: string[]
           status?: string
           town?: string | null
           verified?: boolean
@@ -453,6 +661,27 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      campaign_visits: {
+        Row: {
+          campaign: string
+          day: string
+          source: string
+          visits: number
+        }
+        Insert: {
+          campaign: string
+          day?: string
+          source: string
+          visits?: number
+        }
+        Update: {
+          campaign?: string
+          day?: string
+          source?: string
+          visits?: number
+        }
+        Relationships: []
       }
       car_battle_votes: {
         Row: {
@@ -783,6 +1012,9 @@ export type Database = {
           description: string
           ends_on: string
           id: string
+          prize: string | null
+          sponsor_name: string | null
+          sponsor_url: string | null
           starts_on: string
           tag: string
           title: string
@@ -794,6 +1026,9 @@ export type Database = {
           description?: string
           ends_on: string
           id?: string
+          prize?: string | null
+          sponsor_name?: string | null
+          sponsor_url?: string | null
           starts_on: string
           tag: string
           title: string
@@ -805,6 +1040,9 @@ export type Database = {
           description?: string
           ends_on?: string
           id?: string
+          prize?: string | null
+          sponsor_name?: string | null
+          sponsor_url?: string | null
           starts_on?: string
           tag?: string
           title?: string
@@ -966,6 +1204,24 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      founding_members: {
+        Row: {
+          joined_at: string
+          number: number
+          user_id: string
+        }
+        Insert: {
+          joined_at?: string
+          number: number
+          user_id: string
+        }
+        Update: {
+          joined_at?: string
+          number?: number
+          user_id?: string
+        }
+        Relationships: []
       }
       friendships: {
         Row: {
@@ -1478,6 +1734,67 @@ export type Database = {
         }
         Relationships: []
       }
+      listing_auctions: {
+        Row: {
+          listing_id: string
+          reserve_price: number | null
+          top_bidder_id: string | null
+          winner_id: string | null
+        }
+        Insert: {
+          listing_id: string
+          reserve_price?: number | null
+          top_bidder_id?: string | null
+          winner_id?: string | null
+        }
+        Update: {
+          listing_id?: string
+          reserve_price?: number | null
+          top_bidder_id?: string | null
+          winner_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_auctions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: true
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_bids: {
+        Row: {
+          amount: number
+          bidder_id: string
+          created_at: string
+          id: string
+          listing_id: string
+        }
+        Insert: {
+          amount: number
+          bidder_id: string
+          created_at?: string
+          id?: string
+          listing_id: string
+        }
+        Update: {
+          amount?: number
+          bidder_id?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_bids_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_offers: {
         Row: {
           amount: number
@@ -1577,6 +1894,9 @@ export type Database = {
       }
       listings: {
         Row: {
+          auction_ends_at: string | null
+          auction_settled_at: string | null
+          bid_count: number
           body_type: string | null
           business_id: string | null
           buyer_id: string | null
@@ -1585,12 +1905,14 @@ export type Database = {
           collection_available: boolean
           colour: string | null
           created_at: string
+          current_bid: number | null
           description: string | null
           doors: number | null
           engine_size_cc: number | null
           featured_until: string | null
           fuel_type: string | null
           garage_car_id: string | null
+          has_reserve: boolean
           headline: string | null
           id: string
           insurance_group: number | null
@@ -1615,11 +1937,14 @@ export type Database = {
           previous_price: number | null
           price: number | null
           price_changed_at: string | null
+          reserve_met: boolean
+          sale_format: string
           saves_count: number
           seats: number | null
           seller_type: string
           service_history: string | null
           show_car_stats: boolean
+          start_price: number | null
           status: string
           title: string
           transmission: string | null
@@ -1631,6 +1956,9 @@ export type Database = {
           year: number | null
         }
         Insert: {
+          auction_ends_at?: string | null
+          auction_settled_at?: string | null
+          bid_count?: number
           body_type?: string | null
           business_id?: string | null
           buyer_id?: string | null
@@ -1639,12 +1967,14 @@ export type Database = {
           collection_available?: boolean
           colour?: string | null
           created_at?: string
+          current_bid?: number | null
           description?: string | null
           doors?: number | null
           engine_size_cc?: number | null
           featured_until?: string | null
           fuel_type?: string | null
           garage_car_id?: string | null
+          has_reserve?: boolean
           headline?: string | null
           id?: string
           insurance_group?: number | null
@@ -1669,11 +1999,14 @@ export type Database = {
           previous_price?: number | null
           price?: number | null
           price_changed_at?: string | null
+          reserve_met?: boolean
+          sale_format?: string
           saves_count?: number
           seats?: number | null
           seller_type?: string
           service_history?: string | null
           show_car_stats?: boolean
+          start_price?: number | null
           status?: string
           title: string
           transmission?: string | null
@@ -1685,6 +2018,9 @@ export type Database = {
           year?: number | null
         }
         Update: {
+          auction_ends_at?: string | null
+          auction_settled_at?: string | null
+          bid_count?: number
           body_type?: string | null
           business_id?: string | null
           buyer_id?: string | null
@@ -1693,12 +2029,14 @@ export type Database = {
           collection_available?: boolean
           colour?: string | null
           created_at?: string
+          current_bid?: number | null
           description?: string | null
           doors?: number | null
           engine_size_cc?: number | null
           featured_until?: string | null
           fuel_type?: string | null
           garage_car_id?: string | null
+          has_reserve?: boolean
           headline?: string | null
           id?: string
           insurance_group?: number | null
@@ -1723,11 +2061,14 @@ export type Database = {
           previous_price?: number | null
           price?: number | null
           price_changed_at?: string | null
+          reserve_met?: boolean
+          sale_format?: string
           saves_count?: number
           seats?: number | null
           seller_type?: string
           service_history?: string | null
           show_car_stats?: boolean
+          start_price?: number | null
           status?: string
           title?: string
           transmission?: string | null
@@ -2124,6 +2465,84 @@ export type Database = {
           },
         ]
       }
+      paid_products: {
+        Row: {
+          active: boolean
+          billing: string
+          code: string
+          description: string
+          feature_days: number | null
+          founding_price_pence: number | null
+          kind: string
+          name: string
+          price_pence: number
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          billing: string
+          code: string
+          description?: string
+          feature_days?: number | null
+          founding_price_pence?: number | null
+          kind: string
+          name: string
+          price_pence: number
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          billing?: string
+          code?: string
+          description?: string
+          feature_days?: number | null
+          founding_price_pence?: number | null
+          kind?: string
+          name?: string
+          price_pence?: number
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount_pence: number
+          created_at: string
+          currency: string
+          id: string
+          product_code: string
+          status: string
+          stripe_payment_intent: string | null
+          stripe_ref: string
+          target_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount_pence: number
+          created_at?: string
+          currency?: string
+          id?: string
+          product_code: string
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_ref: string
+          target_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount_pence?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          product_code?: string
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_ref?: string
+          target_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       post_comments: {
         Row: {
           body: string
@@ -2201,6 +2620,32 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "post_images_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_impressions: {
+        Row: {
+          post_id: string
+          seen_at: string
+          user_id: string
+        }
+        Insert: {
+          post_id: string
+          seen_at?: string
+          user_id: string
+        }
+        Update: {
+          post_id?: string
+          seen_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_impressions_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
@@ -3091,6 +3536,292 @@ export type Database = {
           },
         ]
       }
+      shop_products: {
+        Row: {
+          active: boolean
+          clicks: number
+          created_at: string
+          id: string
+          image_url: string | null
+          price_pence: number | null
+          shop_id: string
+          sort_order: number
+          title: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          clicks?: number
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          price_pence?: number | null
+          shop_id: string
+          sort_order?: number
+          title: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          clicks?: number
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          price_pence?: number | null
+          shop_id?: string
+          sort_order?: number
+          title?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_products_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shops: {
+        Row: {
+          categories: string[]
+          created_at: string
+          description: string
+          id: string
+          logo_url: string | null
+          made_in_uk: boolean
+          name: string
+          owner_user_id: string | null
+          promoted_until: string | null
+          slug: string
+          status: string
+          tagline: string
+          website: string
+        }
+        Insert: {
+          categories?: string[]
+          created_at?: string
+          description?: string
+          id?: string
+          logo_url?: string | null
+          made_in_uk?: boolean
+          name: string
+          owner_user_id?: string | null
+          promoted_until?: string | null
+          slug: string
+          status?: string
+          tagline?: string
+          website: string
+        }
+        Update: {
+          categories?: string[]
+          created_at?: string
+          description?: string
+          id?: string
+          logo_url?: string | null
+          made_in_uk?: boolean
+          name?: string
+          owner_user_id?: string | null
+          promoted_until?: string | null
+          slug?: string
+          status?: string
+          tagline?: string
+          website?: string
+        }
+        Relationships: []
+      }
+      signup_sources: {
+        Row: {
+          campaign: string | null
+          created_at: string
+          landing: string | null
+          medium: string | null
+          source: string | null
+          user_id: string
+        }
+        Insert: {
+          campaign?: string | null
+          created_at?: string
+          landing?: string | null
+          medium?: string | null
+          source?: string | null
+          user_id: string
+        }
+        Update: {
+          campaign?: string | null
+          created_at?: string
+          landing?: string | null
+          medium?: string | null
+          source?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      store_orders: {
+        Row: {
+          admin_note: string
+          created_at: string
+          delivery_pence: number
+          email: string | null
+          id: string
+          items: Json
+          paid_at: string | null
+          shipping_address: Json | null
+          shipping_name: string | null
+          status: string
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
+          subtotal_pence: number
+          total_pence: number
+          tracking_carrier: string | null
+          tracking_number: string | null
+          tracking_url: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_note?: string
+          created_at?: string
+          delivery_pence?: number
+          email?: string | null
+          id?: string
+          items: Json
+          paid_at?: string | null
+          shipping_address?: Json | null
+          shipping_name?: string | null
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          subtotal_pence: number
+          total_pence: number
+          tracking_carrier?: string | null
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_note?: string
+          created_at?: string
+          delivery_pence?: number
+          email?: string | null
+          id?: string
+          items?: Json
+          paid_at?: string | null
+          shipping_address?: Json | null
+          shipping_name?: string | null
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          subtotal_pence?: number
+          total_pence?: number
+          tracking_carrier?: string | null
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      store_products: {
+        Row: {
+          active: boolean
+          brand: string
+          category: string
+          created_at: string
+          delivery_estimate: string
+          delivery_pence: number
+          description: string
+          fits_makes: string[]
+          fulfilment: string
+          id: string
+          images: string[]
+          price_pence: number
+          slug: string
+          sold_count: number
+          sort_order: number
+          stock: number | null
+          title: string
+          was_price_pence: number | null
+        }
+        Insert: {
+          active?: boolean
+          brand?: string
+          category: string
+          created_at?: string
+          delivery_estimate?: string
+          delivery_pence?: number
+          description?: string
+          fits_makes?: string[]
+          fulfilment?: string
+          id?: string
+          images?: string[]
+          price_pence: number
+          slug: string
+          sold_count?: number
+          sort_order?: number
+          stock?: number | null
+          title: string
+          was_price_pence?: number | null
+        }
+        Update: {
+          active?: boolean
+          brand?: string
+          category?: string
+          created_at?: string
+          delivery_estimate?: string
+          delivery_pence?: number
+          description?: string
+          fits_makes?: string[]
+          fulfilment?: string
+          id?: string
+          images?: string[]
+          price_pence?: number
+          slug?: string
+          sold_count?: number
+          sort_order?: number
+          stock?: number | null
+          title?: string
+          was_price_pence?: number | null
+        }
+        Relationships: []
+      }
+      store_suppliers: {
+        Row: {
+          cost_pence: number | null
+          notes: string
+          product_id: string
+          supplier: string
+          supplier_sku: string
+          supplier_url: string | null
+        }
+        Insert: {
+          cost_pence?: number | null
+          notes?: string
+          product_id: string
+          supplier?: string
+          supplier_sku?: string
+          supplier_url?: string | null
+        }
+        Update: {
+          cost_pence?: number | null
+          notes?: string
+          product_id?: string
+          supplier?: string
+          supplier_sku?: string
+          supplier_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_suppliers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "store_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stories: {
         Row: {
           caption: string | null
@@ -3164,6 +3895,60 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          product_code: string
+          status: string
+          stripe_subscription_id: string
+          target_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          product_code: string
+          status: string
+          stripe_subscription_id: string
+          target_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          product_code?: string
+          status?: string
+          stripe_subscription_id?: string
+          target_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge: string
+          earned_at: string
+          user_id: string
+        }
+        Insert: {
+          badge: string
+          earned_at?: string
+          user_id: string
+        }
+        Update: {
+          badge?: string
+          earned_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_blocks: {
         Row: {
@@ -3401,6 +4186,18 @@ export type Database = {
           profile_views_7d: number
         }[]
       }
+      admin_ai_usage: { Args: never; Returns: Json }
+      admin_campaign_stats: {
+        Args: { p_days?: number }
+        Returns: {
+          campaign: string
+          signups: number
+          source: string
+          visits: number
+        }[]
+      }
+      admin_launch_stats: { Args: never; Returns: Json }
+      admin_money_stats: { Args: never; Returns: Json }
       ads_for_me: {
         Args: { for_placement?: string; result_limit?: number }
         Returns: {
@@ -3417,6 +4214,7 @@ export type Database = {
           image_url: string
         }[]
       }
+      ai_take_credit: { Args: { p_user: string }; Returns: string }
       announcement_stats: {
         Args: never
         Returns: {
@@ -3424,6 +4222,49 @@ export type Database = {
           clicked: number
           seen: number
         }[]
+      }
+      auction_bids: {
+        Args: { target_listing: string }
+        Returns: {
+          amount: number
+          bidder_label: string
+          created_at: string
+          is_me: boolean
+        }[]
+      }
+      auction_counterparty: {
+        Args: { target_listing: string }
+        Returns: string
+      }
+      award_my_badges: { Args: never; Returns: string[] }
+      billing_mark_refunded: { Args: { p_intent: string }; Returns: undefined }
+      billing_record_payment: {
+        Args: {
+          p_amount: number
+          p_currency: string
+          p_intent: string
+          p_product: string
+          p_ref: string
+          p_target: string
+          p_user: string
+        }
+        Returns: boolean
+      }
+      billing_save_customer: {
+        Args: { p_customer: string; p_user: string }
+        Returns: undefined
+      }
+      billing_upsert_subscription: {
+        Args: {
+          p_cancel_at_end: boolean
+          p_period_end: string
+          p_product: string
+          p_status: string
+          p_subscription: string
+          p_target: string
+          p_user: string
+        }
+        Returns: undefined
       }
       check_my_rank_changes: { Args: never; Returns: number }
       common_issues: {
@@ -3522,6 +4363,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      founding_spots_left: { Args: never; Returns: number }
       group_entry_eligibility: {
         Args: { gid: string }
         Returns: {
@@ -3530,6 +4372,7 @@ export type Database = {
         }[]
       }
       is_admin: { Args: { check_user_id: string }; Returns: boolean }
+      is_plus_member: { Args: { uid: string }; Returns: boolean }
       join_group: {
         Args: { agreed?: boolean; answers?: Json; gid: string }
         Returns: string
@@ -3562,6 +4405,7 @@ export type Database = {
         Args: { action: string; gid: string; target_user: string }
         Returns: undefined
       }
+      my_auction_status: { Args: { target_listing: string }; Returns: string }
       nearby_meets: {
         Args: { lat: number; lng: number; radius_km?: number }
         Returns: {
@@ -3603,6 +4447,10 @@ export type Database = {
           username: string
           year: number
         }[]
+      }
+      place_bid: {
+        Args: { bid_amount: number; target_listing: string }
+        Returns: Json
       }
       profile_level: {
         Args: { target_user: string }
@@ -3676,6 +4524,10 @@ export type Database = {
         Args: { event: string; target_ad: string }
         Returns: undefined
       }
+      record_campaign_visit: {
+        Args: { p_campaign: string; p_source: string }
+        Returns: undefined
+      }
       record_consents: {
         Args: {
           born: string
@@ -3692,6 +4544,7 @@ export type Database = {
           longest_streak: number
         }[]
       }
+      record_deal_click: { Args: { deal_id: string }; Returns: undefined }
       record_listing_view: {
         Args: { target_listing: string }
         Returns: undefined
@@ -3700,8 +4553,17 @@ export type Database = {
         Args: { target_partner: string }
         Returns: undefined
       }
+      record_post_impressions: {
+        Args: { post_ids: string[] }
+        Returns: undefined
+      }
       record_profile_view: {
         Args: { target_user_id: string }
+        Returns: undefined
+      }
+      record_shop_click: { Args: { product_id: string }; Returns: undefined }
+      reply_to_review: {
+        Args: { p_reply: string; p_review: string }
         Returns: undefined
       }
       respond_to_offer: {
@@ -3784,11 +4646,37 @@ export type Database = {
       send_my_car_reminders: { Args: never; Returns: number }
       send_my_resolve_prompts: { Args: never; Returns: number }
       send_my_weekly_recap: { Args: never; Returns: boolean }
+      set_auction_reserve: {
+        Args: { reserve: number; target_listing: string }
+        Returns: undefined
+      }
       set_listing_buyer: {
         Args: { target_buyer: string; target_listing: string }
         Returns: undefined
       }
       set_marketing_consent: { Args: { opt_in: boolean }; Returns: undefined }
+      settle_due_auctions: { Args: never; Returns: number }
+      store_attach_session: {
+        Args: { p_order: string; p_session: string }
+        Returns: undefined
+      }
+      store_create_order: {
+        Args: { p_items: Json; p_user: string }
+        Returns: Json
+      }
+      store_mark_paid: {
+        Args: {
+          p_address: Json
+          p_amount: number
+          p_email: string
+          p_intent: string
+          p_name: string
+          p_order: string
+          p_session: string
+        }
+        Returns: boolean
+      }
+      store_mark_refunded: { Args: { p_intent: string }; Returns: undefined }
       suggested_profiles: {
         Args: { result_limit?: number }
         Returns: {
