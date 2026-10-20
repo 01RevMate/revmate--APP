@@ -296,6 +296,20 @@ export function EssentialsHome() {
           link={{ to: "/businesses" }}
         />
         <ToolTile
+          title="Cheapest fuel"
+          hint="Today's petrol & diesel prices"
+          icon={Fuel}
+          colour="bg-[#ff9500]"
+          link={{ to: "/fuel-prices" }}
+        />
+        <ToolTile
+          title="EV chargers"
+          hint="Rapid & fast chargers near you"
+          icon={PlugZap}
+          colour="bg-[#30b0c7]"
+          link={{ to: "/ev-chargers" }}
+        />
+        <ToolTile
           title="Sell"
           hint="List a car or part"
           icon={BadgePoundSterling}
@@ -399,26 +413,8 @@ export function EssentialsHome() {
           </div>
         </section>
       )}
-
-      <Group
-        title="On the road"
-        rows={[
-          {
-            title: "Cheapest fuel near you",
-            hint: "Today's petrol and diesel prices, cheapest first",
-            icon: Fuel,
-            colour: "bg-[#ff9500]",
-            link: { to: "/fuel-prices" },
-          },
-          {
-            title: "EV chargers near you",
-            hint: "Map of rapid and fast chargers, plugs and directions",
-            icon: PlugZap,
-            colour: "bg-[#34c759]",
-            link: { to: "/ev-chargers" },
-          },
-        ]}
-      />
     </div>
   );
 }
+
+
