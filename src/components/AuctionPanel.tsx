@@ -24,9 +24,12 @@ const money = (n: number) => `£${n.toLocaleString("en-GB")}`;
 export function AuctionPanel({
   listing,
   isOwner,
+  compact = false,
 }: {
   listing: AuctionFields & { id: string; user_id: string; status: string };
   isOwner: boolean;
+  /** The page already shows the price, bids and time left above. */
+  compact?: boolean;
 }) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
@@ -106,8 +109,8 @@ export function AuctionPanel({
       : "Reserve not met yet";
 
   return (
-    <section className="mt-4 rounded-2xl border-2 border-primary/30 bg-card p-4">
-      <div className="flex items-center justify-between gap-3">
+    <section id="auction-panel" className="mt-4 rounded-2xl border-2 border-primary/30 bg-card p-4">
+      <div className={`flex items-center justify-between gap-3 ${compact ? "hidden" : ""}`}>
         <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <Gavel className="size-4" /> Auction
         </p>
@@ -117,8 +120,8 @@ export function AuctionPanel({
           </p>
         )}
       </div>
-      <div className="mt-2 flex items-end justify-between gap-3">
-        <div>
+      <div className={`flex items-end justify-between gap-3 ${compact ? "" : "mt-2"}`}>
+        <div className={compact ? "hidden" : ""}>
           <p className="text-3xl font-extrabold tabular-nums">
             {money(current ?? Number(listing.start_price ?? 0))}
           </p>
@@ -179,6 +182,7 @@ export function AuctionPanel({
                 placeholder={`${money(next)} or more`}
                 className="min-h-12 flex-1 rounded-xl border border-input bg-background px-3 text-base"
                 aria-label="Your bid in pounds"
+                id="bid-input"
               />
               <button
                 type="button"

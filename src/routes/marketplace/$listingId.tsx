@@ -76,6 +76,7 @@ import {
 } from "@/components/ui/dialog";
 import { BoostListingCard } from "@/components/BoostListingCard";
 import { AuctionPanel } from "@/components/AuctionPanel";
+import { ListingSummary } from "@/components/ListingSummary";
 import { isAuction } from "@/lib/auctions";
 import { usePaidReturn } from "@/hooks/usePaidReturn";
 
@@ -427,80 +428,71 @@ function ListingDetailPage() {
         )}
       </div>
 
-      <ListingGallery photos={listing.photos} title={carName} />
+      <ListingGallery
+        photos={listing.photos}
+        title={carName}
+        watchCount={market ? listing.saves_count : 0}
+        watched={watched}
+        onWatch={market && !isOwner ? () => void toggleWatch() : undefined}
+      />
 
-      <div className="mt-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          {listing.headline && (
-            <p className="text-sm font-semibold text-muted-foreground">{listing.headline}</p>
-          )}
-          <h1 className="text-2xl font-semibold tracking-tight">{carName}</h1>
-          {listing.mileage != null && !listing.year && (
-            <p className="text-sm text-muted-foreground">
-              {listing.mileage.toLocaleString()} miles
+      <ListingSummary
+        listing={listing}
+        title={carName}
+        headline={listing.headline}
+        isOwner={isOwner}
+        priceDropText={
+          hasRecentPriceDrop(listing) ? (
+            <p className="mt-1">
+              <span className="text-muted-foreground line-through">
+                {formatPrice(listing.previous_price)}
+              </span>{" "}
+              <span className="font-bold text-red-600">
+                Save {formatPrice(Number(listing.previous_price) - Number(listing.price))}
+              </span>
             </p>
-          )}
-          {listing.type === "car" && <ListingSpecHighlights specs={listing} />}
-          {fits && !isOwner && (
-            <p className="mt-2 inline-flex items-center rounded-full bg-sky-600 px-3 py-1 text-xs font-bold text-white">
-              Fits your {fits.nickname}
-            </p>
-          )}
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="text-right">
-            <PriceTiles
-              price={
-                isAuction(listing) && listing.current_bid != null
-                  ? Number(listing.current_bid)
-                  : listing.price
+          ) : null
+        }
+        onMessage={openMessageDialog}
+        onBid={() => {
+          if (!user) return openAuthModal("Create a free account to bid.");
+          document
+            .getElementById("auction-panel")
+            ?.scrollIntoView({ behavior: "smooth", block: "center" });
+          window.setTimeout(() => document.getElementById("bid-input")?.focus(), 400);
+        }}
+        onOffer={
+          upgrade
+            ? () => {
+                if (!user) return openAuthModal("Create a free account to make an offer.");
+                const panel = document.getElementById("make-offer");
+                panel?.scrollIntoView({ behavior: "smooth", block: "center" });
+                panel?.querySelector("button")?.click();
               }
-            />
-            {hasRecentPriceDrop(listing) && (
-              <p className="mt-1 text-sm">
-                <span className="text-muted-foreground line-through">
-                  {formatPrice(listing.previous_price)}
-                </span>{" "}
-                <span className="font-bold text-red-600">
-                  Save {formatPrice(Number(listing.previous_price) - Number(listing.price))}
-                </span>
-              </p>
-            )}
-          </div>
-          {market && (
-            <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-              {listing.views_count > 0 && (
-                <span className="flex items-center gap-1">
-                  <Eye className="size-3.5" /> {listing.views_count} views
-                </span>
-              )}
-              {listing.saves_count > 0 && (
-                <span className="flex items-center gap-1">
-                  <Heart className="size-3.5" /> {listing.saves_count} watching
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+            : undefined
+        }
+      />
 
+      {listing.type === "car" && <ListingSpecHighlights specs={listing} />}
+      {fits && !isOwner && (
+        <p className="mt-3 inline-flex items-center rounded-full bg-sky-600 px-3 py-1 text-xs font-bold text-white">
+          Fits your {fits.nickname}
+        </p>
+      )}
       {guide && <PriceGuideBadge guide={guide} />}
 
-      {(market && !isOwner) || listing.type === "car" ? (
-        <div className="mt-3 flex gap-2">
-          {market && !isOwner && (
-            <button
-              type="button"
-              onClick={() => void toggleWatch()}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-lg border py-2.5 text-sm font-semibold transition-colors ${watched ? "border-red-500/40 bg-red-500/10 text-red-600" : "border-input hover:bg-accent"}`}
-            >
-              <Heart className="size-4" fill={watched ? "currentColor" : "none"} />
-              {watched ? "Watching — price-drop alerts on" : "Watch — get price-drop alerts"}
-            </button>
-          )}
-          {listing.type === "car" && <CompareToggle listingId={listing.id} />}
-        </div>
-      ) : null}
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        {market && listing.views_count > 0 && (
+          <span className="flex items-center gap-1">
+            <Eye className="size-3.5" /> {listing.views_count} views
+          </span>
+        )}
+        {listing.type === "car" && (
+          <span className="ml-auto">
+            <CompareToggle listingId={listing.id} />
+          </span>
+        )}
+      </div>
       {market && isAdmin && (
         <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-amber-400/50 bg-amber-400/10 p-2 text-xs">
           <span className="font-semibold">Admin · Featured:</span>
@@ -526,7 +518,7 @@ function ListingDetailPage() {
         </div>
       )}
       {isOwner && <AdvertStrengthCard listing={asMarket} />}
-      {isAuction(listing) && <AuctionPanel listing={listing} isOwner={isOwner} />}
+      {isAuction(listing) && <AuctionPanel listing={listing} isOwner={isOwner} compact />}
       {isOwner && <BoostListingCard listingId={listing.id} status={listing.status} />}
       {isOwner && isFeatured(listing) && (
         <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-amber-600">
@@ -552,9 +544,11 @@ function ListingDetailPage() {
       )}
 
       {listing.description && (
-        <section className="mt-6">
+        <section className="mt-6 rounded-xl border border-border bg-card p-4 sm:p-5">
           <h2 className="text-lg font-semibold">Description</h2>
-          <p className="mt-2 whitespace-pre-wrap text-sm">{listing.description}</p>
+          <p className="mt-3 whitespace-pre-wrap break-words text-[15px] leading-relaxed">
+            {listing.description}
+          </p>
         </section>
       )}
 
@@ -596,25 +590,17 @@ function ListingDetailPage() {
           >
             <Avatar photoUrl={listing.profiles.avatar_url} fallback={listing.profiles.username} />
             <div>
-              <p className="text-xs text-muted-foreground">Listed by</p>
+              <p className="text-xs text-muted-foreground">About the seller</p>
               <p className="text-sm font-medium">{displayUsername(listing.profiles.username)}</p>
             </div>
           </Link>
           {upgrade && <SellerTrust sellerId={listing.user_id} />}
           {!isOwner && listing.status === "active" && (
-            <div className="mt-3 flex gap-2">
-              <button
-                type="button"
-                onClick={openMessageDialog}
-                className="flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                <MessageCircle className="size-4" />
-                Message seller
-              </button>
+            <div className="mt-3">
               <ShareListingButton
                 listingId={listing.id}
                 title={carName}
-                className="flex-1 border border-input hover:bg-accent"
+                className="w-full border border-input hover:bg-accent"
               />
             </div>
           )}
@@ -631,7 +617,7 @@ function ListingDetailPage() {
             />
           )}
           {upgrade && !isOwner && listing.status === "active" && (
-            <div className="mt-3">
+            <div className="mt-3" id="make-offer">
               <OfferPanel
                 listing={listing}
                 userId={user?.id ?? null}
