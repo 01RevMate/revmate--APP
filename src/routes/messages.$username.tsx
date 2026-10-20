@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format, isSameDay } from "date-fns";
+import { format, isSameDay, isSameYear, isToday, isYesterday } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { unreadMessagesKey } from "@/hooks/useUnreadMessages";
 import { toast } from "sonner";
@@ -43,6 +43,12 @@ export const Route = createFileRoute("/messages/$username")({
   },
   component: MessageThreadPage,
 });
+
+function dayLabel(date: Date) {
+  if (isToday(date)) return "Today";
+  if (isYesterday(date)) return "Yesterday";
+  return format(date, isSameYear(date, new Date()) ? "EEE d MMM" : "d MMM yyyy");
+}
 
 function MessageThreadPage() {
   const oldEnough = useOldEnough(AGE_LIMITS.messages);
@@ -130,6 +136,18 @@ function MessageThreadPageContent() {
     viewport.scrollTo({ top: viewport.scrollHeight, behavior: "smooth" });
   }, [messages?.length]);
 
+  // On phones the chat covers the whole screen (app bars hidden), so stop the
+  // page underneath from scrolling while it's open.
+  useEffect(() => {
+    if (!window.matchMedia("(max-width: 767px)").matches) return;
+    const root = document.documentElement;
+    const previous = root.style.overflow;
+    root.style.overflow = "hidden";
+    return () => {
+      root.style.overflow = previous;
+    };
+  }, []);
+
   useEffect(() => {
     const previewUrl = pendingImage?.previewUrl;
     return () => {
@@ -181,27 +199,27 @@ function MessageThreadPageContent() {
     .find((message) => message.sender_id === user?.id)?.id;
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-8rem-env(safe-area-inset-top))] min-h-0 max-w-2xl flex-col overflow-hidden bg-background md:h-[calc(100dvh-4.5rem)] md:border-x md:border-border">
-      <header className="flex shrink-0 items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur">
+    <div className="fixed inset-x-0 top-0 z-50 flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-background md:static md:z-auto md:mx-auto md:h-[calc(100dvh-4.5rem)] md:max-w-2xl md:border-x md:border-border">
+      <header className="flex shrink-0 items-center gap-2 border-b border-border bg-background/95 px-2 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top))] backdrop-blur md:px-4 md:py-3">
         <Link
           to="/messages"
           aria-label="Back to messages"
-          className="flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-accent"
         >
-          <ArrowLeft className="size-5" />
+          <ArrowLeft className="size-6" />
         </Link>
         <Link
           to="/u/$username"
           params={{ username: otherProfile.username }}
-          className="flex min-w-0 items-center gap-3"
+          className="flex min-w-0 flex-1 items-center gap-2.5"
         >
           <Avatar
             photoUrl={otherProfile.avatar_url}
             fallback={otherProfile.username}
-            className="size-11 ring-2 ring-background outline outline-1 outline-border"
+            className="size-10 ring-2 ring-background outline outline-1 outline-border"
           />
           <span className="min-w-0">
-            <span className="block truncate font-semibold">
+            <span className="block truncate text-[15px] font-semibold leading-tight">
               {displayUsernameWithoutAt(otherProfile.username)}
             </span>
             <span className="block text-xs text-muted-foreground">View profile</span>
@@ -211,7 +229,7 @@ function MessageThreadPageContent() {
 
       <div
         ref={messagesViewportRef}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2.5 py-3 sm:px-5"
       >
         {user &&
           messages?.map((message, index) => {
@@ -230,45 +248,43 @@ function MessageThreadPageContent() {
               <div key={message.id}>
                 {startsDay && (
                   <div
-                    className="my-4 flex items-center gap-3"
+                    className="my-3 flex justify-center"
                     aria-label={format(new Date(message.created_at), "PPPP")}
                   >
-                    <span className="h-px flex-1 bg-border" />
-                    <span className="text-[11px] font-medium text-muted-foreground">
-                      {format(new Date(message.created_at), "d MMM yyyy")}
+                    <span className="rounded-full bg-muted px-3 py-1 text-[11px] font-semibold text-muted-foreground">
+                      {dayLabel(new Date(message.created_at))}
                     </span>
-                    <span className="h-px flex-1 bg-border" />
                   </div>
                 )}
                 <div
-                  className={`flex gap-2 ${startsGroup ? "mt-3" : "mt-1"} ${isMine ? "justify-end" : "justify-start"}`}
+                  className={`flex gap-1.5 ${startsGroup ? "mt-2.5" : "mt-0.5"} ${isMine ? "justify-end" : "justify-start"}`}
                 >
                   {!isMine && (
-                    <div className="w-8 shrink-0 self-end">
+                    <div className="w-7 shrink-0 self-end">
                       {endsGroup && (
                         <Avatar
                           photoUrl={message.sender.avatar_url}
                           fallback={message.sender.username}
-                          className="size-8"
+                          className="size-7"
                         />
                       )}
                     </div>
                   )}
                   <div
-                    className={`flex max-w-[78%] flex-col ${isMine ? "items-end" : "items-start"}`}
+                    className={`flex max-w-[80%] flex-col ${isMine ? "items-end" : "items-start"}`}
                   >
                     <div
-                      className={`overflow-hidden px-3 py-2 text-sm shadow-sm ${
+                      className={`overflow-hidden rounded-[1.25rem] px-3.5 py-2 text-[15px] leading-snug ${
                         isMine
-                          ? "rounded-2xl rounded-br-md bg-primary text-primary-foreground"
-                          : "rounded-2xl rounded-bl-md bg-muted text-foreground"
+                          ? `bg-primary text-primary-foreground ${startsGroup ? "" : "rounded-tr-md"} ${endsGroup ? "" : "rounded-br-md"}`
+                          : `bg-muted text-foreground ${startsGroup ? "" : "rounded-tl-md"} ${endsGroup ? "" : "rounded-bl-md"}`
                       }`}
                     >
                       {message.imageUrl && (
                         <button
                           type="button"
                           onClick={() => setOpenImage(message.imageUrl)}
-                          className="-mx-3 -mt-2 mb-2 block max-w-[min(70vw,320px)] overflow-hidden bg-black/5 last:mb-[-0.5rem]"
+                          className="-mx-3.5 -mt-2 mb-2 block max-w-[min(70vw,320px)] overflow-hidden bg-black/5 last:mb-[-0.5rem]"
                           aria-label="Open shared photo"
                         >
                           <img
@@ -283,7 +299,7 @@ function MessageThreadPageContent() {
                       )}
                     </div>
                     {endsGroup && (
-                      <span className="mt-1 flex items-center gap-1 px-1 text-[10px] text-muted-foreground">
+                      <span className="mt-0.5 flex items-center gap-1 px-1 text-[10px] text-muted-foreground">
                         {format(new Date(message.created_at), "HH:mm")}
                         {showReceipt &&
                           (message.read_at ? (
@@ -332,10 +348,10 @@ function MessageThreadPageContent() {
             `Create a free account to message ${displayUsernameWithoutAt(otherProfile.username)}.`,
           )
         }
-        className="shrink-0 border-t border-border bg-background px-3 pb-3 pt-3 md:px-4"
+        className="shrink-0 border-t border-border bg-background px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 md:px-4 md:pb-3 md:pt-3"
       >
         {pendingImage && (
-          <div className="relative mb-3 w-fit overflow-hidden rounded-xl border border-border bg-muted p-1">
+          <div className="relative mb-2 ml-1 w-fit overflow-hidden rounded-xl border border-border bg-muted p-1">
             <img
               src={pendingImage.previewUrl}
               alt="Photo ready to send"
@@ -351,7 +367,7 @@ function MessageThreadPageContent() {
             </button>
           </div>
         )}
-        <div className="flex items-end gap-2">
+        <div className="flex items-end gap-1.5">
           <input
             ref={fileInputRef}
             type="file"
@@ -364,9 +380,9 @@ function MessageThreadPageContent() {
             onClick={() => (user ? fileInputRef.current?.click() : undefined)}
             disabled={sending}
             aria-label="Add a photo"
-            className="flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-50"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full text-primary hover:bg-accent disabled:opacity-50"
           >
-            <ImagePlus className="size-5" />
+            <ImagePlus className="size-6" />
           </button>
           <textarea
             value={body}
@@ -380,13 +396,13 @@ function MessageThreadPageContent() {
             rows={1}
             maxLength={5000}
             placeholder={user ? "Message…" : "Sign in to write a message…"}
-            className="max-h-32 min-h-11 flex-1 resize-none rounded-2xl border border-input bg-muted/50 px-4 py-2.5 text-base outline-none focus:border-primary focus:bg-background"
+            className="max-h-32 min-h-10 min-w-0 flex-1 resize-none rounded-[1.25rem] border border-transparent bg-muted px-4 py-2 text-base leading-6 outline-none focus:border-primary/40"
           />
           <button
             type="submit"
             disabled={user ? sending || (!body.trim() && !pendingImage) : false}
             aria-label="Send message"
-            className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-40"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
           >
             {sending ? <Loader2 className="size-5 animate-spin" /> : <Send className="size-5" />}
           </button>

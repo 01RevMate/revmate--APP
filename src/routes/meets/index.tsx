@@ -127,6 +127,7 @@ function MeetsPage() {
         !myArea.district && (
           <Link
             to="/settings"
+            search={{ section: "privacy" }}
             className="ml-2 inline-flex items-center gap-1 text-xs font-medium text-primary underline"
           >
             <MapPin className="size-3.5" /> Add your area to see how far meets are
@@ -176,7 +177,12 @@ function MeetCard({
       className={`overflow-hidden rounded-lg border border-border bg-card transition-colors hover:bg-accent/40 ${past || meet.cancelled_at ? "opacity-70" : ""}`}
     >
       <div className="relative aspect-[16/9] bg-muted">
-        <img src={meetCoverSrc(meet)} alt={`${meet.title} car meet cover`} loading="lazy" className="size-full object-cover" />
+        <img
+          src={meetCoverSrc(meet)}
+          alt={`${meet.title} car meet cover`}
+          loading="lazy"
+          className="size-full object-cover"
+        />
         <div className="absolute left-2 top-2 rounded-md bg-background/95 px-2 py-1 text-center shadow">
           <p className="text-[10px] font-semibold uppercase text-primary">
             {format(starts, "MMM")}

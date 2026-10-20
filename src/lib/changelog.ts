@@ -24,6 +24,19 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.31.0",
+    date: "2026-10-20",
+    title: "Tidier messages, settings and listings",
+    status: "live",
+    highlights: [
+      "Chats now fill your phone screen, with bigger bubbles, Today/Yesterday labels and a comfier message box.",
+      "Settings are grouped like the big apps: tap a section (Account, Notifications, Privacy…) to open just those options.",
+      "Followers and Following show up to 5 faces, then a +N button opens the full list with Follow back.",
+      "Listings are laid out like the big marketplaces, with the price, bids and buttons up top and the description in its own box.",
+    ],
+    fixes: ["Posts in the feed are split by a single line instead of a double gap."],
+  },
+  {
     version: "1.30.0",
     date: "2026-10-20",
     title: "RevMate Store, auctions and a fresher feed",

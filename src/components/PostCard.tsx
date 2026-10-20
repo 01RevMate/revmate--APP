@@ -437,7 +437,7 @@ export function PostCard({
     <article
       className={
         immersive
-          ? "border-y border-border bg-card p-3 sm:rounded-lg sm:border sm:p-4"
+          ? "bg-card p-3 sm:rounded-lg sm:border sm:border-border sm:p-4"
           : "rounded-lg border border-border bg-card p-4"
       }
     >
@@ -617,7 +617,13 @@ export function PostCard({
       {post.body && (
         <div className="mt-3 text-[15px]">
           <p className="whitespace-pre-wrap">
-            <RichText text={bodyExpanded || !bodyIsLong ? post.body : `${post.body.slice(0, BODY_TRUNCATE_LENGTH)}…`} />
+            <RichText
+              text={
+                bodyExpanded || !bodyIsLong
+                  ? post.body
+                  : `${post.body.slice(0, BODY_TRUNCATE_LENGTH)}…`
+              }
+            />
           </p>
           {bodyIsLong && (
             <button

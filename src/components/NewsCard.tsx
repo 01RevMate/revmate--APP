@@ -67,7 +67,7 @@ export function NewsCard({
   }
 
   return (
-    <article className="border-y border-border bg-card p-3 sm:rounded-lg sm:border sm:p-4">
+    <article className="bg-card p-3 sm:rounded-lg sm:border sm:border-border sm:p-4">
       <header className="flex items-start gap-3">
         <img
           src="/icon-192.png"

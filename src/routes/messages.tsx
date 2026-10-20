@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import { MessageCircle } from "lucide-react";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,6 +31,16 @@ export const Route = createFileRoute("/messages")({
   }),
   component: MessagesRoute,
 });
+
+/** "now", "5m", "3h", "2d", then a date — fits a phone-width row. */
+function shortAgo(date: Date) {
+  const mins = Math.floor((Date.now() - date.getTime()) / 60_000);
+  if (mins < 1) return "now";
+  if (mins < 60) return `${mins}m`;
+  if (mins < 24 * 60) return `${Math.floor(mins / 60)}h`;
+  if (mins < 7 * 24 * 60) return `${Math.floor(mins / 1440)}d`;
+  return format(date, "d MMM");
+}
 
 function MessagesRoute() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
@@ -68,10 +78,10 @@ function MessagesPageContent() {
   }, [queryClient, user]);
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
+    <div className="mx-auto max-w-2xl px-4 py-4 sm:py-10">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Messages</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <h1 className="text-2xl font-bold tracking-tight">Messages</h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">
           Private conversations with other members.
         </p>
       </div>
@@ -106,27 +116,29 @@ function MessagesPageContent() {
         </div>
       )}
 
-      {user && (
-        <ul className="mt-6 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      {user && !!conversations?.length && (
+        <ul className="-mx-4 mt-4 overflow-hidden border-y border-border bg-card sm:mx-0 sm:mt-6 sm:rounded-xl sm:border sm:shadow-sm">
           {conversations?.map((c) => (
             <li key={c.id} className="border-b border-border last:border-b-0">
               <Link
                 to="/messages/$username"
                 params={{ username: c.otherUser.username }}
-                className={`flex items-center gap-3 p-4 transition-colors hover:bg-accent ${c.unreadCount > 0 ? "bg-primary/[0.04]" : ""}`}
+                className={`flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent ${c.unreadCount > 0 ? "bg-primary/[0.04]" : ""}`}
               >
                 <div className="relative">
                   <Avatar
                     photoUrl={c.otherUser.avatar_url}
                     fallback={c.otherUser.username}
-                    className="size-12"
+                    className="size-14"
                   />
                   {c.unreadCount > 0 && (
                     <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-card bg-primary" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className={`text-sm ${c.unreadCount > 0 ? "font-bold" : "font-medium"}`}>
+                  <p
+                    className={`truncate text-[15px] ${c.unreadCount > 0 ? "font-bold" : "font-semibold"}`}
+                  >
                     {displayUsernameWithoutAt(c.otherUser.username)}
                   </p>
                   {c.lastMessage && (
@@ -141,7 +153,7 @@ function MessagesPageContent() {
                 <div className="flex shrink-0 flex-col items-end gap-1.5">
                   {c.lastMessage && (
                     <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(c.lastMessage.created_at), { addSuffix: true })}
+                      {shortAgo(new Date(c.lastMessage.created_at))}
                     </span>
                   )}
                   {c.unreadCount > 0 && (

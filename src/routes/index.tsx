@@ -319,7 +319,8 @@ function Home() {
                   void refreshFeed();
                 }}
               />
-              <div className="mt-4 space-y-1 bg-muted/60 sm:space-y-4 sm:bg-transparent">
+              {/* Phones: one thin line between posts. Wider screens: separate cards. */}
+              <div className="mt-4 divide-y divide-border border-y border-border sm:space-y-4 sm:divide-y-0 sm:border-y-0">
                 {isLoading &&
                   Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} immersive />)}
 

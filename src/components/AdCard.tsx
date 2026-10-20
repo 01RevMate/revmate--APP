@@ -36,10 +36,7 @@ export function AdCard({ ad, preview = false }: { ad: AdForMe; preview?: boolean
   }
 
   return (
-    <article
-      ref={ref}
-      className="border-y border-border bg-card p-3 sm:rounded-lg sm:border sm:p-4"
-    >
+    <article ref={ref} className="bg-card p-3 sm:rounded-lg sm:border sm:border-border sm:p-4">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span className="rounded bg-muted px-1.5 py-0.5 font-semibold uppercase tracking-wide">
           Sponsored
