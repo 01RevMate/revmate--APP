@@ -11,6 +11,8 @@
 
 ## Release history
 
+- Legacy Deno functions with npm imports use a local `deno.json` with `nodeModulesDir: "auto"` so dependency resolution works during preview validation without adding browser dependencies.
+
 `src/lib/changelog.ts` is the app's release history. It powers the App
 updates page (`/legal/updates`) and the machine-readable `/updates.json`.
 Read it to see which version is current and what has shipped. When you ship
