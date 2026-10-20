@@ -413,4 +413,8 @@ export function EssentialsHome() {
           </div>
         </section>
       )}
+    </div>
+  );
+}
+
 
