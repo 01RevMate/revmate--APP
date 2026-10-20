@@ -296,6 +296,20 @@ export function EssentialsHome() {
           link={{ to: "/businesses" }}
         />
         <ToolTile
+          title="Cheapest fuel"
+          hint="Today's petrol & diesel prices"
+          icon={Fuel}
+          colour="bg-[#ff9500]"
+          link={{ to: "/fuel-prices" }}
+        />
+        <ToolTile
+          title="EV chargers"
+          hint="Rapid & fast chargers near you"
+          icon={PlugZap}
+          colour="bg-[#30b0c7]"
+          link={{ to: "/ev-chargers" }}
+        />
+        <ToolTile
           title="Sell"
           hint="List a car or part"
           icon={BadgePoundSterling}
