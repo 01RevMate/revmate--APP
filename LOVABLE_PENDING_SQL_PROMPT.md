@@ -11,6 +11,39 @@ and the optional phone notifications setup.
 
 ---
 
+## Master prompt — steps 23 to 29 in one go
+
+Use this instead of Prompts A–G. The optional phone notifications setup
+(Prompt 1) is separate.
+
+```
+Please run these 7 SQL files on the connected Supabase database, one at a
+time, in this exact order. Run each file exactly as committed in the repo:
+don't edit, shorten or merge them. They're all safe to re-run. If a file
+fails, stop there and tell me the exact error. Don't carry on to the next one.
+
+1. sql-to-run/23_launch_kit.sql (feedback box, launch stats, Founding member badges)
+2. sql-to-run/24_money.sql (paid extras, Plus, deals, sponsors; payments stay switched off)
+3. sql-to-run/25_campaigns.sql (TikTok/ad campaign visits and sign-up sources)
+4. sql-to-run/26_diagnosis_and_shops.sql (AI diagnosis limits and the Shops directory)
+5. sql-to-run/27_store.sql (RevMate Store products, suppliers and orders, plus new notification kinds)
+6. sql-to-run/28_auctions.sql (auctions on Buy & Sell: bids, hidden reserve, anti-sniping)
+7. sql-to-run/29_feed_and_badges.sql (fresher For You feed with seen posts, and badges)
+
+When all 7 have run:
+- Regenerate the Supabase types.
+- Run these checks and show me the results:
+    SELECT public.founding_spots_left();
+    SELECT key, value FROM public.app_settings ORDER BY key;
+    SELECT count(*) FROM public.store_products;
+    SELECT count(*) FROM public.user_badges;
+- Don't change any app code apart from the regenerated types file.
+- Don't deploy edge functions or add Stripe or Anthropic secrets yet. I'll do
+  that separately.
+```
+
+---
+
 ## Prompt A — launch kit (feedback, launch stats, Founding member badges)
 
 ```
