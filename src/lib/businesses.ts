@@ -244,6 +244,21 @@ export async function fetchBusiness(id: string) {
   return data;
 }
 
+export async function fetchMyBusinesses(userId: string) {
+  const { data, error } = await supabase.from("businesses").select("*").eq("owner_user_id", userId).order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function createMyBusiness(fields: Pick<TablesInsert<"businesses">, "name" | "category" | "description" | "town" | "contact_name" | "email" | "phone" | "logo_url">) {
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError || !auth.user) throw new Error("Please sign in to add your business.");
+  const id = crypto.randomUUID();
+  const { error } = await supabase.from("businesses").insert({ ...fields, id, owner_user_id: auth.user.id, verified: false, status: "active" });
+  if (error) throw error;
+  return id;
+}
+
 export async function fetchReviews(businessId: string): Promise<BusinessReview[]> {
   const { data, error } = await supabase
     .from("business_reviews")
@@ -561,6 +576,11 @@ export async function replyToReview(reviewId: string, reply: string) {
 export async function saveBusinessProfile(
   id: string,
   fields: {
+    name: string;
+    category: string;
+    town: string | null;
+    contact_name: string | null;
+    logo_url: string | null;
     description: string;
     phone: string | null;
     website: string | null;

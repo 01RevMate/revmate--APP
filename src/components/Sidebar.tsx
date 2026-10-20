@@ -18,6 +18,7 @@ import {
   CalendarDays,
   Clapperboard,
   Wrench,
+  Store,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -153,6 +154,7 @@ export function Sidebar() {
           requireAuth
         />
         {isAdmin && <NavLink to="/admin" icon={ShieldCheck} label="Admin" collapsed={collapsed} />}
+        <NavLink to="/businesses/manage" icon={Store} label="My business" collapsed={collapsed} />
       </nav>
 
       <Tooltip>

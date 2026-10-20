@@ -17,6 +17,7 @@ import {
 } from "@/lib/businesses";
 import { MIN_PHOTOS } from "@/components/BusinessManager";
 import { seo } from "@/lib/seo";
+import { Button } from "@/components/ui/button";
 
 type DirSearch = {
   sector?: string | undefined;
@@ -83,6 +84,8 @@ function BusinessesPage() {
         Dealers, garages, bodyshops, tyres, detailing, EV specialists and more, with photos and
         reviews from RevMate members, so you can find the good ones and avoid the bad.
       </p>
+
+      <Button asChild variant="outline" className="mt-3"><Link to="/businesses/manage"><Store className="size-4" /> Add or manage your business</Link></Button>
 
       <form
         className="mt-4 flex gap-2"

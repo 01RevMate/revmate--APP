@@ -14,6 +14,8 @@ exactly as committed on 20 October 2026; types regenerated and photo count confi
 
 ## Business profiles — applied
 
+Member self-service business management is also applied (0071); its ready-to-run copy is `sql-to-run/applied/31_member_business_management.sql`.
+
 Step 30 is complete. The unchanged SQL is now at
 `sql-to-run/applied/30_business_profiles.sql`.
 

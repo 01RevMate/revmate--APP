@@ -583,6 +583,7 @@ export type Database = {
         Row: {
           address: string | null
           category: string
+          contact_name: string | null
           covers_areas: string[]
           created_at: string
           description: string
@@ -607,6 +608,7 @@ export type Database = {
         Insert: {
           address?: string | null
           category: string
+          contact_name?: string | null
           covers_areas?: string[]
           created_at?: string
           description?: string
@@ -631,6 +633,7 @@ export type Database = {
         Update: {
           address?: string | null
           category?: string
+          contact_name?: string | null
           covers_areas?: string[]
           created_at?: string
           description?: string

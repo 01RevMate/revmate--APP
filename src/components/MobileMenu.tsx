@@ -167,6 +167,7 @@ export function MobileMenu() {
             requireAuth
             onNavigate={close}
           />
+          <MenuLink to="/businesses/manage" icon={Store} label="My business" onNavigate={close} />
           {showInstall && (
             <button
               type="button"

@@ -41,6 +41,7 @@ import { Route as DotwellKnownAssetlinksDotjsonRouteImport } from './routes/[.]w
 import { Route as ApiFuelPricesRouteImport } from './routes/api.fuel-prices'
 import { Route as BusinessesIndexRouteImport } from './routes/businesses/index'
 import { Route as BusinessesBusinessIdRouteImport } from './routes/businesses/$businessId'
+import { Route as BusinessesManageRouteImport } from './routes/businesses/manage'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
 import { Route as EvChargersHomeRouteImport } from './routes/ev-chargers_.home'
 import { Route as GoCampaignRouteImport } from './routes/go.$campaign'
@@ -231,6 +232,11 @@ const BusinessesBusinessIdRoute = BusinessesBusinessIdRouteImport.update({
   path: '/businesses/$businessId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BusinessesManageRoute = BusinessesManageRouteImport.update({
+  id: '/businesses/manage',
+  path: '/businesses/manage',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CarsIndexRoute = CarsIndexRouteImport.update({
   id: '/cars/',
   path: '/cars/',
@@ -405,6 +411,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
+  '/businesses/manage': typeof BusinessesManageRoute
   '/ev-chargers/home': typeof EvChargersHomeRoute
   '/go/$campaign': typeof GoCampaignRoute
   '/groups/$slug': typeof GroupsSlugRoute
@@ -467,6 +474,7 @@ export interface FileRoutesByTo {
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
+  '/businesses/manage': typeof BusinessesManageRoute
   '/ev-chargers/home': typeof EvChargersHomeRoute
   '/go/$campaign': typeof GoCampaignRoute
   '/groups/$slug': typeof GroupsSlugRoute
@@ -530,6 +538,7 @@ export interface FileRoutesById {
   '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
+  '/businesses/manage': typeof BusinessesManageRoute
   '/ev-chargers_/home': typeof EvChargersHomeRoute
   '/go/$campaign': typeof GoCampaignRoute
   '/groups/$slug': typeof GroupsSlugRoute
@@ -594,6 +603,7 @@ export interface FileRouteTypes {
     | '/.well-known/assetlinks.json'
     | '/api/fuel-prices'
     | '/businesses/$businessId'
+    | '/businesses/manage'
     | '/ev-chargers/home'
     | '/go/$campaign'
     | '/groups/$slug'
@@ -656,6 +666,7 @@ export interface FileRouteTypes {
     | '/.well-known/assetlinks.json'
     | '/api/fuel-prices'
     | '/businesses/$businessId'
+    | '/businesses/manage'
     | '/ev-chargers/home'
     | '/go/$campaign'
     | '/groups/$slug'
@@ -718,6 +729,7 @@ export interface FileRouteTypes {
     | '/.well-known/assetlinks.json'
     | '/api/fuel-prices'
     | '/businesses/$businessId'
+    | '/businesses/manage'
     | '/ev-chargers_/home'
     | '/go/$campaign'
     | '/groups/$slug'
@@ -781,6 +793,7 @@ export interface RootRouteChildren {
   DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
   ApiFuelPricesRoute: typeof ApiFuelPricesRoute
   BusinessesBusinessIdRoute: typeof BusinessesBusinessIdRoute
+  BusinessesManageRoute: typeof BusinessesManageRoute
   EvChargersHomeRoute: typeof EvChargersHomeRoute
   GoCampaignRoute: typeof GoCampaignRoute
   GroupsSlugRoute: typeof GroupsSlugRoute
@@ -1037,6 +1050,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BusinessesBusinessIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/businesses/manage': {
+      id: '/businesses/manage'
+      path: '/businesses/manage'
+      fullPath: '/businesses/manage'
+      preLoaderRoute: typeof BusinessesManageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cars/': {
       id: '/cars/'
       path: '/cars'
@@ -1280,6 +1300,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
   ApiFuelPricesRoute: ApiFuelPricesRoute,
   BusinessesBusinessIdRoute: BusinessesBusinessIdRoute,
+  BusinessesManageRoute: BusinessesManageRoute,
   EvChargersHomeRoute: EvChargersHomeRoute,
   GoCampaignRoute: GoCampaignRoute,
   GroupsSlugRoute: GroupsSlugRoute,
