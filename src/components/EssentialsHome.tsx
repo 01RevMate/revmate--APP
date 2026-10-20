@@ -414,25 +414,3 @@ export function EssentialsHome() {
         </section>
       )}
 
-      <Group
-        title="On the road"
-        rows={[
-          {
-            title: "Cheapest fuel near you",
-            hint: "Today's petrol and diesel prices, cheapest first",
-            icon: Fuel,
-            colour: "bg-[#ff9500]",
-            link: { to: "/fuel-prices" },
-          },
-          {
-            title: "EV chargers near you",
-            hint: "Map of rapid and fast chargers, plugs and directions",
-            icon: PlugZap,
-            colour: "bg-[#34c759]",
-            link: { to: "/ev-chargers" },
-          },
-        ]}
-      />
-    </div>
-  );
-}
