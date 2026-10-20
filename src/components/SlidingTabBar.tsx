@@ -43,7 +43,7 @@ export function SlidingTabBar({
   }, []);
 
   return (
-    <div ref={containerRef} className={`relative flex gap-2 overflow-x-auto pb-1 ${className}`}>
+    <div ref={containerRef} className={`no-scrollbar relative flex gap-2 overflow-x-auto pb-1 ${className}`}>
       {rect && (
         <span
           aria-hidden

@@ -46,7 +46,7 @@ export function AdminMoney() {
       <p className="text-sm text-muted-foreground">
         Paid extras, deals and sponsors. None of this ever shows in the social feed.
       </p>
-      <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+      <div className="no-scrollbar mt-4 flex gap-2 overflow-x-auto pb-1">
         {TABS.map(([id, label]) => (
           <button
             key={id}

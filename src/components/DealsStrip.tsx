@@ -21,7 +21,7 @@ export function DealsStrip({
         <h2 className="text-lg font-bold">{title}</h2>
         <span className="text-[11px] text-muted-foreground">Ad · we may earn a commission</span>
       </div>
-      <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
+      <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
         {deals.map((d) => (
           <a
             key={d.id}

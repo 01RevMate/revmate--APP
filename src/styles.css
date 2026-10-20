@@ -337,3 +337,11 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
   filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
   cursor: pointer;
 }
+
+/* Swipeable rows (filter pills, strips): scroll without showing a bar. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

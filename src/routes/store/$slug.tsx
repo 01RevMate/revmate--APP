@@ -55,7 +55,7 @@ function ProductPage() {
             <ProductImage product={product} className="aspect-square rounded-3xl" />
           )}
           {product.images.length > 1 && (
-            <div className="mt-2 flex gap-2 overflow-x-auto">
+            <div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto">
               {product.images.map((img, i) => (
                 <button
                   key={img}
