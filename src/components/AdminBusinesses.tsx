@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { BadgeCheck, Pencil, Plus, Star } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { BadgeCheck, Images, Pencil, Plus, Star } from "lucide-react";
 import { toast } from "sonner";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import {
   BUSINESS_CATEGORY_LABELS,
+  BUSINESS_SECTORS,
   fetchAllBusinesses,
+  LEGACY_BUSINESS_CATEGORIES,
+  useBusinessProfilesFeature,
   fetchOpenBusinessReports,
   postcodeDistrict,
   REPORT_REASONS,
@@ -48,6 +52,7 @@ const EMPTY: Draft = {
 
 /** Admin: add and verify local businesses, and handle reports about them. */
 export function AdminBusinesses({ userId }: { userId: string }) {
+  const profilesOn = useBusinessProfilesFeature();
   const queryClient = useQueryClient();
   const { data: businesses } = useQuery({
     queryKey: ["admin", "businesses"],
@@ -233,11 +238,20 @@ export function AdminBusinesses({ userId }: { userId: string }) {
                 onChange={(e) => set({ category: e.target.value })}
                 className={`mt-1 ${input}`}
               >
-                {Object.entries(BUSINESS_CATEGORY_LABELS).map(([id, label]) => (
-                  <option key={id} value={id}>
-                    {label}
-                  </option>
-                ))}
+                {BUSINESS_SECTORS.map((sector) => {
+                  const options = sector.categories.filter(
+                    ([id]) => profilesOn || LEGACY_BUSINESS_CATEGORIES.includes(id),
+                  );
+                  return options.length ? (
+                    <optgroup key={sector.id} label={sector.label}>
+                      {options.map(([id, label]) => (
+                        <option key={id} value={id}>
+                          {label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ) : null;
+                })}
               </select>
             </label>
           </div>
@@ -370,6 +384,17 @@ export function AdminBusinesses({ userId }: { userId: string }) {
                 {Number(b.rating_avg).toFixed(1)} ({b.reviews_count}) · {b.reports_count} reports
               </p>
             </div>
+            {profilesOn && (
+              <Link
+                to="/businesses/$businessId"
+                params={{ businessId: b.id }}
+                aria-label={`Photos, hours and replies for ${b.name}`}
+                title="Photos, hours and replies"
+                className="rounded-md p-1.5 text-muted-foreground hover:text-foreground"
+              >
+                <Images className="size-4" />
+              </Link>
+            )}
             <button
               type="button"
               aria-label={`Edit ${b.name}`}

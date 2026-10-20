@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Star } from "lucide-react";
+import { Gavel, MapPin, ShieldCheck, Star, Timer } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { auctionEnded, timeLeft, type AuctionFields } from "@/lib/auctions";
 import { CONDITION_LABELS, fetchSellerStats } from "@/lib/marketDeals";
@@ -27,9 +27,9 @@ type SummaryListing = AuctionFields & {
 };
 
 /**
- * The top of a listing, laid out like the big marketplaces: seller with
- * rating, a big price (or current bid with bids and time left), collection
- * and condition, then the main buttons.
+ * The top of a listing in RevMate's own style: a price card (or live auction
+ * card with bids and time left), the seller card with their RevMate rating,
+ * collection and condition, then the main buttons.
  */
 export function ListingSummary({
   listing,
@@ -92,7 +92,7 @@ export function ListingSummary({
       <h1 className="text-[1.65rem] font-extrabold leading-tight tracking-tight">{title}</h1>
 
       {listing.profiles && (
-        <div className="mt-4 flex items-center gap-3">
+        <div className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-card p-3">
           <Link
             to="/u/$username"
             params={{ username: listing.profiles.username }}
@@ -101,24 +101,30 @@ export function ListingSummary({
             <Avatar
               photoUrl={listing.profiles.avatar_url}
               fallback={listing.profiles.username}
-              className="size-12"
+              className="size-11"
             />
             <span className="min-w-0">
-              <span className="block truncate font-semibold underline underline-offset-2">
-                {displayUsernameWithoutAt(listing.profiles.username)}
+              <span className="flex items-center gap-1.5">
+                <span className="truncate font-semibold">
+                  {displayUsernameWithoutAt(listing.profiles.username)}
+                </span>
                 {stats && stats.sold_listings > 0 && (
-                  <span className="font-normal no-underline"> ({stats.sold_listings} sold)</span>
+                  <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                    {stats.sold_listings} sale{stats.sold_listings === 1 ? "" : "s"}
+                  </span>
                 )}
               </span>
               <span className="flex items-center gap-1 text-sm text-muted-foreground">
                 {stats && stats.reviews_count > 0 ? (
                   <>
                     <Star className="size-3.5 text-amber-500" fill="currentColor" />
-                    {Number(stats.rating_avg).toFixed(1)} from {stats.reviews_count} buyer
+                    {Number(stats.rating_avg).toFixed(1)} · {stats.reviews_count} RevMate review
                     {stats.reviews_count === 1 ? "" : "s"}
                   </>
                 ) : (
-                  "New seller"
+                  <>
+                    <ShieldCheck className="size-3.5" /> New to selling on RevMate
+                  </>
                 )}
               </span>
             </span>
@@ -127,46 +133,48 @@ export function ListingSummary({
             <button
               type="button"
               onClick={onMessage}
-              className="shrink-0 rounded-full border border-foreground/60 px-5 py-2 text-sm font-semibold"
+              className="shrink-0 rounded-full bg-muted px-4 py-2 text-sm font-semibold"
             >
-              Message
+              Chat
             </button>
           )}
         </div>
       )}
 
-      <p className="mt-5 text-4xl font-extrabold tabular-nums tracking-tight">{price}</p>
-      {auction ? (
-        <div className="mt-1 space-y-0.5">
-          <p className="text-base">
-            <span className="underline underline-offset-2">
+      <div className="mt-4 rounded-2xl bg-muted/60 p-4">
+        {auction && (
+          <p className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-primary">
+            <Gavel className="size-3.5" /> {ended ? "Auction ended" : "Live auction"}
+          </p>
+        )}
+        <p className="text-4xl font-extrabold tabular-nums tracking-tight">{price}</p>
+        {auction ? (
+          <div className="mt-2 flex flex-wrap gap-1.5 text-sm">
+            <span className="rounded-full bg-background px-2.5 py-1 font-semibold">
               {listing.bid_count ?? 0} bid{listing.bid_count === 1 ? "" : "s"}
             </span>
-            <span className="text-muted-foreground">
-              {" · "}
-              {ended
-                ? "Auction ended"
-                : listing.auction_ends_at
-                  ? `${timeLeft(listing.auction_ends_at, now)} left`
-                  : ""}
+            {!ended && listing.auction_ends_at && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-background px-2.5 py-1 font-semibold tabular-nums">
+                <Timer className="size-3.5" /> {timeLeft(listing.auction_ends_at, now)} left
+              </span>
+            )}
+            <span className="rounded-full bg-background px-2.5 py-1 text-muted-foreground">
+              {!listing.has_reserve
+                ? "No reserve"
+                : listing.reserve_met
+                  ? "Reserve met"
+                  : "Reserve not met"}
             </span>
-          </p>
-          <p className="text-muted-foreground">
-            {!listing.has_reserve
-              ? "No reserve"
-              : listing.reserve_met
-                ? "Reserve met"
-                : "Reserve not met"}
-          </p>
-        </div>
-      ) : (
-        <>
-          {priceDropText}
-          {listing.open_to_offers && active && (
-            <p className="mt-1 text-muted-foreground">Open to offers</p>
-          )}
-        </>
-      )}
+          </div>
+        ) : (
+          <>
+            {priceDropText}
+            {listing.open_to_offers && active && (
+              <p className="mt-1 text-sm font-medium text-muted-foreground">Open to offers</p>
+            )}
+          </>
+        )}
+      </div>
 
       {collection.length > 0 && (
         <p className="mt-3 flex items-start gap-1.5">
@@ -194,7 +202,7 @@ export function ListingSummary({
               onClick={onBid}
               className="min-h-14 w-full rounded-full border-2 border-primary text-lg font-semibold text-primary"
             >
-              Submit bid
+              Place a bid
             </button>
           ) : onOffer && listing.open_to_offers ? (
             <button

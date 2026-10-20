@@ -7,7 +7,21 @@ links) and 19 (public profile pages) were applied on 1–2 October 2026, and
 steps 20 (remove location from posts — found already applied by hand) and
 21 (security fixes) on 5 October 2026. Step 22 (group icons) has also run. Steps 23–29 (launch kit, money, campaigns, diagnosis & shops, store,
 auctions, feed & badges) were run together on 20 October 2026. Left to do:
-only the optional phone notifications setup.
+step 30 (business profiles) and the optional phone notifications setup.
+
+---
+
+## Prompt H — business profiles
+
+```
+Please run sql-to-run/30_business_profiles.sql on the connected Supabase
+database, exactly as committed. Don't change it; it's safe to re-run. It adds
+a business_photos table (with its trigger and policies), address, email,
+opening_hours and services columns on businesses, a wider list of business
+categories, an owner edit policy, and owner replies on business reviews with
+public.reply_to_review(). Then regenerate the Supabase types and confirm that
+SELECT count(*) FROM public.business_photos; returns 0.
+```
 
 ---
 

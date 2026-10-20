@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { looseDb } from "@/lib/looseDb";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
 // Local businesses, member reviews and the ads manager
@@ -15,21 +16,145 @@ export type AdCampaignDraft = Omit<
   "id" | "impressions" | "clicks" | "created_by" | "created_at"
 >;
 
-export const BUSINESS_CATEGORY_LABELS: Record<string, string> = {
-  mobile_mechanic: "Mobile mechanic",
-  garage: "Garage / servicing",
-  bodywork: "Bodywork & paint",
-  ev_charger_installer: "EV charger installer",
-  detailing: "Detailing & valeting",
-  tyres: "Tyres",
-  tuning: "Tuning & performance",
-  dealer: "Car dealer",
-  parts: "Parts supplier",
-  recovery: "Recovery",
-  mot_centre: "MOT centre",
-  insurance: "Insurance",
-  other: "Other",
-};
+/** The sectors on the directory, each with its kinds of business. */
+export const BUSINESS_SECTORS: {
+  id: string;
+  label: string;
+  emoji: string;
+  categories: [id: string, label: string][];
+}[] = [
+  {
+    id: "dealers",
+    label: "Dealerships",
+    emoji: "🚘",
+    categories: [
+      ["dealer", "Used car dealer"],
+      ["franchise_dealer", "Franchise dealer"],
+      ["prestige_dealer", "Prestige & performance dealer"],
+      ["van_dealer", "Van dealer"],
+      ["motorbike_dealer", "Motorbike dealer"],
+      ["car_buying", "We buy cars"],
+    ],
+  },
+  {
+    id: "repairs",
+    label: "Servicing & repairs",
+    emoji: "🔧",
+    categories: [
+      ["garage", "Garage / servicing"],
+      ["mobile_mechanic", "Mobile mechanic"],
+      ["mot_centre", "MOT centre"],
+      ["specialist", "Make specialist"],
+      ["auto_electrician", "Auto electrician"],
+      ["diagnostics", "Diagnostics"],
+      ["air_con", "Air con"],
+      ["exhaust_centre", "Exhausts"],
+      ["clutch_gearbox", "Clutch & gearbox"],
+    ],
+  },
+  {
+    id: "body",
+    label: "Body & glass",
+    emoji: "🎨",
+    categories: [
+      ["bodywork", "Bodywork & paint"],
+      ["smart_repair", "Smart repair & dents"],
+      ["windscreen", "Windscreens & glass"],
+      ["wraps", "Wraps & paint protection"],
+    ],
+  },
+  {
+    id: "care",
+    label: "Care & detailing",
+    emoji: "✨",
+    categories: [
+      ["detailing", "Detailing & valeting"],
+      ["car_wash", "Car wash"],
+    ],
+  },
+  {
+    id: "wheels",
+    label: "Wheels & tyres",
+    emoji: "🛞",
+    categories: [
+      ["tyres", "Tyres"],
+      ["wheel_refurb", "Alloy wheel refurb"],
+      ["alignment", "Wheel alignment"],
+    ],
+  },
+  {
+    id: "performance",
+    label: "Performance & style",
+    emoji: "🏁",
+    categories: [
+      ["tuning", "Tuning & remapping"],
+      ["car_audio", "Audio, dashcams & trackers"],
+      ["restoration", "Classic restoration"],
+      ["motorsport", "Track days & motorsport"],
+    ],
+  },
+  {
+    id: "parts",
+    label: "Parts",
+    emoji: "⚙️",
+    categories: [
+      ["parts", "Parts supplier"],
+      ["breakers", "Breakers & salvage"],
+      ["accessories", "Accessories"],
+    ],
+  },
+  {
+    id: "electric",
+    label: "Electric",
+    emoji: "⚡",
+    categories: [
+      ["ev_charger_installer", "EV charger installer"],
+      ["ev_specialist", "EV & hybrid specialist"],
+    ],
+  },
+  {
+    id: "services",
+    label: "Services",
+    emoji: "🧾",
+    categories: [
+      ["recovery", "Recovery"],
+      ["insurance", "Insurance"],
+      ["finance", "Car finance"],
+      ["car_hire", "Car & van hire"],
+      ["driving_school", "Driving school"],
+      ["storage", "Car storage"],
+      ["transport", "Car transport"],
+      ["number_plates", "Private plates"],
+      ["inspection", "Pre-purchase inspection"],
+      ["other", "Other"],
+    ],
+  },
+];
+
+export const BUSINESS_CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
+  BUSINESS_SECTORS.flatMap((s) => s.categories),
+);
+
+/** Kinds of business that worked before 0070 (the rest need that SQL). */
+export const LEGACY_BUSINESS_CATEGORIES = [
+  "mobile_mechanic",
+  "garage",
+  "bodywork",
+  "ev_charger_installer",
+  "detailing",
+  "tyres",
+  "tuning",
+  "dealer",
+  "parts",
+  "recovery",
+  "mot_centre",
+  "insurance",
+  "other",
+];
+
+export function sectorOf(category: string) {
+  return BUSINESS_SECTORS.find((s) => s.categories.some(([id]) => id === category)) ?? null;
+}
 
 export const REPORT_REASONS: Record<string, string> = {
   scam: "Scam or fraud",
@@ -76,6 +201,7 @@ function promotedFirst<T extends object>(rows: T[]): T[] {
 
 export async function fetchBusinesses(filters: {
   category?: string | undefined;
+  sector?: string | undefined;
   area?: string | undefined;
 }) {
   let query = supabase
@@ -86,6 +212,14 @@ export async function fetchBusinesses(filters: {
     .order("rating_avg", { ascending: false })
     .limit(200);
   if (filters.category) query = query.eq("category", filters.category);
+  else if (filters.sector) {
+    const sector = BUSINESS_SECTORS.find((s) => s.id === filters.sector);
+    if (sector)
+      query = query.in(
+        "category",
+        sector.categories.map(([id]) => id),
+      );
+  }
   const { data, error } = await query;
   if (error) throw error;
   const sorted = promotedFirst(data);
@@ -126,20 +260,22 @@ export async function saveReview(
   rating: number,
   body: string,
   existingId?: string,
-) {
+): Promise<string> {
+  const id = existingId ?? crypto.randomUUID();
   const { error } = existingId
     ? await supabase
         .from("business_reviews")
         .update({ rating, body: body.trim() })
         .eq("id", existingId)
     : await supabase.from("business_reviews").insert({
-        id: crypto.randomUUID(),
+        id,
         business_id: businessId,
         user_id: userId,
         rating,
         body: body.trim(),
       });
   if (error) throw error;
+  return id;
 }
 
 export async function deleteReview(id: string) {
@@ -272,4 +408,168 @@ export function recordAdEvent(adId: string, event: "impression" | "click") {
 export async function setCampaignActive(id: string, active: boolean) {
   const { error } = await supabase.from("ad_campaigns").update({ active }).eq("id", id);
   if (error) throw error;
+}
+
+// ---------- Profiles: photos, hours, replies (0070_business_profiles.sql) ----------
+
+export const DAYS = [
+  ["mon", "Monday"],
+  ["tue", "Tuesday"],
+  ["wed", "Wednesday"],
+  ["thu", "Thursday"],
+  ["fri", "Friday"],
+  ["sat", "Saturday"],
+  ["sun", "Sunday"],
+] as const;
+export type DayKey = (typeof DAYS)[number][0];
+export type OpeningHours = Partial<Record<DayKey, { open: string; close: string } | null>>;
+
+/** The profile fields 0070 adds (not in the generated types until it runs). */
+export type BusinessProfile = Business & {
+  address?: string | null;
+  email?: string | null;
+  opening_hours?: OpeningHours | null;
+  services?: string[];
+};
+
+export type BusinessPhoto = {
+  id: string;
+  business_id: string;
+  review_id: string | null;
+  uploaded_by: string | null;
+  source: "business" | "customer";
+  url: string;
+  caption: string;
+  position: number;
+  created_at: string;
+};
+
+/** True once 0070 has run (photo galleries, hours, replies, new sectors). */
+export function useBusinessProfilesFeature(): boolean {
+  const { data } = useQuery({
+    queryKey: ["feature", "business-profiles"],
+    queryFn: async () => !(await looseDb.from("business_photos").select("id").limit(1)).error,
+    staleTime: Infinity,
+    retry: false,
+  });
+  return data === true;
+}
+
+/** Day key and minutes past midnight, in UK time. */
+function ukNow(now: Date): { day: DayKey; minutes: number } {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  const day = get("weekday").slice(0, 3).toLowerCase() as DayKey;
+  return { day, minutes: Number(get("hour")) * 60 + Number(get("minute")) };
+}
+
+const toMinutes = (hhmm: string) => {
+  const [h, m] = hhmm.split(":").map(Number);
+  return (h ?? 0) * 60 + (m ?? 0);
+};
+
+/** "Open · Closes 17:30" / "Closed · Opens 08:00 Mon", or null without hours. */
+export function openStatus(
+  hours: OpeningHours | null | undefined,
+  now = new Date(),
+): { open: boolean; text: string } | null {
+  if (!hours || Object.keys(hours).length === 0) return null;
+  const { day, minutes } = ukNow(now);
+  const today = hours[day];
+  if (today) {
+    const open = toMinutes(today.open);
+    const close = toMinutes(today.close);
+    if (minutes >= open && minutes < close) return { open: true, text: `Closes ${today.close}` };
+    if (minutes < open) return { open: false, text: `Opens ${today.open}` };
+  }
+  const start = DAYS.findIndex(([k]) => k === day);
+  for (let i = 1; i <= 7; i++) {
+    const [key, name] = DAYS[(start + i) % 7]!;
+    const next = hours[key];
+    if (next)
+      return { open: false, text: `Opens ${next.open} ${i === 1 ? "tomorrow" : name.slice(0, 3)}` };
+  }
+  return { open: false, text: "Closed" };
+}
+
+export function todayKey(now = new Date()): DayKey {
+  return ukNow(now).day;
+}
+
+export async function fetchBusinessPhotos(businessId: string): Promise<BusinessPhoto[]> {
+  const { data, error } = await looseDb
+    .from("business_photos")
+    .select("*")
+    .eq("business_id", businessId)
+    .order("source")
+    .order("position")
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (error) return [];
+  return data as BusinessPhoto[];
+}
+
+/** First photos for each business in a list (business photos first) and how many. */
+export async function fetchPhotoSummaries(
+  businessIds: string[],
+): Promise<Map<string, { urls: string[]; count: number }>> {
+  const out = new Map<string, { urls: string[]; count: number }>();
+  if (businessIds.length === 0) return out;
+  const { data, error } = await looseDb
+    .from("business_photos")
+    .select("business_id, url, source, position, created_at")
+    .in("business_id", businessIds)
+    .order("source")
+    .order("position")
+    .limit(2000);
+  if (error) return out;
+  for (const p of data as Pick<BusinessPhoto, "business_id" | "url">[]) {
+    const entry = out.get(p.business_id) ?? { urls: [], count: 0 };
+    entry.count++;
+    if (entry.urls.length < 3) entry.urls.push(p.url);
+    out.set(p.business_id, entry);
+  }
+  return out;
+}
+
+export async function addBusinessPhoto(businessId: string, url: string, reviewId?: string) {
+  const { error } = await looseDb.from("business_photos").insert({
+    business_id: businessId,
+    url,
+    ...(reviewId ? { review_id: reviewId } : {}),
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteBusinessPhoto(id: string) {
+  const { error } = await looseDb.from("business_photos").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function replyToReview(reviewId: string, reply: string) {
+  const { error } = await looseDb.rpc("reply_to_review", { p_review: reviewId, p_reply: reply });
+  if (error) throw new Error(error.message);
+}
+
+/** Owner or admin: the profile details 0070 adds, plus description and contacts. */
+export async function saveBusinessProfile(
+  id: string,
+  fields: {
+    description: string;
+    phone: string | null;
+    website: string | null;
+    email: string | null;
+    address: string | null;
+    services: string[];
+    opening_hours: OpeningHours | null;
+  },
+) {
+  const { error } = await looseDb.from("businesses").update(fields).eq("id", id);
+  if (error) throw new Error(error.message);
 }

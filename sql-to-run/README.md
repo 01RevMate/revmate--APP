@@ -6,6 +6,7 @@ been run live in `applied/` for reference.
 
 | # | File | What it does | Status |
 |---|------|--------------|--------|
+| 30 | `30_business_profiles.sql` | Business photo galleries, review photos, owner replies, opening hours, more sectors | **Run this** |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 
@@ -15,7 +16,7 @@ Already applied (in `applied/`): 1–4 on 27 Sep 2026, 5–12 on 28 Sep 2026,
 ## Two ways to run them
 
 **Easiest — ask Lovable.** Open `LOVABLE_PENDING_SQL_PROMPT.md` (in the main
-folder), copy Prompt 1 (phone notifications) if you want it, and paste it into Lovable.
+folder), copy Prompt H (business profiles) and, if you want it, Prompt 1 (phone notifications), and paste each into Lovable.
 
 **Or run them yourself** in the Supabase SQL editor (Lovable Cloud → Database
 → SQL editor): open each file here in order, copy the whole file, paste,
