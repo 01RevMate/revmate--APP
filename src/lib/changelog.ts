@@ -40,7 +40,7 @@ export const RELEASES: Release[] = [
     version: "1.30.0",
     date: "2026-10-20",
     title: "RevMate Store, auctions and a fresher feed",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "RevMate Store: car care, parts and accessories delivered to your door. Add to basket, pay securely and track your order in My orders.",
       "Auctions on Buy & Sell: sell your car or parts to the highest bidder, with an optional secret reserve. Late bids add 2 minutes, so no sniping.",
@@ -58,7 +58,7 @@ export const RELEASES: Release[] = [
     version: "1.29.0",
     date: "2026-10-20",
     title: "Fix a problem, step by step — and Shops",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "New Fix a problem: pick what's happening (leak, warning light, noise, smoke, won't start…), answer a few quick questions and see the likely causes, how urgent each is, a rough UK price and a safe check to do yourself.",
       "Ask RevMate AI: describe it in your own words and the AI asks a couple more questions to narrow it down, using what other owners of your car have reported.",
@@ -71,7 +71,7 @@ export const RELEASES: Release[] = [
     version: "1.28.0",
     date: "2026-10-19",
     title: "Ready for TikTok",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "New landing pages for our TikTok posts and ads, each opening straight into fuel prices, EV chargers, selling and more.",
       "Works smoothly inside TikTok's and Instagram's built-in browsers, with tips for adding RevMate to your home screen.",
@@ -89,7 +89,7 @@ export const RELEASES: Release[] = [
     version: "1.27.0",
     date: "2026-10-19",
     title: "Optional extras that keep RevMate free",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "Everything social stays free. New optional extras help pay for the app, and none of them appear in the feed.",
       "Sellers can feature an advert at the top of Buy & Sell.",
@@ -105,7 +105,7 @@ export const RELEASES: Release[] = [
     version: "1.26.0",
     date: "2026-10-19",
     title: "Getting ready for launch",
-    status: "needs_database_update",
+    status: "live",
     highlights: [
       "New visitors now land on Essentials (fuel prices, EV chargers and your car's tools), which work from day one. Members still start on the Community feed.",
       "Send feedback from Settings or the menu. Bugs and ideas go straight to the team.",

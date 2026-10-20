@@ -6,24 +6,16 @@ been run live in `applied/` for reference.
 
 | # | File | What it does | Status |
 |---|------|--------------|--------|
-| 23 | `23_launch_kit.sql` | Feedback box, admin launch stats, Founding member badges | **Run this** |
-| 24 | `24_money.sql` | Paid extras, Plus, Business Pro, deals, shop link, sponsors | **Run this** (after 23) |
-| 25 | `25_campaigns.sql` | TikTok campaign counts, sign-up sources, Pixel and Android settings | **Run this** (after 24) |
-| 26 | `26_diagnosis_and_shops.sql` | AI diagnosis daily limits, Shops directory | **Run this** (after 25) |
-| 27 | `27_store.sql` | RevMate Store (products, suppliers, orders) + new notification kinds | **Run this** (after 26) |
-| 28 | `28_auctions.sql` | Auctions on Buy & Sell (bids, hidden reserve, anti-sniping) | **Run this** (after 27) |
-| 29 | `29_feed_and_badges.sql` | Fresher For You feed (seen posts) + badges | **Run this** (after 28) |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 
 Already applied (in `applied/`): 1–4 on 27 Sep 2026, 5–12 on 28 Sep 2026,
-15–18 on 1 Oct 2026, 19 on 2 Oct 2026, 20–21 on 5 Oct 2026, and 22 by 19 Oct 2026.
+15–18 on 1 Oct 2026, 19 on 2 Oct 2026, 20–21 on 5 Oct 2026, 22 by 19 Oct 2026, and 23–29 on 20 Oct 2026.
 
 ## Two ways to run them
 
 **Easiest — ask Lovable.** Open `LOVABLE_PENDING_SQL_PROMPT.md` (in the main
-folder), copy Prompts A–G (launch kit, money, campaigns, diagnosis & shops, store, auctions, feed & badges) and, if you want them, Prompt 1
-(phone notifications), and paste each into Lovable.
+folder), copy Prompt 1 (phone notifications) if you want it, and paste it into Lovable.
 
 **Or run them yourself** in the Supabase SQL editor (Lovable Cloud → Database
 → SQL editor): open each file here in order, copy the whole file, paste,

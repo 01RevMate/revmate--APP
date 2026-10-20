@@ -11,91 +11,7 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
-### 1. Launch kit (feedback, launch stats, Founding member badges)
-
-- File: `drizzle/migrations/0063_launch_kit.sql` (`sql-to-run/23_launch_kit.sql`).
-- Added: 2026-10-19
-- Needed by: **Send feedback** (Settings and the menu), the **Launch** tab in
-  Admin, and the **Founding member** badge and "spots left" invite. Until it
-  runs, all of these stay hidden.
-- Adds the `app_feedback` table (members can send, only admins can read),
-  `public.founding_members` with numbers 1–100, `founding_spots_left()` and
-  the admin-only `admin_launch_stats()`. Everyone who already has an account
-  gets a founding number in sign-up order when it runs.
-
-### 2. Money (paid extras, Plus, Business Pro, deals, shop, sponsors)
-
-- File: `drizzle/migrations/0064_money.sql` (`sql-to-run/24_money.sql`). Run after item 1.
-- Added: 2026-10-19
-- Needed by: Admin → Money, Deals on Essentials / EV chargers / fuel prices,
-  the shop link, sponsored challenges, and (once payments are switched on)
-  featured adverts, RevMate Plus and Business Pro. Until it runs, all of
-  these stay hidden.
-- Adds `app_settings`, `paid_products`, `payments`, `subscriptions`,
-  `billing_customers`, `affiliate_deals`, `businesses.promoted_until`,
-  sponsor columns on `challenges`, and service-role-only `billing_*`
-  functions used by the `stripe-webhook` edge function.
-- Payments stay **off** until an admin switches them on. Card payments also
-  need Stripe set up — see `MONETISATION_SETUP.md`.
-
-### 3. Campaigns (TikTok tracking without tracking people)
-
-- File: `drizzle/migrations/0065_campaigns.sql` (`sql-to-run/25_campaigns.sql`). Run after item 2.
-- Added: 2026-10-19
-- Needed by: Admin → Marketing "What's working" (visits and sign-ups per
-  campaign). Adds `campaign_visits` (daily counts, no personal data),
-  `signup_sources` (filled from the sign-up form's `attribution`), the
-  admin-only `admin_campaign_stats()`, and empty `tiktok_pixel_id`,
-  `android_package` and `android_fingerprint` settings.
-
-### 4. AI diagnosis limits + Shops
-
-- File: `drizzle/migrations/0066_diagnosis_and_shops.sql` (`sql-to-run/26_diagnosis_and_shops.sql`). Run after item 3.
-- Added: 2026-10-20
-- Needed by: the Shops directory (`/shops`, "List your shop", Admin →
-  Shops & AI) and the "Ask RevMate AI" step in Fix a problem. The built-in
-  step-by-step diagnosis at `/diagnose` works without it.
-- Adds `ai_usage` + service-role-only `ai_take_credit()` (AI is off until an
-  admin switches it on; whole-site and per-person daily caps), the admin-only
-  `admin_ai_usage()`, `shops` and `shop_products` (owners apply, admins
-  approve; owners can't approve or promote themselves), and
-  `record_shop_click()`.
-- AI also needs the `diagnose` edge function deployed and an
-  `ANTHROPIC_API_KEY` secret — see `AI_DIAGNOSIS_SETUP.md`.
-
-### 5. RevMate Store
-
-- File: `drizzle/migrations/0067_store.sql` (`sql-to-run/27_store.sql`). Run after item 4.
-- Added: 2026-10-20
-- Needed by: the RevMate Store (`/store`, basket, `/orders`, Admin → Store).
-  Adds `store_products`, admin-only `store_suppliers` (cost prices, where to
-  order), `store_orders` (customers see their own; admins update status and
-  tracking, which notifies the customer), service-role-only checkout
-  functions used by the `store-checkout` and `stripe-webhook` edge functions,
-  and the notification kinds for store, auctions and badges.
-- Also needs Stripe set up and the `store-checkout` function deployed — see
-  `STORE_SETUP.md`.
-
-### 6. Auctions
-
-- File: `drizzle/migrations/0068_auctions.sql` (`sql-to-run/28_auctions.sql`). Run after item 5.
-- Added: 2026-10-20
-- Needed by: the Fixed price / Auction choice when selling, and bidding on
-  listings. Adds auction columns on `listings`, `listing_bids`,
-  `listing_auctions` (hidden reserve, top bidder), `place_bid()`,
-  `set_auction_reserve()`, `auction_bids()`, `my_auction_status()`,
-  `auction_counterparty()` and `settle_due_auctions()`.
-
-### 7. Fresher feed + badges
-
-- File: `drizzle/migrations/0069_feed_and_badges.sql` (`sql-to-run/29_feed_and_badges.sql`). Run after item 6.
-- Added: 2026-10-20
-- Replaces `public.for_you_feed` (same scoring plus: posts you've seen sink,
-  posts taking off rise, new members' first posts get a boost, one account
-  can't flood the feed). Adds `post_impressions` + `record_post_impressions()`
-  and `user_badges` + `award_my_badges()`.
-
-### 8. Phone push notifications (optional, needs a few setup steps)
+### 1. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27
@@ -123,6 +39,10 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Applied
 
+- 2026-10-20: steps 23–29 run together with the master Lovable prompt —
+  launch kit (0063), money (0064), campaigns (0065), diagnosis & shops (0066),
+  store (0067), auctions (0068), feed & badges (0069). Files moved to
+  `sql-to-run/applied/`.
 - Group icons (`sql-to-run/applied/22_group_icons.sql`, 0060) — applied by Lovable by 19 October 2026.
 
 
