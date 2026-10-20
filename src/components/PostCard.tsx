@@ -17,9 +17,11 @@ import {
   Trash2,
   UserRoundCheck,
   UserX,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { Avatar } from "@/components/Avatar";
 import { CarLogo } from "@/components/CarLogo";
@@ -59,7 +61,7 @@ import {
   type CommentWithAuthor,
   type PostWithAuthor,
 } from "@/lib/posts";
-import { blockProfile, reportPost, type ReportReason } from "@/lib/moderation";
+import { blockProfile, removePostAsAdmin, reportPost, type ReportReason } from "@/lib/moderation";
 
 export function PostCard({
   post,
@@ -78,6 +80,8 @@ export function PostCard({
 }) {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { data: myProfile } = useProfile();
+  const isAdmin = myProfile?.role === "admin" && myProfile.account_status === "active";
   const { open: openAuthModal } = useAuthModal();
   const [liking, setLiking] = useState(false);
   const [commentSaving, setCommentSaving] = useState(false);
@@ -404,6 +408,33 @@ export function PostCard({
       toast.success("Report sent to the RevMate moderation team.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't send the report");
+    } finally {
+      setSafetySaving(false);
+    }
+  }
+
+  // Admins only: remove someone else's post for good, with a written reason.
+  async function handleAdminRemove() {
+    if (!user || !isAdmin) return;
+    const note = reportDetails.trim();
+    if (note.length < 3) {
+      toast.error("Write the reason for removing this post in the box first.");
+      return;
+    }
+    if (!window.confirm("Remove this post for everyone? This can't be undone.")) return;
+    setSafetySaving(true);
+    try {
+      await removePostAsAdmin(post.id, user.id, reportReason, note);
+      setReportOpen(false);
+      setReportDetails("");
+      toast.success("Post removed. The reason is saved in Admin → Reports.");
+      for (const key of ["feed", "posts-by-user", "post", "admin"]) {
+        void queryClient.invalidateQueries({ queryKey: [key] });
+      }
+      setDeleted(true);
+      onDeleted?.();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't remove the post");
     } finally {
       setSafetySaving(false);
     }
@@ -868,7 +899,9 @@ export function PostCard({
           onSubmit={handleReport}
           className="mt-3 space-y-2 rounded-md border border-border bg-muted/30 p-3"
         >
-          <p className="text-sm font-semibold">Why are you reporting this post?</p>
+          <p className="text-sm font-semibold">
+            {isAdmin ? "Report or remove this post" : "Why are you reporting this post?"}
+          </p>
           <select
             value={reportReason}
             onChange={(e) => setReportReason(e.target.value as ReportReason)}
@@ -888,10 +921,26 @@ export function PostCard({
             onChange={(e) => setReportDetails(e.target.value)}
             maxLength={1000}
             rows={2}
-            placeholder="Give the admins any useful context (optional)"
+            placeholder={
+              isAdmin
+                ? "Reason (required to remove the post)"
+                : "Give the admins any useful context (optional)"
+            }
             className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
-          <div className="flex justify-end gap-2">
+          <div className="flex items-center justify-end gap-2">
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => void handleAdminRemove()}
+                disabled={safetySaving}
+                aria-label="Remove post (admin)"
+                title="Remove post (admin only)"
+                className="inline-flex items-center gap-1 rounded-md bg-destructive px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+              >
+                <X className="size-4" /> Remove post
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setReportOpen(false)}

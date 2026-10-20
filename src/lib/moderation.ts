@@ -118,6 +118,36 @@ export async function fetchGarageOwnerIds(): Promise<Set<string>> {
   return new Set(data.map((row) => row.user_id));
 }
 
+/**
+ * Admin only: deletes someone's post for good. The reason is kept as an
+ * actioned report (post_reports.post_id is set to null when the post goes),
+ * so it stays in Admin → Reports → All reports, and any open reports on the
+ * post are closed as actioned first.
+ */
+export async function removePostAsAdmin(
+  postId: string,
+  adminId: string,
+  reason: ReportReason,
+  note: string,
+) {
+  const { error: logError } = await supabase.from("post_reports").insert({
+    post_id: postId,
+    reporter_id: adminId,
+    reason,
+    details: `Removed by admin: ${note.trim()}`.slice(0, 1000),
+  } as never);
+  // 23505: this admin already reported the post; reports can't be edited, so
+  // that earlier report stands as the record.
+  if (logError && logError.code !== "23505") throw logError;
+  const { error: closeError } = await supabase
+    .from("post_reports")
+    .update({ status: "actioned" })
+    .eq("post_id", postId);
+  if (closeError) throw closeError;
+  const { error } = await supabase.from("posts").delete().eq("id", postId);
+  if (error) throw error;
+}
+
 export async function reviewReport(id: string, status: "dismissed" | "actioned") {
   const { error } = await supabase.from("post_reports").update({ status }).eq("id", id);
   if (error) throw error;
