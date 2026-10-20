@@ -49,6 +49,7 @@ import { AdminAds } from "@/components/AdminAds";
 import { AdminLaunch } from "@/components/AdminLaunch";
 import { AdminMoney } from "@/components/AdminMoney";
 import { AdminMarketing } from "@/components/AdminMarketing";
+import { AdminShopsAi } from "@/components/AdminShopsAi";
 import { useMoneyFeature } from "@/lib/money";
 import { useLaunchKitFeature } from "@/lib/launch";
 import { useBusinessesFeature } from "@/lib/businesses";
@@ -98,6 +99,7 @@ type AdminSection =
   | "launch"
   | "money"
   | "marketing"
+  | "shops"
   | "reports"
   | "people"
   | "protect"
@@ -329,6 +331,7 @@ function AdminPage() {
             ...(launchOn ? ([["launch", "Launch", Rocket]] as const) : []),
             ...(moneyOn ? ([["money", "Money", PoundSterling]] as const) : []),
             ...(moneyOn ? ([["marketing", "Marketing", TrendingUp]] as const) : []),
+            ...(moneyOn ? ([["shops", "Shops & AI", Store]] as const) : []),
             ["reports", "Reports", FileWarning],
             ["people", "People", UserCog],
             ["protect", "Protect Posts", Shield],
@@ -358,6 +361,7 @@ function AdminPage() {
       {section === "launch" && launchOn && <AdminLaunch />}
       {section === "money" && moneyOn && <AdminMoney />}
       {section === "marketing" && moneyOn && <AdminMarketing />}
+      {section === "shops" && moneyOn && <AdminShopsAi />}
 
       {section === "reports" && (
         <section className="mt-6">

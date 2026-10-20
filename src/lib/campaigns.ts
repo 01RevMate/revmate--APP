@@ -4,7 +4,14 @@
 // to ad links (organic posts can use the bare link).
 
 export type CampaignLink =
-  "/fuel-prices" | "/ev-chargers" | "/sell" | "/meets" | "/marketplace" | "/cars" | "/signup";
+  | "/fuel-prices"
+  | "/ev-chargers"
+  | "/sell"
+  | "/meets"
+  | "/marketplace"
+  | "/cars"
+  | "/diagnose"
+  | "/signup";
 
 export type Campaign = {
   slug: string;
@@ -69,11 +76,15 @@ export const CAMPAIGNS: Campaign[] = [
   {
     slug: "faults",
     emoji: "🔧",
-    headline: "Know your car's common faults",
-    sub: "Real problems and fixes from owners of the same model.",
-    points: ["Common faults by model", "Fixes that worked", "Ask owners for help"],
-    cta: "Look up my car",
-    to: "/cars",
+    headline: "What's wrong with my car?",
+    sub: "Answer a few quick questions to find the likely cause, how urgent it is and a rough price.",
+    points: [
+      "Leaks, warning lights, noises, smoke",
+      "How urgent and rough UK cost",
+      "Ask owners who've fixed it",
+    ],
+    cta: "Diagnose my car",
+    to: "/diagnose",
   },
 ];
 

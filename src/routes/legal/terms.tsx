@@ -172,6 +172,16 @@ function TermsPage() {
             company, not RevMate.
           </li>
           <li>
+            <strong>Shops</strong> are independent sellers. When you buy from one you buy on their
+            website and the sale is between you and them. Shop owners must only list things they can
+            legally sell, that are safe and, where it matters, road-legal.
+          </li>
+          <li>
+            <strong>Fix a problem</strong> (including RevMate AI) gives a guide based on what you
+            tell it, not a guaranteed diagnosis. It can't see or hear your car. Don't drive a car
+            you think may be unsafe; ask a qualified mechanic.
+          </li>
+          <li>
             <strong>Promoted businesses and sponsored challenges</strong> are paid placements and
             are always labelled. Promotion doesn't mean we've checked or recommend a business.
           </li>

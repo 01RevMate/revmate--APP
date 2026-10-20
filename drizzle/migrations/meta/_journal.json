@@ -463,6 +463,13 @@
       "when": 1792453676040,
       "tag": "0065_campaigns",
       "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1792455610692,
+      "tag": "0066_diagnosis_and_shops",
+      "breakpoints": true
     }
   ]
 }

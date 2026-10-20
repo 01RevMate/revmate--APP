@@ -36,6 +36,8 @@ const PUBLIC_PATHS: RegExp[] = [
   // TikTok / ad landing pages and the Plus page.
   /^\/go\/[^/]+\/?$/,
   /^\/plus\/?$/,
+  /^\/diagnose\/?$/,
+  /^\/shops(\/[^/]+)?\/?$/,
 ];
 
 // What people were trying to open, so the join screen can sell exactly that.

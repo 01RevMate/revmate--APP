@@ -5,6 +5,7 @@ import { useHasRevs } from "@/lib/engagement";
 import { useLaunchKitFeature } from "@/lib/launch";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { useMoneySettings } from "@/lib/money";
+import { useShopCount } from "@/lib/shops";
 import {
   Menu,
   Home,
@@ -24,6 +25,7 @@ import {
   MessageSquareHeart,
   Gem,
   Shirt,
+  Store,
 } from "lucide-react";
 import { isAppInstalled } from "@/lib/pwaInstall";
 import { openInstallPrompt } from "@/components/InstallAppPrompt";
@@ -83,6 +85,7 @@ export function MobileMenu() {
   const hasRevs = useHasRevs();
   const feedbackOn = useLaunchKitFeature();
   const money = useMoneySettings();
+  const shopCount = useShopCount();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [showInstall, setShowInstall] = useState(false);
@@ -116,6 +119,9 @@ export function MobileMenu() {
           <MenuLink to="/cars" icon={Car} label="Browse Cars" onNavigate={close} />
           <MenuLink to="/essentials" icon={Wrench} label="Essentials" onNavigate={close} />
           <MenuLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" onNavigate={close} />
+          {(shopCount ?? 0) > 0 && (
+            <MenuLink to="/shops" icon={Store} label="Shops" onNavigate={close} />
+          )}
           <MenuLink to="/meets" icon={CalendarDays} label="Meets & Events" onNavigate={close} />
           {BATTLES_ENABLED && (
             <MenuLink to="/battles" icon={Trophy} label="Top cars" onNavigate={close} />

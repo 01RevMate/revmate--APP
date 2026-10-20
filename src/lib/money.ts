@@ -18,6 +18,8 @@ export type MoneySettings = {
   tiktok_pixel_id: string;
   android_package: string;
   android_fingerprint: string;
+  /** AI diagnosis (0066): admin switch in Admin → Shops & AI. */
+  ai_diagnosis_enabled: boolean;
 };
 
 /** App settings, or null until the money SQL has run. */
@@ -35,6 +37,7 @@ export function useMoneySettings(): MoneySettings | null {
         tiktok_pixel_id: map.get("tiktok_pixel_id") ?? "",
         android_package: map.get("android_package") ?? "",
         android_fingerprint: map.get("android_fingerprint") ?? "",
+        ai_diagnosis_enabled: map.get("ai_diagnosis_enabled") === "true",
       };
     },
     staleTime: 5 * 60_000,
@@ -53,7 +56,10 @@ export function usePaymentsEnabled(): boolean {
   return useMoneySettings()?.payments_enabled === true;
 }
 
-export async function saveSetting(key: keyof MoneySettings, value: string) {
+export async function saveSetting(
+  key: keyof MoneySettings | "ai_daily_cap" | "ai_user_daily_cap",
+  value: string,
+) {
   const { error } = await db
     .from("app_settings")
     .upsert({ key, value, updated_at: new Date().toISOString() });

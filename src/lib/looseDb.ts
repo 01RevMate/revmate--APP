@@ -14,6 +14,7 @@ export type LooseQuery = PromiseLike<{ data: unknown; error: { message: string }
     | "eq"
     | "in"
     | "gt"
+    | "contains"
     | "order"
     | "limit"
     | "maybeSingle",

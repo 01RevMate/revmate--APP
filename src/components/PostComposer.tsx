@@ -92,6 +92,8 @@ export function PostComposer({
   bare = false,
   helpPost = false,
   initialBody = "",
+  initialIssueSystem,
+  initialCarTag,
 }: {
   onPosted: () => void;
   lockedGroup?: { id: string; name: string; postPolicy: "member" | "moderated" };
@@ -110,13 +112,17 @@ export function PostComposer({
   helpPost?: boolean;
   /** Text to start with, e.g. "Is the Tesco charger working?" from the charger map. */
   initialBody?: string;
+  /** Help post from the diagnosis tool: the part of the car is already known. */
+  initialIssueSystem?: string | undefined;
+  /** Help post from the diagnosis tool: tag the car it was about. */
+  initialCarTag?: CarTag | undefined;
 }) {
   const { user } = useAuth();
   const { open: openAuthModal } = useAuthModal();
   const { data: profile } = useProfile();
   const [body, setBody] = useState(initialBody);
   const [carId, setCarId] = useState("");
-  const [tagging, setTagging] = useState(false);
+  const [tagging, setTagging] = useState(!!initialCarTag?.make);
   const [selectedGarageCarId, setSelectedGarageCarId] = useState("");
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [publishingCategory, setPublishingCategory] = useState<Post["category"] | null>(null);
@@ -135,7 +141,7 @@ export function PostComposer({
   const [hashtagQuery, setHashtagQuery] = useState<string | null>(null);
   const diagnosticsOn = useDiagnosticsFeature();
   const [issueStep, setIssueStep] = useState(false);
-  const [carTag, setCarTag] = useState<CarTag>(EMPTY_CAR_TAG);
+  const [carTag, setCarTag] = useState<CarTag>(initialCarTag ?? EMPTY_CAR_TAG);
   const mirrorRef = useRef<HTMLDivElement>(null);
   const engagement = useEngagementFeatures();
 
@@ -295,6 +301,11 @@ export function PostComposer({
     // A linked spotted car already says what kind of post this is.
     if (spottedCar) {
       void publishPost("spotted");
+      return;
+    }
+    // Coming from the diagnosis tool we already know which part of the car.
+    if (helpPost && diagnosticsOn && initialIssueSystem) {
+      void publishPost("diagnostics", initialIssueSystem);
       return;
     }
     if (helpPost && diagnosticsOn) setIssueStep(true);
@@ -517,10 +528,7 @@ export function PostComposer({
                       : "border-input bg-background hover:bg-accent"
                   }`}
                 >
-                  <CarLogo
-                    make={car.make}
-                    className="size-5 shrink-0"
-                  />
+                  <CarLogo make={car.make} className="size-5 shrink-0" />
                   {car.nickname}
                 </button>
               );

@@ -15,6 +15,7 @@ import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AskRouteImport } from './routes/ask'
 import { Route as BattlesRouteImport } from './routes/battles'
 import { Route as CommunityStandardsRouteImport } from './routes/community-standards'
+import { Route as DiagnoseRouteImport } from './routes/diagnose'
 import { Route as EssentialsRouteImport } from './routes/essentials'
 import { Route as EvChargersRouteImport } from './routes/ev-chargers'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -56,6 +57,9 @@ import { Route as MeetsMeetIdRouteImport } from './routes/meets/$meetId'
 import { Route as MessagesUsernameRouteImport } from './routes/messages.$username'
 import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as ReviewListingIdRouteImport } from './routes/review.$listingId'
+import { Route as ShopsIndexRouteImport } from './routes/shops/index'
+import { Route as ShopsSlugRouteImport } from './routes/shops/$slug'
+import { Route as ShopsNewRouteImport } from './routes/shops/new'
 import { Route as TagsTagRouteImport } from './routes/tags.$tag'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as MarketplaceListingIdEditRouteImport } from './routes/marketplace/$listingId_.edit'
@@ -90,6 +94,11 @@ const BattlesRoute = BattlesRouteImport.update({
 const CommunityStandardsRoute = CommunityStandardsRouteImport.update({
   id: '/community-standards',
   path: '/community-standards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiagnoseRoute = DiagnoseRouteImport.update({
+  id: '/diagnose',
+  path: '/diagnose',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EssentialsRoute = EssentialsRouteImport.update({
@@ -298,6 +307,21 @@ const ReviewListingIdRoute = ReviewListingIdRouteImport.update({
   path: '/review/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopsIndexRoute = ShopsIndexRouteImport.update({
+  id: '/shops/',
+  path: '/shops/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopsSlugRoute = ShopsSlugRouteImport.update({
+  id: '/shops/$slug',
+  path: '/shops/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopsNewRoute = ShopsNewRouteImport.update({
+  id: '/shops/new',
+  path: '/shops/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TagsTagRoute = TagsTagRouteImport.update({
   id: '/tags/$tag',
   path: '/tags/$tag',
@@ -332,6 +356,7 @@ export interface FileRoutesByFullPath {
   '/ask': typeof AskRoute
   '/battles': typeof BattlesRoute
   '/community-standards': typeof CommunityStandardsRoute
+  '/diagnose': typeof DiagnoseRoute
   '/essentials': typeof EssentialsRoute
   '/ev-chargers': typeof EvChargersRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -368,6 +393,8 @@ export interface FileRoutesByFullPath {
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/review/$listingId': typeof ReviewListingIdRoute
+  '/shops/$slug': typeof ShopsSlugRoute
+  '/shops/new': typeof ShopsNewRoute
   '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
   '/businesses/': typeof BusinessesIndexRoute
@@ -375,6 +402,7 @@ export interface FileRoutesByFullPath {
   '/groups/': typeof GroupsIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/meets/': typeof MeetsIndexRoute
+  '/shops/': typeof ShopsIndexRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
@@ -386,6 +414,7 @@ export interface FileRoutesByTo {
   '/ask': typeof AskRoute
   '/battles': typeof BattlesRoute
   '/community-standards': typeof CommunityStandardsRoute
+  '/diagnose': typeof DiagnoseRoute
   '/essentials': typeof EssentialsRoute
   '/ev-chargers': typeof EvChargersRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -422,6 +451,8 @@ export interface FileRoutesByTo {
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/review/$listingId': typeof ReviewListingIdRoute
+  '/shops/$slug': typeof ShopsSlugRoute
+  '/shops/new': typeof ShopsNewRoute
   '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
   '/businesses': typeof BusinessesIndexRoute
@@ -429,6 +460,7 @@ export interface FileRoutesByTo {
   '/groups': typeof GroupsIndexRoute
   '/marketplace': typeof MarketplaceIndexRoute
   '/meets': typeof MeetsIndexRoute
+  '/shops': typeof ShopsIndexRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
@@ -441,6 +473,7 @@ export interface FileRoutesById {
   '/ask': typeof AskRoute
   '/battles': typeof BattlesRoute
   '/community-standards': typeof CommunityStandardsRoute
+  '/diagnose': typeof DiagnoseRoute
   '/essentials': typeof EssentialsRoute
   '/ev-chargers': typeof EvChargersRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -477,6 +510,8 @@ export interface FileRoutesById {
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/review/$listingId': typeof ReviewListingIdRoute
+  '/shops/$slug': typeof ShopsSlugRoute
+  '/shops/new': typeof ShopsNewRoute
   '/tags/$tag': typeof TagsTagRoute
   '/u/$username': typeof UUsernameRoute
   '/businesses/': typeof BusinessesIndexRoute
@@ -484,6 +519,7 @@ export interface FileRoutesById {
   '/groups/': typeof GroupsIndexRoute
   '/marketplace/': typeof MarketplaceIndexRoute
   '/meets/': typeof MeetsIndexRoute
+  '/shops/': typeof ShopsIndexRoute
   '/marketplace/$listingId_/edit': typeof MarketplaceListingIdEditRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username_/cars/$carId': typeof UUsernameCarsCarIdRoute
@@ -497,6 +533,7 @@ export interface FileRouteTypes {
     | '/ask'
     | '/battles'
     | '/community-standards'
+    | '/diagnose'
     | '/essentials'
     | '/ev-chargers'
     | '/forgot-password'
@@ -533,6 +570,8 @@ export interface FileRouteTypes {
     | '/messages/$username'
     | '/posts/$postId'
     | '/review/$listingId'
+    | '/shops/$slug'
+    | '/shops/new'
     | '/tags/$tag'
     | '/u/$username'
     | '/businesses/'
@@ -540,6 +579,7 @@ export interface FileRouteTypes {
     | '/groups/'
     | '/marketplace/'
     | '/meets/'
+    | '/shops/'
     | '/marketplace/$listingId/edit'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
@@ -551,6 +591,7 @@ export interface FileRouteTypes {
     | '/ask'
     | '/battles'
     | '/community-standards'
+    | '/diagnose'
     | '/essentials'
     | '/ev-chargers'
     | '/forgot-password'
@@ -587,6 +628,8 @@ export interface FileRouteTypes {
     | '/messages/$username'
     | '/posts/$postId'
     | '/review/$listingId'
+    | '/shops/$slug'
+    | '/shops/new'
     | '/tags/$tag'
     | '/u/$username'
     | '/businesses'
@@ -594,6 +637,7 @@ export interface FileRouteTypes {
     | '/groups'
     | '/marketplace'
     | '/meets'
+    | '/shops'
     | '/marketplace/$listingId/edit'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
@@ -605,6 +649,7 @@ export interface FileRouteTypes {
     | '/ask'
     | '/battles'
     | '/community-standards'
+    | '/diagnose'
     | '/essentials'
     | '/ev-chargers'
     | '/forgot-password'
@@ -641,6 +686,8 @@ export interface FileRouteTypes {
     | '/messages/$username'
     | '/posts/$postId'
     | '/review/$listingId'
+    | '/shops/$slug'
+    | '/shops/new'
     | '/tags/$tag'
     | '/u/$username'
     | '/businesses/'
@@ -648,6 +695,7 @@ export interface FileRouteTypes {
     | '/groups/'
     | '/marketplace/'
     | '/meets/'
+    | '/shops/'
     | '/marketplace/$listingId_/edit'
     | '/cars/$make/$model/$generation'
     | '/u/$username_/cars/$carId'
@@ -660,6 +708,7 @@ export interface RootRouteChildren {
   AskRoute: typeof AskRoute
   BattlesRoute: typeof BattlesRoute
   CommunityStandardsRoute: typeof CommunityStandardsRoute
+  DiagnoseRoute: typeof DiagnoseRoute
   EssentialsRoute: typeof EssentialsRoute
   EvChargersRoute: typeof EvChargersRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -695,6 +744,8 @@ export interface RootRouteChildren {
   MeetsMeetIdRoute: typeof MeetsMeetIdRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
   ReviewListingIdRoute: typeof ReviewListingIdRoute
+  ShopsSlugRoute: typeof ShopsSlugRoute
+  ShopsNewRoute: typeof ShopsNewRoute
   TagsTagRoute: typeof TagsTagRoute
   UUsernameRoute: typeof UUsernameRoute
   BusinessesIndexRoute: typeof BusinessesIndexRoute
@@ -702,6 +753,7 @@ export interface RootRouteChildren {
   GroupsIndexRoute: typeof GroupsIndexRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
   MeetsIndexRoute: typeof MeetsIndexRoute
+  ShopsIndexRoute: typeof ShopsIndexRoute
   MarketplaceListingIdEditRoute: typeof MarketplaceListingIdEditRoute
   CarsMakeModelGenerationRoute: typeof CarsMakeModelGenerationRoute
   UUsernameCarsCarIdRoute: typeof UUsernameCarsCarIdRoute
@@ -749,6 +801,13 @@ declare module '@tanstack/react-router' {
       path: '/community-standards'
       fullPath: '/community-standards'
       preLoaderRoute: typeof CommunityStandardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diagnose': {
+      id: '/diagnose'
+      path: '/diagnose'
+      fullPath: '/diagnose'
+      preLoaderRoute: typeof DiagnoseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/essentials': {
@@ -1038,6 +1097,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReviewListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shops/': {
+      id: '/shops/'
+      path: '/shops'
+      fullPath: '/shops/'
+      preLoaderRoute: typeof ShopsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shops/$slug': {
+      id: '/shops/$slug'
+      path: '/shops/$slug'
+      fullPath: '/shops/$slug'
+      preLoaderRoute: typeof ShopsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shops/new': {
+      id: '/shops/new'
+      path: '/shops/new'
+      fullPath: '/shops/new'
+      preLoaderRoute: typeof ShopsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tags/$tag': {
       id: '/tags/$tag'
       path: '/tags/$tag'
@@ -1095,6 +1175,7 @@ const rootRouteChildren: RootRouteChildren = {
   AskRoute: AskRoute,
   BattlesRoute: BattlesRoute,
   CommunityStandardsRoute: CommunityStandardsRoute,
+  DiagnoseRoute: DiagnoseRoute,
   EssentialsRoute: EssentialsRoute,
   EvChargersRoute: EvChargersRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
@@ -1130,6 +1211,8 @@ const rootRouteChildren: RootRouteChildren = {
   MeetsMeetIdRoute: MeetsMeetIdRoute,
   PostsPostIdRoute: PostsPostIdRoute,
   ReviewListingIdRoute: ReviewListingIdRoute,
+  ShopsSlugRoute: ShopsSlugRoute,
+  ShopsNewRoute: ShopsNewRoute,
   TagsTagRoute: TagsTagRoute,
   UUsernameRoute: UUsernameRoute,
   BusinessesIndexRoute: BusinessesIndexRoute,
@@ -1137,6 +1220,7 @@ const rootRouteChildren: RootRouteChildren = {
   GroupsIndexRoute: GroupsIndexRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,
   MeetsIndexRoute: MeetsIndexRoute,
+  ShopsIndexRoute: ShopsIndexRoute,
   MarketplaceListingIdEditRoute: MarketplaceListingIdEditRoute,
   CarsMakeModelGenerationRoute: CarsMakeModelGenerationRoute,
   UUsernameCarsCarIdRoute: UUsernameCarsCarIdRoute,

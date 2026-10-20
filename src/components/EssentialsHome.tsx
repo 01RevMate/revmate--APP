@@ -27,6 +27,7 @@ import { daysUntil, dueState, useCarCareFeature, type DueState } from "@/lib/car
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { formatPrice } from "@/lib/marketplace";
 import { DealsStrip } from "@/components/DealsStrip";
+import { ShopsSection } from "@/components/ShopsSection";
 
 // Essentials: the practical, just-for-me side of RevMate, styled like an
 // iOS app — grey background, white rounded cards, big tap targets and
@@ -42,6 +43,7 @@ type LinkTarget =
         | "/garage"
         | "/meets"
         | "/issues"
+        | "/diagnose"
         | "/businesses"
         | "/ev-chargers"
         | "/fuel-prices";
@@ -281,10 +283,10 @@ export function EssentialsHome() {
       <section className="grid grid-cols-2 gap-3">
         <ToolTile
           title="Fix a problem"
-          hint="Faults other owners fixed"
+          hint="Step-by-step diagnosis"
           icon={Stethoscope}
           colour="bg-[#ff3b30]"
-          link={{ to: "/issues" }}
+          link={{ to: "/diagnose" }}
         />
         <ToolTile
           title="Find a mechanic"
@@ -357,6 +359,8 @@ export function EssentialsHome() {
             : []),
         ]}
       />
+
+      <ShopsSection />
 
       <DealsStrip placement="essentials" />
 

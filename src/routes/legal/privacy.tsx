@@ -189,6 +189,11 @@ function PrivacyPage() {
           <li>
             Stripe — card payments, receipts and managing subscriptions, only if you buy something
           </li>
+          <li>TikTok — ad measurement, only if you allow ad cookies</li>
+          <li>
+            Anthropic — only if you use "Ask RevMate AI" in Fix a problem: your answers, the car and
+            anything you type are sent to generate the diagnosis. Don't include personal details.
+          </li>
         </ul>
         <p className="mt-2">
           Some providers may process data outside the UK. When they do, we rely on UK adequacy

@@ -6,7 +6,8 @@ diagnostics), 17 (Buy & Sell upgrade), 18 (group covers + more social
 links) and 19 (public profile pages) were applied on 1–2 October 2026, and
 steps 20 (remove location from posts — found already applied by hand) and
 21 (security fixes) on 5 October 2026. Step 22 (group icons) has also run. Left to do: step 23 (launch kit), step 24
-(money), step 25 (campaigns) and the optional phone notifications setup.
+(money), step 25 (campaigns), step 26 (diagnosis & shops) and the optional phone notifications
+setup.
 
 ---
 
@@ -51,6 +52,19 @@ campaign_visits table (daily counts only), a signup_sources table filled by a
 trigger on public.profiles, public.record_campaign_visit() (callable by
 anyone), the admin-only public.admin_campaign_stats(), and three empty
 app_settings rows. Then regenerate the Supabase types.
+```
+
+---
+
+## Prompt D — AI diagnosis limits & Shops (run after Prompt C)
+
+```
+Please run sql-to-run/26_diagnosis_and_shops.sql on the connected Supabase
+database, exactly as committed. Don't change it; it's safe to re-run. It adds
+ai_usage with a service-role-only ai_take_credit() function, the admin-only
+admin_ai_usage(), shops and shop_products tables with their policies and
+triggers, record_shop_click(), and three app_settings rows. Then regenerate
+the Supabase types.
 ```
 
 ---

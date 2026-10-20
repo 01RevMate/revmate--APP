@@ -48,7 +48,22 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
   admin-only `admin_campaign_stats()`, and empty `tiktok_pixel_id`,
   `android_package` and `android_fingerprint` settings.
 
-### 4. Phone push notifications (optional, needs a few setup steps)
+### 4. AI diagnosis limits + Shops
+
+- File: `drizzle/migrations/0066_diagnosis_and_shops.sql` (`sql-to-run/26_diagnosis_and_shops.sql`). Run after item 3.
+- Added: 2026-10-20
+- Needed by: the Shops directory (`/shops`, "List your shop", Admin →
+  Shops & AI) and the "Ask RevMate AI" step in Fix a problem. The built-in
+  step-by-step diagnosis at `/diagnose` works without it.
+- Adds `ai_usage` + service-role-only `ai_take_credit()` (AI is off until an
+  admin switches it on; whole-site and per-person daily caps), the admin-only
+  `admin_ai_usage()`, `shops` and `shop_products` (owners apply, admins
+  approve; owners can't approve or promote themselves), and
+  `record_shop_click()`.
+- AI also needs the `diagnose` edge function deployed and an
+  `ANTHROPIC_API_KEY` secret — see `AI_DIAGNOSIS_SETUP.md`.
+
+### 5. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
 - Added: 2026-09-27

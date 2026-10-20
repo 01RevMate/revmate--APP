@@ -24,6 +24,19 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.29.0",
+    date: "2026-10-20",
+    title: "Fix a problem, step by step — and Shops",
+    status: "needs_database_update",
+    highlights: [
+      "New Fix a problem: pick what's happening (leak, warning light, noise, smoke, won't start…), answer a few quick questions and see the likely causes, how urgent each is, a rough UK price and a safe check to do yourself.",
+      "Ask RevMate AI: describe it in your own words and the AI asks a couple more questions to narrow it down, using what other owners of your car have reported.",
+      "Not sure? One tap writes a help post from your answers, filed under the right part of the car, or finds a mechanic.",
+      "Shops: car stuff from UK brands and small makers, from parts and detailing to air fresheners and merch. Make something? List your shop free.",
+    ],
+    requiredSql: ["drizzle/migrations/0066_diagnosis_and_shops.sql"],
+  },
+  {
     version: "1.28.0",
     date: "2026-10-19",
     title: "Ready for TikTok",
