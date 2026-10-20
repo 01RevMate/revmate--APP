@@ -11,6 +11,8 @@
 
 ## Release history
 
+- Member-owned businesses use existing member authentication and owner-scoped database policies; ownership and verification remain protected so business management cannot grant privileges.
+
 - Legacy Deno functions with npm imports use a local `deno.json` with `nodeModulesDir: "auto"` so dependency resolution works during preview validation without adding browser dependencies.
 
 `src/lib/changelog.ts` is the app's release history. It powers the App

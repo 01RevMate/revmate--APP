@@ -29,13 +29,14 @@ export const RELEASES: Release[] = [
     title: "Business profiles with photos",
     status: "needs_database_update",
     highlights: [
+      "Use your normal RevMate account to add a business, upload its logo, manage contact details and photos, and reply to reviews from My business.",
       "Business pages now look like a proper profile: a photo grid, Open now and opening hours, address with directions, services, and Call, Directions, Website and Share buttons.",
       "Add up to 5 photos to your review, and see every photo from the business and its customers in the Photos tab.",
       "Business owners can add photos, keep their hours and details up to date, and reply to reviews.",
       "Many more kinds of business, grouped into sectors: every type of dealership, specialists, glass, wraps, wheel refurb, breakers, hire, storage, driving schools and more.",
     ],
     fixes: ["Listing pages have a fresher RevMate look, with the price and auction details in their own card."],
-    requiredSql: ["drizzle/migrations/0070_business_profiles.sql"],
+    requiredSql: ["drizzle/migrations/0070_business_profiles.sql", "drizzle/migrations/0071_member_business_management.sql"],
   },
   {
     version: "1.32.0",

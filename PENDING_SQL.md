@@ -39,6 +39,8 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Applied
 
+- 2026-10-20: member business management (0071) applied; owners can create unverified business profiles and manage public contact names and logos without changing ownership, verification, suspension or promotion.
+
 - 2026-10-20: step 30 business profiles applied exactly as committed as
   `drizzle/migrations/0070_apply_business_profiles_step_30.sql`. Types
   regenerated; `SELECT count(*) FROM public.business_photos;` returned 0.

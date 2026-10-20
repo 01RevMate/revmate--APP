@@ -498,6 +498,13 @@
       "when": 1792494134483,
       "tag": "0070_apply_business_profiles_step_30",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1792497695726,
+      "tag": "0071_member_business_management",
+      "breakpoints": true
     }
   ]
 }

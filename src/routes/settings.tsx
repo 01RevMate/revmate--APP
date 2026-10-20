@@ -17,6 +17,7 @@ import {
   SunMoon,
   UserRound,
   UserX,
+  Store,
   type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -178,6 +179,7 @@ function SettingsPage() {
   }
 
   const sections: SettingsItem[] = [
+    { id: "business", group: "Account", title: "My business", blurb: "Business profile, photos and reviews", icon: Store, content: <Link to="/businesses/manage" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary"><Store className="size-4" /> Add or manage your business <ChevronRight className="size-4" /></Link> },
     {
       id: "account",
       group: "Account",

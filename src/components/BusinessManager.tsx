@@ -4,6 +4,7 @@ import { Camera, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   addBusinessPhoto,
+  BUSINESS_SECTORS,
   DAYS,
   deleteBusinessPhoto,
   saveBusinessProfile,
@@ -12,6 +13,7 @@ import {
   type OpeningHours,
 } from "@/lib/businesses";
 import { uploadImage, validateImageFile } from "@/lib/uploads";
+import { Button } from "@/components/ui/button";
 
 export const MIN_PHOTOS = 5;
 
@@ -30,6 +32,13 @@ export function BusinessManager({
 }) {
   const queryClient = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
+  const logoRef = useRef<HTMLInputElement>(null);
+  const [logo, setLogo] = useState(business.logo_url);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [name, setName] = useState(business.name);
+  const [category, setCategory] = useState(business.category);
+  const [town, setTown] = useState(business.town ?? "");
+  const [contactName, setContactName] = useState(business.contact_name ?? "");
   const [uploading, setUploading] = useState(0);
   const [saving, setSaving] = useState(false);
   const [description, setDescription] = useState(business.description ?? "");
@@ -44,6 +53,19 @@ export function BusinessManager({
   function refresh() {
     void queryClient.invalidateQueries({ queryKey: ["business", business.id] });
     void queryClient.invalidateQueries({ queryKey: ["businesses"] });
+    void queryClient.invalidateQueries({ queryKey: ["my-businesses"] });
+  }
+
+  async function uploadLogo(file: File | undefined) {
+    if (!file) return;
+    const problem = validateImageFile(file);
+    if (problem) return void toast.error(problem);
+    setLogoUploading(true);
+    try {
+      setLogo(await uploadImage("user-media", userId, file));
+      toast.success("Logo uploaded — save your profile to apply it");
+    } catch (err) { toast.error(err instanceof Error ? err.message : "Couldn't upload logo"); }
+    finally { setLogoUploading(false); if (logoRef.current) logoRef.current.value = ""; }
   }
 
   async function upload(files: FileList | null) {
@@ -92,6 +114,11 @@ export function BusinessManager({
       ) as OpeningHours;
       const anyHours = Object.values(cleanHours).some(Boolean);
       await saveBusinessProfile(business.id, {
+        name: name.trim(),
+        category,
+        town: town.trim() || null,
+        contact_name: contactName.trim() || null,
+        logo_url: logo,
         description: description.trim(),
         address: address.trim() || null,
         phone: phone.trim() || null,
@@ -115,7 +142,7 @@ export function BusinessManager({
 
   const left = Math.max(0, MIN_PHOTOS - ownPhotos.length);
   return (
-    <section className="mt-6 rounded-2xl border border-primary/30 bg-primary/[0.03] p-4">
+    <section className="mt-6 border-t border-border pt-5">
       <h2 className="text-lg font-bold">Manage your profile</h2>
       <p className="text-sm text-muted-foreground">Only you and RevMate's team see this box.</p>
 
@@ -177,6 +204,19 @@ export function BusinessManager({
       </div>
 
       <form onSubmit={save} className="mt-5 space-y-3">
+        <div className="flex items-center gap-3">
+          {logo && <img src={logo} alt={`${name} logo`} className="size-16 rounded-md border border-border object-contain" />}
+          <Button type="button" variant="outline" disabled={logoUploading} onClick={() => logoRef.current?.click()}><Camera />{logoUploading ? "Uploading…" : "Change logo"}</Button>
+          {logo && <Button type="button" variant="ghost" onClick={() => setLogo(null)}>Remove logo</Button>}
+          <input ref={logoRef} aria-label="Business logo" type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e => void uploadLogo(e.target.files?.[0])} />
+        </div>
+        <Field label="Business name"><input required minLength={2} maxLength={100} value={name} onChange={e => setName(e.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" /></Field>
+        <Field label="Business category"><select value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">{BUSINESS_SECTORS.map(s => <optgroup key={s.id} label={s.label}>{s.categories.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</optgroup>)}</select></Field>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="Town"><input maxLength={60} value={town} onChange={e => setTown(e.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" /></Field>
+          <Field label="Contact name"><input maxLength={100} value={contactName} onChange={e => setContactName(e.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" /></Field>
+        </div>
+        <p className="text-xs text-muted-foreground">Business contact details are public. Don't add your private home address.</p>
         <Field label="About the business">
           <textarea
             value={description}
@@ -285,12 +325,12 @@ export function BusinessManager({
           </div>
         </div>
 
-        <button
-          disabled={saving}
+        <Button
+          disabled={saving || logoUploading}
           className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
         >
           {saving ? "Saving…" : "Save profile"}
-        </button>
+        </Button>
       </form>
     </section>
   );

@@ -51,6 +51,7 @@ import { absoluteUrl, seo } from "@/lib/seo";
 import { displayUsername } from "@/lib/usernames";
 import { BusinessProCard } from "@/components/BusinessProCard";
 import { usePaidReturn } from "@/hooks/usePaidReturn";
+import { Button } from "@/components/ui/button";
 
 async function fetchBusinessSeo(id: string) {
   try {
@@ -68,6 +69,7 @@ async function fetchBusinessSeo(id: string) {
 }
 
 export const Route = createFileRoute("/businesses/$businessId")({
+  validateSearch: (search: Record<string, unknown>): { manage?: boolean } => search["manage"] === true || search["manage"] === "true" ? { manage: true } : {},
   loader: ({ params }) => fetchBusinessSeo(params.businessId),
   head: ({ params, loaderData: b }) => {
     const path = `/businesses/${params.businessId}`;
@@ -113,10 +115,11 @@ export const Route = createFileRoute("/businesses/$businessId")({
   component: BusinessPage,
 });
 
-type Tab = "overview" | "reviews" | "photos";
+type Tab = "overview" | "reviews" | "photos" | "manage";
 
 function BusinessPage() {
   const { businessId } = Route.useParams();
+  const search = Route.useSearch();
   const { user } = useAuth();
   const { data: me } = useProfile();
   const { open: openAuthModal } = useAuthModal();
@@ -136,7 +139,7 @@ function BusinessPage() {
     queryFn: () => fetchBusinessPhotos(businessId),
     enabled: profilesOn,
   });
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>(search.manage ? "manage" : "overview");
   const [viewer, setViewer] = useState<{ list: BusinessPhoto[]; index: number } | null>(null);
   const [photoFilter, setPhotoFilter] = useState<"all" | "business" | "customer">("all");
 
@@ -200,6 +203,7 @@ function BusinessPage() {
       </div>
 
       <section className="mt-4">
+        {canManage && <Button variant="outline" className="mb-3" onClick={() => setTab("manage")}>Manage business</Button>}
         <h1 className="flex items-center gap-1.5 text-2xl font-bold leading-tight">
           {business.name}
           {business.verified && (
@@ -266,6 +270,7 @@ function BusinessPage() {
             ...(profilesOn
               ? ([["photos", `Photos${gallery.length ? ` (${gallery.length})` : ""}`]] as const)
               : []),
+            ...(canManage ? ([["manage", "Manage"]] as const) : []),
           ] as const
         ).map(([id, label]) => (
           <button
@@ -326,6 +331,7 @@ function BusinessPage() {
                 </a>
               </InfoRow>
             )}
+            {business.contact_name && <InfoRow icon={Mail}>Contact: {business.contact_name}</InfoRow>}
             {business.covers_areas.length > 0 && (
               <InfoRow icon={Truck}>Covers {business.covers_areas.join(", ")}</InfoRow>
             )}
@@ -448,10 +454,10 @@ function BusinessPage() {
         </section>
       )}
 
-      {canManage && user && (
-        <BusinessManager business={business} photos={photos} userId={user.id} />
+      {tab === "manage" && canManage && user && (
+        <BusinessManager key={business.id} business={business} photos={photos} userId={user.id} />
       )}
-      {isOwner && <BusinessProCard businessId={business.id} />}
+      {tab === "manage" && isOwner && <BusinessProCard businessId={business.id} />}
 
       <ReportBusiness business={business} user={user} openAuthModal={openAuthModal} />
 
