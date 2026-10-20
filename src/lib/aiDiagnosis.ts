@@ -25,6 +25,8 @@ export type AiResult = {
 
 export type AiRequest = {
   car: { make: string; model: string; year?: string; fuel?: string; mileage?: string } | null;
+  /** What powers the car, when known. Electric rules out engine faults. */
+  powertrain?: "petrol" | "diesel" | "hybrid" | "electric";
   area: string;
   answers: { question: string; answer: string }[];
   description?: string;

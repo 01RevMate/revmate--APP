@@ -39,6 +39,7 @@ export const RequestSchema = z.object({
     })
     .nullable()
     .optional(),
+  powertrain: z.enum(["petrol", "diesel", "hybrid", "electric"]).optional(),
   area: short(60),
   answers: z.array(z.object({ question: short(120), answer: short(120) })).max(10),
   description: short(1000).optional(),
@@ -89,6 +90,12 @@ How to work:
 
 For each cause: a plain name; system (the part of the car, one of: ${SYSTEMS.join(", ")}); urgency ("stop" = don't drive it, "soon" = book it in within days or weeks, "monitor" = keep an eye on it); cost_estimate as a rough UK garage price range in pounds including labour (for example "£80–£250"); why it fits what they described, in one or two sentences; and one simple, safe check they can do themselves.
 
+Match the car's powertrain (it's given when known; otherwise work it out from the make and model, e.g. a Nissan Leaf, Tesla, MG4, Kia EV6, VW ID.3 or Renault Zoe is fully electric):
+- A fully electric car has no engine, engine oil, head gasket, spark plugs, coil packs, fuel system, exhaust, turbo, DPF, EGR, catalytic converter, clutch, timing belt or chain, starter motor or alternator. Never suggest any of these for an EV, even if the built-in guesses or owner reports mention them.
+- For EVs think about the 12V battery (the most common EV fault), the DC-DC converter, the high-voltage battery and its temperature (some, like the Nissan Leaf, have no battery cooling), charging (cable, charge point, charge port, timers), the motor and its single-speed reduction gearbox, the battery coolant loop, regenerative braking and rusty discs, and software. Point anything high-voltage to an EV-trained garage.
+- Hybrids have both an engine and an electric system; consider both.
+- The built-in tool's guesses can be wrong for this car. Ignore any that don't fit it.
+
 Safety comes first:
 - Anything affecting brakes, steering, tyres, a fuel smell or leak, overheating, a flashing engine light, the red oil light, smoke from under the bonnet, or burning plastic: say so in safety_warning and use urgency "stop" where it could be dangerous to keep driving.
 - Never suggest unsafe DIY: no opening a hot coolant cap, no working under a car held only by a jack, no touching high-voltage parts on hybrids or EVs (orange cables), no airbag work. Point them to a mechanic for those.
@@ -106,6 +113,7 @@ export function buildUserMessage(req: DiagnoseRequest): string {
       ? `Car: ${[car.year, car.make, car.model].filter(Boolean).join(" ")}${car.fuel ? `, ${car.fuel}` : ""}${car.mileage ? `, about ${car.mileage} miles` : ""}`
       : "Car: not given",
   );
+  if (req.powertrain) lines.push(`Powertrain: ${req.powertrain}`);
   lines.push(`Problem area: ${req.area}`);
   if (req.answers.length) {
     lines.push("Built-in questions:");

@@ -9,8 +9,19 @@
 
 export type Urgency = "stop" | "soon" | "monitor";
 
+/** What drives the car. Causes, questions and answers can be limited to some. */
+export type Powertrain = "petrol" | "diesel" | "hybrid" | "electric";
+
+/** Needs a petrol or diesel engine (hybrids have one too). */
+const ICE: Powertrain[] = ["petrol", "diesel", "hybrid"];
+const DIESEL: Powertrain[] = ["diesel"];
+const EV: Powertrain[] = ["electric"];
+const ALL: Powertrain[] = ["petrol", "diesel", "hybrid", "electric"];
+
 export type Cause = {
   id: string;
+  /** Only for these powertrains (all when unset). */
+  fits?: Powertrain[];
   name: string;
   /** ISSUE_SYSTEMS id, so community posts and fixes line up. */
   system: string;
@@ -25,6 +36,8 @@ export type Cause = {
 
 export type Option = {
   id: string;
+  /** Only for these powertrains (all when unset). */
+  fits?: Powertrain[];
   label: string;
   emoji?: string;
   /** Evidence added to each cause when picked. */
@@ -35,10 +48,17 @@ export type Option = {
   danger?: string;
 };
 
-export type Question = { id: string; text: string; help?: string; options: Option[] };
+export type Question = {
+  id: string;
+  fits?: Powertrain[];
+  text: string;
+  help?: string;
+  options: Option[];
+};
 
 export type Area = {
   id: string;
+  fits?: Powertrain[];
   label: string;
   emoji: string;
   blurb: string;
@@ -77,6 +97,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "oil_leak",
+        fits: ICE,
         name: "Engine oil leak (gasket or seal)",
         system: "engine",
         urgency: "soon",
@@ -134,6 +155,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "fuel_leak",
+        fits: ICE,
         name: "Fuel leak",
         system: "fuel",
         urgency: "stop",
@@ -145,6 +167,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "exhaust_water",
+        fits: ICE,
         name: "Water from the exhaust (normal)",
         system: "exhaust",
         urgency: "monitor",
@@ -200,6 +223,7 @@ export const AREAS: Area[] = [
           },
           {
             id: "smells_fuel",
+            fits: ICE,
             label: "Smells of petrol or diesel",
             emoji: "⛽",
             weights: { fuel_leak: 8 },
@@ -214,8 +238,15 @@ export const AREAS: Area[] = [
         options: [
           {
             id: "front_middle",
+            fits: ICE,
             label: "Under the engine (front, middle)",
             weights: { oil_leak: 2, coolant_leak: 2 },
+          },
+          {
+            id: "front_ev",
+            fits: EV,
+            label: "Under the front (bonnet area)",
+            weights: { coolant_leak: 3, trans_fluid: 1 },
           },
           {
             id: "front_passenger",
@@ -226,6 +257,7 @@ export const AREAS: Area[] = [
           { id: "middle", label: "Middle of the car", weights: { trans_fluid: 2, fuel_leak: 1 } },
           {
             id: "back",
+            fits: ICE,
             label: "At the back / under the exhaust",
             weights: { exhaust_water: 3, fuel_leak: 1 },
           },
@@ -253,6 +285,7 @@ export const AREAS: Area[] = [
           },
           {
             id: "short_trips",
+            fits: ICE,
             label: "After short trips or cold mornings",
             weights: { exhaust_water: 3 },
           },
@@ -270,6 +303,7 @@ export const AREAS: Area[] = [
     causes: [
       {
         id: "misfire",
+        fits: ICE,
         name: "Engine misfire (coil pack or spark plug)",
         system: "engine",
         urgency: "stop",
@@ -282,6 +316,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "engine_sensor",
+        fits: ICE,
         name: "Engine sensor or emissions fault",
         system: "engine",
         urgency: "soon",
@@ -294,6 +329,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "oil_pressure",
+        fits: ICE,
         name: "Low oil pressure",
         system: "engine",
         urgency: "stop",
@@ -306,6 +342,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "charging",
+        fits: ICE,
         name: "Charging fault (alternator or belt)",
         system: "electrical",
         urgency: "soon",
@@ -318,6 +355,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "overheat_light",
+        fits: ICE,
         name: "Engine overheating",
         system: "cooling",
         urgency: "stop",
@@ -373,6 +411,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "dpf",
+        fits: DIESEL,
         name: "Blocked diesel particulate filter (DPF)",
         system: "exhaust",
         urgency: "soon",
@@ -384,6 +423,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "glow_plug",
+        fits: DIESEL,
         name: "Glow plug or engine management fault (diesel)",
         system: "engine",
         urgency: "soon",
@@ -391,6 +431,45 @@ export const AREAS: Area[] = [
         explain: "A flashing coil light on a diesel usually means an engine management fault.",
         check: "Get the code read. It might go into limp mode (low power).",
         prior: 0.4,
+      },
+      {
+        id: "ev_12v",
+        fits: EV,
+        name: "12V battery low or not being charged",
+        system: "electrical",
+        urgency: "soon",
+        cost: "£100–£250",
+        explain:
+          "EVs still have a small 12V battery that runs the computers and locks. When it's weak, all sorts of warning lights come on at once. It's the most common EV fault.",
+        check:
+          "If lots of lights came on together, get the 12V battery tested at a garage or parts shop.",
+        prior: 2,
+      },
+      {
+        id: "ev_system",
+        fits: EV,
+        name: "EV / high-voltage system fault",
+        system: "electrical",
+        urgency: "stop",
+        cost: "£0–£2,000+",
+        explain:
+          "A 'Check EV system' or red car-with-! light means the car has found a fault in the high-voltage system.",
+        check:
+          "Stop somewhere safe, switch off for a few minutes and restart. If it comes back, get it checked by an EV-trained garage. Never touch orange cables.",
+        prior: 1.5,
+      },
+      {
+        id: "ev_turtle",
+        fits: EV,
+        name: "Reduced power (turtle mode)",
+        system: "electrical",
+        urgency: "soon",
+        cost: "£0–£1,500",
+        explain:
+          "The car limits power when the main battery is very low, very cold or very hot, or when it finds a fault.",
+        check:
+          "Check the charge level. If it's charged and not freezing or very hot, get the fault codes read.",
+        prior: 1,
       },
     ],
     questions: [
@@ -400,20 +479,29 @@ export const AREAS: Area[] = [
         options: [
           {
             id: "engine",
+            fits: ICE,
             label: "Engine outline (amber)",
             emoji: "🟧",
             weights: { engine_sensor: 4, misfire: 2, dpf: 1 },
           },
           {
             id: "oil",
+            fits: ICE,
             label: "Oil can (red)",
             emoji: "🛢️",
             weights: { oil_pressure: 8 },
             danger: "The red oil light can mean the engine is about to be damaged.",
           },
-          { id: "battery", label: "Battery (red)", emoji: "🔋", weights: { charging: 8 } },
+          {
+            id: "battery",
+            fits: ICE,
+            label: "Battery (red)",
+            emoji: "🔋",
+            weights: { charging: 8 },
+          },
           {
             id: "temp",
+            fits: ICE,
             label: "Thermometer (red)",
             emoji: "🌡️",
             weights: { overheat_light: 8 },
@@ -428,13 +516,35 @@ export const AREAS: Area[] = [
           { id: "abs", label: "ABS", weights: { abs: 8 } },
           { id: "airbag", label: "Airbag / seatbelt person", weights: { airbag: 8 } },
           { id: "tyre", label: "Tyre with ( ! )", weights: { tyre_pressure: 8 } },
-          { id: "dpf", label: "Box with dots (DPF)", weights: { dpf: 8 } },
-          { id: "coil", label: "Coil / spring (diesel)", weights: { glow_plug: 7 } },
+          { id: "dpf", fits: DIESEL, label: "Box with dots (DPF)", weights: { dpf: 8 } },
+          { id: "coil", fits: DIESEL, label: "Coil / spring (diesel)", weights: { glow_plug: 7 } },
+          {
+            id: "ev_battery",
+            fits: EV,
+            label: "Battery (red)",
+            emoji: "🔋",
+            weights: { ev_12v: 8 },
+          },
+          {
+            id: "ev_check",
+            fits: EV,
+            label: "Car with ( ! ) or 'Check EV system'",
+            weights: { ev_system: 8 },
+            danger: "An EV system fault can stop the car. Get it checked before long journeys.",
+          },
+          {
+            id: "ev_turtle_light",
+            fits: EV,
+            label: "Turtle (reduced power)",
+            emoji: "🐢",
+            weights: { ev_turtle: 8 },
+          },
           NOT_SURE,
         ],
       },
       {
         id: "flashing",
+        fits: ICE,
         text: "Is it flashing or steady?",
         options: [
           { id: "flashing", label: "Flashing", weights: { misfire: 5, glow_plug: 2 } },
@@ -449,18 +559,18 @@ export const AREAS: Area[] = [
           {
             id: "normal",
             label: "Seems normal",
-            weights: { engine_sensor: 2, tyre_pressure: 1, abs: 1, airbag: 1 },
+            weights: { engine_sensor: 2, tyre_pressure: 1, abs: 1, airbag: 1, ev_12v: 1 },
           },
           {
             id: "no_power",
             label: "Down on power / limp mode",
-            weights: { dpf: 3, glow_plug: 2, misfire: 1 },
+            weights: { dpf: 3, glow_plug: 2, misfire: 1, ev_turtle: 4 },
           },
-          { id: "shaking", label: "Shaking or running rough", weights: { misfire: 5 } },
+          { id: "shaking", fits: ICE, label: "Shaking or running rough", weights: { misfire: 5 } },
           {
             id: "dim_lights",
             label: "Lights dim or electrics acting up",
-            weights: { charging: 4 },
+            weights: { charging: 4, ev_12v: 4 },
           },
           NOT_SURE,
         ],
@@ -510,6 +620,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "aux_belt",
+        fits: ICE,
         name: "Slipping auxiliary (fan) belt",
         system: "engine",
         urgency: "soon",
@@ -533,6 +644,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "heat_shield",
+        fits: ICE,
         name: "Loose exhaust heat shield",
         system: "exhaust",
         urgency: "monitor",
@@ -543,6 +655,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "timing_chain",
+        fits: ICE,
         name: "Stretched timing chain",
         system: "engine",
         urgency: "stop",
@@ -554,6 +667,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "low_oil_tick",
+        fits: ICE,
         name: "Low oil or noisy tappets",
         system: "engine",
         urgency: "soon",
@@ -571,6 +685,32 @@ export const AREAS: Area[] = [
         explain: "A whine that changes with speed or gear, not with engine revs.",
         check: "Does it change when you dip the clutch or go into neutral?",
         prior: 0.6,
+      },
+      {
+        id: "ev_motor",
+        fits: EV,
+        name: "Motor or reduction gear bearing",
+        system: "engine",
+        urgency: "soon",
+        cost: "£300–£1,500",
+        explain:
+          "EVs are quiet, so a whine or hum that rises with speed often comes from the motor or its single-speed gearbox bearings.",
+        check:
+          "Note the speed it starts at and whether it changes when you lift off. Then get it checked by an EV-trained garage.",
+        prior: 1,
+      },
+      {
+        id: "ev_sound",
+        fits: EV,
+        name: "Pedestrian warning sound (normal)",
+        system: "other",
+        urgency: "monitor",
+        cost: "£0",
+        explain:
+          "EVs play a humming sound at low speed so people can hear them coming. It's meant to be there.",
+        check:
+          "Does it only happen under about 20 mph and stop above that? That's the warning sound.",
+        prior: 1,
       },
     ],
     questions: [
@@ -606,10 +746,10 @@ export const AREAS: Area[] = [
             id: "hum",
             label: "Hum, drone or roar",
             emoji: "🐝",
-            weights: { wheel_bearing: 5, gearbox_whine: 1 },
+            weights: { wheel_bearing: 5, gearbox_whine: 1, ev_motor: 3 },
           },
           { id: "whine", label: "Whine", emoji: "🎵", weights: { gearbox_whine: 4, aux_belt: 1 } },
-          { id: "tick", label: "Ticking", emoji: "⏱️", weights: { low_oil_tick: 5 } },
+          { id: "tick", fits: ICE, label: "Ticking", emoji: "⏱️", weights: { low_oil_tick: 5 } },
           NOT_SURE,
         ],
       },
@@ -622,18 +762,26 @@ export const AREAS: Area[] = [
           { id: "bumps", label: "Over bumps", weights: { suspension: 5, heat_shield: 2 } },
           {
             id: "cold_start",
+            fits: ICE,
             label: "Just after a cold start",
             weights: { timing_chain: 4, aux_belt: 3, low_oil_tick: 1 },
           },
           {
             id: "speed",
             label: "At speed, getting louder",
-            weights: { wheel_bearing: 4, gearbox_whine: 2 },
+            weights: { wheel_bearing: 4, gearbox_whine: 2, ev_motor: 3 },
           },
           {
             id: "revving",
+            fits: ICE,
             label: "When revving or accelerating",
             weights: { aux_belt: 2, heat_shield: 2, low_oil_tick: 2 },
+          },
+          {
+            id: "low_speed",
+            fits: EV,
+            label: "Only at low speed (under 20 mph)",
+            weights: { ev_sound: 6 },
           },
           NOT_SURE,
         ],
@@ -649,10 +797,17 @@ export const AREAS: Area[] = [
           },
           {
             id: "engine_bay",
+            fits: ICE,
             label: "The engine",
             weights: { aux_belt: 2, timing_chain: 2, low_oil_tick: 2 },
           },
           { id: "underneath", label: "Underneath", weights: { heat_shield: 3, gearbox_whine: 1 } },
+          {
+            id: "front_motor",
+            fits: EV,
+            label: "Front, under the bonnet",
+            weights: { ev_motor: 3, gearbox_whine: 1 },
+          },
           NOT_SURE,
         ],
       },
@@ -667,6 +822,7 @@ export const AREAS: Area[] = [
     causes: [
       {
         id: "head_gasket",
+        fits: ICE,
         name: "Head gasket or coolant burning",
         system: "engine",
         urgency: "stop",
@@ -679,6 +835,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "burning_oil",
+        fits: ICE,
         name: "Burning oil (worn seals or turbo)",
         system: "engine",
         urgency: "soon",
@@ -690,6 +847,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "rich_fuel",
+        fits: ICE,
         name: "Running rich (injectors, sensor, turbo or DPF)",
         system: "fuel",
         urgency: "soon",
@@ -701,6 +859,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "condensation",
+        fits: ICE,
         name: "Condensation (normal)",
         system: "exhaust",
         urgency: "monitor",
@@ -712,6 +871,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "clutch_burn",
+        fits: ICE,
         name: "Slipping or overheated clutch",
         system: "gearbox",
         urgency: "soon",
@@ -733,6 +893,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "catalytic",
+        fits: ICE,
         name: "Catalytic converter / fuel mixture",
         system: "exhaust",
         urgency: "soon",
@@ -744,6 +905,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "coolant_smell",
+        fits: ICE,
         name: "Coolant leaking onto the engine",
         system: "cooling",
         urgency: "soon",
@@ -751,6 +913,31 @@ export const AREAS: Area[] = [
         explain:
           "A sweet, syrupy smell, sometimes from the vents, means coolant is leaking somewhere hot.",
         check: "Check the coolant level when cold, and look for crusty marks on hoses.",
+        prior: 1,
+      },
+      {
+        id: "ev_battery_fault",
+        fits: EV,
+        name: "Main battery or charging fault",
+        system: "electrical",
+        urgency: "stop",
+        cost: "Get it inspected",
+        explain:
+          "Smoke, hissing or a sharp chemical smell from underneath an electric car can mean the high-voltage battery is damaged or overheating.",
+        check:
+          "Don't try to check it yourself. Get everyone out, move well away and call 999 if there's smoke.",
+        prior: 1,
+      },
+      {
+        id: "brakes_hot",
+        fits: ALL,
+        name: "Overheated or sticking brake",
+        system: "brakes",
+        urgency: "soon",
+        cost: "£80–£300",
+        explain: "A hot, metallic smell or smoke from one wheel usually means a brake is dragging.",
+        check:
+          "After a short drive, carefully hold your hand near (not on) each wheel. One much hotter than the others points to that brake.",
         prior: 1,
       },
     ],
@@ -761,6 +948,7 @@ export const AREAS: Area[] = [
         options: [
           {
             id: "white_thick",
+            fits: ICE,
             label: "Thick white smoke, sweet smell",
             emoji: "⬜",
             weights: { head_gasket: 6, condensation: 1 },
@@ -768,6 +956,7 @@ export const AREAS: Area[] = [
           },
           {
             id: "white_thin",
+            fits: ICE,
             label: "Thin white vapour on cold mornings",
             emoji: "🌫️",
             weights: { condensation: 7 },
@@ -775,6 +964,7 @@ export const AREAS: Area[] = [
           },
           {
             id: "blue",
+            fits: ICE,
             label: "Blue or grey smoke",
             emoji: "🔵",
             weights: { burning_oil: 7 },
@@ -782,12 +972,21 @@ export const AREAS: Area[] = [
           },
           {
             id: "black",
+            fits: ICE,
             label: "Black smoke",
             emoji: "⬛",
             weights: { rich_fuel: 7 },
             skip: ["smell"],
           },
           { id: "smell_only", label: "A smell, no smoke", emoji: "👃" },
+          {
+            id: "underneath",
+            fits: EV,
+            label: "Smoke or hissing from underneath",
+            weights: { ev_battery_fault: 8 },
+            danger:
+              "Smoke from under an electric car can mean a battery fault. Get everyone out, move away and call 999.",
+          },
           NOT_SURE,
         ],
       },
@@ -795,21 +994,45 @@ export const AREAS: Area[] = [
         id: "smell",
         text: "What does it smell like?",
         options: [
-          { id: "burnt_paper", label: "Burnt paper or carpet", weights: { clutch_burn: 6 } },
+          {
+            id: "burnt_paper",
+            fits: ICE,
+            label: "Burnt paper or carpet",
+            weights: { clutch_burn: 6 },
+          },
           {
             id: "plastic",
             label: "Burning plastic",
             weights: { electrical_burn: 7 },
             danger: "Burning plastic can be a wiring fire risk.",
           },
-          { id: "eggs", label: "Rotten eggs", weights: { catalytic: 7 } },
-          { id: "sweet", label: "Sweet and syrupy", weights: { coolant_smell: 6, head_gasket: 1 } },
-          { id: "oil", label: "Hot oil", weights: { burning_oil: 4 } },
+          { id: "eggs", fits: ICE, label: "Rotten eggs", weights: { catalytic: 7 } },
+          {
+            id: "sweet",
+            fits: ICE,
+            label: "Sweet and syrupy",
+            weights: { coolant_smell: 6, head_gasket: 1 },
+          },
+          { id: "oil", fits: ICE, label: "Hot oil", weights: { burning_oil: 4 } },
+          {
+            id: "hot_wheel",
+            fits: ALL,
+            label: "Hot metal, from one wheel",
+            weights: { brakes_hot: 7 },
+          },
+          {
+            id: "chemical",
+            fits: EV,
+            label: "Sharp chemical smell",
+            weights: { ev_battery_fault: 7 },
+            danger: "A chemical smell from an EV can mean a battery fault. Get out and move away.",
+          },
           NOT_SURE,
         ],
       },
       {
         id: "when",
+        fits: ICE,
         text: "When does it happen?",
         options: [
           { id: "startup", label: "On start-up", weights: { burning_oil: 2, condensation: 2 } },
@@ -834,6 +1057,7 @@ export const AREAS: Area[] = [
     causes: [
       {
         id: "flat_battery",
+        fits: ICE,
         name: "Flat or failing battery",
         system: "electrical",
         urgency: "soon",
@@ -846,6 +1070,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "starter",
+        fits: ICE,
         name: "Starter motor fault",
         system: "electrical",
         urgency: "soon",
@@ -866,6 +1091,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "fuel_supply",
+        fits: ICE,
         name: "Fuel problem (empty, pump or filter)",
         system: "fuel",
         urgency: "soon",
@@ -877,6 +1103,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "glow_plugs",
+        fits: DIESEL,
         name: "Glow plugs (diesel, cold starts)",
         system: "engine",
         urgency: "soon",
@@ -896,6 +1123,56 @@ export const AREAS: Area[] = [
         check: "Look for white or green crust on the battery terminals and check they're tight.",
         prior: 1,
       },
+      {
+        id: "ev_12v_start",
+        fits: EV,
+        name: "12V battery flat (the small battery, not the main one)",
+        system: "electrical",
+        urgency: "soon",
+        cost: "£100–£250",
+        explain:
+          "An EV needs its small 12V battery to wake up, even with a full main battery. It's the number one reason EVs won't start, especially after sitting.",
+        check:
+          "Try a jump start or a 12V booster pack on the 12V battery (or the jump points under the bonnet), then let it sit in Ready for 20 minutes.",
+        prior: 3,
+      },
+      {
+        id: "ev_not_ready",
+        fits: EV,
+        name: "Won't go into Ready (start procedure)",
+        system: "electrical",
+        urgency: "monitor",
+        cost: "£0",
+        explain:
+          "Most EVs only switch on with your foot firmly on the brake, the key inside, and the charging cable unplugged.",
+        check:
+          "Unplug the charging cable, press the brake hard, then press start. Try the spare key and check its battery.",
+        prior: 1.5,
+      },
+      {
+        id: "ev_traction",
+        fits: EV,
+        name: "Main battery too low",
+        system: "electrical",
+        urgency: "monitor",
+        cost: "£0",
+        explain: "If the main battery is right down, the car won't drive until it's charged.",
+        check:
+          "Check the charge level on the dash or app, and charge it, even from a 3-pin socket.",
+        prior: 1,
+      },
+      {
+        id: "ev_hv",
+        fits: EV,
+        name: "High-voltage system fault",
+        system: "electrical",
+        urgency: "stop",
+        cost: "£0–£2,000+",
+        explain:
+          "If the 12V battery is fine and it still won't go into Ready, the car may have found a high-voltage fault.",
+        check: "Get it recovered to an EV-trained garage. Don't touch orange cables.",
+        prior: 0.8,
+      },
     ],
     questions: [
       {
@@ -905,23 +1182,32 @@ export const AREAS: Area[] = [
           {
             id: "nothing",
             label: "Nothing at all, no lights",
-            weights: { flat_battery: 6, terminals: 3 },
+            weights: { flat_battery: 6, terminals: 3, ev_12v_start: 6 },
           },
           {
             id: "clicks",
+            fits: ICE,
             label: "Clicking",
             weights: { flat_battery: 4, starter: 3, terminals: 1 },
           },
-          { id: "slow", label: "Turns over slowly", weights: { flat_battery: 6 } },
+          { id: "slow", fits: ICE, label: "Turns over slowly", weights: { flat_battery: 6 } },
           {
             id: "cranks",
+            fits: ICE,
             label: "Turns over normally but won't fire",
             weights: { fuel_supply: 5, glow_plugs: 2, immobiliser: 2 },
           },
           {
             id: "starts_dies",
+            fits: ICE,
             label: "Starts then cuts out",
             weights: { immobiliser: 4, fuel_supply: 3 },
+          },
+          {
+            id: "no_ready",
+            fits: EV,
+            label: "Dash lights on, but it won't go into Ready",
+            weights: { ev_not_ready: 4, ev_hv: 3, ev_12v_start: 2 },
           },
           NOT_SURE,
         ],
@@ -930,10 +1216,30 @@ export const AREAS: Area[] = [
         id: "conditions",
         text: "Anything else true?",
         options: [
-          { id: "cold", label: "It's cold out", weights: { flat_battery: 2, glow_plugs: 3 } },
-          { id: "sat", label: "Not used for a week or more", weights: { flat_battery: 4 } },
-          { id: "low_fuel", label: "Fuel is very low", weights: { fuel_supply: 5 } },
+          {
+            id: "cold",
+            label: "It's cold out",
+            weights: { flat_battery: 2, glow_plugs: 3, ev_12v_start: 2 },
+          },
+          {
+            id: "sat",
+            label: "Not used for a week or more",
+            weights: { flat_battery: 4, ev_12v_start: 4 },
+          },
+          { id: "low_fuel", fits: ICE, label: "Fuel is very low", weights: { fuel_supply: 5 } },
           { id: "key_warning", label: "Key or immobiliser message", weights: { immobiliser: 7 } },
+          {
+            id: "plugged",
+            fits: EV,
+            label: "Charging cable is still plugged in",
+            weights: { ev_not_ready: 7 },
+          },
+          {
+            id: "low_charge",
+            fits: EV,
+            label: "Main battery shows very low or 0%",
+            weights: { ev_traction: 7 },
+          },
           NOT_SURE,
         ],
       },
@@ -941,11 +1247,22 @@ export const AREAS: Area[] = [
         id: "jump",
         text: "Have you tried a jump start?",
         options: [
-          { id: "jump_worked", label: "Yes, and it started", weights: { flat_battery: 5 } },
+          {
+            id: "jump_worked",
+            label: "Yes, and it started",
+            weights: { flat_battery: 5, ev_12v_start: 6 },
+          },
           {
             id: "jump_failed",
             label: "Yes, but it still won't start",
-            weights: { starter: 3, fuel_supply: 2, immobiliser: 2, flat_battery: -3 },
+            weights: {
+              starter: 3,
+              fuel_supply: 2,
+              immobiliser: 2,
+              flat_battery: -3,
+              ev_hv: 3,
+              ev_12v_start: -3,
+            },
           },
           { id: "no_jump", label: "Not yet" },
         ],
@@ -1004,6 +1321,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "clutch_judder",
+        fits: ICE,
         name: "Clutch or dual-mass flywheel judder",
         system: "gearbox",
         urgency: "soon",
@@ -1015,6 +1333,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "boost_leak",
+        fits: ICE,
         name: "Turbo or boost leak",
         system: "engine",
         urgency: "soon",
@@ -1025,6 +1344,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "limp_mode",
+        fits: ICE,
         name: "Limp mode (EGR, DPF or sensor)",
         system: "engine",
         urgency: "soon",
@@ -1054,6 +1374,19 @@ export const AREAS: Area[] = [
         check: "Is there a steering warning light? On hydraulic systems check the fluid level.",
         prior: 0.6,
       },
+      {
+        id: "ev_turtle",
+        fits: EV,
+        name: "Reduced power (turtle mode)",
+        system: "electrical",
+        urgency: "soon",
+        cost: "£0–£1,500",
+        explain:
+          "EVs limit power when the main battery is very low, very cold or very hot, or after rapid charging back to back. A fault can do it too.",
+        check:
+          "Check the charge level and any turtle symbol. If it happens when charged and not in extreme weather, get the fault codes read.",
+        prior: 1,
+      },
     ],
     questions: [
       {
@@ -1072,6 +1405,7 @@ export const AREAS: Area[] = [
           },
           {
             id: "judder_pullaway",
+            fits: ICE,
             label: "Judders when pulling away",
             weights: { clutch_judder: 6 },
           },
@@ -1102,7 +1436,7 @@ export const AREAS: Area[] = [
           {
             id: "accelerating",
             label: "When accelerating",
-            weights: { boost_leak: 2, limp_mode: 2, clutch_judder: 1 },
+            weights: { boost_leak: 2, limp_mode: 2, clutch_judder: 1, ev_turtle: 3 },
           },
           NOT_SURE,
         ],
@@ -1120,7 +1454,7 @@ export const AREAS: Area[] = [
           {
             id: "warning_light",
             label: "A warning light is on",
-            weights: { limp_mode: 4, steering_fault: 2 },
+            weights: { limp_mode: 4, steering_fault: 2, ev_turtle: 3 },
           },
           { id: "whistle", label: "A whistle or hiss", weights: { boost_leak: 5 } },
           {
@@ -1153,6 +1487,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "thermostat",
+        fits: ICE,
         name: "Thermostat stuck",
         system: "cooling",
         urgency: "soon",
@@ -1183,6 +1518,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "head_gasket_oh",
+        fits: ICE,
         name: "Head gasket",
         system: "engine",
         urgency: "stop",
@@ -1191,6 +1527,19 @@ export const AREAS: Area[] = [
         check:
           "Bubbles in the coolant tank with the engine running, or mayonnaise under the oil cap.",
         prior: 0.6,
+      },
+      {
+        id: "ev_battery_hot",
+        fits: EV,
+        name: "Main battery running hot",
+        system: "electrical",
+        urgency: "soon",
+        cost: "£0–£800",
+        explain:
+          "Rapid charging, fast motorway runs and hot weather heat the battery. Some EVs, like the Nissan Leaf, have no battery cooling, so they slow down charging to protect it.",
+        check:
+          "Let it cool before rapid charging again, and use slower charging when you can. If the temperature bar is high on a normal drive, get it checked.",
+        prior: 2,
       },
     ],
     questions: [
@@ -1209,6 +1558,12 @@ export const AREAS: Area[] = [
             label: "On long drives or hills",
             weights: { low_coolant: 2, water_pump: 2 },
           },
+          {
+            id: "rapid",
+            fits: EV,
+            label: "After rapid charging or fast motorway driving",
+            weights: { ev_battery_hot: 6 },
+          },
           NOT_SURE,
         ],
       },
@@ -1223,6 +1578,7 @@ export const AREAS: Area[] = [
           },
           {
             id: "keeps_dropping",
+            fits: ICE,
             label: "Keeps dropping, can't see a leak",
             weights: { head_gasket_oh: 5 },
           },
@@ -1236,11 +1592,13 @@ export const AREAS: Area[] = [
         options: [
           {
             id: "heater_cold",
+            fits: ICE,
             label: "Heater blows cold",
             weights: { low_coolant: 3, thermostat: 2 },
           },
           {
             id: "white_smoke",
+            fits: ICE,
             label: "White smoke from the exhaust",
             weights: { head_gasket_oh: 5 },
             danger: "White smoke with overheating can mean head gasket failure.",
@@ -1251,7 +1609,12 @@ export const AREAS: Area[] = [
             weights: { low_coolant: 3, water_pump: 2 },
             danger: "Steam means it's overheating now. Pull over and switch off.",
           },
-          { id: "whine", label: "Whine from the front of the engine", weights: { water_pump: 4 } },
+          {
+            id: "whine",
+            fits: ICE,
+            label: "Whine from the front of the engine",
+            weights: { water_pump: 4 },
+          },
           { id: "nothing", label: "Nothing else" },
         ],
       },
@@ -1286,6 +1649,7 @@ export const AREAS: Area[] = [
       },
       {
         id: "alternator",
+        fits: ICE,
         name: "Alternator not charging",
         system: "electrical",
         urgency: "soon",
@@ -1335,6 +1699,32 @@ export const AREAS: Area[] = [
           "Hold the power or volume button for 10–20 seconds to reboot it. Check for software updates.",
         prior: 1.5,
       },
+      {
+        id: "dc_dc",
+        fits: EV,
+        name: "12V not being charged (DC-DC converter)",
+        system: "electrical",
+        urgency: "soon",
+        cost: "£150–£1,200",
+        explain:
+          "In an EV the DC-DC converter keeps the 12V battery topped up from the main battery. If it fails, the 12V keeps going flat.",
+        check:
+          "Get the 12V battery tested. If a new one goes flat again quickly, ask the garage to check the DC-DC converter.",
+        prior: 1,
+      },
+      {
+        id: "ev_charging",
+        fits: EV,
+        name: "Charging problem (cable, charge point or charge port)",
+        system: "electrical",
+        urgency: "soon",
+        cost: "£0–£800",
+        explain:
+          "Most charging problems are the cable, the charge point or the car's charge timer, not the car itself.",
+        check:
+          "Try another charge point and cable, check for a charge timer in the car or app, and look for damage or dirt in the charge port.",
+        prior: 1.5,
+      },
     ],
     questions: [
       {
@@ -1344,12 +1734,12 @@ export const AREAS: Area[] = [
           {
             id: "flat_mornings",
             label: "Battery's flat in the mornings",
-            weights: { parasitic: 4, old_battery: 4 },
+            weights: { parasitic: 4, old_battery: 4, dc_dc: 2 },
           },
           {
             id: "dimming",
             label: "Lights dim or flicker while driving",
-            weights: { alternator: 6 },
+            weights: { alternator: 6, dc_dc: 6 },
           },
           {
             id: "one_thing_dead",
@@ -1359,6 +1749,7 @@ export const AREAS: Area[] = [
           { id: "window", label: "A window or lock", weights: { window_reg: 6, fuse: 1 } },
           { id: "light_out", label: "A light is out", weights: { bulb: 7 } },
           { id: "screen", label: "Screen, Bluetooth or CarPlay", weights: { software: 7 } },
+          { id: "wont_charge", fits: EV, label: "It won't charge", weights: { ev_charging: 8 } },
           NOT_SURE,
         ],
       },
@@ -1379,6 +1770,7 @@ export const AREAS: Area[] = [
   },
   {
     id: "gearbox",
+    fits: ICE,
     label: "Gears & clutch",
     emoji: "⚙️",
     blurb: "Slipping, grinding or jerky changes",
@@ -1548,6 +1940,19 @@ export const AREAS: Area[] = [
         check: "Does the car roll on a slope with the handbrake on?",
         prior: 1,
       },
+      {
+        id: "rusty_discs",
+        fits: EV,
+        name: "Rusty brake discs (EVs brake less)",
+        system: "brakes",
+        urgency: "soon",
+        cost: "£150–£400",
+        explain:
+          "Electric cars slow down using the motor, so the brakes are used less and the discs can rust and pit, especially if parked a lot.",
+        check:
+          "Look at the discs through the wheel: an orange crust or a rough lip suggests rust. A few firm stops from 40 mph can clean light rust.",
+        prior: 1.5,
+      },
     ],
     questions: [
       {
@@ -1568,6 +1973,12 @@ export const AREAS: Area[] = [
           },
           { id: "judder", label: "Judder or pulsing", weights: { discs_warped: 6 } },
           { id: "handbrake", label: "Handbrake is weak", weights: { handbrake: 7 } },
+          {
+            id: "grind_parked",
+            fits: EV,
+            label: "Grinding or scraping, worse after it's been parked",
+            weights: { rusty_discs: 6, pads_worn: 1 },
+          },
           NOT_SURE,
         ],
       },
@@ -1611,8 +2022,55 @@ export type DiagnosisResult = {
   answeredText: { question: string; answer: string }[];
 };
 
-export function findArea(id: string | null | undefined): Area | null {
-  return AREAS.find((a) => a.id === id) ?? null;
+/**
+ * Whether something tagged `fits` applies. With the powertrain unknown we
+ * assume a petrol or diesel car (most are), so EV-only items stay out.
+ */
+function applies(fits: Powertrain[] | undefined, powertrain: Powertrain | null): boolean {
+  if (!fits) return true;
+  return powertrain ? fits.includes(powertrain) : fits.some((f) => f !== "electric");
+}
+
+/** An area with only the causes, questions and answers that fit the car. */
+export function areaFor(area: Area, powertrain: Powertrain | null): Area {
+  return {
+    ...area,
+    causes: area.causes.filter((c) => applies(c.fits, powertrain)),
+    questions: area.questions
+      .filter((q) => applies(q.fits, powertrain))
+      .map((q) => ({ ...q, options: q.options.filter((o) => applies(o.fits, powertrain)) }))
+      .filter((q) => q.options.some((o) => o !== NOT_SURE)),
+  };
+}
+
+/** The problem areas that apply to this kind of car. */
+export function areasFor(powertrain: Powertrain | null): Area[] {
+  return AREAS.filter((a) => applies(a.fits, powertrain)).map((a) => areaFor(a, powertrain));
+}
+
+export function findArea(
+  id: string | null | undefined,
+  powertrain: Powertrain | null = null,
+): Area | null {
+  const area = AREAS.find((a) => a.id === id);
+  return area && applies(area.fits, powertrain) ? areaFor(area, powertrain) : null;
+}
+
+export const POWERTRAIN_LABEL: Record<Powertrain, string> = {
+  petrol: "Petrol",
+  diesel: "Diesel",
+  hybrid: "Hybrid",
+  electric: "Electric",
+};
+
+/** Maps a garage fuel type (petrol, diesel, electric, hybrid, lpg, other). */
+export function powertrainFromFuel(fuel: string | null | undefined): Powertrain | null {
+  const f = (fuel ?? "").toLowerCase();
+  if (f.includes("electric") || f === "ev") return "electric";
+  if (f.includes("hybrid")) return "hybrid";
+  if (f.includes("diesel")) return "diesel";
+  if (f.includes("petrol") || f === "lpg") return "petrol";
+  return null;
 }
 
 /** The questions still to ask, given the answers so far (respects skips). */

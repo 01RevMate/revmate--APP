@@ -19,11 +19,15 @@ import { CreatePostModal } from "@/components/CreatePostModal";
 import { MakeSelect } from "@/components/MakeSelect";
 import { ModelSelect } from "@/components/ModelSelect";
 import { fetchGarage } from "@/lib/garage";
+import { modelPowertrain } from "@/lib/ukModels";
 import { fetchCommonIssues, issueSystemName } from "@/lib/diagnostics";
 import {
-  AREAS,
+  areasFor,
   diagnose,
   findArea,
+  POWERTRAIN_LABEL,
+  powertrainFromFuel,
+  type Powertrain,
   helpPostText,
   questionsFor,
   URGENCY_LABEL,
@@ -74,6 +78,9 @@ function DiagnosePage() {
   const [car, setCar] = useState<CarChoice | null>(null);
   const [pickMake, setPickMake] = useState("");
   const [pickModel, setPickModel] = useState("");
+  // Petrol/diesel/hybrid/electric: filled in from the car when we can tell,
+  // and the member can change it. EVs get EV causes and no engine ones.
+  const [powertrain, setPowertrain] = useState<Powertrain | null>(null);
   const [description, setDescription] = useState("");
   const [ai, setAi] = useState<AiResult | null>(null);
   const [followups, setFollowups] = useState<{ question: string; answer: string }[]>([]);
@@ -141,6 +148,7 @@ function DiagnosePage() {
     try {
       const res = await askAi({
         car: car?.make ? car : null,
+        ...(powertrain ? { powertrain } : {}),
         area: result.area.label,
         answers: result.answeredText,
         ...(description.trim() ? { description: description.trim() } : {}),
@@ -211,7 +219,7 @@ function DiagnosePage() {
                   <button
                     key={c.id}
                     type="button"
-                    onClick={() =>
+                    onClick={() => {
                       setCar(
                         active
                           ? null
@@ -222,8 +230,13 @@ function DiagnosePage() {
                               ...(c.fuel_type ? { fuel: c.fuel_type } : {}),
                               ...(c.mileage ? { mileage: String(c.mileage) } : {}),
                             },
-                      )
-                    }
+                      );
+                      setPowertrain(
+                        active
+                          ? null
+                          : (powertrainFromFuel(c.fuel_type) ?? modelPowertrain(c.make, c.model)),
+                      );
+                    }}
                     className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium ${active ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`}
                   >
                     🚗 {c.nickname || `${c.make} ${c.model}`}
@@ -238,6 +251,7 @@ function DiagnosePage() {
                   setPickMake(v);
                   setPickModel("");
                   setCar(v ? { make: v, model: "" } : null);
+                  setPowertrain(null);
                 }}
               />
               {pickMake ? (
@@ -247,22 +261,40 @@ function DiagnosePage() {
                   onChange={(v) => {
                     setPickModel(v);
                     setCar({ make: pickMake, model: v });
+                    setPowertrain(modelPowertrain(pickMake, v));
                   }}
                 />
               ) : (
                 <div />
               )}
             </div>
+            <p className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              What powers it?
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {(Object.keys(POWERTRAIN_LABEL) as Powertrain[]).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  aria-pressed={powertrain === p}
+                  onClick={() => setPowertrain(powertrain === p ? null : p)}
+                  className={`rounded-full border px-3 py-1.5 text-sm font-medium ${powertrain === p ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`}
+                >
+                  {p === "electric" ? "⚡ " : ""}
+                  {POWERTRAIN_LABEL[p]}
+                </button>
+              ))}
+            </div>
           </section>
 
           <h2 className="mt-6 text-lg font-bold">What's happening?</h2>
           <div className="mt-2 grid grid-cols-2 gap-2">
-            {AREAS.map((a) => (
+            {areasFor(powertrain).map((a) => (
               <button
                 key={a.id}
                 type="button"
                 onClick={() => {
-                  setArea(findArea(a.id));
+                  setArea(findArea(a.id, powertrain));
                   setAnswers([]);
                 }}
                 className="flex flex-col items-start gap-1 rounded-2xl border border-border bg-card p-3 text-left hover:bg-muted/50 active:scale-[0.98]"

@@ -24,6 +24,17 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.32.0",
+    date: "2026-10-20",
+    title: "Electric cars, properly",
+    status: "live",
+    highlights: [
+      "Hundreds of current UK models added when you pick a car, including electric and hybrid ones: Tesla Model 3 and Y, MG4, Kia EV6, VW ID.3, Polestar, BYD, Hyundai Ioniq 5 and more.",
+      "Fix a problem now asks what powers your car (petrol, diesel, hybrid or electric) and fills it in for you when it can tell.",
+      "Electric cars get electric answers: 12V battery, charging, battery temperature, turtle mode, motor whine and rusty discs, and never engine faults like a head gasket.",
+    ],
+  },
+  {
     version: "1.31.0",
     date: "2026-10-20",
     title: "Tidier messages, settings and listings",
