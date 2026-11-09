@@ -29,6 +29,7 @@ import {
   Store,
   ShoppingCart,
   Package,
+  ExternalLink,
 } from "lucide-react";
 import { isAppInstalled } from "@/lib/pwaInstall";
 import { openInstallPrompt } from "@/components/InstallAppPrompt";
@@ -123,6 +124,18 @@ export function MobileMenu() {
           <MenuLink to="/cars" icon={Car} label="Browse Cars" onNavigate={close} />
           <MenuLink to="/essentials" icon={Wrench} label="Essentials" onNavigate={close} />
           <MenuLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" onNavigate={close} />
+          <a
+            href="https://shop.revmate.co.uk/?utm_source=app&utm_medium=nav&utm_campaign=launch_nov26"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Shop, opens in a new tab"
+            className={item}
+            onClick={close}
+          >
+            <ShoppingBag className="size-5 shrink-0" />
+            Shop
+            <ExternalLink className="ml-auto size-4 opacity-60" />
+          </a>
           {storeOpen && (
             <MenuLink to="/store" icon={ShoppingCart} label="RevMate Store" onNavigate={close} />
           )}

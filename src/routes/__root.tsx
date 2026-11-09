@@ -151,6 +151,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+// The sandbox dev server renders SSR HTML without Vite's index.html transform,
+// so React Refresh's preamble never lands in the document. App chunks then throw
+// "can't detect preamble" at import time and the page never hydrates. This
+// dev-only shim installs the globals the chunks check for, then hands over to
+// the real refresh runtime so hot updates still work.
+const REFRESH_PREAMBLE = `(function(){
+  window.$RefreshReg$ = window.$RefreshReg$ || function(){};
+  window.$RefreshSig$ = window.$RefreshSig$ || function(){ return function(t){ return t; }; };
+  window.__vite_plugin_react_preamble_installed__ = true;
+  try {
+    import("/@react-refresh").then(function(m){
+      var r = m && m.default ? m.default : m;
+      if (r && typeof r.injectIntoGlobalHook === "function") r.injectIntoGlobalHook(window);
+    }).catch(function(){});
+  } catch (e) {}
+})();`;
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     // The theme script sets the "dark" class before React loads, so the
@@ -158,6 +175,9 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en-GB" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+        {import.meta.env.DEV && (
+          <script dangerouslySetInnerHTML={{ __html: REFRESH_PREAMBLE }} />
+        )}
         <HeadContent />
       </head>
       <body>

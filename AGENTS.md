@@ -17,6 +17,8 @@
 
 - Legacy Deno functions with npm imports use a local `deno.json` with `nodeModulesDir: "auto"` so dependency resolution works during preview validation without adding browser dependencies.
 
+- The sandbox dev server renders SSR HTML without Vite's index.html transform, so `src/routes/__root.tsx` keeps a dev-only React Refresh preamble shim; removing it stops the preview hydrating.
+
 `src/lib/changelog.ts` is the app's release history. It powers the App
 updates page (`/legal/updates`) and the machine-readable `/updates.json`.
 Read it to see which version is current and what has shipped. When you ship
