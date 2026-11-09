@@ -9,6 +9,9 @@
 - Created @MiaAMG with her Mercedes A45, three posts, replies, car likes, and follows
 
 ## Open
+- [ ] Remove Shop from the mobile bottom bar; keep the desktop link unpublished until the shop is live
+- [ ] Create an official RevMate Christmas shop post using the app's posting tools
+- [ ] Essentials home personalisation: choose visible quick buttons and section order
 - [x] Member-owned business creation and management with contact details and logo
 - [x] Clearly labelled demo business with images and authenticated demo activity using the new tools
 - None (revmate.app dropped by user — not owned; revmate.co.uk + www already live, primary confirmed)
