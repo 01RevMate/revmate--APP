@@ -101,22 +101,12 @@ export function BottomNav() {
       }`}
       style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)" }}
     >
-      <div className="contents">
+      <div className="flex flex-1">
         <NavItem to="/" icon={Home} label="Home" exact />
         <NavItem to="/marketplace" icon={ShoppingBag} label="Buy & Sell" />
-        <a
-          href="https://shop.revmate.co.uk/?utm_source=app&utm_medium=nav&utm_campaign=launch_nov26"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Shop, opens in a new tab"
-          className={item}
-        >
-          <ShoppingBag className="size-5 shrink-0" />
-          Shop
-        </a>
       </div>
       <ComposeButton />
-      <div className="contents">
+      <div className="flex flex-1">
         <NavItem to="/garage" icon={Warehouse} label="Garage" requireAuth />
         <NavItem to="/messages" icon={MessageCircle} label="Messages" requireAuth badge={unread} />
       </div>
