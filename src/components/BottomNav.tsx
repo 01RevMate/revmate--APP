@@ -85,9 +85,8 @@ function ComposeButton() {
   );
 }
 
-// Trimmed to the 4 destinations that matter most on a thumb-width screen,
-// split evenly (2 + 2) around the compose button so it lands in the gap
-// between them — everything else (Cars, Settings, Groups) lives behind the
+// Destinations share the available width around the compose button;
+// everything else (Cars, Settings, Groups) lives behind the
 // hamburger menu next to the logo instead. Garage/Messages intercept the
 // click and open the sign-in prompt instead of navigating when logged out.
 export function BottomNav() {
@@ -102,12 +101,22 @@ export function BottomNav() {
       }`}
       style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)" }}
     >
-      <div className="flex flex-1">
+      <div className="contents">
         <NavItem to="/" icon={Home} label="Home" exact />
         <NavItem to="/marketplace" icon={ShoppingBag} label="Buy & Sell" />
+        <a
+          href="https://shop.revmate.co.uk/?utm_source=app&utm_medium=nav&utm_campaign=launch_nov26"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Shop, opens in a new tab"
+          className={item}
+        >
+          <ShoppingBag className="size-5 shrink-0" />
+          Shop
+        </a>
       </div>
       <ComposeButton />
-      <div className="flex flex-1">
+      <div className="contents">
         <NavItem to="/garage" icon={Warehouse} label="Garage" requireAuth />
         <NavItem to="/messages" icon={MessageCircle} label="Messages" requireAuth badge={unread} />
       </div>

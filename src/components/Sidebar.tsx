@@ -124,6 +124,21 @@ export function Sidebar() {
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/essentials" icon={Wrench} label="Essentials" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <a
+              href="https://shop.revmate.co.uk/?utm_source=app&utm_medium=nav&utm_campaign=launch_nov26"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Shop, opens in a new tab"
+              className={`${item} ${collapsed ? itemCollapsed : ""}`}
+            >
+              <ShoppingBag className="size-5 shrink-0" />
+              {!collapsed && "Shop"}
+            </a>
+          </TooltipTrigger>
+          <TooltipContent side="right">Shop, opens in a new tab</TooltipContent>
+        </Tooltip>
         <NavLink to="/meets" icon={CalendarDays} label="Meets & Events" collapsed={collapsed} />
         {BATTLES_ENABLED && (
           <NavLink to="/battles" icon={Trophy} label="Top cars" collapsed={collapsed} />
