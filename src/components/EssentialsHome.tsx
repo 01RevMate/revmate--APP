@@ -28,6 +28,8 @@ import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { formatPrice } from "@/lib/marketplace";
 import { DealsStrip } from "@/components/DealsStrip";
 import { ShopsSection } from "@/components/ShopsSection";
+import { useEssentialsPreferences } from "@/hooks/useEssentialsPreferences";
+import { PersonaliseEssentials, HOME_TOOL_LABELS } from "@/components/PersonaliseEssentials";
 
 // Essentials: the practical, just-for-me side of RevMate, styled like an
 // iOS app — grey background, white rounded cards, big tap targets and
@@ -263,68 +265,33 @@ function Group({ title, rows }: { title: string; rows: Row[] }) {
 
 export function EssentialsHome() {
   const social = useSocialFeatures();
+  const { preferences, save } = useEssentialsPreferences();
   const { data: listings } = useQuery({ queryKey: ["listings"], queryFn: fetchActiveListings });
   const latest = (listings ?? []).slice(0, 8);
-
-  return (
-    <div className="space-y-6">
-      <div className="px-1">
-        <h1 className="text-3xl font-bold tracking-tight">Essentials</h1>
-        <p className="text-sm text-muted-foreground">Everything practical for your car.</p>
-      </div>
-
-      <FoundingSpotsBanner />
-
+  const tools: Record<string, { hint: string; icon: LucideIcon; colour: string; link: LinkTarget }> = {
+    diagnose: { hint: "Step-by-step diagnosis", icon: Stethoscope, colour: "bg-destructive", link: { to: "/diagnose" } },
+    mechanic: { hint: "Garages, bodywork & EV", icon: Store, colour: "bg-chart-2", link: { to: "/businesses" } },
+    fuel: { hint: "Today's petrol & diesel prices", icon: Fuel, colour: "bg-chart-1", link: { to: "/fuel-prices" } },
+    chargers: { hint: "Rapid & fast chargers near you", icon: PlugZap, colour: "bg-chart-2", link: { to: "/ev-chargers" } },
+    sell: { hint: "List a car or part", icon: BadgePoundSterling, colour: "bg-primary", link: { to: "/sell" } },
+    ask: { hint: "Get advice from owners", icon: MessageCircleQuestion, colour: "bg-chart-1", link: { to: "/ask" } },
+  };
+  const sections: Record<string, React.ReactNode> = {
+    cars: (
       <section className="space-y-2">
         <h2 className="px-1 text-lg font-bold">My cars</h2>
         <MyCars />
       </section>
-
+    ),
+    tools: (
       <section className="grid grid-cols-2 gap-3">
-        <ToolTile
-          title="Fix a problem"
-          hint="Step-by-step diagnosis"
-          icon={Stethoscope}
-          colour="bg-[#ff3b30]"
-          link={{ to: "/diagnose" }}
-        />
-        <ToolTile
-          title="Find a mechanic"
-          hint="Garages, bodywork & EV"
-          icon={Store}
-          colour="bg-[#34c759]"
-          link={{ to: "/businesses" }}
-        />
-        <ToolTile
-          title="Cheapest fuel"
-          hint="Today's petrol & diesel prices"
-          icon={Fuel}
-          colour="bg-[#ff9500]"
-          link={{ to: "/fuel-prices" }}
-        />
-        <ToolTile
-          title="EV chargers"
-          hint="Rapid & fast chargers near you"
-          icon={PlugZap}
-          colour="bg-[#30b0c7]"
-          link={{ to: "/ev-chargers" }}
-        />
-        <ToolTile
-          title="Sell"
-          hint="List a car or part"
-          icon={BadgePoundSterling}
-          colour="bg-[#007aff]"
-          link={{ to: "/sell" }}
-        />
-        <ToolTile
-          title="Ask for help"
-          hint="Get advice from owners"
-          icon={MessageCircleQuestion}
-          colour="bg-[#ff9500]"
-          link={{ to: "/ask" }}
-        />
+        {preferences.tools.filter(id => !preferences.hiddenTools.includes(id)).map(id => {
+          const tool = tools[id];
+          return tool ? <ToolTile key={id} title={HOME_TOOL_LABELS[id] ?? id} {...tool} /> : null;
+        })}
       </section>
-
+    ),
+    buy: (
       <Group
         title="Buy"
         rows={[
@@ -342,7 +309,8 @@ export function EssentialsHome() {
           },
         ]}
       />
-
+    ),
+    "your-car": (
       <Group
         title="Your car"
         rows={[
@@ -373,12 +341,10 @@ export function EssentialsHome() {
             : []),
         ]}
       />
-
-      <ShopsSection />
-
-      <DealsStrip placement="essentials" />
-
-      {latest.length > 0 && (
+    ),
+    shops: <ShopsSection />,
+    deals: <DealsStrip placement="essentials" />,
+    listings: latest.length > 0 ? (
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-lg font-bold">Latest for sale</h2>
@@ -412,6 +378,20 @@ export function EssentialsHome() {
             ))}
           </div>
         </section>
+      ) : null,
+  };
+  return (
+    <div className="space-y-6">
+      <div className="space-y-3 px-1">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Essentials</h1>
+          <p className="text-sm text-muted-foreground">Everything practical for your car.</p>
+        </div>
+        <PersonaliseEssentials preferences={preferences} onSave={save} />
+      </div>
+      <FoundingSpotsBanner />
+      {preferences.sections.filter(id => !preferences.hiddenSections.includes(id)).map(id =>
+        sections[id] ? <div key={id}>{sections[id]}</div> : null,
       )}
     </div>
   );

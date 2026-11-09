@@ -29,6 +29,7 @@ export const RELEASES: Release[] = [
     title: "Business profiles with photos",
     status: "needs_database_update",
     highlights: [
+      "Personalise Essentials: choose your quick buttons, hide sections and move them into your preferred order on this device.",
       "Use your normal RevMate account to add a business, upload its logo, manage contact details and photos, and reply to reviews from My business.",
       "Business pages now look like a proper profile: a photo grid, Open now and opening hours, address with directions, services, and Call, Directions, Website and Share buttons.",
       "Add up to 5 photos to your review, and see every photo from the business and its customers in the Photos tab.",
