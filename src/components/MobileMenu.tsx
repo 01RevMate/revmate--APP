@@ -29,6 +29,7 @@ import {
   Store,
   ShoppingCart,
   Package,
+  ExternalLink,
 } from "lucide-react";
 import { isAppInstalled } from "@/lib/pwaInstall";
 import { openInstallPrompt } from "@/components/InstallAppPrompt";
