@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CommunityChargerMark } from "@/components/CommunityChargerMark";
+import { CommunityChargerLogo } from "@/components/CommunityChargerLogo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -89,8 +89,8 @@ function CommunityChargersPage() {
           <span className="text-xs font-bold uppercase tracking-widest text-primary">Community Charger</span>
         </div>
         <div className="relative flex items-center gap-4">
-          <span className="flex size-20 shrink-0 items-center justify-center rounded-2xl border border-primary/40 bg-primary/10 text-primary">
-            <CommunityChargerMark className="size-12" />
+          <span className="flex size-20 shrink-0 items-center justify-center rounded-2xl overflow-hidden">
+            <CommunityChargerLogo className="size-full" />
           </span>
           <div>
             <h1 className="text-2xl font-extrabold leading-tight">Community chargers</h1>
@@ -372,7 +372,7 @@ function HostSetup({ userId, onSettings }: { userId: string; onSettings: () => v
   const select = "h-9 w-full rounded-md border bg-background px-2 text-sm";
   const intro = (
     <div className="space-y-3">
-      <span className="mx-auto flex size-24 items-center justify-center rounded-2xl bg-foreground text-background"><CommunityChargerMark className="size-14" /></span>
+      <span className="mx-auto flex size-24 items-center justify-center rounded-2xl bg-foreground text-background"><CommunityChargerLogo className="size-full" /></span>
       <h2 className="text-center text-lg font-bold">Become a Community Charger</h2>
       <ul className="space-y-2 text-muted-foreground">
         <li>⚡ Help a stranded EV driver with your home charger, for free or for a small fee.</li>
@@ -474,7 +474,7 @@ function HostSetup({ userId, onSettings }: { userId: string; onSettings: () => v
     return (
       <div className="mt-4 space-y-4 rounded-2xl border bg-card p-4 text-sm">
         <div className="flex items-center gap-3">
-          <span className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background"><CommunityChargerMark className="size-7" /></span>
+          <span className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background"><CommunityChargerLogo className="size-full" /></span>
           <div>
             <p className="font-bold">You're a Community Charger ⚡</p>
             <p className="text-xs text-muted-foreground">{f.paused ? "Paused — nobody can find you" : "Hosting is on"} · Area {f.district}</p>
@@ -501,7 +501,7 @@ function HostSetup({ userId, onSettings }: { userId: string; onSettings: () => v
   return (
     <div className="mt-4 space-y-4 rounded-2xl border bg-card p-4 text-sm">
       <div className="flex items-center gap-3">
-        <span className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background"><CommunityChargerMark className="size-7" /></span>
+        <span className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background"><CommunityChargerLogo className="size-full" /></span>
         <div>
           <p className="font-bold">Edit your charger</p>
           <p className="text-xs text-muted-foreground">Area {f.district} · {f.cost === "free" ? "Free" : f.price_note || "Small fee"}</p>
@@ -718,7 +718,7 @@ function SettingsPanel({ userId, onHost }: { userId: string; onHost: () => void 
   return (
     <div className="mt-4 space-y-4 rounded-2xl border bg-card p-4 text-sm">
       <div className="flex items-center gap-3">
-        <span className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background"><CommunityChargerMark className="size-7" /></span>
+        <span className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background"><CommunityChargerLogo className="size-full" /></span>
         <div>
           <p className="font-bold">Your Community Charger settings</p>
           <p className="text-xs text-muted-foreground">You're in control. Change or leave any time.</p>
@@ -777,7 +777,7 @@ function ThankYou({ onPost, onDone }: { onPost: () => void; onDone: () => void }
         <span className="absolute inset-0 rounded-full border-2 border-primary" style={{ animation: "cc-ring 1.6s ease-out infinite" }} />
         <span className="absolute inset-0 rounded-full border-2 border-primary" style={{ animation: "cc-ring 1.6s ease-out 0.8s infinite" }} />
         <span className="flex size-24 items-center justify-center rounded-full bg-primary text-primary-foreground" style={{ animation: "cc-pop 0.7s ease-out both" }}>
-          <CommunityChargerMark className="size-14" />
+          <CommunityChargerLogo className="size-full rounded-full" />
         </span>
       </div>
       <h2 className="mt-5 text-2xl font-extrabold" style={{ animation: "cc-pop 0.7s ease-out 0.2s both" }}>Thank you! ⚡</h2>

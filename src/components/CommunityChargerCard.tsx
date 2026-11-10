@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, HeartHandshake, Zap } from "lucide-react";
-import { CommunityChargerMark } from "@/components/CommunityChargerMark";
+import { CommunityChargerLogo } from "@/components/CommunityChargerLogo";
 import { useIsChargerHost } from "@/lib/communityChargers";
 
 /** The standout entry point for the community home-charger network. */
@@ -14,7 +14,7 @@ export function CommunityChargerCard({ className = "", compact = false }: { clas
         className={`flex items-center gap-3 rounded-2xl border bg-card px-3.5 py-2.5 active:scale-[0.99] ${className}`}
       >
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-foreground text-background">
-          <CommunityChargerMark className="size-6" />
+          <CommunityChargerLogo className="size-full" />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-semibold">Community chargers</span>
@@ -28,7 +28,7 @@ export function CommunityChargerCard({ className = "", compact = false }: { clas
       <div className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-primary/30 blur-3xl" />
       <Link to="/ev-chargers/community" search={{ tab: undefined }} className="relative flex items-center gap-4">
         <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl border border-background/20 bg-background/5">
-          <CommunityChargerMark className="size-10" />
+          <CommunityChargerLogo className="size-full" />
         </span>
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-primary">
