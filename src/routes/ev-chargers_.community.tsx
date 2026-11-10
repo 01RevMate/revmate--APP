@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { searchRadius, bandWithinRadius, RANGE_SAFETY_MILES } from "@/lib/rangeRadius";
+import { CompatibilityNote, useChargerCompat } from "@/components/ChargerCompatibility";
 import { CommunityChargerLogo } from "@/components/CommunityChargerLogo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -176,6 +177,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
   const radius = searchRadius(milesLeft ? Number(milesLeft) : null);
   const [busy, setBusy] = useState(false);
   const [hosts, setHosts] = useState<NearbyHost[] | null>(null);
+  const compat = useChargerCompat(hosts);
   const [asking, setAsking] = useState<NearbyHost | null>(null);
 
   async function search(lat: number, lng: number) {
@@ -257,6 +259,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
           No community hosts within 30 miles yet. Try the public charger map, and ask EV owners you know to sign up as hosts.
         </p>
       )}
+      {hosts && hosts.length > 0 && <CompatibilityNote state={compat} hostId={null} />}
       {hosts?.map((h) => (
         <div key={h.host_id} className="border-t border-border pt-5">
           <div className="flex items-center justify-between gap-2">
@@ -272,6 +275,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
             {h.thumbs_up > 0 && <Tag>👍 {h.thumbs_up} helped</Tag>}
           </div>
           {h.notes && <p className="mt-1 text-sm text-muted-foreground">{h.notes}</p>}
+          <CompatibilityNote state={compat} hostId={h.host_id} />
           <div className="mt-4 flex flex-wrap gap-2">
             <Button size="sm" onClick={() => setAsking(h)}>Ask to charge</Button>
             <Button size="sm" variant="outline" asChild>
