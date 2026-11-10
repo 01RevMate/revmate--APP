@@ -346,7 +346,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
               <p className="text-center text-xl font-semibold leading-snug">How many miles have you got left?</p>
               <p className="mt-2 text-center text-sm leading-relaxed text-muted-foreground">We keep {RANGE_SAFETY_MILES} miles spare in case your range is optimistic.</p>
             </div>
-            <label className="flex items-baseline justify-center gap-2 rounded-lg border border-primary/40 bg-card px-4 py-7 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+            <label className="flex items-baseline justify-center gap-2 rounded-lg bg-card px-4 py-7">
               <input
                 inputMode="numeric"
                 enterKeyHint="done"
@@ -375,7 +375,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                     role="radio"
                     aria-checked={emergency === v}
                     onClick={() => setEmergency(v)}
-                    className={`h-auto min-h-24 flex-col gap-1 whitespace-normal rounded-lg border p-3 text-center transition-all ${emergency === v ? "border-primary bg-primary/15 text-foreground" : "border-border bg-card text-foreground"}`}
+                    className={`h-auto min-h-24 flex-col gap-1 whitespace-normal rounded-lg border-0 p-3 text-center transition-all ${emergency === v ? "bg-primary/25 text-foreground" : "bg-card text-foreground"}`}
                   >
                     <span className="block font-semibold">{t}</span>
                     <span className="mt-0.5 block text-xs text-muted-foreground">{sub}</span>
