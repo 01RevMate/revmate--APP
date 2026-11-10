@@ -49,9 +49,9 @@ import {
 } from "@/lib/communityChargers";
 
 const URL = "https://revmate.co.uk/ev-chargers/community";
-const TITLE = "Lendawatt by RevMate — borrow a home EV charger when you're stranded";
+const TITLE = "EV run out of charge? Find an emergency charge nearby | Lendawatt by RevMate";
 const DESC =
-  "Lendawatt is RevMate's community of EV owners. Low on range with no public charger nearby? Members can offer their home charger in an emergency, free or for a small fee. Private, opt-in and arranged between drivers.";
+  "EV low on range or out of charge in the UK? Lendawatt by RevMate finds EV owners nearby who'll lend their home charger in an emergency, plus the nearest public chargers. Free to join.";
 
 export const Route = createFileRoute("/ev-chargers_/community")({
   head: () => ({
@@ -65,6 +65,18 @@ export const Route = createFileRoute("/ev-chargers_/community")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: URL }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: TITLE,
+        description: DESC,
+        url: URL,
+        keywords: "EV run out of charge, emergency EV charge, EV low battery, borrow home EV charger, EV charger near me, stranded electric car UK",
+        isPartOf: { "@type": "WebSite", name: "RevMate", url: "https://revmate.co.uk" },
+      }),
+    }],
   }),
   validateSearch: (s: Record<string, unknown>): { tab?: Tab | undefined } =>
     ({ tab: TABS.includes(s["tab"] as Tab) ? (s["tab"] as Tab) : undefined }),
@@ -110,6 +122,12 @@ function CommunityChargersPage() {
           <Button className="mt-3" onClick={() => openAuth("Create a free account to join the community charger network.")}>
             Sign in or join
           </Button>
+          <section className="mt-12 space-y-3 text-sm leading-relaxed text-muted-foreground">
+            <h2 className="text-lg font-semibold text-foreground">EV run out of charge?</h2>
+            <p>If your electric car is low on battery and there's no public charger in range, Lendawatt shows RevMate members nearby who'll lend their home charger in an emergency.</p>
+            <p>Tell us how many miles you have left and your postcode. We'll find hosts within reach, or the nearest public chargers if no one is around. The host approves before their address is shared.</p>
+            <p>If you're unsafe, call 999. On a motorway, call National Highways on 0300 123 5000.</p>
+          </section>
         </div>
       ) : (
         <>
