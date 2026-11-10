@@ -78,13 +78,13 @@ function CommunityChargersPage() {
 
   return (
     <div className="charge-theme min-h-screen">
-    <div className="mx-auto max-w-2xl px-3 py-4 pb-24">
+    <div className="mx-auto max-w-2xl px-4 py-6 pb-28">
       <Link to="/ev-chargers" className="inline-flex items-center gap-1 text-sm text-muted-foreground">
         <ChevronLeft className="size-4" /> EV chargers
       </Link>
-      <header className="relative mt-2 overflow-hidden rounded-3xl border border-primary/40 bg-card p-5 text-foreground">
-        <div className="pointer-events-none absolute -right-12 -top-12 size-48 rounded-full bg-primary/30 blur-3xl" />
-        <div className="relative mb-4 flex items-center gap-2">
+      <header className="relative mt-6 text-foreground">
+        <div className="pointer-events-none absolute -right-10 -top-16 size-56 rounded-full bg-primary/20 blur-3xl" />
+        <div className="relative mb-6 flex items-center gap-2">
           <img src="/brand/revmate-logo-dark.png" alt="RevMate" className="h-7 w-auto object-contain" />
           <span className="text-xs font-bold uppercase tracking-widest text-primary">Community Charger</span>
         </div>
@@ -94,8 +94,8 @@ function CommunityChargersPage() {
           </span>
           <div>
             <h1 className="text-2xl font-extrabold leading-tight">Community chargers</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              EV drivers helping each other. Low on range with no public charger nearby? Members lend their home charger in an emergency. Nobody sees where a host lives unless the host says yes.
+            <p className="mt-2 text-base text-muted-foreground">
+              EV drivers helping each other when the range runs low.
             </p>
           </div>
         </div>
@@ -105,15 +105,15 @@ function CommunityChargersPage() {
       <StrandedPanel />
 
       {!user ? (
-        <div className="mt-4 rounded-lg border bg-card p-4">
-          <p className="text-sm">Sign in to find a member's charger or offer yours. It's for members aged 18 and over.</p>
+        <div className="mt-10">
+          <p className="text-base">Sign in to find a member's charger or offer yours. It's for members aged 18 and over.</p>
           <Button className="mt-3" onClick={() => openAuth("Create a free account to join the community charger network.")}>
             Sign in or join
           </Button>
         </div>
       ) : (
         <>
-          <div className="mt-4 grid grid-cols-4 gap-1 rounded-lg bg-muted p-1 text-sm">
+          <nav className="-mx-4 mt-10 flex gap-6 overflow-x-auto border-b border-border px-4 text-sm">
             {([
               ["need", "Find a charge"],
               ["host", "My charger"],
@@ -123,22 +123,24 @@ function CommunityChargersPage() {
               <button
                 key={k}
                 onClick={() => setTab(k)}
-                className={`rounded-md px-2 py-2 font-medium ${tab === k ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+                className={`-mb-px shrink-0 border-b-2 pb-3 font-semibold transition-colors ${tab === k ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
               >
                 {label}
               </button>
             ))}
-          </div>
+          </nav>
+          <div className="mt-8">
           {tab === "need" && <NeedCharge onSent={() => setTab("requests")} />}
           {tab === "host" && <HostSetup userId={user.id} onSettings={() => setTab("settings")} />}
           {tab === "requests" && <Requests />}
           {tab === "settings" && <SettingsPanel userId={user.id} onHost={() => setTab("host")} />}
+          </div>
         </>
       )}
 
-      <section className="mt-6 rounded-lg border bg-card p-4 text-sm">
-        <h2 className="flex items-center gap-2 font-semibold"><ShieldAlert className="size-4" /> The small print, in plain words</h2>
-        <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
+      <details className="group mt-14 border-t border-border pt-6 text-sm">
+        <summary className="flex cursor-pointer list-none items-center gap-2 font-semibold text-muted-foreground"><ShieldAlert className="size-4" /> How it works and staying safe <span className="ml-auto text-xs group-open:hidden">Show</span></summary>
+        <ul className="mt-4 list-disc space-y-2 pl-5 text-muted-foreground">
           <li>Any arrangement is between members. RevMate doesn't check chargers or homes, and it isn't part of any deal.</li>
           <li>RevMate never takes or handles money. If a host charges, you agree it with them directly.</li>
           <li>Hosts are responsible for their own charger and cable. Drivers should use their own cable where they can.</li>
@@ -147,7 +149,7 @@ function CommunityChargersPage() {
           <li>Everything is arranged inside RevMate. Phone numbers are never shared.</li>
           <li>Hosts' location is kept to about 1 km. An exact meeting place is only shown to the driver the host approves, and it's deleted after 4 hours.</li>
         </ul>
-      </section>
+      </details>
     </div>
     </div>
   );
@@ -155,9 +157,9 @@ function CommunityChargersPage() {
 
 function StrandedPanel() {
   return (
-    <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm">
+    <div className="mt-8 border-l-2 border-destructive pl-4 text-sm">
       <p className="flex items-center gap-2 font-semibold"><Phone className="size-4" /> Stranded right now?</p>
-      <p className="mt-1 text-muted-foreground">
+      <p className="mt-1 leading-relaxed text-muted-foreground">
         If you're unsafe, call <a className="font-semibold text-foreground underline" href="tel:999">999</a>. On a motorway, National Highways is on{" "}
         <a className="font-semibold text-foreground underline" href="tel:03001235000">0300 123 5000</a>. Many breakdown services can tow an EV to a charger.{" "}
         <Link to="/ev-chargers" className="font-semibold text-foreground underline">See public chargers on the map</Link>.
@@ -211,35 +213,35 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
   }
 
   return (
-    <div className="mt-4 space-y-3">
-      <div className="rounded-lg border bg-card p-4">
+    <div className="space-y-6">
+      <div className="space-y-4">
         <label className="flex items-center justify-between gap-3 text-sm font-medium">
           It's an emergency (I can't reach a public charger)
           <Switch checked={emergency} onCheckedChange={setEmergency} />
         </label>
-        <div className="mt-3 flex gap-2">
-          <Input value={postcode} onChange={(e) => setPostcode(e.target.value)} placeholder="Postcode or area, e.g. LS6" />
+        <div className="flex gap-2">
+          <Input className="h-11" value={postcode} onChange={(e) => setPostcode(e.target.value)} placeholder="Postcode or area, e.g. LS6" />
           <Button onClick={byPostcode} disabled={busy || !postcode.trim()}>Search</Button>
         </div>
-        <Button variant="outline" className="mt-2 w-full" onClick={byGps} disabled={busy}>
+        <Button variant="outline" className="h-11 w-full" onClick={byGps} disabled={busy}>
           <MapPin className="size-4" /> Use where I am
         </Button>
-        <p className="mt-2 text-xs text-muted-foreground">Your location is rounded to about 1 km, used for this search only and not saved.</p>
+        <p className="text-xs text-muted-foreground">Your location is rounded to about 1 km, used for this search only and not saved.</p>
       </div>
 
       {busy && <Loader2 className="mx-auto size-5 animate-spin text-muted-foreground" />}
       {hosts && hosts.length === 0 && (
-        <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">
+        <p className="py-6 text-center text-sm text-muted-foreground">
           No community hosts within 30 miles yet. Try the public charger map, and ask EV owners you know to sign up as hosts.
         </p>
       )}
       {hosts?.map((h) => (
-        <div key={h.host_id} className="rounded-lg border bg-card p-3">
+        <div key={h.host_id} className="border-t border-border pt-5">
           <div className="flex items-center justify-between gap-2">
             <span className="font-semibold">{h.username}</span>
             <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">{h.band}</span>
           </div>
-          <div className="mt-1 flex flex-wrap gap-1.5 text-xs">
+          <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
             <Tag>{CONNECTOR_LABEL[h.connector]}</Tag>
             <Tag>{h.kw} kW</Tag>
             <Tag>{FITS_LABEL[h.fits]}</Tag>
@@ -248,7 +250,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
             {h.thumbs_up > 0 && <Tag>👍 {h.thumbs_up} helped</Tag>}
           </div>
           {h.notes && <p className="mt-1 text-sm text-muted-foreground">{h.notes}</p>}
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <Button size="sm" onClick={() => setAsking(h)}>Ask to charge</Button>
             <Button size="sm" variant="outline" asChild>
               <Link to="/u/$username" params={{ username: h.username }}>View profile</Link>
@@ -449,7 +451,7 @@ function HostSetup({ userId, onSettings }: { userId: string; onSettings: () => v
     const last = step === steps.length - 1;
     const canNext = step === 0 ? agree : last ? !!postcode.trim() : true;
     return (
-      <div className="mt-4 rounded-2xl border bg-card p-4 text-sm">
+      <div className="space-y-6 text-sm">
         <div className="mb-3 flex items-center gap-1.5">
           {titles.map((t, i) => (
             <div key={t} className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-primary" : "bg-muted"}`} />
@@ -472,7 +474,7 @@ function HostSetup({ userId, onSettings }: { userId: string; onSettings: () => v
 
   if (!editing)
     return (
-      <div className="mt-4 space-y-4 rounded-2xl border bg-card p-4 text-sm">
+      <div className="space-y-6 text-sm">
         <div className="flex items-center gap-3">
           <span className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background"><CommunityChargerLogo className="size-full" /></span>
           <div>
@@ -499,7 +501,7 @@ function HostSetup({ userId, onSettings }: { userId: string; onSettings: () => v
     );
 
   return (
-    <div className="mt-4 space-y-4 rounded-2xl border bg-card p-4 text-sm">
+    <div className="space-y-6 text-sm">
       <div className="flex items-center gap-3">
         <span className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background"><CommunityChargerLogo className="size-full" /></span>
         <div>
@@ -551,7 +553,7 @@ function ShareStep({ userId, onDone }: { userId: string; onDone: () => void }) {
     }
   }
   return (
-    <div className="mt-4 space-y-3 rounded-2xl border bg-card p-4 text-sm">
+    <div className="space-y-5 text-sm">
       <p className="text-center text-3xl">⚡</p>
       <h2 className="text-center text-lg font-bold">You've earned the Community Charger badge</h2>
       <p className="text-center text-muted-foreground">Want to tell people? It helps the network grow. This is optional, so skip it if you'd rather keep it quiet.</p>
@@ -588,7 +590,7 @@ const STATUS: Record<string, string> = {
 function Requests() {
   const { data = [], isLoading } = useQuery({ queryKey: ["charge-requests"], queryFn: fetchMyRequests, refetchInterval: 30_000 });
   if (isLoading) return <Loader2 className="mx-auto mt-6 size-5 animate-spin" />;
-  if (!data.length) return <p className="mt-4 rounded-lg border bg-card p-4 text-sm text-muted-foreground">No requests yet.</p>;
+  if (!data.length) return <p className="py-6 text-center text-sm text-muted-foreground">No requests yet.</p>;
   return <div className="mt-4 space-y-3">{data.map((r) => <RequestCard key={r.id} r={r} />)}</div>;
 }
 
@@ -610,7 +612,7 @@ function RequestCard({ r }: { r: ChargeRequest }) {
   }
   const handle = r.other_username.replace(/^@/, "");
   return (
-    <div className="rounded-lg border bg-card p-3 text-sm">
+    <div className="border-t border-border pt-5 text-sm">
       <div className="flex items-center justify-between gap-2">
         <span className="font-semibold">
           {r.role === "host" ? `${r.other_username} asked to charge` : `You asked ${r.other_username}`}
@@ -671,14 +673,14 @@ function NetworkStats() {
     [data.helped, data.helped === 1 ? "driver helped" : "drivers helped"],
   ];
   return (
-    <div className="relative mt-4 grid grid-cols-3 gap-2 text-center">
+    <div className="relative mt-8 grid grid-cols-3 divide-x divide-border text-center">
       {items.map(([n, label]) => (
-        <div key={label} className="rounded-xl bg-primary/10 px-2 py-2">
-          <p className="text-xl font-extrabold">{n}</p>
+        <div key={label} className="px-2">
+          <p className="text-2xl font-extrabold text-primary">{n}</p>
           <p className="text-[11px] leading-tight text-muted-foreground">{label}</p>
         </div>
       ))}
-      {data.hosts < 25 && <p className="col-span-3 text-xs text-muted-foreground">The network is just starting — early hosts get the Community Charger badge.</p>}
+      {data.hosts < 25 && <p className="col-span-3 mt-4 border-0 text-xs text-muted-foreground">The network is just starting — early hosts get the Community Charger badge.</p>}
     </div>
   );
 }
@@ -716,7 +718,7 @@ function SettingsPanel({ userId, onHost }: { userId: string; onHost: () => void 
     }
   }
   return (
-    <div className="mt-4 space-y-4 rounded-2xl border bg-card p-4 text-sm">
+    <div className="space-y-6 text-sm">
       <div className="flex items-center gap-3">
         <span className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background"><CommunityChargerLogo className="size-full" /></span>
         <div>
