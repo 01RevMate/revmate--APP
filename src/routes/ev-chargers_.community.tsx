@@ -452,19 +452,15 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                 key={h.host_id}
                 type="button"
                 onClick={() => { setPicked(h); setSub(0); setStep(3); }}
-                style={{ animationDelay: `${i * 60}ms` }}
-                className="w-full animate-in fade-in slide-in-from-bottom-2 fill-mode-both rounded-lg border border-border bg-card p-5 text-left transition hover:border-primary"
+                style={{ animationDelay: `${i * 80}ms` }}
+                className="flex w-full animate-in fade-in slide-in-from-bottom-2 fill-mode-both items-center gap-4 rounded-2xl bg-card p-4 text-left ring-1 ring-border transition hover:ring-primary"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-semibold">{h.username}</span>
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">{h.band}</span>
+                <HostAvatar name={h.username} src={h.avatar_url} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold">{h.username}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{h.kw} kW · {h.cost === "free" ? "Free" : "Small fee"}</p>
                 </div>
-                <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
-                  <Tag>{CONNECTOR_LABEL[h.connector]}</Tag>
-                  <Tag>{h.kw} kW</Tag>
-                  <Tag>{h.cost === "free" ? "Free" : h.price_note || "Small fee"}</Tag>
-                  {h.thumbs_up > 0 && <Tag>👍 {h.thumbs_up} helped</Tag>}
-                </div>
+                <span className="shrink-0 text-sm font-semibold text-primary">{h.band}</span>
               </button>
             ))}
             <Button variant="ghost" className="w-full" onClick={() => { setHosts(null); setStep(1); }}>Back</Button>
@@ -478,26 +474,29 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
             </div>
 
             {sub === 0 && (
-              <div key="s0" className="animate-in fade-in slide-in-from-right-6 duration-500 space-y-6 text-center">
-                <div>
-                  <p className="text-2xl font-bold">{picked.username}</p>
-                  <p className="mt-1 text-base font-semibold text-primary">{picked.band}</p>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    ["🔌", CONNECTOR_LABEL[picked.connector]],
-                    ["⚡", `${picked.kw} kW`],
-                    ["💷", picked.cost === "free" ? "Free" : picked.price_note || "Small fee"],
-                  ].map(([icon, label], i) => (
-                    <div key={i} style={{ animationDelay: `${150 + i * 120}ms` }} className="animate-in fade-in zoom-in-90 fill-mode-both rounded-lg bg-card p-4">
-                      <div className="text-2xl" aria-hidden>{icon}</div>
-                      <p className="mt-1 text-xs font-medium leading-snug">{label}</p>
+              <div key="s0" className="animate-in fade-in slide-in-from-right-6 duration-500 space-y-5">
+                <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-border">
+                  <div className="flex flex-col items-center gap-2 p-6 text-center">
+                    <HostAvatar name={picked.username} src={picked.avatar_url} size="lg" />
+                    <p className="text-xl font-bold">{picked.username}</p>
+                    <p className="text-sm font-semibold text-primary">{picked.band}</p>
+                  </div>
+                  <div className="grid grid-cols-2 divide-x divide-border border-t border-border">
+                    <div className="p-4">
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Their charger</p>
+                      <p className="mt-2 text-sm font-semibold">{CONNECTOR_LABEL[picked.connector]}</p>
+                      <p className="text-sm text-muted-foreground">{picked.kw} kW · {picked.cost === "free" ? "Free" : picked.price_note || "Small fee"}</p>
                     </div>
-                  ))}
+                    <div className="p-4">
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Your car</p>
+                      <p className="mt-2 text-sm font-semibold">{compat.data?.car ?? (compat.loading ? "Checking…" : "Not in Garage")}</p>
+                      <p className="text-sm text-muted-foreground">{milesLeft ? `${milesLeft} miles left` : ""}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-left"><CompatibilityNote state={compat} hostId={picked.host_id} /></div>
-                <Button className="h-12 w-full" onClick={() => setSub(1)}>Next</Button>
-                <Button variant="ghost" className="w-full" onClick={() => { setPicked(null); setStep(2); }}>Back to hosts</Button>
+                <CompatibilityNote state={compat} hostId={picked.host_id} />
+                <Button className="h-12 w-full rounded-full" onClick={() => setSub(1)}>Next</Button>
+                <Button variant="ghost" className="w-full" onClick={() => { setPicked(null); setStep(2); }}>Back</Button>
               </div>
             )}
 
@@ -508,7 +507,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                   ["🚗", "Wait in your car while you charge, if you can."],
                   ["🔋", "Only take what you need to get to your next charger or home."],
                 ].map(([icon, t], i) => (
-                  <div key={i} style={{ animationDelay: `${200 + i * 250}ms` }} className="animate-in fade-in slide-in-from-bottom-3 fill-mode-both rounded-lg bg-card p-6">
+                  <div key={i} style={{ animationDelay: `${200 + i * 250}ms` }} className="animate-in fade-in slide-in-from-bottom-3 fill-mode-both rounded-2xl bg-card p-6 ring-1 ring-border">
                     <div className="text-4xl" aria-hidden>{icon}</div>
                     <p className="mt-3 text-base leading-relaxed">{t}</p>
                   </div>
@@ -545,6 +544,17 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
     </DialogContent>
     </Dialog>
     </>
+  );
+}
+
+function HostAvatar({ name, src, size = "md" }: { name: string; src: string | null; size?: "md" | "lg" }) {
+  const cls = size === "lg" ? "size-20 text-2xl" : "size-12 text-base";
+  return src ? (
+    <img src={src} alt="" className={`${cls} shrink-0 rounded-full object-cover ring-2 ring-primary`} />
+  ) : (
+    <span className={`${cls} flex shrink-0 items-center justify-center rounded-full bg-primary/15 font-bold text-primary ring-2 ring-primary`}>
+      {name.replace("@", "").charAt(0).toUpperCase()}
+    </span>
   );
 }
 
