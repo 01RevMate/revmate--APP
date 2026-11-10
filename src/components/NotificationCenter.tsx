@@ -33,6 +33,7 @@ import {
   Package,
   Gavel,
   Award,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -195,6 +196,10 @@ function notificationDetails(notification: NotificationWithContext, actorLabel?:
       return { Icon: Trophy, text: notification.message ?? "You won an auction!" };
     case "badge":
       return { Icon: Award, text: notification.message ?? "You earned a new badge" };
+    case "charge_request":
+      return { Icon: Zap, text: `${actor} ${notification.message ?? "asked to use your charger"}` };
+    case "charge_update":
+      return { Icon: Zap, text: `${actor} ${notification.message ?? "replied to your charge request"}` };
     default:
       return { Icon: Bell, text: "You have a new RevMate notification" };
   }

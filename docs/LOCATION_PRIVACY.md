@@ -88,3 +88,11 @@ Safe design:
 Both need a new migration (opt-in settings table, a heartbeat table with
 `expires_at`, RLS limited to the chosen audience, server functions that
 return only counts and bands) and a privacy policy update before launch.
+
+## Built: Community chargers (0072)
+
+Members (18+) can offer their home charger to stranded EV drivers.
+- `charger_hosts`: district plus a point rounded to 2 dp **in a trigger**. Owner-only RLS; nobody else reads the table.
+- Drivers search through `nearby_charger_hosts`, which returns **distance bands** only (under 2, 2–5, 5–15, 15–30 mi). Their search point is rounded and not stored. Limited to 15 searches an hour, and results within a band are shuffled to resist triangulation. Minors, blocked users and paused hosts are excluded. Hosts can hide from browsing and appear only for emergency searches.
+- A host shares an exact meeting place by typing it when they approve a request. It's readable only through `my_charge_requests`, for the two members, until `expires_at` (4 h) or "done". Expired places are wiped.
+- RevMate handles no money. Hosts can add a price note.

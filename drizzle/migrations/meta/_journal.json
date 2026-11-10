@@ -505,6 +505,20 @@
       "when": 1792497695726,
       "tag": "0071_member_business_management",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1794317302367,
+      "tag": "0072_community_charger_network",
+      "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1794317323187,
+      "tag": "0073_charge_notification_links",
+      "breakpoints": true
     }
   ]
 }

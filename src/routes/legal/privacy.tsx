@@ -80,6 +80,13 @@ function PrivacyPage() {
             members — they only ever see a rounded distance.
           </li>
           <li>
+            <strong>Community chargers — only if you offer yours:</strong> your postcode area and a
+            point rounded to about 1 km, plus your charger details. Drivers only see a distance band
+            such as "2–5 mi". If you approve a request, the meeting place you type is shown to that
+            driver only and deleted after 4 hours. When you search for a charger, your location is
+            rounded and not stored. You can pause or delete your details at any time.
+          </li>
+          <li>
             <strong>Business reviews and reports</strong> you write. Reviews are public; reports are
             only seen by RevMate's team.
           </li>

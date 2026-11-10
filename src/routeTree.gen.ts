@@ -43,6 +43,7 @@ import { Route as BusinessesIndexRouteImport } from './routes/businesses/index'
 import { Route as BusinessesBusinessIdRouteImport } from './routes/businesses/$businessId'
 import { Route as BusinessesManageRouteImport } from './routes/businesses/manage'
 import { Route as CarsIndexRouteImport } from './routes/cars/index'
+import { Route as EvChargersCommunityRouteImport } from './routes/ev-chargers_.community'
 import { Route as EvChargersHomeRouteImport } from './routes/ev-chargers_.home'
 import { Route as GoCampaignRouteImport } from './routes/go.$campaign'
 import { Route as GroupsIndexRouteImport } from './routes/groups/index'
@@ -242,6 +243,11 @@ const CarsIndexRoute = CarsIndexRouteImport.update({
   path: '/cars/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EvChargersCommunityRoute = EvChargersCommunityRouteImport.update({
+  id: '/ev-chargers_/community',
+  path: '/ev-chargers/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EvChargersHomeRoute = EvChargersHomeRouteImport.update({
   id: '/ev-chargers_/home',
   path: '/ev-chargers/home',
@@ -412,6 +418,7 @@ export interface FileRoutesByFullPath {
   '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
   '/businesses/manage': typeof BusinessesManageRoute
+  '/ev-chargers/community': typeof EvChargersCommunityRoute
   '/ev-chargers/home': typeof EvChargersHomeRoute
   '/go/$campaign': typeof GoCampaignRoute
   '/groups/$slug': typeof GroupsSlugRoute
@@ -475,6 +482,7 @@ export interface FileRoutesByTo {
   '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
   '/businesses/manage': typeof BusinessesManageRoute
+  '/ev-chargers/community': typeof EvChargersCommunityRoute
   '/ev-chargers/home': typeof EvChargersHomeRoute
   '/go/$campaign': typeof GoCampaignRoute
   '/groups/$slug': typeof GroupsSlugRoute
@@ -539,6 +547,7 @@ export interface FileRoutesById {
   '/api/fuel-prices': typeof ApiFuelPricesRoute
   '/businesses/$businessId': typeof BusinessesBusinessIdRoute
   '/businesses/manage': typeof BusinessesManageRoute
+  '/ev-chargers_/community': typeof EvChargersCommunityRoute
   '/ev-chargers_/home': typeof EvChargersHomeRoute
   '/go/$campaign': typeof GoCampaignRoute
   '/groups/$slug': typeof GroupsSlugRoute
@@ -604,6 +613,7 @@ export interface FileRouteTypes {
     | '/api/fuel-prices'
     | '/businesses/$businessId'
     | '/businesses/manage'
+    | '/ev-chargers/community'
     | '/ev-chargers/home'
     | '/go/$campaign'
     | '/groups/$slug'
@@ -667,6 +677,7 @@ export interface FileRouteTypes {
     | '/api/fuel-prices'
     | '/businesses/$businessId'
     | '/businesses/manage'
+    | '/ev-chargers/community'
     | '/ev-chargers/home'
     | '/go/$campaign'
     | '/groups/$slug'
@@ -730,6 +741,7 @@ export interface FileRouteTypes {
     | '/api/fuel-prices'
     | '/businesses/$businessId'
     | '/businesses/manage'
+    | '/ev-chargers_/community'
     | '/ev-chargers_/home'
     | '/go/$campaign'
     | '/groups/$slug'
@@ -794,6 +806,7 @@ export interface RootRouteChildren {
   ApiFuelPricesRoute: typeof ApiFuelPricesRoute
   BusinessesBusinessIdRoute: typeof BusinessesBusinessIdRoute
   BusinessesManageRoute: typeof BusinessesManageRoute
+  EvChargersCommunityRoute: typeof EvChargersCommunityRoute
   EvChargersHomeRoute: typeof EvChargersHomeRoute
   GoCampaignRoute: typeof GoCampaignRoute
   GroupsSlugRoute: typeof GroupsSlugRoute
@@ -1064,6 +1077,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CarsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ev-chargers_/community': {
+      id: '/ev-chargers_/community'
+      path: '/ev-chargers/community'
+      fullPath: '/ev-chargers/community'
+      preLoaderRoute: typeof EvChargersCommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ev-chargers_/home': {
       id: '/ev-chargers_/home'
       path: '/ev-chargers/home'
@@ -1301,6 +1321,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiFuelPricesRoute: ApiFuelPricesRoute,
   BusinessesBusinessIdRoute: BusinessesBusinessIdRoute,
   BusinessesManageRoute: BusinessesManageRoute,
+  EvChargersCommunityRoute: EvChargersCommunityRoute,
   EvChargersHomeRoute: EvChargersHomeRoute,
   GoCampaignRoute: GoCampaignRoute,
   GroupsSlugRoute: GroupsSlugRoute,

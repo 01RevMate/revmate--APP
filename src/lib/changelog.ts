@@ -24,6 +24,21 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.34.0",
+    date: "2026-11-10",
+    title: "Community chargers",
+    status: "live",
+    highlights: [
+      "Low on range? Find members nearby who offer their home charger in an emergency, free or for a small fee they set.",
+      "Offer your own charger: emergencies only or planned visits too, with a pause switch. Drivers only ever see a rough distance.",
+      "Hosts approve each request and share a meeting place with that driver only. It disappears after 4 hours.",
+    ],
+    requiredSql: [
+      "drizzle/migrations/0072_community_charger_network.sql",
+      "drizzle/migrations/0073_charge_notification_links.sql",
+    ],
+  },
+  {
     version: "1.33.0",
     date: "2026-10-20",
     title: "Business profiles with photos",

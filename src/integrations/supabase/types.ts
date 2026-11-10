@@ -1068,6 +1068,149 @@ export type Database = {
           },
         ]
       }
+      charge_requests: {
+        Row: {
+          car: string
+          connector: string
+          created_at: string
+          emergency: boolean
+          expires_at: string | null
+          host_id: string
+          id: string
+          message: string | null
+          range_miles: number | null
+          rating: number | null
+          requester_id: string
+          shared_location: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          car: string
+          connector: string
+          created_at?: string
+          emergency?: boolean
+          expires_at?: string | null
+          host_id: string
+          id?: string
+          message?: string | null
+          range_miles?: number | null
+          rating?: number | null
+          requester_id: string
+          shared_location?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          car?: string
+          connector?: string
+          created_at?: string
+          emergency?: boolean
+          expires_at?: string | null
+          host_id?: string
+          id?: string
+          message?: string | null
+          range_miles?: number | null
+          rating?: number | null
+          requester_id?: string
+          shared_location?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "charge_requests_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "charge_requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      charger_hosts: {
+        Row: {
+          connector: string
+          cost: string
+          created_at: string
+          discoverable: boolean
+          district: string
+          fits: string
+          kw: number
+          lat: number
+          lng: number
+          mode: string
+          notes: string | null
+          paused: boolean
+          price_note: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          connector?: string
+          cost?: string
+          created_at?: string
+          discoverable?: boolean
+          district: string
+          fits?: string
+          kw?: number
+          lat: number
+          lng: number
+          mode?: string
+          notes?: string | null
+          paused?: boolean
+          price_note?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          connector?: string
+          cost?: string
+          created_at?: string
+          discoverable?: boolean
+          district?: string
+          fits?: string
+          kw?: number
+          lat?: number
+          lng?: number
+          mode?: string
+          notes?: string | null
+          paused?: boolean
+          price_note?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "charger_hosts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      charger_searches: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       comment_likes: {
         Row: {
           comment_id: string
@@ -4409,6 +4552,44 @@ export type Database = {
         Returns: undefined
       }
       my_auction_status: { Args: { target_listing: string }; Returns: string }
+      my_charge_requests: {
+        Args: never
+        Returns: {
+          car: string
+          connector: string
+          created_at: string
+          emergency: boolean
+          expires_at: string
+          id: string
+          message: string
+          other_avatar: string
+          other_id: string
+          other_username: string
+          range_miles: number
+          rating: number
+          role: string
+          shared_location: string
+          status: string
+        }[]
+      }
+      nearby_charger_hosts: {
+        Args: { p_emergency: boolean; p_lat: number; p_lng: number }
+        Returns: {
+          avatar_url: string
+          band: string
+          band_order: number
+          connector: string
+          cost: string
+          fits: string
+          host_id: string
+          kw: number
+          mode: string
+          notes: string
+          price_note: string
+          thumbs_up: number
+          username: string
+        }[]
+      }
       nearby_meets: {
         Args: { lat: number; lng: number; radius_km?: number }
         Returns: {
@@ -4523,6 +4704,10 @@ export type Database = {
           username: string
         }[]
       }
+      rate_charge_host: {
+        Args: { p_rating: number; p_request: string }
+        Returns: undefined
+      }
       record_ad_event: {
         Args: { event: string; target_ad: string }
         Returns: undefined
@@ -4568,6 +4753,21 @@ export type Database = {
       reply_to_review: {
         Args: { p_reply: string; p_review: string }
         Returns: undefined
+      }
+      request_charge: {
+        Args: {
+          p_car: string
+          p_connector: string
+          p_emergency: boolean
+          p_host: string
+          p_message: string
+          p_range: number
+        }
+        Returns: string
+      }
+      respond_charge_request: {
+        Args: { p_action: string; p_location: string; p_request: string }
+        Returns: string
       }
       respond_to_offer: {
         Args: {
