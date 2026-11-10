@@ -478,5 +478,5 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
 
 /* Lendawatt: everything rounded. */
 .charge-theme.lw-wizard { border-radius: 2rem !important; }
-.charge-theme.lw-wizard button, .charge-theme.lw-wizard a[data-slot], .lw-box button { border-radius: 9999px !important; }
+.charge-theme.lw-wizard button:not(.lw-magic):not([role="radio"]), .lw-box button { border-radius: 9999px !important; }
 .charge-theme.lw-wizard input:not([type="checkbox"]), .charge-theme.lw-wizard textarea, .charge-theme.lw-wizard label, .charge-theme.lw-wizard details, .charge-theme.lw-wizard [class*="rounded-lg"] { border-radius: 1.25rem !important; }
