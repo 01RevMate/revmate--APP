@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { searchRadius, bandWithinRadius } from "./rangeRadius";
+import { describe, it, expect } from "bun:test";
+import { searchRadius, bandWithinRadius } from "../src/lib/rangeRadius";
 describe("range-based search radius", () => {
   it("holds back 10 miles", () => expect(searchRadius(25)).toBe(15));
   it("never goes below 0", () => expect(searchRadius(6)).toBe(0));
