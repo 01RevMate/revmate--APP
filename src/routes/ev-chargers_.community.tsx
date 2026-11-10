@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { searchRadius, bandWithinRadius, RANGE_SAFETY_MILES } from "@/lib/rangeRadius";
 import { fetchChargers, boundsAround, kmBetween, type Charger } from "@/lib/evChargers";
 import { LendawattIntro } from "@/components/LendawattIntro";
+import { ChargeRadar } from "@/components/ChargeRadar";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { fetchOrCreateConversation, sendMessage } from "@/lib/messages";
 import { CompatibilityNote, useChargerCompat } from "@/components/ChargerCompatibility";
@@ -385,7 +386,8 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
           </div>
         )}
 
-        {step === 1 && (
+        {step === 1 && busy && <ChargeRadar label="Searching for chargers near you…" />}
+        {step === 1 && !busy && (
           <div className="space-y-5">
             <div>
               <p className="text-lg font-semibold">Where are you?</p>
@@ -409,7 +411,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
               <button type="button" className="text-sm text-primary underline" onClick={() => { setHosts(null); setStep(1); }}>Change area</button>
             </div>
             {hosts && hosts.length > 0 && <CompatibilityNote state={compat} hostId={null} />}
-            {hosts && hosts.length === 0 && publicNear === null && <Loader2 className="mx-auto size-5 animate-spin text-muted-foreground" />}
+            {hosts && hosts.length === 0 && publicNear === null && <ChargeRadar label="Checking public chargers nearby…" />}
             {hosts && hosts.length === 0 && publicNear && publicNear.length > 0 && (
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground">No Lendawatt hosts in range yet, so here are public chargers you can reach.</p>
