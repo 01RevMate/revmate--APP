@@ -1,5 +1,5 @@
 export const DEFAULT_TOOLS = ["diagnose", "mechanic", "fuel", "chargers", "sell", "ask"] as const;
-export const DEFAULT_SECTIONS = ["cars", "tools", "buy", "your-car", "shops", "deals", "listings"] as const;
+export const DEFAULT_SECTIONS = ["cars", "tools", "buy", "your-car", "shops", "deals", "listings", "community"] as const;
 export type HomePreferences = {
   tools: string[];
   sections: string[];

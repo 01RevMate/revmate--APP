@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { CommunityChargerCard } from "@/components/CommunityChargerCard";
 import {
   ChevronRight,
   Home,
-  HeartHandshake,
   Clock,
   EvCharger,
   Flag,
@@ -314,21 +314,7 @@ function EvChargersPage() {
         <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
       </Link>
 
-      <Link
-        to="/ev-chargers/community"
-        className="mt-2 flex items-center gap-3 rounded-2xl border border-primary/40 bg-primary/5 px-3.5 py-2.5 active:scale-[0.99]"
-      >
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
-          <HeartHandshake className="size-4" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold">Low on range? Community chargers</span>
-          <span className="block truncate text-xs text-muted-foreground">
-            Borrow a member's home charger in an emergency, or offer yours
-          </span>
-        </span>
-        <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-      </Link>
+      <CommunityChargerCard className="mt-3" />
 
       <div className="-mx-3 mt-3 flex gap-2 overflow-x-auto px-3 pb-1 [&::-webkit-scrollbar]:hidden">
         {SPEED_FILTERS.map((sp) => (

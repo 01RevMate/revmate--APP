@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronLeft,
-  HeartHandshake,
   Loader2,
   MapPin,
   Phone,
@@ -21,6 +20,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { lookupDistrict } from "@/lib/marketDeals";
+import { attachImagesToPost, createPost } from "@/lib/posts";
+import { uploadImageBlob } from "@/lib/uploads";
 import {
   CONNECTOR_LABEL,
   FITS_LABEL,
@@ -70,13 +71,18 @@ function CommunityChargersPage() {
       <Link to="/ev-chargers" className="inline-flex items-center gap-1 text-sm text-muted-foreground">
         <ChevronLeft className="size-4" /> EV chargers
       </Link>
-      <h1 className="mt-2 flex items-center gap-2 text-2xl font-bold">
-        <HeartHandshake className="size-6 text-primary" /> Community chargers
-      </h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Stuck with low range and no public charger close by? Members can offer their home charger in an
-        emergency, for free or for a small fee. Nobody sees where a host lives unless the host says yes.
-      </p>
+      <header className="relative mt-2 overflow-hidden rounded-3xl bg-foreground p-5 text-background">
+        <div className="pointer-events-none absolute -right-12 -top-12 size-48 rounded-full bg-primary/30 blur-3xl" />
+        <div className="relative flex items-center gap-4">
+          <img src="/community-charger-logo.jpg" alt="Community Charger logo" width={1088} height={1088} className="size-20 shrink-0 rounded-2xl" />
+          <div>
+            <h1 className="text-2xl font-extrabold leading-tight">Community chargers</h1>
+            <p className="mt-1 text-sm text-background/70">
+              EV drivers helping each other. Low on range with no public charger nearby? Members lend their home charger in an emergency. Nobody sees where a host lives unless the host says yes.
+            </p>
+          </div>
+        </div>
+      </header>
 
       <StrandedPanel />
 
@@ -291,9 +297,13 @@ function HostSetup({ userId }: { userId: string }) {
   const [postcode, setPostcode] = useState("");
   const [agree, setAgree] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [step, setStep] = useState(0);
+  const [joined, setJoined] = useState(false);
   if (isLoading) return <Loader2 className="mx-auto mt-6 size-5 animate-spin" />;
+  if (joined) return <ShareStep userId={userId} onDone={() => setJoined(false)} />;
   const f = form ?? data ?? BLANK(userId);
   const set = (patch: Partial<ChargerHost>) => setForm({ ...f, ...patch });
+  const wizard = !data;
 
   async function save() {
     setBusy(true);
@@ -304,10 +314,14 @@ function HostSetup({ userId }: { userId: string }) {
         next = { ...f, district: p.district, lat: p.lat, lng: p.lng };
       }
       await saveMyHost(next);
-      toast.success(data ? "Saved" : "You're now a community charger host — thank you!");
       setForm(null);
       setPostcode("");
       qc.invalidateQueries({ queryKey: ["my-charger-host", userId] });
+      qc.invalidateQueries({ queryKey: ["badges", userId] });
+      if (wizard) {
+        setJoined(true);
+        toast.success("You're a Community Charger now — thank you!");
+      } else toast.success("Saved");
     } catch (e) {
       toast.error(errMsg(e));
     } finally {
@@ -318,19 +332,50 @@ function HostSetup({ userId }: { userId: string }) {
     if (!confirm("Stop hosting and delete your charger details?")) return;
     await deleteMyHost(userId);
     setForm(null);
+    setStep(0);
     qc.invalidateQueries({ queryKey: ["my-charger-host", userId] });
     toast.success("Removed. Your charger details are deleted.");
   }
 
   const select = "h-9 w-full rounded-md border bg-background px-2 text-sm";
-  return (
-    <div className="mt-4 space-y-3 rounded-lg border bg-card p-4 text-sm">
-      {data && (
-        <label className="flex items-center justify-between gap-3 rounded-md bg-muted p-3 font-medium">
-          {f.paused ? "Paused — nobody can find you" : "Hosting is on"}
-          <Switch checked={!f.paused} onCheckedChange={(v) => set({ paused: !v })} />
-        </label>
-      )}
+  const intro = (
+    <div className="space-y-3">
+      <img src="/community-charger-logo.jpg" alt="Community Charger logo" width={1088} height={1088} className="mx-auto size-28 rounded-2xl" />
+      <h2 className="text-center text-lg font-bold">Become a Community Charger</h2>
+      <ul className="space-y-2 text-muted-foreground">
+        <li>⚡ Help a stranded EV driver with your home charger, for free or for a small fee.</li>
+        <li>🔒 Nobody sees where you live. Drivers only see a rough distance until you approve them.</li>
+        <li>✋ You say yes or no to every request, and you can pause any time.</li>
+      </ul>
+      <label className="flex items-start gap-2 text-xs text-muted-foreground">
+        <Checkbox checked={agree} onCheckedChange={(v) => setAgree(v === true)} className="mt-0.5" />
+        I'm 18 or over, it's my charger to share, and I understand any arrangement is between me and the driver. RevMate isn't responsible and doesn't handle money.
+      </label>
+    </div>
+  );
+  const charger = (
+    <div className="space-y-3">
+      <Field label="What charger do you have?">
+        <select className={select} value={f.connector} onChange={(e) => set({ connector: e.target.value as ChargerHost["connector"] })}>
+          <option value="type2_socket">Type 2 socket (driver brings a cable)</option>
+          <option value="type2_tethered">Tethered Type 2 cable</option>
+          <option value="three_pin">3-pin outdoor plug only</option>
+        </select>
+      </Field>
+      <Field label="Speed">
+        <select className={select} value={f.kw} onChange={(e) => set({ kw: Number(e.target.value) })}>
+          {[2.3, 3.6, 7, 11, 22].map((k) => <option key={k} value={k}>{k} kW</option>)}
+        </select>
+      </Field>
+      <Field label="Driveway">
+        <select className={select} value={f.fits} onChange={(e) => set({ fits: e.target.value as ChargerHost["fits"] })}>
+          {Object.entries(FITS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+      </Field>
+    </div>
+  );
+  const terms = (
+    <div className="space-y-3">
       <Field label="Who can ask">
         <select className={select} value={f.mode} onChange={(e) => set({ mode: e.target.value as ChargerHost["mode"] })}>
           <option value="emergency">Emergencies only</option>
@@ -345,30 +390,16 @@ function HostSetup({ userId }: { userId: string }) {
         {f.cost === "paid" && (
           <Input className="mt-2" maxLength={80} value={f.price_note ?? ""} onChange={(e) => set({ price_note: e.target.value })} placeholder="e.g. £10 cash or 30p per kWh" />
         )}
-      </Field>
-      <div className="grid grid-cols-2 gap-2">
-        <Field label="Charger">
-          <select className={select} value={f.connector} onChange={(e) => set({ connector: e.target.value as ChargerHost["connector"] })}>
-            <option value="type2_socket">Type 2 socket</option>
-            <option value="type2_tethered">Tethered cable</option>
-            <option value="three_pin">3-pin plug only</option>
-          </select>
-        </Field>
-        <Field label="Speed">
-          <select className={select} value={f.kw} onChange={(e) => set({ kw: Number(e.target.value) })}>
-            {[2.3, 3.6, 7, 11, 22].map((k) => <option key={k} value={k}>{k} kW</option>)}
-          </select>
-        </Field>
-      </div>
-      <Field label="Driveway">
-        <select className={select} value={f.fits} onChange={(e) => set({ fits: e.target.value as ChargerHost["fits"] })}>
-          {Object.entries(FITS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-        </select>
+        <p className="mt-1 text-xs text-muted-foreground">You sort any payment out with the driver. RevMate never takes a cut.</p>
       </Field>
       <Field label="Notes (optional)">
         <Textarea maxLength={300} value={f.notes ?? ""} onChange={(e) => set({ notes: e.target.value })} placeholder="e.g. Message first, usually home evenings" />
       </Field>
-      <Field label={f.district ? `Your area: ${f.district} (change by entering a postcode)` : "Your postcode"}>
+    </div>
+  );
+  const area = (
+    <div className="space-y-3">
+      <Field label={f.district ? `Your area: ${f.district} (enter a postcode to change it)` : "Your postcode"}>
         <Input value={postcode} onChange={(e) => setPostcode(e.target.value)} placeholder="Only the area is kept, e.g. LS6" />
         <p className="mt-1 text-xs text-muted-foreground">We keep the first half of your postcode and a point rounded to about 1 km. Drivers only see a distance like "2–5 mi".</p>
       </Field>
@@ -376,19 +407,106 @@ function HostSetup({ userId }: { userId: string }) {
         Show me to drivers searching nearby
         <Switch checked={f.discoverable} onCheckedChange={(v) => set({ discoverable: v })} />
       </label>
-      <p className="-mt-2 text-xs text-muted-foreground">Turn off to only appear when someone is in an emergency.</p>
-      {!data && (
-        <label className="flex items-start gap-2 text-xs text-muted-foreground">
-          <Checkbox checked={agree} onCheckedChange={(v) => setAgree(v === true)} className="mt-0.5" />
-          I'm 18 or over, it's my charger to share, and I understand any arrangement is between me and the driver. RevMate isn't responsible and doesn't handle money.
-        </label>
-      )}
+      <p className="-mt-2 text-xs text-muted-foreground">Turn this off to only appear when someone is in an emergency.</p>
+    </div>
+  );
+
+  if (wizard) {
+    const steps = [intro, charger, terms, area];
+    const titles = ["Welcome", "Your charger", "Your terms", "Your area"];
+    const last = step === steps.length - 1;
+    const canNext = step === 0 ? agree : last ? !!postcode.trim() : true;
+    return (
+      <div className="mt-4 rounded-2xl border bg-card p-4 text-sm">
+        <div className="mb-3 flex items-center gap-1.5">
+          {titles.map((t, i) => (
+            <div key={t} className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-primary" : "bg-muted"}`} />
+          ))}
+        </div>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Step {step + 1} of {steps.length} · {titles[step]}
+        </p>
+        {steps[step]}
+        <div className="mt-4 flex gap-2">
+          {step > 0 && <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>}
+          <Button className="flex-1" disabled={busy || !canNext} onClick={() => (last ? save() : setStep(step + 1))}>
+            {busy && <Loader2 className="size-4 animate-spin" />}
+            {last ? "Become a Community Charger" : "Next"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 space-y-4 rounded-2xl border bg-card p-4 text-sm">
+      <div className="flex items-center gap-3">
+        <img src="/community-charger-logo.jpg" alt="" width={1088} height={1088} className="size-12 rounded-xl" />
+        <div>
+          <p className="font-bold">You're a Community Charger ⚡</p>
+          <p className="text-xs text-muted-foreground">Area {f.district} · {f.cost === "free" ? "Free" : f.price_note || "Small fee"}</p>
+        </div>
+      </div>
+      <label className="flex items-center justify-between gap-3 rounded-md bg-muted p-3 font-medium">
+        {f.paused ? "Paused — nobody can find you" : "Hosting is on"}
+        <Switch checked={!f.paused} onCheckedChange={(v) => set({ paused: !v })} />
+      </label>
+      {charger}
+      {terms}
+      {area}
       <div className="flex flex-wrap gap-2">
-        <Button onClick={save} disabled={busy || (!data && !agree) || (!f.district && !postcode.trim())}>
-          {busy && <Loader2 className="size-4 animate-spin" />}
-          {data ? "Save changes" : "Offer my charger"}
+        <Button onClick={save} disabled={busy}>
+          {busy && <Loader2 className="size-4 animate-spin" />} Save changes
         </Button>
-        {data && <Button variant="ghost" onClick={remove}>Stop hosting and delete</Button>}
+        <Button variant="outline" onClick={() => setJoined(true)}>Post about it</Button>
+        <Button variant="ghost" onClick={remove}>Stop hosting and delete</Button>
+      </div>
+    </div>
+  );
+}
+
+const DEFAULT_POST =
+  "⚡ I've joined RevMate's Community Chargers! If you're an EV driver who's stuck with low range near me, you can ask to use my home charger in an emergency. Nobody sees where I live unless I say yes. Fancy joining? Find it under EV chargers → Community chargers. #CommunityCharger #EV";
+
+function ShareStep({ userId, onDone }: { userId: string; onDone: () => void }) {
+  const qc = useQueryClient();
+  const [body, setBody] = useState(DEFAULT_POST);
+  const [withLogo, setWithLogo] = useState(true);
+  const [busy, setBusy] = useState(false);
+  async function post() {
+    setBusy(true);
+    try {
+      const id = await createPost({ userId, body: body.trim() });
+      if (withLogo) {
+        const blob = await (await fetch("/community-charger-logo.jpg")).blob();
+        const url = await uploadImageBlob("post-images", userId, blob);
+        await attachImagesToPost(id, [url]);
+      }
+      qc.invalidateQueries();
+      toast.success("Posted to the feed");
+      onDone();
+    } catch (e) {
+      toast.error(errMsg(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="mt-4 space-y-3 rounded-2xl border bg-card p-4 text-sm">
+      <p className="text-center text-3xl">⚡</p>
+      <h2 className="text-center text-lg font-bold">You've earned the Community Charger badge</h2>
+      <p className="text-center text-muted-foreground">Want to tell people? It helps the network grow. This is optional, so skip it if you'd rather keep it quiet.</p>
+      <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={6} maxLength={2000} />
+      <label className="flex items-center justify-between gap-3 font-medium">
+        Add the Community Charger logo
+        <Switch checked={withLogo} onCheckedChange={setWithLogo} />
+      </label>
+      {withLogo && <img src="/community-charger-logo.jpg" alt="Community Charger logo" width={1088} height={1088} className="mx-auto w-40 rounded-xl" />}
+      <div className="flex gap-2">
+        <Button className="flex-1" disabled={busy || !body.trim()} onClick={post}>
+          {busy && <Loader2 className="size-4 animate-spin" />} Post to the feed
+        </Button>
+        <Button variant="ghost" onClick={onDone}>No thanks</Button>
       </div>
     </div>
   );

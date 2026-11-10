@@ -1,4 +1,26 @@
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+
+/** True when the signed-in member has an electric car in their garage — used to put EV features first. */
+export function useOwnsEv(): boolean {
+  const { user } = useAuth();
+  const { data } = useQuery({
+    queryKey: ["owns-ev", user?.id],
+    enabled: !!user,
+    staleTime: 10 * 60_000,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("garage_cars")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user!.id)
+        .eq("fuel_type", "electric")
+        .eq("ownership_status", "current");
+      return (count ?? 0) > 0;
+    },
+  });
+  return !!data;
+}
 
 // Community home-charger help network. Location rules (docs/LOCATION_PRIVACY.md):
 // hosts store a postcode district + ~1 km point (rounded in the database);

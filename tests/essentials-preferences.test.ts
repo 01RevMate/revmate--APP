@@ -8,7 +8,7 @@ describe("Essentials home choices", () => {
     expect(choices.hiddenTools).toEqual(["fuel"]);
   });
   it("moves a section up without losing another section", () => {
-    expect(moveHomeItem([...DEFAULT_SECTIONS], "tools", -1)).toEqual(["tools", "cars", "buy", "your-car", "shops", "deals", "listings"]);
+    expect(moveHomeItem([...DEFAULT_SECTIONS], "tools", -1)).toEqual(["tools", "cars", "buy", "your-car", "shops", "deals", "listings", "community"]);
   });
   it("discards invalid stored choices and restores available tools", () => {
     const choices = normaliseHomePreferences({ tools: ["bad", "fuel", "fuel"], hiddenSections: ["bad", "deals"] });

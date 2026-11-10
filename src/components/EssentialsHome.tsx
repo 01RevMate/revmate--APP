@@ -1,5 +1,10 @@
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { CommunityChargerCard } from "@/components/CommunityChargerCard";
+import { useOwnsEv } from "@/lib/communityChargers";
+import { buildSignals, rankListings, useListingInterests } from "@/lib/forYouListings";
+import { readRecentlyViewed } from "@/lib/marketplace";
 import {
   BadgePoundSterling,
   BookOpen,
@@ -266,8 +271,16 @@ function Group({ title, rows }: { title: string; rows: Row[] }) {
 export function EssentialsHome() {
   const social = useSocialFeatures();
   const { preferences, save } = useEssentialsPreferences();
+  const ownsEv = useOwnsEv();
   const { data: listings } = useQuery({ queryKey: ["listings"], queryFn: fetchActiveListings });
-  const latest = (listings ?? []).slice(0, 8);
+  const interests = useListingInterests();
+  const [viewedIds, setViewedIds] = useState<string[]>([]);
+  useEffect(() => setViewedIds(readRecentlyViewed()), []);
+  const latest = useMemo(() => {
+    const all = listings ?? [];
+    const viewed = all.filter((x) => viewedIds.includes(x.id));
+    return rankListings(all, buildSignals({ ...interests, viewed })).slice(0, 8);
+  }, [listings, interests, viewedIds]);
   const tools: Record<string, { hint: string; icon: LucideIcon; colour: string; link: LinkTarget }> = {
     diagnose: { hint: "Step-by-step diagnosis", icon: Stethoscope, colour: "bg-destructive", link: { to: "/diagnose" } },
     mechanic: { hint: "Garages, bodywork & EV", icon: Store, colour: "bg-chart-2", link: { to: "/businesses" } },
@@ -277,6 +290,7 @@ export function EssentialsHome() {
     ask: { hint: "Get advice from owners", icon: MessageCircleQuestion, colour: "bg-chart-1", link: { to: "/ask" } },
   };
   const sections: Record<string, React.ReactNode> = {
+    community: <CommunityChargerCard compact={!ownsEv} />,
     cars: (
       <section className="space-y-2">
         <h2 className="px-1 text-lg font-bold">My cars</h2>
@@ -347,7 +361,7 @@ export function EssentialsHome() {
     listings: latest.length > 0 ? (
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-lg font-bold">Latest for sale</h2>
+            <h2 className="text-lg font-bold">{interests.garage.length || interests.savedFilters.length ? "For sale for you" : "Latest for sale"}</h2>
             <Link to="/marketplace" className="text-sm font-medium text-[#007aff]">
               See all
             </Link>
@@ -390,7 +404,7 @@ export function EssentialsHome() {
         <PersonaliseEssentials preferences={preferences} onSave={save} />
       </div>
       <FoundingSpotsBanner />
-      {preferences.sections.filter(id => !preferences.hiddenSections.includes(id)).map(id =>
+      {(ownsEv ? ["community", ...preferences.sections.filter(id => id !== "community")] : preferences.sections).filter(id => !preferences.hiddenSections.includes(id)).map(id =>
         sections[id] ? <div key={id}>{sections[id]}</div> : null,
       )}
     </div>

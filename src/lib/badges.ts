@@ -16,6 +16,7 @@ export const BADGES: Record<string, { label: string; emoji: string; how: string 
   helping_hand: { label: "Helping hand", emoji: "🔧", how: "Helped on 5 car problems" },
   seller: { label: "Seller", emoji: "💷", how: "Listed something for sale" },
   car_of_the_week: { label: "Car of the Week", emoji: "👑", how: "Won Car of the Week" },
+  community_charger: { label: "Community Charger", emoji: "⚡", how: "Offered a home charger to stranded EV drivers" },
   challenge_winner: { label: "Challenge winner", emoji: "🏆", how: "Won a weekly challenge" },
 };
 
