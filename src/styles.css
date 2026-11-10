@@ -427,3 +427,12 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
 .lw-radar-sweep { background: conic-gradient(from 0deg, transparent 0deg 300deg, color-mix(in oklab, var(--primary) 45%, transparent) 360deg); animation: lw-radar-spin 2s linear infinite; }
 .lw-radar-dot { opacity: 0; animation: lw-radar-blip 2s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .lw-radar-ring, .lw-radar-sweep, .lw-radar-dot { animation: none; } .lw-radar-dot { opacity: 1; } }
+
+/* Lendawatt panels: lighter green box, darker green fields. */
+.lw-wizard, .charge-theme {
+  --lw-panel: color-mix(in oklab, var(--primary) 16%, var(--background));
+  --lw-field: color-mix(in oklab, var(--primary) 6%, var(--background));
+}
+.lw-panel { background: var(--lw-panel); border: 1px solid color-mix(in oklab, var(--primary) 55%, transparent); }
+.lw-field, .lw-wizard input:not([type="checkbox"]), .lw-wizard textarea { background: var(--lw-field) !important; border-color: var(--primary) !important; }
+.lw-wizard button { justify-content: center; }

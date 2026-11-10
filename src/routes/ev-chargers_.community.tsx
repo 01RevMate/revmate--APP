@@ -470,70 +470,38 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
         {step === 3 && picked && (
           <div className="space-y-6">
             <div className="flex justify-center gap-1.5" aria-hidden>
-              {[0, 1, 2].map((i) => <span key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === sub ? "w-8 bg-primary" : "w-1.5 bg-muted"}`} />)}
+              {[0, 1].map((i) => <span key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === sub ? "w-8 bg-primary" : "w-1.5 bg-muted"}`} />)}
             </div>
 
             {sub === 0 && (
-              <div key="s0" className="animate-in fade-in slide-in-from-right-6 duration-500 space-y-5">
-                <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-border">
-                  <div className="flex flex-col items-center gap-2 p-6 text-center">
-                    <HostAvatar name={picked.username} src={picked.avatar_url} size="lg" />
-                    <p className="text-xl font-bold">{picked.username}</p>
+              <div key="s0" className="animate-in fade-in slide-in-from-right-6 duration-500 space-y-4">
+                <div className="flex items-center justify-center gap-3">
+                  <HostAvatar name={picked.username} src={picked.avatar_url} />
+                  <div>
+                    <p className="font-bold">{picked.username}</p>
                     <p className="text-sm font-semibold text-primary">{picked.band}</p>
                   </div>
-                  <div className="grid grid-cols-2 divide-x divide-border border-t border-border">
-                    <div className="p-4">
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Their charger</p>
-                      <p className="mt-2 text-sm font-semibold">{CONNECTOR_LABEL[picked.connector]}</p>
-                      <p className="text-sm text-muted-foreground">{picked.kw} kW · {picked.cost === "free" ? "Free" : picked.price_note || "Small fee"}</p>
-                    </div>
-                    <div className="p-4">
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Your car</p>
-                      <p className="mt-2 text-sm font-semibold">{compat.data?.car ?? (compat.loading ? "Checking…" : "Not in Garage")}</p>
-                      <p className="text-sm text-muted-foreground">{milesLeft ? `${milesLeft} miles left` : ""}</p>
-                    </div>
-                  </div>
+                </div>
+                <div className="lw-panel rounded-2xl p-5 text-center">
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Your car</p>
+                  <p className="mt-2 text-lg font-semibold">{compat.data?.car ?? (compat.loading ? "Checking…" : "Not in your Garage")}</p>
+                  {milesLeft && <p className="text-sm text-muted-foreground">{milesLeft} miles left</p>}
+                </div>
+                <div className="flex justify-center text-primary" aria-hidden>⇅</div>
+                <div className="lw-panel rounded-2xl p-5 text-center">
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{picked.username}'s charger</p>
+                  <p className="mt-2 text-lg font-semibold">{CONNECTOR_LABEL[picked.connector]}</p>
+                  <p className="text-sm text-muted-foreground">{picked.kw} kW · {FITS_LABEL[picked.fits]} · {picked.cost === "free" ? "Free" : picked.price_note || "Small fee"}</p>
                 </div>
                 <CompatibilityNote state={compat} hostId={picked.host_id} />
-                <Button className="h-12 w-full rounded-full" onClick={() => setSub(1)}>Next</Button>
-                <Button variant="ghost" className="w-full" onClick={() => { setPicked(null); setStep(2); }}>Back</Button>
+                <Button className="mx-auto flex h-12 w-full max-w-xs rounded-full" onClick={() => setSub(1)}>Message {picked.username}</Button>
+                <Button variant="ghost" className="mx-auto flex" onClick={() => { setPicked(null); setStep(2); }}>Back</Button>
               </div>
             )}
 
             {sub === 1 && (
-              <div key="s1" className="animate-in fade-in slide-in-from-right-6 duration-500 space-y-6 text-center">
-                <p className="text-xl font-bold">Being a good guest</p>
-                {[
-                  ["🚗", "Wait in your car while you charge, if you can."],
-                  ["🔋", "Only take what you need to get to your next charger or home."],
-                ].map(([icon, t], i) => (
-                  <div key={i} style={{ animationDelay: `${200 + i * 250}ms` }} className="animate-in fade-in slide-in-from-bottom-3 fill-mode-both rounded-2xl bg-card p-6 ring-1 ring-border">
-                    <div className="text-4xl" aria-hidden>{icon}</div>
-                    <p className="mt-3 text-base leading-relaxed">{t}</p>
-                  </div>
-                ))}
-                <Button className="h-12 w-full" onClick={() => setSub(2)}>Got it</Button>
-                <Button variant="ghost" className="w-full" onClick={() => setSub(0)}>Back</Button>
-              </div>
-            )}
-
-            {sub === 2 && (
-              <div key="s2" className="animate-in fade-in slide-in-from-right-6 duration-500 space-y-5 text-center">
-                <p className="text-xl font-bold">Ask {picked.username}</p>
-                <p className="text-sm text-muted-foreground">They'll get your request in the app. Your location stays private until they say yes.</p>
-                <Button className="h-14 w-full text-base shadow-[0_0_18px_var(--primary)]" onClick={() => setAsking(picked)}>Ask to charge</Button>
-                <details className="rounded-lg bg-card p-4 text-left text-sm">
-                  <summary className="cursor-pointer font-medium">More about {picked.username}</summary>
-                  <div className="mt-3 space-y-3">
-                    <p className="text-muted-foreground">{FITS_LABEL[picked.fits]}{picked.mode === "emergency" ? " · Emergencies only" : ""}</p>
-                    {picked.notes && <p className="text-muted-foreground">{picked.notes}</p>}
-                    <HostReviews hostId={picked.host_id} />
-                    <Button variant="outline" className="w-full" asChild>
-                      <Link to="/u/$username" params={{ username: picked.username }}>View profile</Link>
-                    </Button>
-                  </div>
-                </details>
-                <Button variant="ghost" className="w-full" onClick={() => setSub(1)}>Back</Button>
+              <div key="s1" className="animate-in fade-in zoom-in-95 duration-500">
+                <AskForm host={picked} emergency={emergency} initialRange={milesLeft} initialCar={compat.data?.car ?? ""} onClose={() => setSub(0)} onSent={() => { close(false); onSent(); }} />
               </div>
             )}
           </div>
@@ -562,19 +530,28 @@ function Tag({ children }: { children: React.ReactNode }) {
   return <span className="rounded-full bg-muted px-2 py-0.5">{children}</span>;
 }
 
-function AskForm({ host, emergency, initialRange = "", onClose, onSent }: { host: NearbyHost; emergency: boolean; initialRange?: string; onClose: () => void; onSent: () => void }) {
+const QUICK_QUESTIONS = [
+  "Is now a good time?",
+  "How long could I charge for?",
+  "Is there room on your drive for my car?",
+  "Do I need my own cable?",
+];
+
+function AskForm({ host, emergency, initialRange = "", initialCar = "", onClose, onSent }: { host: NearbyHost; emergency: boolean; initialRange?: string; initialCar?: string; onClose: () => void; onSent: () => void }) {
   const qc = useQueryClient();
-  const [car, setCar] = useState("");
-  const [connector, setConnector] = useState("type2");
-  const [range, setRange] = useState(initialRange);
-  const [message, setMessage] = useState("");
+  const [car, setCar] = useState(initialCar);
+  const [range] = useState(initialRange);
+  const name = host.username.replace(/^@/, "");
+  const [message, setMessage] = useState(
+    `Hi ${name}, I'm running low on charge${initialRange ? ` (about ${initialRange} miles left)` : ""} and wondered if I could use your charger for a short top-up, just enough to get me on my way. Thank you so much.`,
+  );
   const [agree, setAgree] = useState(false);
   const [busy, setBusy] = useState(false);
+  const addQ = (q: string) => setMessage((m) => (m.includes(q) ? m : `${m.trim()}\n${q}`));
   async function send() {
     setBusy(true);
     try {
-      await requestCharge({ host: host.host_id, car, connector, range: range ? Number(range) : null, emergency, message });
-      // Mirror the request into Messages so the host sees it in their normal inbox too (best effort).
+      await requestCharge({ host: host.host_id, car, connector: "not_sure", range: range ? Number(range) : null, emergency, message });
       try {
         const { data: me } = await supabase.auth.getUser();
         if (me.user) {
@@ -582,15 +559,14 @@ function AskForm({ host, emergency, initialRange = "", onClose, onSent }: { host
           await sendMessage(
             convo,
             me.user.id,
-            `⚡ Lendawatt request${emergency ? " (emergency)" : ""}: could I use your charger?\nCar: ${car || "not given"}${range ? ` · ${range} miles left` : ""}${message ? `\n${message}` : ""}\n\nApprove or decline it in Lendawatt → Requests.`,
+            `⚡ Lendawatt request${emergency ? " (emergency)" : ""}\nCar: ${car || "not given"}${range ? ` · ${range} miles left` : ""}\n\n${message}\n\nApprove or decline it in Lendawatt → Requests.`,
           );
         }
       } catch {
         /* the request itself was sent; the inbox copy is optional */
       }
-      toast.success(`Request sent to ${host.username}`);
+      toast.success(`Message sent to ${host.username}`);
       qc.invalidateQueries({ queryKey: ["charge-requests"] });
-      onClose();
       onSent();
     } catch (e) {
       toast.error(errMsg(e));
@@ -599,26 +575,30 @@ function AskForm({ host, emergency, initialRange = "", onClose, onSent }: { host
     }
   }
   return (
-    <div className="rounded-lg border-2 border-primary bg-card p-4">
-      <h3 className="font-semibold">Ask {host.username}</h3>
-      <div className="mt-2 space-y-2">
-        <Input value={car} onChange={(e) => setCar(e.target.value)} placeholder="Your car, e.g. Kia Niro EV" maxLength={80} />
-        <select value={connector} onChange={(e) => setConnector(e.target.value)} className="h-9 w-full rounded-md border bg-background px-2 text-sm">
-          <option value="type2">My car takes Type 2</option>
-          <option value="three_pin">I have a 3-pin cable</option>
-          <option value="not_sure">Not sure</option>
-        </select>
-        <Input value={range} onChange={(e) => setRange(e.target.value.replace(/\D/g, ""))} placeholder="Miles of range left (optional)" inputMode="numeric" />
-        <Textarea value={message} onChange={(e) => setMessage(e.target.value)} maxLength={500} placeholder="Anything they should know — how long you need, the size of your car…" />
-        <label className="flex items-start gap-2 text-xs text-muted-foreground">
-          <Checkbox checked={agree} onCheckedChange={(v) => setAgree(v === true)} className="mt-0.5" />
-          I understand this is arranged between members. RevMate isn't responsible and doesn't handle payments.
-        </label>
-        <div className="flex gap-2">
-          <Button onClick={send} disabled={busy || !agree || !car.trim()}>Send request</Button>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+    <div className="lw-panel space-y-4 rounded-2xl p-5 text-center">
+      <div className="flex items-center justify-center gap-3">
+        <HostAvatar name={host.username} src={host.avatar_url} />
+        <p className="text-lg font-bold">Message {host.username}</p>
+      </div>
+      <Textarea value={message} onChange={(e) => setMessage(e.target.value)} maxLength={500} rows={6} className="lw-field rounded-xl text-base leading-relaxed" aria-label="Your message" />
+      <div>
+        <p className="text-xs text-muted-foreground">Tap to add a question</p>
+        <div className="mt-2 flex flex-wrap justify-center gap-2">
+          {QUICK_QUESTIONS.map((q) => (
+            <button key={q} type="button" onClick={() => addQ(q)} className="rounded-full border border-primary/60 px-3 py-1.5 text-xs transition hover:bg-primary/15">{q}</button>
+          ))}
         </div>
       </div>
+      <Input value={car} onChange={(e) => setCar(e.target.value)} placeholder="Your car, e.g. Kia Niro EV" maxLength={80} className="lw-field h-12 rounded-xl text-center" aria-label="Your car" />
+      <p className="text-xs leading-relaxed text-muted-foreground">Please wait in your car if you can, and only take what you need.</p>
+      <label className="flex items-start justify-center gap-2 text-left text-xs text-muted-foreground">
+        <Checkbox checked={agree} onCheckedChange={(v) => setAgree(v === true)} className="mt-0.5" />
+        Arranged between members. RevMate doesn't handle payments.
+      </label>
+      <Button className="mx-auto flex h-12 w-full max-w-xs rounded-full shadow-[0_0_18px_var(--primary)]" onClick={send} disabled={busy || !agree || !car.trim() || !message.trim()}>
+        {busy ? <Loader2 className="size-4 animate-spin" /> : "Send message"}
+      </Button>
+      <Button variant="ghost" className="mx-auto flex" onClick={onClose}>Back</Button>
     </div>
   );
 }
