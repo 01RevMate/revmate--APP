@@ -299,6 +299,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
   const STEPS = ["Range", "Location", "Hosts", "Charge"];
 
   const [open, setOpen] = useState(false);
+  const [sub, setSub] = useState(0);
   function close(o: boolean) {
     setOpen(o);
     if (!o) { setStep(0); setHosts(null); setPicked(null); setPublicNear(null); }
@@ -410,7 +411,6 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
               <p className="text-lg font-semibold">Hosts near you</p>
               <button type="button" className="text-sm text-primary underline" onClick={() => { setHosts(null); setStep(1); }}>Change area</button>
             </div>
-            {hosts && hosts.length > 0 && <CompatibilityNote state={compat} hostId={null} />}
             {hosts && hosts.length === 0 && publicNear === null && <ChargeRadar label="Checking public chargers nearby…" />}
             {hosts && hosts.length === 0 && publicNear && publicNear.length > 0 && (
               <div className="space-y-3">
@@ -451,7 +451,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
               <button
                 key={h.host_id}
                 type="button"
-                onClick={() => { setPicked(h); setStep(3); }}
+                onClick={() => { setPicked(h); setSub(0); setStep(3); }}
                 style={{ animationDelay: `${i * 60}ms` }}
                 className="w-full animate-in fade-in slide-in-from-bottom-2 fill-mode-both rounded-lg border border-border bg-card p-5 text-left transition hover:border-primary"
               >
@@ -472,37 +472,71 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
         )}
 
         {step === 3 && picked && (
-          <div className="space-y-4">
-            <div className="rounded-lg border border-border bg-card p-6">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-lg font-semibold">{picked.username}</span>
-                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">{picked.band}</span>
+          <div className="space-y-6">
+            <div className="flex justify-center gap-1.5" aria-hidden>
+              {[0, 1, 2].map((i) => <span key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === sub ? "w-8 bg-primary" : "w-1.5 bg-muted"}`} />)}
+            </div>
+
+            {sub === 0 && (
+              <div key="s0" className="animate-in fade-in slide-in-from-right-6 duration-500 space-y-6 text-center">
+                <div>
+                  <p className="text-2xl font-bold">{picked.username}</p>
+                  <p className="mt-1 text-base font-semibold text-primary">{picked.band}</p>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    ["🔌", CONNECTOR_LABEL[picked.connector]],
+                    ["⚡", `${picked.kw} kW`],
+                    ["💷", picked.cost === "free" ? "Free" : picked.price_note || "Small fee"],
+                  ].map(([icon, label], i) => (
+                    <div key={i} style={{ animationDelay: `${150 + i * 120}ms` }} className="animate-in fade-in zoom-in-90 fill-mode-both rounded-lg bg-card p-4">
+                      <div className="text-2xl" aria-hidden>{icon}</div>
+                      <p className="mt-1 text-xs font-medium leading-snug">{label}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-left"><CompatibilityNote state={compat} hostId={picked.host_id} /></div>
+                <Button className="h-12 w-full" onClick={() => setSub(1)}>Next</Button>
+                <Button variant="ghost" className="w-full" onClick={() => { setPicked(null); setStep(2); }}>Back to hosts</Button>
               </div>
-              <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
-                <Tag>{CONNECTOR_LABEL[picked.connector]}</Tag>
-                <Tag>{picked.kw} kW</Tag>
-                <Tag>{FITS_LABEL[picked.fits]}</Tag>
-                <Tag>{picked.cost === "free" ? "Free" : picked.price_note || "Small fee"}</Tag>
-                {picked.mode === "emergency" && <Tag>Emergencies only</Tag>}
+            )}
+
+            {sub === 1 && (
+              <div key="s1" className="animate-in fade-in slide-in-from-right-6 duration-500 space-y-6 text-center">
+                <p className="text-xl font-bold">Being a good guest</p>
+                {[
+                  ["🚗", "Wait in your car while you charge, if you can."],
+                  ["🔋", "Only take what you need to get to your next charger or home."],
+                ].map(([icon, t], i) => (
+                  <div key={i} style={{ animationDelay: `${200 + i * 250}ms` }} className="animate-in fade-in slide-in-from-bottom-3 fill-mode-both rounded-lg bg-card p-6">
+                    <div className="text-4xl" aria-hidden>{icon}</div>
+                    <p className="mt-3 text-base leading-relaxed">{t}</p>
+                  </div>
+                ))}
+                <Button className="h-12 w-full" onClick={() => setSub(2)}>Got it</Button>
+                <Button variant="ghost" className="w-full" onClick={() => setSub(0)}>Back</Button>
               </div>
-              {picked.notes && <p className="mt-2 text-sm text-muted-foreground">{picked.notes}</p>}
-              <CompatibilityNote state={compat} hostId={picked.host_id} />
-              <HostReviews hostId={picked.host_id} />
-            </div>
-            <div className="rounded-lg border border-primary/40 bg-primary/5 p-6 text-sm">
-              <p className="font-semibold">Being a good guest</p>
-              <ul className="mt-2 space-y-1 text-muted-foreground">
-                <li>Wait in your car while you charge, if you can.</li>
-                <li>Only take what you need to get to your next charger or home.</li>
-              </ul>
-            </div>
-            <Button className="h-12 w-full" onClick={() => setAsking(picked)}>Ask to charge</Button>
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" asChild>
-                <Link to="/u/$username" params={{ username: picked.username }}>View profile</Link>
-              </Button>
-              <Button variant="ghost" className="flex-1" onClick={() => { setPicked(null); setStep(2); }}>Back to hosts</Button>
-            </div>
+            )}
+
+            {sub === 2 && (
+              <div key="s2" className="animate-in fade-in slide-in-from-right-6 duration-500 space-y-5 text-center">
+                <p className="text-xl font-bold">Ask {picked.username}</p>
+                <p className="text-sm text-muted-foreground">They'll get your request in the app. Your location stays private until they say yes.</p>
+                <Button className="h-14 w-full text-base shadow-[0_0_18px_var(--primary)]" onClick={() => setAsking(picked)}>Ask to charge</Button>
+                <details className="rounded-lg bg-card p-4 text-left text-sm">
+                  <summary className="cursor-pointer font-medium">More about {picked.username}</summary>
+                  <div className="mt-3 space-y-3">
+                    <p className="text-muted-foreground">{FITS_LABEL[picked.fits]}{picked.mode === "emergency" ? " · Emergencies only" : ""}</p>
+                    {picked.notes && <p className="text-muted-foreground">{picked.notes}</p>}
+                    <HostReviews hostId={picked.host_id} />
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="/u/$username" params={{ username: picked.username }}>View profile</Link>
+                    </Button>
+                  </div>
+                </details>
+                <Button variant="ghost" className="w-full" onClick={() => setSub(1)}>Back</Button>
+              </div>
+            )}
           </div>
         )}
       </div>
