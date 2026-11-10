@@ -436,3 +436,23 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
 .lw-panel { background: var(--lw-panel); border: 1px solid color-mix(in oklab, var(--primary) 55%, transparent); }
 .lw-field, .lw-wizard input:not([type="checkbox"]), .lw-wizard textarea { background: var(--lw-field) !important; border-color: var(--primary) !important; }
 .lw-wizard button { justify-content: center; }
+
+/* Lendawatt window: rich green surface, bright neon green buttons. */
+.charge-theme.lw-wizard {
+  --primary: oklch(0.9 0.24 145);
+  --primary-foreground: oklch(0.16 0.04 150);
+  --background: oklch(0.42 0.13 150);
+  --card: oklch(0.32 0.1 150);
+  --muted: oklch(0.34 0.09 150);
+  --muted-foreground: oklch(0.9 0.05 150);
+  --border: oklch(0.9 0.24 145 / 35%);
+  --lw-panel: oklch(0.34 0.1 150);
+  --lw-field: oklch(0.24 0.07 150);
+  background: linear-gradient(170deg, oklch(0.5 0.15 148), oklch(0.36 0.11 152));
+  border: 1px solid oklch(0.9 0.24 145 / 50%);
+}
+.charge-theme.lw-wizard [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="outline"]),
+.charge-theme.lw-wizard button.bg-primary {
+  box-shadow: 0 0 22px oklch(0.9 0.24 145 / 60%);
+  font-weight: 700;
+}
