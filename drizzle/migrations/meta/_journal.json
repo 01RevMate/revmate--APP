@@ -540,6 +540,13 @@
       "when": 1794318430201,
       "tag": "0076_fix_make_segments_read",
       "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1794320728748,
+      "tag": "0077_community_charger_stats",
+      "breakpoints": true
     }
   ]
 }

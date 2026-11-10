@@ -27,6 +27,7 @@ import {
   FITS_LABEL,
   deleteMyHost,
   fetchMyHost,
+  fetchCommunityStats,
   fetchMyRequests,
   findNearbyHosts,
   rateHost,
@@ -64,7 +65,7 @@ const errMsg = (e: unknown) => (e instanceof Error ? e.message : (e as { message
 function CommunityChargersPage() {
   const { user } = useAuth();
   const { open: openAuth } = useAuthModal();
-  const [tab, setTab] = useState<"need" | "host" | "requests">("need");
+  const [tab, setTab] = useState<"need" | "host" | "requests" | "settings">("need");
 
   return (
     <div className="mx-auto max-w-2xl px-3 py-4 pb-24">
@@ -82,6 +83,7 @@ function CommunityChargersPage() {
             </p>
           </div>
         </div>
+        <NetworkStats />
       </header>
 
       <StrandedPanel />
@@ -95,11 +97,12 @@ function CommunityChargersPage() {
         </div>
       ) : (
         <>
-          <div className="mt-4 grid grid-cols-3 gap-1 rounded-lg bg-muted p-1 text-sm">
+          <div className="mt-4 grid grid-cols-4 gap-1 rounded-lg bg-muted p-1 text-sm">
             {([
-              ["need", "I need a charge"],
-              ["host", "Offer my charger"],
+              ["need", "Find a charge"],
+              ["host", "My charger"],
               ["requests", "Requests"],
+              ["settings", "Settings"],
             ] as const).map(([k, label]) => (
               <button
                 key={k}
@@ -113,6 +116,7 @@ function CommunityChargersPage() {
           {tab === "need" && <NeedCharge onSent={() => setTab("requests")} />}
           {tab === "host" && <HostSetup userId={user.id} />}
           {tab === "requests" && <Requests />}
+          {tab === "settings" && <SettingsPanel userId={user.id} onHost={() => setTab("host")} />}
         </>
       )}
 
@@ -123,7 +127,8 @@ function CommunityChargersPage() {
           <li>RevMate never takes or handles money. If a host charges, you agree it with them directly.</li>
           <li>Hosts are responsible for their own charger and cable. Drivers should use their own cable where they can.</li>
           <li>If you're in danger, call 999. For a breakdown, call your breakdown cover first.</li>
-          <li>Safety: tell a friend where you're going, arrive in daylight if you can, and leave if anything feels wrong. Report or block anyone from their profile.</li>
+          <li>Hosts can see the profile of anyone who asks, and drivers can see the host's profile, so you know who you're meeting.</li>
+          <li>Everything is arranged inside RevMate. Phone numbers are never shared.</li>
           <li>Hosts' location is kept to about 1 km. An exact meeting place is only shown to the driver the host approves, and it's deleted after 4 hours.</li>
         </ul>
       </section>
@@ -575,6 +580,9 @@ function RequestCard({ r }: { r: ChargeRequest }) {
 
       <div className="mt-2 flex flex-wrap gap-2">
         <Button size="sm" variant="outline" asChild>
+          <Link to="/u/$username" params={{ username: r.other_username }}>View profile</Link>
+        </Button>
+        <Button size="sm" variant="outline" asChild>
           <Link to="/messages/$username" params={{ username: handle }}>Message</Link>
         </Button>
         {r.role === "host" && r.status === "pending" && (
@@ -599,6 +607,105 @@ function RequestCard({ r }: { r: ChargeRequest }) {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+function NetworkStats() {
+  const { data } = useQuery({ queryKey: ["community-charger-stats"], queryFn: fetchCommunityStats, staleTime: 60_000 });
+  if (!data) return null;
+  const items: [number, string][] = [
+    [data.hosts, data.hosts === 1 ? "Community Charger" : "Community Chargers"],
+    [data.ev_drivers, "EV drivers on RevMate"],
+    [data.helped, data.helped === 1 ? "driver helped" : "drivers helped"],
+  ];
+  return (
+    <div className="relative mt-4 grid grid-cols-3 gap-2 text-center">
+      {items.map(([n, label]) => (
+        <div key={label} className="rounded-xl bg-background/10 px-2 py-2">
+          <p className="text-xl font-extrabold">{n}</p>
+          <p className="text-[11px] leading-tight text-background/70">{label}</p>
+        </div>
+      ))}
+      {data.hosts < 25 && <p className="col-span-3 text-xs text-background/70">The network is just starting — early hosts get the Community Charger badge.</p>}
+    </div>
+  );
+}
+
+function SettingsPanel({ userId, onHost }: { userId: string; onHost: () => void }) {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({ queryKey: ["my-charger-host", userId], queryFn: () => fetchMyHost(userId) });
+  const [busy, setBusy] = useState(false);
+  if (isLoading) return <Loader2 className="mx-auto mt-6 size-5 animate-spin" />;
+  async function update(patch: Partial<ChargerHost>) {
+    if (!data) return;
+    setBusy(true);
+    try {
+      await saveMyHost({ ...data, ...patch });
+      qc.invalidateQueries({ queryKey: ["my-charger-host", userId] });
+      toast.success("Saved");
+    } catch (e) {
+      toast.error(errMsg(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function leave() {
+    if (!confirm("Leave Community Chargers? Your charger details and area will be deleted.")) return;
+    setBusy(true);
+    try {
+      await deleteMyHost(userId);
+      qc.invalidateQueries({ queryKey: ["my-charger-host", userId] });
+      qc.invalidateQueries({ queryKey: ["community-charger-stats"] });
+      toast.success("You've left. Your charger details are deleted.");
+    } catch (e) {
+      toast.error(errMsg(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="mt-4 space-y-4 rounded-2xl border bg-card p-4 text-sm">
+      <div className="flex items-center gap-3">
+        <img src="/community-charger-logo.jpg" alt="" width={1088} height={1088} className="size-12 rounded-xl" />
+        <div>
+          <p className="font-bold">Your Community Charger settings</p>
+          <p className="text-xs text-muted-foreground">You're in control. Change or leave any time.</p>
+        </div>
+      </div>
+      <div className="rounded-md bg-muted p-3">
+        <p className="font-semibold">Your location</p>
+        <p className="mt-1 text-muted-foreground">
+          Joining never shows where you live. Drivers only see a rough distance like "2–5 mi". Your address is only shared when you approve a request and type it in, and only that driver sees it. It's removed after 4 hours or when you tap All done.
+        </p>
+        {data && <p className="mt-1 text-xs text-muted-foreground">Saved area: {data.district} (rounded to about 1 km)</p>}
+      </div>
+      {data ? (
+        <>
+          <label className="flex items-center justify-between gap-3 font-medium">
+            Hosting is on
+            <Switch checked={!data.paused} disabled={busy} onCheckedChange={(v) => update({ paused: !v })} />
+          </label>
+          <label className="flex items-center justify-between gap-3 font-medium">
+            Show me to drivers searching nearby
+            <Switch checked={data.discoverable} disabled={busy} onCheckedChange={(v) => update({ discoverable: v })} />
+          </label>
+          <p className="-mt-2 text-xs text-muted-foreground">Off means you only appear for emergencies.</p>
+          <label className="flex items-center justify-between gap-3 font-medium">
+            Planned visits as well as emergencies
+            <Switch checked={data.mode === "any"} disabled={busy} onCheckedChange={(v) => update({ mode: v ? "any" : "emergency" })} />
+          </label>
+          <div className="flex flex-wrap gap-2 border-t pt-3">
+            <Button variant="outline" onClick={onHost}>Edit charger, price or area</Button>
+            <Button variant="ghost" className="text-destructive" disabled={busy} onClick={leave}>Leave Community Chargers</Button>
+          </div>
+        </>
+      ) : (
+        <div>
+          <p className="text-muted-foreground">You're not hosting. You can still ask members for a charge.</p>
+          <Button className="mt-2" onClick={onHost}>Offer my charger</Button>
+        </div>
+      )}
     </div>
   );
 }

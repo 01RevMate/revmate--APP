@@ -157,3 +157,13 @@ export async function rateHost(id: string, rating: 1 | -1) {
   const { error } = await supabase.rpc("rate_charge_host", { p_request: id, p_rating: rating });
   if (error) throw error;
 }
+
+export type CommunityStats = { hosts: number; ev_drivers: number; helped: number };
+
+/** Real network numbers — never inflated. */
+export async function fetchCommunityStats(): Promise<CommunityStats> {
+  const { data, error } = await supabase.rpc("community_charger_stats");
+  if (error) throw error;
+  const row = (Array.isArray(data) ? data[0] : data) as CommunityStats | undefined;
+  return row ?? { hosts: 0, ev_drivers: 0, helped: 0 };
+}

@@ -4422,6 +4422,14 @@ export type Database = {
           resolved: number
         }[]
       }
+      community_charger_stats: {
+        Args: never
+        Returns: {
+          ev_drivers: number
+          helped: number
+          hosts: number
+        }[]
+      }
       community_feed: {
         Args: {
           filter_car?: string
