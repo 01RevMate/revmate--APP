@@ -26,3 +26,8 @@
 - [ ] Essentials 'Latest for sale': rank adverts by member's garage cars (makes/models) and saved searches/recent views
 - [x] Community chargers: menu entry for all, buttons depend on joined state
 - [x] Community chargers: written reviews of hosts to build trust
+- Community chargers: split Find a charge / My charger into two groups, keep Stranded help
+- Miles: single big typeable number
+- Group buttons centred, solid green, glowing border
+- Step bar percentage
+- Suggest catchy, untaken SEO name for Community chargers (needs user pick)

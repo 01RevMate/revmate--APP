@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { searchRadius, bandWithinRadius, RANGE_SAFETY_MILES } from "@/lib/rangeRadius";
+import { Slider } from "@/components/ui/slider";
 import { CompatibilityNote, useChargerCompat } from "@/components/ChargerCompatibility";
 import { CommunityChargerLogo } from "@/components/CommunityChargerLogo";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -76,7 +77,14 @@ function CommunityChargersPage() {
   const { open: openAuth } = useAuthModal();
   const search = Route.useSearch();
   const [tab, setTab] = useState<Tab>(search.tab ?? "need");
-  useEffect(() => { if (search.tab) setTab(search.tab); }, [search.tab]);
+  const [group, setGroup] = useState<"driver" | "hosting">(search.tab === "host" || search.tab === "settings" ? "hosting" : "driver");
+  useEffect(() => {
+    if (search.tab) {
+      setTab(search.tab);
+      if (search.tab === "host" || search.tab === "settings") setGroup("hosting");
+      else if (search.tab === "need") setGroup("driver");
+    }
+  }, [search.tab]);
 
   return (
     <div className="charge-theme min-h-screen">
@@ -115,13 +123,29 @@ function CommunityChargersPage() {
         </div>
       ) : (
         <>
-          <nav className="-mx-4 mt-10 flex gap-6 overflow-x-auto border-b border-border px-4 text-sm">
+          <div className="mt-10 grid grid-cols-2 gap-3">
             {([
-              ["need", "Find a charge"],
-              ["host", "My charger"],
-              ["requests", "Requests"],
-              ["settings", "Settings"],
-            ] as const).map(([k, label]) => (
+              ["driver", "I need a charge", "Find a host nearby", "need"],
+              ["hosting", "My charger", "Share yours, manage it", "host"],
+            ] as const).map(([g, title, sub, first]) => {
+              const active = g === "driver" ? tab === "need" || (tab === "requests" && group === "driver") : tab === "host" || tab === "settings" || (tab === "requests" && group === "hosting");
+              return (
+                <button
+                  key={g}
+                  onClick={() => { setGroup(g); setTab(first); }}
+                  className={`rounded-2xl border-2 p-4 text-center transition-all ${active ? "border-primary bg-primary text-primary-foreground shadow-[0_0_18px_var(--primary)]" : "border-primary/40 bg-primary/15 hover:border-primary"}`}
+                >
+                  <span className="block font-semibold">{title}</span>
+                  <span className={`mt-0.5 block text-xs ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{sub}</span>
+                </button>
+              );
+            })}
+          </div>
+          <nav className="-mx-4 mt-6 flex gap-6 overflow-x-auto border-b border-border px-4 text-sm">
+            {(group === "driver"
+              ? ([["need", "Find a charge"], ["requests", "My requests"]] as const)
+              : ([["host", "My charger"], ["requests", "Requests"], ["settings", "Settings"]] as const)
+            ).map(([k, label]) => (
               <button
                 key={k}
                 onClick={() => setTab(k)}
@@ -133,9 +157,9 @@ function CommunityChargersPage() {
           </nav>
           <div className="mt-8">
           {tab === "need" && <NeedCharge onSent={() => setTab("requests")} />}
-          {tab === "host" && <HostSetup userId={user.id} onSettings={() => setTab("settings")} />}
+          {tab === "host" && <HostSetup userId={user.id} onSettings={() => { setGroup("hosting"); setTab("settings"); }} />}
           {tab === "requests" && <Requests />}
-          {tab === "settings" && <SettingsPanel userId={user.id} onHost={() => setTab("host")} />}
+          {tab === "settings" && <SettingsPanel userId={user.id} onHost={() => { setGroup("hosting"); setTab("host"); }} />}
           </div>
         </>
       )}
@@ -218,73 +242,160 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
     );
   }
 
+  const [step, setStep] = useState(0);
+  const [picked, setPicked] = useState<NearbyHost | null>(null);
+  const miles = milesLeft ? Number(milesLeft) : 0;
+  const goResults = async (fn: () => Promise<void> | void) => {
+    await fn();
+  };
+  useEffect(() => {
+    if (hosts) setStep(2);
+  }, [hosts]);
+  const STEPS = ["Range", "Location", "Hosts", "Charge"];
+
   return (
     <div className="space-y-6">
-      <div className="space-y-4">
-        <label className="flex items-center justify-between gap-3 text-sm font-medium">
-          It's an emergency (I can't reach a public charger)
-          <Switch checked={emergency} onCheckedChange={setEmergency} />
-        </label>
-        <label className="block text-sm font-medium">
-          Miles left on your car
-          <Input className="mt-2 h-11" inputMode="numeric" value={milesLeft} onChange={(e) => setMilesLeft(e.target.value.replace(/\D/g, "").slice(0, 3))} placeholder="e.g. 18" />
-        </label>
-        {milesLeft && (
-          <p className="text-xs text-muted-foreground">
-            {radius > 0
-              ? `We'll look within ${radius} miles — keeping ${RANGE_SAFETY_MILES} miles spare in case your range is optimistic.`
-              : "That's very low. We'll only show the closest hosts — and call your breakdown cover too."}
-          </p>
-        )}
-        <div className="flex gap-2">
-          <Input className="h-11" value={postcode} onChange={(e) => setPostcode(e.target.value)} placeholder="Postcode or area, e.g. LS6" />
-          <Button onClick={byPostcode} disabled={busy || !postcode.trim()}>Search</Button>
-        </div>
-        <Button variant="outline" className="h-11 w-full" onClick={byGps} disabled={busy}>
-          <MapPin className="size-4" /> Use where I am
-        </Button>
-        <p className="text-xs text-muted-foreground">Your location is rounded to about 1 km, used for this search only and not saved.</p>
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-muted-foreground">Step {step + 1} of {STEPS.length}</span>
+        <span className="font-semibold tabular-nums text-primary">{Math.round(((step + 1) / STEPS.length) * 100)}%</span>
       </div>
+      <ol className="-mt-4 flex gap-2" aria-label="Steps">
+        {STEPS.map((s, i) => (
+          <li key={s} className="flex-1">
+            <button
+              type="button"
+              disabled={i > step}
+              onClick={() => { setStep(i); if (i < 3) setPicked(null); }}
+              className={`h-1.5 w-full rounded-full transition-colors ${i <= step ? "bg-primary" : "bg-muted"}`}
+              aria-label={`Step ${i + 1}: ${s}`}
+            />
+            <span className={`mt-1.5 block text-xs ${i === step ? "font-semibold text-foreground" : "text-muted-foreground"}`}>{s}</span>
+          </li>
+        ))}
+      </ol>
 
-      <div className="border-l-2 border-primary pl-4 text-sm">
-        <p className="font-semibold">Being a good guest</p>
-        <ul className="mt-1 space-y-1 text-muted-foreground">
-          <li>Wait in your car while you charge, if you can.</li>
-          <li>Only take what you need to get to your next charger or home.</li>
-        </ul>
-      </div>
-      {busy && <Loader2 className="mx-auto size-5 animate-spin text-muted-foreground" />}
-      {hosts && hosts.length === 0 && (
-        <p className="py-6 text-center text-sm text-muted-foreground">
-          No community hosts within 30 miles yet. Try the public charger map, and ask EV owners you know to sign up as hosts.
-        </p>
-      )}
-      {hosts && hosts.length > 0 && <CompatibilityNote state={compat} hostId={null} />}
-      {hosts?.map((h) => (
-        <div key={h.host_id} className="border-t border-border pt-5">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-semibold">{h.username}</span>
-            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">{h.band}</span>
+      <div key={step} className="animate-in fade-in slide-in-from-right-6 duration-300">
+        {step === 0 && (
+          <div className="space-y-5 rounded-2xl border border-border bg-card p-6">
+            <div>
+              <p className="text-lg font-semibold">How many miles have you got left?</p>
+              <p className="mt-1 text-sm text-muted-foreground">We keep {RANGE_SAFETY_MILES} miles spare in case your range is optimistic.</p>
+            </div>
+            <label className="flex items-baseline justify-center gap-2">
+              <input
+                autoFocus
+                inputMode="numeric"
+                value={milesLeft}
+                onChange={(e) => setMilesLeft(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                placeholder="0"
+                aria-label="Miles left"
+                className="w-36 bg-transparent text-center text-6xl font-bold tabular-nums text-primary outline-none placeholder:text-primary/30"
+              />
+              <span className="text-lg font-medium text-muted-foreground">miles</span>
+            </label>
+            <div className="md:hidden">
+              <Slider value={[miles]} min={0} max={60} step={1} onValueChange={(v) => setMilesLeft(String(v[0]))} aria-label="Miles left slider" />
+            </div>
+            {milesLeft && (
+              <p className="text-center text-sm text-muted-foreground">
+                {radius > 0 ? `We'll look within ${radius} miles.` : "That's very low — we'll show only the closest hosts. Call your breakdown cover too."}
+              </p>
+            )}
+            <label className="flex items-center justify-between gap-3 rounded-xl bg-muted/50 p-4 text-sm font-medium">
+              It's an emergency (I can't reach a public charger)
+              <Switch checked={emergency} onCheckedChange={setEmergency} />
+            </label>
+            <Button className="h-12 w-full" disabled={!milesLeft} onClick={() => setStep(1)}>Next</Button>
           </div>
-          <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
-            <Tag>{CONNECTOR_LABEL[h.connector]}</Tag>
-            <Tag>{h.kw} kW</Tag>
-            <Tag>{FITS_LABEL[h.fits]}</Tag>
-            <Tag>{h.cost === "free" ? "Free" : h.price_note || "Small fee"}</Tag>
-            {h.mode === "emergency" && <Tag>Emergencies only</Tag>}
-            {h.thumbs_up > 0 && <Tag>👍 {h.thumbs_up} helped</Tag>}
-          </div>
-          {h.notes && <p className="mt-1 text-sm text-muted-foreground">{h.notes}</p>}
-          <CompatibilityNote state={compat} hostId={h.host_id} />
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button size="sm" onClick={() => setAsking(h)}>Ask to charge</Button>
-            <Button size="sm" variant="outline" asChild>
-              <Link to="/u/$username" params={{ username: h.username }}>View profile</Link>
+        )}
+
+        {step === 1 && (
+          <div className="space-y-4 rounded-2xl border border-border bg-card p-6">
+            <div>
+              <p className="text-lg font-semibold">Where are you?</p>
+              <p className="mt-1 text-sm text-muted-foreground">Rounded to about 1 km, used for this search only and not saved.</p>
+            </div>
+            <Input className="h-12" value={postcode} onChange={(e) => setPostcode(e.target.value)} onKeyDown={(e) => e.key === "Enter" && postcode.trim() && goResults(byPostcode)} placeholder="Postcode or area, e.g. LS6" />
+            <Button className="h-12 w-full" onClick={() => goResults(byPostcode)} disabled={busy || !postcode.trim()}>
+              {busy ? <Loader2 className="size-4 animate-spin" /> : "Next"}
             </Button>
+            <Button variant="outline" className="h-12 w-full" onClick={byGps} disabled={busy}>
+              <MapPin className="size-4" /> Use where I am
+            </Button>
+            <Button variant="ghost" className="w-full" onClick={() => setStep(0)}>Back</Button>
           </div>
-          <HostReviews hostId={h.host_id} />
-        </div>
-      ))}
+        )}
+
+        {step === 2 && (
+          <div className="space-y-3">
+            <div className="flex items-end justify-between">
+              <p className="text-lg font-semibold">Hosts near you</p>
+              <button type="button" className="text-sm text-primary underline" onClick={() => { setHosts(null); setStep(1); }}>Change area</button>
+            </div>
+            {hosts && hosts.length > 0 && <CompatibilityNote state={compat} hostId={null} />}
+            {hosts && hosts.length === 0 && (
+              <div className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+                No community hosts in range yet. Try the public charger map, and ask EV owners you know to sign up as hosts.
+              </div>
+            )}
+            {hosts?.map((h, i) => (
+              <button
+                key={h.host_id}
+                type="button"
+                onClick={() => { setPicked(h); setStep(3); }}
+                style={{ animationDelay: `${i * 60}ms` }}
+                className="w-full animate-in fade-in slide-in-from-bottom-2 fill-mode-both rounded-2xl border border-border bg-card p-5 text-left transition hover:border-primary"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold">{h.username}</span>
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">{h.band}</span>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+                  <Tag>{CONNECTOR_LABEL[h.connector]}</Tag>
+                  <Tag>{h.kw} kW</Tag>
+                  <Tag>{h.cost === "free" ? "Free" : h.price_note || "Small fee"}</Tag>
+                  {h.thumbs_up > 0 && <Tag>👍 {h.thumbs_up} helped</Tag>}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {step === 3 && picked && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-border bg-card p-6">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-lg font-semibold">{picked.username}</span>
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">{picked.band}</span>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+                <Tag>{CONNECTOR_LABEL[picked.connector]}</Tag>
+                <Tag>{picked.kw} kW</Tag>
+                <Tag>{FITS_LABEL[picked.fits]}</Tag>
+                <Tag>{picked.cost === "free" ? "Free" : picked.price_note || "Small fee"}</Tag>
+                {picked.mode === "emergency" && <Tag>Emergencies only</Tag>}
+              </div>
+              {picked.notes && <p className="mt-2 text-sm text-muted-foreground">{picked.notes}</p>}
+              <CompatibilityNote state={compat} hostId={picked.host_id} />
+              <HostReviews hostId={picked.host_id} />
+            </div>
+            <div className="rounded-2xl border border-primary/40 bg-primary/5 p-6 text-sm">
+              <p className="font-semibold">Being a good guest</p>
+              <ul className="mt-2 space-y-1 text-muted-foreground">
+                <li>Wait in your car while you charge, if you can.</li>
+                <li>Only take what you need to get to your next charger or home.</li>
+              </ul>
+            </div>
+            <Button className="h-12 w-full" onClick={() => setAsking(picked)}>Ask to charge</Button>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" asChild>
+                <Link to="/u/$username" params={{ username: picked.username }}>View profile</Link>
+              </Button>
+              <Button variant="ghost" className="flex-1" onClick={() => { setPicked(null); setStep(2); }}>Back to hosts</Button>
+            </div>
+          </div>
+        )}
+      </div>
       {asking && <AskForm host={asking} emergency={emergency} initialRange={milesLeft} onClose={() => setAsking(null)} onSent={onSent} />}
     </div>
   );
