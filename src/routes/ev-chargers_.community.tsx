@@ -1,3 +1,4 @@
+import chargerLogo from "@/assets/lendawatt-logo.jpg.asset.json";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { searchRadius, bandWithinRadius, RANGE_SAFETY_MILES } from "@/lib/rangeRadius";
@@ -348,7 +349,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
               <p className="text-center text-xl font-semibold leading-snug">How many miles have you got left?</p>
               <p className="mt-2 text-center text-sm leading-relaxed text-muted-foreground">We keep {RANGE_SAFETY_MILES} miles spare in case your range is optimistic.</p>
             </div>
-            <label className="flex items-baseline justify-center gap-2 rounded-lg bg-card px-4 py-7">
+            <label className="lw-miles-wrap flex items-baseline justify-center gap-2 py-4">
               <input
                 inputMode="numeric"
                 enterKeyHint="done"
@@ -357,7 +358,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                 onChange={(e) => setMilesLeft(e.target.value.replace(/\D/g, "").slice(0, 3))}
                 placeholder="0"
                 aria-label="Miles left"
-                className="w-48 bg-transparent text-center text-8xl font-bold tabular-nums text-primary outline-none placeholder:text-primary/30"
+                className="lw-miles w-56 bg-transparent text-center text-8xl font-bold tabular-nums text-primary outline-none placeholder:text-primary/30"
               />
               <span className="text-lg font-medium text-muted-foreground">miles</span>
             </label>
@@ -854,7 +855,7 @@ function ShareStep({ userId, onDone }: { userId: string; onDone: () => void }) {
     try {
       const id = await createPost({ userId, body: body.trim() });
       if (withLogo) {
-        const blob = await (await fetch("/community-charger-logo.jpg")).blob();
+        const blob = await (await fetch(chargerLogo.url)).blob();
         const url = await uploadImageBlob("post-images", userId, blob);
         await attachImagesToPost(id, [url]);
       }
@@ -877,7 +878,7 @@ function ShareStep({ userId, onDone }: { userId: string; onDone: () => void }) {
         Add the Community Charger logo
         <Switch checked={withLogo} onCheckedChange={setWithLogo} />
       </label>
-      {withLogo && <img src="/community-charger-logo.jpg" alt="Community Charger logo" width={1088} height={1088} className="mx-auto w-40 rounded-xl" />}
+      {withLogo && <img src=chargerLogo.url alt="Community Charger logo" width={1088} height={1088} className="mx-auto w-40 rounded-xl" />}
       <div className="flex gap-2">
         <Button className="flex-1" disabled={busy || !body.trim()} onClick={post}>
           {busy && <Loader2 className="size-4 animate-spin" />} Post to the feed
