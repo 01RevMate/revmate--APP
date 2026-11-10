@@ -37,6 +37,9 @@ export const RELEASES: Release[] = [
       "Charge requests also appear in Messages.",
       "A clearer Lendawatt charge window with centred RevMate and community logos, spacious steps and a red help panel at the bottom.",
     ],
+    fixes: [
+      "The RevMate icon now shows in browser tabs, on phones and beside search results on every page, including Lendawatt.",
+    ],
     requiredSql: [
       "drizzle/migrations/0072_community_charger_network.sql",
       "drizzle/migrations/0073_charge_notification_links.sql",

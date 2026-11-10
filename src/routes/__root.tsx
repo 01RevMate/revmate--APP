@@ -139,7 +139,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           rel: "stylesheet",
           href: appCss,
         },
+        // Search engines and older browsers look for /favicon.ico at the site
+        // root first, so it ships alongside the PNGs at several sizes.
+        {
+          rel: "icon",
+          href: "/favicon.ico",
+          type: "image/x-icon",
+          sizes: "16x16 24x24 32x32 48x48 64x64",
+        },
+        { rel: "icon", href: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+        { rel: "icon", href: "/favicon-48.png", type: "image/png", sizes: "48x48" },
         { rel: "icon", href: "/favicon.png", type: "image/png" },
+        { rel: "icon", href: "/icon-192.png", type: "image/png", sizes: "192x192" },
         { rel: "manifest", href: "/manifest.webmanifest" },
         { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
       ],
