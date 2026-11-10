@@ -655,6 +655,19 @@ function RequestCard({ r }: { r: ChargeRequest }) {
       {r.shared_location && (
         <div className="mt-2 rounded-md bg-primary/10 p-2">
           <p className="font-semibold"><MapPin className="mr-1 inline size-4" />{r.role === "host" ? "You shared" : "Meet here"}: {r.shared_location}</p>
+          {r.role === "driver" && r.status === "approved" && (
+            <div className="my-2 flex flex-wrap gap-2">
+              {[
+                ["Google Maps", `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(r.shared_location)}`],
+                ["Apple Maps", `https://maps.apple.com/?daddr=${encodeURIComponent(r.shared_location)}`],
+                ["Waze", `https://waze.com/ul?q=${encodeURIComponent(r.shared_location)}&navigate=yes`],
+              ].map(([label, href]) => (
+                <Button key={label} size="sm" asChild>
+                  <a href={href} target="_blank" rel="noopener noreferrer"><MapPin className="size-4" /> {label}</a>
+                </Button>
+              ))}
+            </div>
+          )}
           <p className="text-xs text-muted-foreground">Only you two can see this. It disappears {r.expires_at ? new Date(r.expires_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "soon"}.</p>
         </div>
       )}
