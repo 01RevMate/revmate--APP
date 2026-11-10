@@ -680,7 +680,6 @@ function NetworkStats() {
           <p className="text-[11px] leading-tight text-muted-foreground">{label}</p>
         </div>
       ))}
-      {data.hosts < 25 && <p className="col-span-3 mt-4 border-0 text-xs text-muted-foreground">The network is just starting — early hosts get the Community Charger badge.</p>}
     </div>
   );
 }
