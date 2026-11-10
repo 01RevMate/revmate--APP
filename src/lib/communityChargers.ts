@@ -167,3 +167,27 @@ export async function fetchCommunityStats(): Promise<CommunityStats> {
   const row = (Array.isArray(data) ? data[0] : data) as CommunityStats | undefined;
   return row ?? { hosts: 0, ev_drivers: 0, helped: 0 };
 }
+
+/** True when the signed-in member is registered as a Community Charger host. */
+export function useIsChargerHost(): boolean {
+  const { user } = useAuth();
+  const { data } = useQuery({
+    queryKey: ["my-charger-host", user?.id],
+    enabled: !!user,
+    queryFn: () => fetchMyHost(user!.id),
+  });
+  return !!data;
+}
+
+export type HostReview = { id: string; reviewer_username: string; reviewer_avatar: string | null; rating: number; review: string | null; created_at: string };
+
+export async function fetchHostReviews(hostId: string) {
+  const { data, error } = await supabase.rpc("charge_host_reviews", { p_host: hostId });
+  if (error) throw error;
+  return (data ?? []) as HostReview[];
+}
+
+export async function leaveHostReview(id: string, rating: 1 | -1, review: string) {
+  const { error } = await supabase.rpc("leave_charge_review", { p_request: id, p_rating: rating, p_review: review });
+  if (error) throw error;
+}

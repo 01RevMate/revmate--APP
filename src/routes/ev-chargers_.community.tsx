@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { CommunityChargerMark } from "@/components/CommunityChargerMark";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -30,7 +31,8 @@ import {
   fetchCommunityStats,
   fetchMyRequests,
   findNearbyHosts,
-  rateHost,
+  fetchHostReviews,
+  leaveHostReview,
   requestCharge,
   respondToRequest,
   saveMyHost,
@@ -57,15 +59,22 @@ export const Route = createFileRoute("/ev-chargers_/community")({
     ],
     links: [{ rel: "canonical", href: URL }],
   }),
+  validateSearch: (s: Record<string, unknown>): { tab?: Tab | undefined } =>
+    ({ tab: TABS.includes(s["tab"] as Tab) ? (s["tab"] as Tab) : undefined }),
   component: CommunityChargersPage,
 });
+
+type Tab = "need" | "host" | "requests" | "settings";
+const TABS: Tab[] = ["need", "host", "requests", "settings"];
 
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : (e as { message?: string })?.message ?? "Something went wrong");
 
 function CommunityChargersPage() {
   const { user } = useAuth();
   const { open: openAuth } = useAuthModal();
-  const [tab, setTab] = useState<"need" | "host" | "requests" | "settings">("need");
+  const search = Route.useSearch();
+  const [tab, setTab] = useState<Tab>(search.tab ?? "need");
+  useEffect(() => { if (search.tab) setTab(search.tab); }, [search.tab]);
 
   return (
     <div className="mx-auto max-w-2xl px-3 py-4 pb-24">
@@ -75,7 +84,9 @@ function CommunityChargersPage() {
       <header className="relative mt-2 overflow-hidden rounded-3xl bg-foreground p-5 text-background">
         <div className="pointer-events-none absolute -right-12 -top-12 size-48 rounded-full bg-primary/30 blur-3xl" />
         <div className="relative flex items-center gap-4">
-          <img src="/community-charger-logo.jpg" alt="Community Charger logo" width={1088} height={1088} className="size-20 shrink-0 rounded-2xl" />
+          <span className="flex size-20 shrink-0 items-center justify-center rounded-2xl border border-background/20 bg-background/5">
+            <CommunityChargerMark className="size-12" />
+          </span>
           <div>
             <h1 className="text-2xl font-extrabold leading-tight">Community chargers</h1>
             <p className="mt-1 text-sm text-background/70">
@@ -114,7 +125,7 @@ function CommunityChargersPage() {
             ))}
           </div>
           {tab === "need" && <NeedCharge onSent={() => setTab("requests")} />}
-          {tab === "host" && <HostSetup userId={user.id} />}
+          {tab === "host" && <HostSetup userId={user.id} onSettings={() => setTab("settings")} />}
           {tab === "requests" && <Requests />}
           {tab === "settings" && <SettingsPanel userId={user.id} onHost={() => setTab("host")} />}
         </>
@@ -231,7 +242,13 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
             {h.thumbs_up > 0 && <Tag>👍 {h.thumbs_up} helped</Tag>}
           </div>
           {h.notes && <p className="mt-1 text-sm text-muted-foreground">{h.notes}</p>}
-          <Button size="sm" className="mt-2" onClick={() => setAsking(h)}>Ask to charge</Button>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button size="sm" onClick={() => setAsking(h)}>Ask to charge</Button>
+            <Button size="sm" variant="outline" asChild>
+              <Link to="/u/$username" params={{ username: h.username }}>View profile</Link>
+            </Button>
+          </div>
+          <HostReviews hostId={h.host_id} />
         </div>
       ))}
       {asking && <AskForm host={asking} emergency={emergency} onClose={() => setAsking(null)} onSent={onSent} />}
@@ -295,7 +312,7 @@ const BLANK = (userId: string): ChargerHost => ({
   kw: 7, fits: "large", notes: null, district: "", lat: 0, lng: 0, discoverable: true, paused: false,
 });
 
-function HostSetup({ userId }: { userId: string }) {
+function HostSetup({ userId, onSettings }: { userId: string; onSettings: () => void }) {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["my-charger-host", userId], queryFn: () => fetchMyHost(userId) });
   const [form, setForm] = useState<ChargerHost | null>(null);
@@ -304,7 +321,10 @@ function HostSetup({ userId }: { userId: string }) {
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState(0);
   const [joined, setJoined] = useState(false);
+  const [thanks, setThanks] = useState(false);
+  const [editing, setEditing] = useState(false);
   if (isLoading) return <Loader2 className="mx-auto mt-6 size-5 animate-spin" />;
+  if (thanks) return <ThankYou onPost={() => { setThanks(false); setJoined(true); }} onDone={() => setThanks(false)} />;
   if (joined) return <ShareStep userId={userId} onDone={() => setJoined(false)} />;
   const f = form ?? data ?? BLANK(userId);
   const set = (patch: Partial<ChargerHost>) => setForm({ ...f, ...patch });
@@ -323,10 +343,11 @@ function HostSetup({ userId }: { userId: string }) {
       setPostcode("");
       qc.invalidateQueries({ queryKey: ["my-charger-host", userId] });
       qc.invalidateQueries({ queryKey: ["badges", userId] });
-      if (wizard) {
-        setJoined(true);
-        toast.success("You're a Community Charger now — thank you!");
-      } else toast.success("Saved");
+      if (wizard) setThanks(true);
+      else {
+        setEditing(false);
+        toast.success("Saved");
+      }
     } catch (e) {
       toast.error(errMsg(e));
     } finally {
@@ -345,7 +366,7 @@ function HostSetup({ userId }: { userId: string }) {
   const select = "h-9 w-full rounded-md border bg-background px-2 text-sm";
   const intro = (
     <div className="space-y-3">
-      <img src="/community-charger-logo.jpg" alt="Community Charger logo" width={1088} height={1088} className="mx-auto size-28 rounded-2xl" />
+      <span className="mx-auto flex size-24 items-center justify-center rounded-2xl bg-foreground text-background"><CommunityChargerMark className="size-14" /></span>
       <h2 className="text-center text-lg font-bold">Become a Community Charger</h2>
       <ul className="space-y-2 text-muted-foreground">
         <li>⚡ Help a stranded EV driver with your home charger, for free or for a small fee.</li>
@@ -443,12 +464,40 @@ function HostSetup({ userId }: { userId: string }) {
     );
   }
 
+  if (!editing)
+    return (
+      <div className="mt-4 space-y-4 rounded-2xl border bg-card p-4 text-sm">
+        <div className="flex items-center gap-3">
+          <span className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background"><CommunityChargerMark className="size-7" /></span>
+          <div>
+            <p className="font-bold">You're a Community Charger ⚡</p>
+            <p className="text-xs text-muted-foreground">{f.paused ? "Paused — nobody can find you" : "Hosting is on"} · Area {f.district}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <Info label="Charger" value={CONNECTOR_LABEL[f.connector] ?? ""} />
+          <Info label="Speed" value={`${f.kw} kW`} />
+          <Info label="Driveway" value={FITS_LABEL[f.fits] ?? ""} />
+          <Info label="Cost" value={f.cost === "free" ? "Free" : f.price_note || "Small fee"} />
+          <Info label="Who can ask" value={f.mode === "any" ? "Emergencies and planned visits" : "Emergencies only"} />
+          <Info label="Nearby searches" value={f.discoverable ? "Shown" : "Emergencies only"} />
+        </div>
+        <p className="text-xs text-muted-foreground">Drivers only see a rough distance. Your address is only shared with a driver you approve, and it's removed after 4 hours.</p>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={onSettings}>Settings</Button>
+          <Button variant="outline" onClick={() => setEditing(true)}>Edit details</Button>
+          <Button variant="outline" onClick={() => setJoined(true)}>Post about it</Button>
+          <Button variant="ghost" className="text-destructive" onClick={remove}>Opt out</Button>
+        </div>
+      </div>
+    );
+
   return (
     <div className="mt-4 space-y-4 rounded-2xl border bg-card p-4 text-sm">
       <div className="flex items-center gap-3">
-        <img src="/community-charger-logo.jpg" alt="" width={1088} height={1088} className="size-12 rounded-xl" />
+        <span className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background"><CommunityChargerMark className="size-7" /></span>
         <div>
-          <p className="font-bold">You're a Community Charger ⚡</p>
+          <p className="font-bold">Edit your charger</p>
           <p className="text-xs text-muted-foreground">Area {f.district} · {f.cost === "free" ? "Free" : f.price_note || "Small fee"}</p>
         </div>
       </div>
@@ -463,8 +512,7 @@ function HostSetup({ userId }: { userId: string }) {
         <Button onClick={save} disabled={busy}>
           {busy && <Loader2 className="size-4 animate-spin" />} Save changes
         </Button>
-        <Button variant="outline" onClick={() => setJoined(true)}>Post about it</Button>
-        <Button variant="ghost" onClick={remove}>Stop hosting and delete</Button>
+        <Button variant="ghost" onClick={() => { setForm(null); setEditing(false); }}>Cancel</Button>
       </div>
     </div>
   );
@@ -570,6 +618,9 @@ function RequestCard({ r }: { r: ChargeRequest }) {
         <Zap className="mr-1 inline size-3.5" />{r.car} · {CONNECTOR_LABEL[r.connector]}{r.range_miles != null ? ` · ${r.range_miles} mi left` : ""}
       </p>
       {r.message && <p className="mt-1">{r.message}</p>}
+      {r.role === "driver" && (r.status === "done" || r.status === "expired") && r.expires_at && r.rating == null && (
+        <ReviewForm id={r.id} name={r.other_username} />
+      )}
 
       {r.shared_location && (
         <div className="mt-2 rounded-md bg-primary/10 p-2">
@@ -599,12 +650,6 @@ function RequestCard({ r }: { r: ChargeRequest }) {
         )}
         {r.status === "approved" && (
           <Button size="sm" disabled={busy} onClick={() => act(() => respondToRequest(r.id, "done"), "Marked as done — location removed")}>All done</Button>
-        )}
-        {r.role === "driver" && (r.status === "done" || r.status === "expired") && r.expires_at && r.rating == null && (
-          <>
-            <Button size="sm" variant="outline" disabled={busy} onClick={() => act(() => rateHost(r.id, 1), "Thanks for the feedback")}><ThumbsUp className="size-4" /> Helped</Button>
-            <Button size="sm" variant="ghost" disabled={busy} onClick={() => act(() => rateHost(r.id, -1), "Thanks for the feedback")}><ThumbsDown className="size-4" /></Button>
-          </>
         )}
       </div>
     </div>
@@ -667,7 +712,7 @@ function SettingsPanel({ userId, onHost }: { userId: string; onHost: () => void 
   return (
     <div className="mt-4 space-y-4 rounded-2xl border bg-card p-4 text-sm">
       <div className="flex items-center gap-3">
-        <img src="/community-charger-logo.jpg" alt="" width={1088} height={1088} className="size-12 rounded-xl" />
+        <span className="flex size-12 items-center justify-center rounded-xl bg-foreground text-background"><CommunityChargerMark className="size-7" /></span>
         <div>
           <p className="font-bold">Your Community Charger settings</p>
           <p className="text-xs text-muted-foreground">You're in control. Change or leave any time.</p>
@@ -697,7 +742,7 @@ function SettingsPanel({ userId, onHost }: { userId: string; onHost: () => void 
           </label>
           <div className="flex flex-wrap gap-2 border-t pt-3">
             <Button variant="outline" onClick={onHost}>Edit charger, price or area</Button>
-            <Button variant="ghost" className="text-destructive" disabled={busy} onClick={leave}>Leave Community Chargers</Button>
+            <Button variant="ghost" className="text-destructive" disabled={busy} onClick={leave}>Opt out of Community Chargers</Button>
           </div>
         </>
       ) : (
@@ -706,6 +751,86 @@ function SettingsPanel({ userId, onHost }: { userId: string; onHost: () => void 
           <Button className="mt-2" onClick={onHost}>Offer my charger</Button>
         </div>
       )}
+    </div>
+  );
+}
+
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg bg-muted p-2">
+      <p className="text-muted-foreground">{label}</p>
+      <p className="font-semibold">{value}</p>
+    </div>
+  );
+}
+
+function ThankYou({ onPost, onDone }: { onPost: () => void; onDone: () => void }) {
+  return (
+    <div className="mt-4 overflow-hidden rounded-2xl bg-foreground p-6 text-center text-background">
+      <div className="relative mx-auto flex size-28 items-center justify-center">
+        <span className="absolute inset-0 rounded-full border-2 border-primary" style={{ animation: "cc-ring 1.6s ease-out infinite" }} />
+        <span className="absolute inset-0 rounded-full border-2 border-primary" style={{ animation: "cc-ring 1.6s ease-out 0.8s infinite" }} />
+        <span className="flex size-24 items-center justify-center rounded-full bg-primary text-primary-foreground" style={{ animation: "cc-pop 0.7s ease-out both" }}>
+          <CommunityChargerMark className="size-14" />
+        </span>
+      </div>
+      <h2 className="mt-5 text-2xl font-extrabold" style={{ animation: "cc-pop 0.7s ease-out 0.2s both" }}>Thank you! ⚡</h2>
+      <p className="mt-2 text-sm text-background/70">
+        You're now a Community Charger and you've earned the badge. You've just made the road a little less lonely for EV drivers near you.
+      </p>
+      <div className="mt-5 flex flex-col gap-2">
+        <Button onClick={onDone}>Done</Button>
+        <Button variant="ghost" className="text-background hover:bg-background/10 hover:text-background" onClick={onPost}>Tell people on the feed</Button>
+      </div>
+    </div>
+  );
+}
+
+function HostReviews({ hostId }: { hostId: string }) {
+  const [open, setOpen] = useState(false);
+  const { data = [], isLoading } = useQuery({ queryKey: ["host-reviews", hostId], queryFn: () => fetchHostReviews(hostId), enabled: open });
+  if (!open) return <button className="mt-2 text-xs font-semibold text-primary" onClick={() => setOpen(true)}>Read reviews</button>;
+  if (isLoading) return <Loader2 className="mt-2 size-4 animate-spin text-muted-foreground" />;
+  if (!data.length) return <p className="mt-2 text-xs text-muted-foreground">No reviews yet.</p>;
+  return (
+    <div className="mt-2 space-y-1.5">
+      {data.map((v) => (
+        <div key={v.id} className="rounded-md bg-muted p-2 text-xs">
+          <p className="font-semibold">{v.rating > 0 ? "👍" : "👎"} {v.reviewer_username}</p>
+          {v.review && <p className="mt-0.5 text-muted-foreground">{v.review}</p>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ReviewForm({ id, name }: { id: string; name: string }) {
+  const qc = useQueryClient();
+  const [rating, setRating] = useState<1 | -1 | null>(null);
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function send() {
+    if (!rating) return;
+    setBusy(true);
+    try {
+      await leaveHostReview(id, rating, text);
+      toast.success("Thanks — your review helps others trust the network");
+      qc.invalidateQueries({ queryKey: ["charge-requests"] });
+    } catch (e) {
+      toast.error(errMsg(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="mt-2 space-y-2 rounded-md border p-2">
+      <p className="text-xs font-semibold">How was charging with {name}?</p>
+      <div className="flex gap-2">
+        <Button size="sm" variant={rating === 1 ? "default" : "outline"} onClick={() => setRating(1)}><ThumbsUp className="size-4" /> Great</Button>
+        <Button size="sm" variant={rating === -1 ? "default" : "outline"} onClick={() => setRating(-1)}><ThumbsDown className="size-4" /> Not good</Button>
+      </div>
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} maxLength={500} rows={2} placeholder="Say a few words for other drivers (optional)" />
+      <Button size="sm" disabled={busy || !rating} onClick={send}>Post review</Button>
     </div>
   );
 }

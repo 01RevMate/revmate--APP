@@ -24,3 +24,5 @@
 - [ ] Community chargers: dedicated standout card on EV chargers page and Essentials (not a plain list row)
 - [ ] Community chargers: promote first to members with an EV in their garage; quieter for everyone else
 - [ ] Essentials 'Latest for sale': rank adverts by member's garage cars (makes/models) and saved searches/recent views
+- [x] Community chargers: menu entry for all, buttons depend on joined state
+- [x] Community chargers: written reviews of hosts to build trust

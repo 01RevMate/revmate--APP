@@ -345,3 +345,17 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
     display: none;
   }
 }
+
+@keyframes cc-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes cc-ring {
+  0% { transform: scale(0.6); opacity: 0.7; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes cc-bolt {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

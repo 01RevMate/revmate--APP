@@ -38,6 +38,7 @@ import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { CountBadge } from "@/components/CountBadge";
+import { CommunityChargerMark } from "@/components/CommunityChargerMark";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const item =
@@ -151,6 +152,7 @@ export function MobileMenu() {
           {(shopCount ?? 0) > 0 && (
             <MenuLink to="/shops" icon={Store} label="Shops" onNavigate={close} />
           )}
+          <MenuLink to="/ev-chargers/community" icon={CommunityChargerMark as unknown as typeof Home} label="Community chargers" onNavigate={close} />
           <MenuLink to="/meets" icon={CalendarDays} label="Meets & Events" onNavigate={close} />
           {BATTLES_ENABLED && (
             <MenuLink to="/battles" icon={Trophy} label="Top cars" onNavigate={close} />

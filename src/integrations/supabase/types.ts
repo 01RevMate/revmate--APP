@@ -1081,6 +1081,7 @@ export type Database = {
           range_miles: number | null
           rating: number | null
           requester_id: string
+          review: string | null
           shared_location: string | null
           status: string
           updated_at: string
@@ -1097,6 +1098,7 @@ export type Database = {
           range_miles?: number | null
           rating?: number | null
           requester_id: string
+          review?: string | null
           shared_location?: string | null
           status?: string
           updated_at?: string
@@ -1113,6 +1115,7 @@ export type Database = {
           range_miles?: number | null
           rating?: number | null
           requester_id?: string
+          review?: string | null
           shared_location?: string | null
           status?: string
           updated_at?: string
@@ -4412,6 +4415,17 @@ export type Database = {
         }
         Returns: undefined
       }
+      charge_host_reviews: {
+        Args: { p_host: string }
+        Returns: {
+          created_at: string
+          id: string
+          rating: number
+          review: string
+          reviewer_avatar: string
+          reviewer_username: string
+        }[]
+      }
       check_my_rank_changes: { Args: never; Returns: number }
       common_issues: {
         Args: { for_make: string; for_model?: string }
@@ -4530,6 +4544,10 @@ export type Database = {
       join_group: {
         Args: { agreed?: boolean; answers?: Json; gid: string }
         Returns: string
+      }
+      leave_charge_review: {
+        Args: { p_rating: number; p_request: string; p_review: string }
+        Returns: undefined
       }
       leave_seller_review: {
         Args: {

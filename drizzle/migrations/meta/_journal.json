@@ -547,6 +547,13 @@
       "when": 1794320728748,
       "tag": "0077_community_charger_stats",
       "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1794321165706,
+      "tag": "0078_charge_host_reviews",
+      "breakpoints": true
     }
   ]
 }
