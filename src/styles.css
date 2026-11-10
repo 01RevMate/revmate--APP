@@ -484,3 +484,5 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
 .charge-theme.lw-wizard label input { border: 0 !important; background: transparent !important; }
 .charge-theme.lw-wizard input:not([type="checkbox"]), .charge-theme.lw-wizard textarea { border: 0 !important; box-shadow: none !important; outline: none; }
 .charge-theme.lw-wizard input:not([type="checkbox"]):focus-visible, .charge-theme.lw-wizard textarea:focus-visible { box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 45%, transparent) !important; }
+.charge-theme.lw-wizard .lw-glow { box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--primary) 35%, transparent), 0 0 12px color-mix(in oklab, var(--primary) 20%, transparent); }
+.charge-theme.lw-wizard .lw-glow-on { box-shadow: 0 0 0 2px var(--primary), 0 0 22px color-mix(in oklab, var(--primary) 65%, transparent); }

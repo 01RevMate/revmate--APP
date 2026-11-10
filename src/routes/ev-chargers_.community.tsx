@@ -13,6 +13,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronLeft,
   Loader2,
+  Frown,
+  ArrowUpDown,
   MapPin,
   Phone,
   ShieldAlert,
@@ -310,10 +312,10 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
     <div className="lw-box lw-magic space-y-4 bg-card p-6 text-center sm:p-8">
       <p className="text-lg font-semibold">Low on range?</p>
       <p className="text-sm text-muted-foreground">Find a Lendawatt host or public charger within reach.</p>
-      <Button className="h-14 w-full text-base shadow-[0_0_18px_var(--primary)]" onClick={() => setOpen(true)}>⚡ Find a charge</Button>
+      <Button className="h-14 w-full text-base shadow-[0_0_18px_var(--primary)]" onClick={() => setOpen(true)}>Find a charge</Button>
     </div>
     <Dialog open={open} onOpenChange={close}>
-    <DialogContent className="charge-theme lw-wizard lw-magic max-h-[85dvh] max-sm:top-4 max-sm:translate-y-0 w-[calc(100%-1.5rem)] overflow-y-auto rounded-lg p-5 sm:max-w-xl sm:p-8">
+    <DialogContent className="charge-theme lw-wizard lw-magic max-h-[85dvh] max-sm:top-[calc(env(safe-area-inset-top)+1rem)] max-sm:translate-y-0 max-sm:max-h-[calc(100dvh-env(safe-area-inset-top)-2rem)] w-[calc(100%-1.5rem)] overflow-y-auto rounded-lg p-5 sm:max-w-xl sm:p-8">
     <div className="pb-2 pt-2">
       <LendawattBrand />
       <DialogTitle className="mt-5 text-center text-2xl">Find a charge</DialogTitle>
@@ -355,7 +357,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                 onChange={(e) => setMilesLeft(e.target.value.replace(/\D/g, "").slice(0, 3))}
                 placeholder="0"
                 aria-label="Miles left"
-                className="w-36 bg-transparent text-center text-6xl font-bold tabular-nums text-primary outline-none placeholder:text-primary/30"
+                className="w-48 bg-transparent text-center text-8xl font-bold tabular-nums text-primary outline-none placeholder:text-primary/30"
               />
               <span className="text-lg font-medium text-muted-foreground">miles</span>
             </label>
@@ -367,7 +369,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
             <div>
               <p className="text-center text-sm font-semibold">Is this an emergency?</p>
               <div className="mt-3 grid grid-cols-2 gap-3" role="radiogroup" aria-label="Is this an emergency?">
-                {([[true, "🚨 Yes", "I can't reach a public charger"], [false, "🗓️ No", "Planning ahead"]] as const).map(([v, t, sub]) => (
+                {([[true, "Yes", "I can't reach a public charger"], [false, "No", "Planning ahead"]] as const).map(([v, t, sub]) => (
                   <Button
                     variant="outline"
                     key={String(v)}
@@ -375,7 +377,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                     role="radio"
                     aria-checked={emergency === v}
                     onClick={() => setEmergency(v)}
-                    className={`h-auto min-h-24 flex-col gap-1 whitespace-normal rounded-lg border-0 p-3 text-center transition-all ${emergency === v ? "bg-primary/25 text-foreground" : "bg-card text-foreground"}`}
+                    className={`h-auto min-h-24 flex-col gap-1 whitespace-normal lw-glow rounded-2xl border-0 p-3 text-center transition-all ${emergency === v ? "lw-glow-on bg-primary/25 text-foreground" : "bg-card text-foreground"}`}
                   >
                     <span className="block font-semibold">{t}</span>
                     <span className="mt-0.5 block text-xs text-muted-foreground">{sub}</span>
@@ -437,7 +439,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
             )}
             {hosts && hosts.length === 0 && publicNear && publicNear.length === 0 && (
               <div className="animate-in fade-in zoom-in-95 rounded-lg border border-border bg-card p-8 text-center">
-                <div className="text-6xl" aria-hidden>😢</div>
+                <Frown className="mx-auto size-14 text-primary" aria-hidden />
                 <p className="mt-3 text-lg font-semibold">We're really sorry</p>
                 <p className="mt-1 text-sm text-muted-foreground">We couldn't find a Lendawatt host or a public charger within reach. Here's who can help right now.</p>
                 <div className="mt-5 grid gap-2">
@@ -487,7 +489,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                   <p className="mt-2 text-lg font-semibold">{compat.data?.car ?? (compat.loading ? "Checking…" : "Not in your Garage")}</p>
                   {milesLeft && <p className="text-sm text-muted-foreground">{milesLeft} miles left</p>}
                 </div>
-                <div className="flex justify-center text-primary" aria-hidden>⇅</div>
+                <ArrowUpDown className="mx-auto size-5 text-primary" aria-hidden />
                 <div className="lw-panel lw-magic p-5 text-center">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{picked.username}'s charger</p>
                   <p className="mt-2 text-lg font-semibold">{CONNECTOR_LABEL[picked.connector]}</p>
@@ -533,21 +535,31 @@ function Tag({ children }: { children: React.ReactNode }) {
 const QUICK_QUESTIONS = [
   "Is now a good time?",
   "How long could I charge for?",
-  "Is there room on your drive for my car?",
+  "Is there room on your drive?",
   "Do I need my own cable?",
+  "Where should I park?",
+  "Is there anything I should know?",
 ];
+
+const presetText = (kind: "topup" | "emergency" | "planned", name: string, miles: string) =>
+  ({
+    topup: `Hi ${name}, I'm running a bit low${miles ? ` (about ${miles} miles left)` : ""} and wondered if I could use your charger for a short top-up, just enough to get me on my way. Thank you so much.`,
+    emergency: `Hi ${name}, sorry to bother you. I'm nearly out of charge${miles ? ` (about ${miles} miles left)` : ""} and can't reach a public charger. Would you be able to help with a quick charge? I'd really appreciate it.`,
+    planned: `Hi ${name}, I'll be passing through your area soon and wondered if I could arrange a charge at a time that suits you. Happy to fit around you. Thanks!`,
+  })[kind];
 
 function AskForm({ host, emergency, initialRange = "", initialCar = "", onClose, onSent }: { host: NearbyHost; emergency: boolean; initialRange?: string; initialCar?: string; onClose: () => void; onSent: () => void }) {
   const qc = useQueryClient();
   const [car, setCar] = useState(initialCar);
   const [range] = useState(initialRange);
   const name = host.username.replace(/^@/, "");
-  const [message, setMessage] = useState(
-    `Hi ${name}, I'm running low on charge${initialRange ? ` (about ${initialRange} miles left)` : ""} and wondered if I could use your charger for a short top-up, just enough to get me on my way. Thank you so much.`,
-  );
+  const [preset, setPreset] = useState<"topup" | "emergency" | "planned">(emergency ? "emergency" : "topup");
+  const [intro, setIntro] = useState(presetText(emergency ? "emergency" : "topup", name, initialRange));
+  const [qs, setQs] = useState<string[]>([]);
+  const message = [intro.trim(), ...qs].filter(Boolean).join("\n");
+  const toggleQ = (q: string) => setQs((cur) => (cur.includes(q) ? cur.filter((x) => x !== q) : [...cur, q]));
   const [agree, setAgree] = useState(false);
   const [busy, setBusy] = useState(false);
-  const addQ = (q: string) => setMessage((m) => (m.includes(q) ? m : `${m.trim()}\n${q}`));
   async function send() {
     setBusy(true);
     try {
@@ -580,12 +592,27 @@ function AskForm({ host, emergency, initialRange = "", initialCar = "", onClose,
         <HostAvatar name={host.username} src={host.avatar_url} />
         <p className="text-lg font-bold">Message {host.username}</p>
       </div>
-      <Textarea value={message} onChange={(e) => setMessage(e.target.value)} maxLength={500} rows={6} className="lw-field rounded-xl text-base leading-relaxed" aria-label="Your message" />
+      <div className="flex flex-wrap justify-center gap-2" role="radiogroup" aria-label="Message type">
+        {([["topup", "Quick top-up"], ["emergency", "Emergency"], ["planned", "Planned visit"]] as const).map(([k, l]) => (
+          <button key={k} type="button" role="radio" aria-checked={preset === k}
+            onClick={() => { setPreset(k); setIntro(presetText(k, name, initialRange)); }}
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition ${preset === k ? "bg-primary text-primary-foreground" : "bg-card text-foreground"}`}>{l}</button>
+        ))}
+      </div>
+      <div className="lw-field rounded-2xl p-4 text-left">
+        <Textarea value={intro} onChange={(e) => setIntro(e.target.value)} maxLength={400} rows={5} className="min-h-0 resize-none bg-transparent p-0 text-base leading-relaxed" aria-label="Your message" />
+        {qs.length > 0 && (
+          <ul className="mt-3 space-y-1.5 border-t border-primary/20 pt-3 text-sm">
+            {qs.map((q) => <li key={q} className="flex items-center justify-between gap-2"><span>{q}</span><button type="button" onClick={() => toggleQ(q)} className="text-xs text-muted-foreground" aria-label={`Remove ${q}`}>Remove</button></li>)}
+          </ul>
+        )}
+      </div>
       <div>
-        <p className="text-xs text-muted-foreground">Tap to add a question</p>
+        <p className="text-sm font-semibold">Add a question</p>
         <div className="mt-2 flex flex-wrap justify-center gap-2">
           {QUICK_QUESTIONS.map((q) => (
-            <button key={q} type="button" onClick={() => addQ(q)} className="rounded-full border border-primary/60 px-3 py-1.5 text-xs transition hover:bg-primary/15">{q}</button>
+            <button key={q} type="button" aria-pressed={qs.includes(q)} onClick={() => toggleQ(q)}
+              className={`rounded-full px-3.5 py-2 text-xs font-medium transition ${qs.includes(q) ? "bg-primary text-primary-foreground" : "bg-card text-foreground"}`}>{q}</button>
           ))}
         </div>
       </div>
