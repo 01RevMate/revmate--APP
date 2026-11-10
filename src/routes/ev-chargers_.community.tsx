@@ -878,7 +878,7 @@ function ShareStep({ userId, onDone }: { userId: string; onDone: () => void }) {
         Add the Community Charger logo
         <Switch checked={withLogo} onCheckedChange={setWithLogo} />
       </label>
-      {withLogo && <img src=chargerLogo.url alt="Community Charger logo" width={1088} height={1088} className="mx-auto w-40 rounded-xl" />}
+      {withLogo && <img src={chargerLogo.url} alt="Lendawatt Community Charger logo" width={1088} height={1088} className="mx-auto w-40 rounded-xl" />}
       <div className="flex gap-2">
         <Button className="flex-1" disabled={busy || !body.trim()} onClick={post}>
           {busy && <Loader2 className="size-4 animate-spin" />} Post to the feed
