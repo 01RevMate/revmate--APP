@@ -359,3 +359,27 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+
+/* Community chargers sub-brand: always black and green, in day or night mode. */
+.charge-theme {
+  color-scheme: dark;
+  --background: oklch(0.13 0.005 150);
+  --foreground: oklch(0.97 0.01 150);
+  --card: oklch(0.18 0.012 150);
+  --card-foreground: oklch(0.97 0.01 150);
+  --popover: oklch(0.18 0.012 150);
+  --popover-foreground: oklch(0.97 0.01 150);
+  --primary: oklch(0.8 0.2 150);
+  --primary-foreground: oklch(0.13 0.005 150);
+  --secondary: oklch(0.24 0.03 150);
+  --secondary-foreground: oklch(0.97 0.01 150);
+  --muted: oklch(0.22 0.02 150);
+  --muted-foreground: oklch(0.75 0.03 150);
+  --accent: oklch(0.26 0.05 150);
+  --accent-foreground: oklch(0.97 0.01 150);
+  --border: oklch(0.8 0.2 150 / 22%);
+  --input: oklch(0.8 0.2 150 / 28%);
+  --ring: oklch(0.8 0.2 150);
+  background: var(--background);
+  color: var(--foreground);
+}

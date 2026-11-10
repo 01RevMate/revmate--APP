@@ -77,19 +77,24 @@ function CommunityChargersPage() {
   useEffect(() => { if (search.tab) setTab(search.tab); }, [search.tab]);
 
   return (
+    <div className="charge-theme min-h-screen">
     <div className="mx-auto max-w-2xl px-3 py-4 pb-24">
       <Link to="/ev-chargers" className="inline-flex items-center gap-1 text-sm text-muted-foreground">
         <ChevronLeft className="size-4" /> EV chargers
       </Link>
-      <header className="relative mt-2 overflow-hidden rounded-3xl bg-foreground p-5 text-background">
+      <header className="relative mt-2 overflow-hidden rounded-3xl border border-primary/40 bg-card p-5 text-foreground">
         <div className="pointer-events-none absolute -right-12 -top-12 size-48 rounded-full bg-primary/30 blur-3xl" />
+        <div className="relative mb-4 flex items-center gap-2">
+          <img src="/brand/revmate-logo-dark.png" alt="RevMate" className="h-7 w-auto object-contain" />
+          <span className="text-xs font-bold uppercase tracking-widest text-primary">Community Charger</span>
+        </div>
         <div className="relative flex items-center gap-4">
-          <span className="flex size-20 shrink-0 items-center justify-center rounded-2xl border border-background/20 bg-background/5">
+          <span className="flex size-20 shrink-0 items-center justify-center rounded-2xl border border-primary/40 bg-primary/10 text-primary">
             <CommunityChargerMark className="size-12" />
           </span>
           <div>
             <h1 className="text-2xl font-extrabold leading-tight">Community chargers</h1>
-            <p className="mt-1 text-sm text-background/70">
+            <p className="mt-1 text-sm text-muted-foreground">
               EV drivers helping each other. Low on range with no public charger nearby? Members lend their home charger in an emergency. Nobody sees where a host lives unless the host says yes.
             </p>
           </div>
@@ -143,6 +148,7 @@ function CommunityChargersPage() {
           <li>Hosts' location is kept to about 1 km. An exact meeting place is only shown to the driver the host approves, and it's deleted after 4 hours.</li>
         </ul>
       </section>
+    </div>
     </div>
   );
 }
@@ -667,12 +673,12 @@ function NetworkStats() {
   return (
     <div className="relative mt-4 grid grid-cols-3 gap-2 text-center">
       {items.map(([n, label]) => (
-        <div key={label} className="rounded-xl bg-background/10 px-2 py-2">
+        <div key={label} className="rounded-xl bg-primary/10 px-2 py-2">
           <p className="text-xl font-extrabold">{n}</p>
-          <p className="text-[11px] leading-tight text-background/70">{label}</p>
+          <p className="text-[11px] leading-tight text-muted-foreground">{label}</p>
         </div>
       ))}
-      {data.hosts < 25 && <p className="col-span-3 text-xs text-background/70">The network is just starting — early hosts get the Community Charger badge.</p>}
+      {data.hosts < 25 && <p className="col-span-3 text-xs text-muted-foreground">The network is just starting — early hosts get the Community Charger badge.</p>}
     </div>
   );
 }
@@ -766,7 +772,7 @@ function Info({ label, value }: { label: string; value: string }) {
 
 function ThankYou({ onPost, onDone }: { onPost: () => void; onDone: () => void }) {
   return (
-    <div className="mt-4 overflow-hidden rounded-2xl bg-foreground p-6 text-center text-background">
+    <div className="mt-4 overflow-hidden rounded-2xl border border-primary/40 bg-card p-6 text-center text-foreground">
       <div className="relative mx-auto flex size-28 items-center justify-center">
         <span className="absolute inset-0 rounded-full border-2 border-primary" style={{ animation: "cc-ring 1.6s ease-out infinite" }} />
         <span className="absolute inset-0 rounded-full border-2 border-primary" style={{ animation: "cc-ring 1.6s ease-out 0.8s infinite" }} />
@@ -775,12 +781,12 @@ function ThankYou({ onPost, onDone }: { onPost: () => void; onDone: () => void }
         </span>
       </div>
       <h2 className="mt-5 text-2xl font-extrabold" style={{ animation: "cc-pop 0.7s ease-out 0.2s both" }}>Thank you! ⚡</h2>
-      <p className="mt-2 text-sm text-background/70">
+      <p className="mt-2 text-sm text-muted-foreground">
         You're now a Community Charger and you've earned the badge. You've just made the road a little less lonely for EV drivers near you.
       </p>
       <div className="mt-5 flex flex-col gap-2">
         <Button onClick={onDone}>Done</Button>
-        <Button variant="ghost" className="text-background hover:bg-background/10 hover:text-background" onClick={onPost}>Tell people on the feed</Button>
+        <Button variant="ghost" onClick={onPost}>Tell people on the feed</Button>
       </div>
     </div>
   );
