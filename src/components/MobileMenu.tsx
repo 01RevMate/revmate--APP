@@ -152,7 +152,7 @@ export function MobileMenu() {
           {(shopCount ?? 0) > 0 && (
             <MenuLink to="/shops" icon={Store} label="Shops" onNavigate={close} />
           )}
-          <MenuLink to="/ev-chargers/community" icon={CommunityChargerMark as unknown as typeof Home} label="Community chargers" onNavigate={close} />
+          <MenuLink to="/ev-chargers/community" icon={CommunityChargerMark as unknown as typeof Home} label="Lendawatt" onNavigate={close} />
           <MenuLink to="/meets" icon={CalendarDays} label="Meets & Events" onNavigate={close} />
           {BATTLES_ENABLED && (
             <MenuLink to="/battles" icon={Trophy} label="Top cars" onNavigate={close} />

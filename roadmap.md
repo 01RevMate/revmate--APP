@@ -31,3 +31,12 @@
 - Group buttons centred, solid green, glowing border
 - Step bar percentage
 - Suggest catchy, untaken SEO name for Community chargers (needs user pick)
+- Rename to Lendawatt (Lendawatt Community by RevMate)
+- Phone: no slider, Next/Back everywhere
+- Pulsing green screen edge
+- Lendawatt intro animation
+- No hosts -> nearby public chargers -> sorry screen with help numbers
+- Nicer 'Is this an emergency?' toggle
+- Find-a-charge steps in a closable pop-up
+- Charge requests also appear in Messages
+- Find a charge launcher in pulsing green box

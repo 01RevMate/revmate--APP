@@ -26,12 +26,15 @@ export const RELEASES: Release[] = [
   {
     version: "1.34.0",
     date: "2026-11-10",
-    title: "Community chargers",
+    title: "Lendawatt — community chargers",
     status: "live",
     highlights: [
       "Low on range? Find members nearby who offer their home charger in an emergency, free or for a small fee they set.",
       "Offer your own charger: emergencies only or planned visits too, with a pause switch. Drivers only ever see a rough distance.",
       "Hosts approve each request and share a meeting place with that driver only. It disappears after 4 hours.",
+      "Now called Lendawatt. Find a charge is a quick step-by-step pop-up: miles left, location, nearby hosts, then your pick.",
+      "AI compatibility notes for each host based on your saved EV. If no hosts are near, we show nearby public chargers.",
+      "Charge requests also appear in Messages.",
     ],
     requiredSql: [
       "drizzle/migrations/0072_community_charger_network.sql",

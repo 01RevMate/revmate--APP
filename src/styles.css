@@ -383,3 +383,34 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
   background: var(--background);
   color: var(--foreground);
 }
+
+/* Lendawatt page: slow green glow pulsing round the screen edge. */
+.lw-edge::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  box-shadow: inset 0 0 40px 2px color-mix(in oklab, var(--primary) 45%, transparent);
+  animation: lw-pulse 4s ease-in-out infinite;
+}
+@keyframes lw-pulse {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+.lw-intro { animation: lw-out 0.4s ease-in 1.8s forwards; }
+.lw-l { display: inline-block; animation: lw-pop 0.5s cubic-bezier(.2,1.6,.4,1) both; }
+.lw-word { display: inline-block; opacity: 0; animation: lw-in 0.4s ease-out forwards; }
+@keyframes lw-pop { from { transform: scale(2.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes lw-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes lw-out { to { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) {
+  .lw-edge::after, .lw-l, .lw-word, .lw-intro { animation: none; opacity: 1; }
+  .lw-intro { display: none; }
+}
+.lw-box { animation: lw-box 3s ease-in-out infinite; }
+@keyframes lw-box {
+  0%, 100% { box-shadow: 0 0 8px 0 color-mix(in oklab, var(--primary) 30%, transparent); }
+  50% { box-shadow: 0 0 28px 4px color-mix(in oklab, var(--primary) 65%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .lw-box { animation: none; } }

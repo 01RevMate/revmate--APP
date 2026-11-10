@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { searchRadius, bandWithinRadius, RANGE_SAFETY_MILES } from "@/lib/rangeRadius";
-import { Slider } from "@/components/ui/slider";
+import { fetchChargers, boundsAround, kmBetween, type Charger } from "@/lib/evChargers";
+import { LendawattIntro } from "@/components/LendawattIntro";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { fetchOrCreateConversation, sendMessage } from "@/lib/messages";
 import { CompatibilityNote, useChargerCompat } from "@/components/ChargerCompatibility";
 import { CommunityChargerLogo } from "@/components/CommunityChargerLogo";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -45,16 +49,16 @@ import {
 } from "@/lib/communityChargers";
 
 const URL = "https://revmate.co.uk/ev-chargers/community";
-const TITLE = "Community home EV chargers — help when you're stranded | RevMate";
+const TITLE = "Lendawatt by RevMate — borrow a home EV charger when you're stranded";
 const DESC =
-  "Low on range with no public charger nearby? RevMate members can offer their home charger in an emergency, free or for a small fee. Private, opt-in and arranged between drivers.";
+  "Lendawatt is RevMate's community of EV owners. Low on range with no public charger nearby? Members can offer their home charger in an emergency, free or for a small fee. Private, opt-in and arranged between drivers.";
 
 export const Route = createFileRoute("/ev-chargers_/community")({
   head: () => ({
     meta: [
       { title: TITLE },
       { name: "description", content: DESC },
-      { property: "og:title", content: "Stranded EV? Borrow a member's home charger | RevMate" },
+      { property: "og:title", content: "Lendawatt by RevMate — EV drivers lending a watt" },
       { property: "og:description", content: DESC },
       { property: "og:type", content: "website" },
       { property: "og:url", content: URL },
@@ -87,7 +91,8 @@ function CommunityChargersPage() {
   }, [search.tab]);
 
   return (
-    <div className="charge-theme min-h-screen">
+    <div className="charge-theme lw-edge min-h-screen">
+      <LendawattIntro />
     <div className="mx-auto max-w-2xl px-4 py-6 pb-28">
       <Link to="/ev-chargers" className="inline-flex items-center gap-1 text-sm text-muted-foreground">
         <ChevronLeft className="size-4" /> EV chargers
@@ -96,14 +101,14 @@ function CommunityChargersPage() {
         <div className="pointer-events-none absolute -right-10 -top-16 size-56 rounded-full bg-primary/20 blur-3xl" />
         <div className="relative mb-6 flex items-center gap-2">
           <img src="/brand/revmate-logo-dark.png" alt="RevMate" className="h-7 w-auto object-contain" />
-          <span className="text-xs font-bold uppercase tracking-widest text-primary">Community Charger</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-primary">Lendawatt Community · RevMate</span>
         </div>
         <div className="relative flex items-center gap-4">
           <span className="flex size-20 shrink-0 items-center justify-center rounded-2xl overflow-hidden">
             <CommunityChargerLogo className="size-full" />
           </span>
           <div>
-            <h1 className="text-2xl font-extrabold leading-tight">Community chargers</h1>
+            <h1 className="text-2xl font-extrabold leading-tight">Lendawatt</h1>
             <p className="mt-2 text-base text-muted-foreground">
               EV drivers helping each other when the range runs low.
             </p>
@@ -204,9 +209,31 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
   const compat = useChargerCompat(hosts);
   const [asking, setAsking] = useState<NearbyHost | null>(null);
 
+  const [publicNear, setPublicNear] = useState<{ c: Charger; miles: number }[] | null>(null);
   async function search(lat: number, lng: number) {
-    const found = await findNearbyHosts(lat, lng, emergency);
-    setHosts(found.filter((h) => bandWithinRadius(h.band_order, radius)));
+    setPublicNear(null);
+    const found = (await findNearbyHosts(lat, lng, emergency)).filter((h) => bandWithinRadius(h.band_order, radius));
+    if (found.length === 0) {
+      const km = Math.min(15, Math.max(5, (radius || 3) * 1.609));
+      try {
+        const ctrl = new AbortController();
+        const list = await Promise.race([
+          fetchChargers(boundsAround(lat, lng, km), ctrl.signal),
+          new Promise<never>((_, rej) => setTimeout(() => { ctrl.abort(); rej(new Error("timeout")); }, 12000)),
+        ]);
+        setPublicNear(
+          list
+            .filter((c) => c.working !== false)
+            .map((c) => ({ c, miles: kmBetween(lat, lng, c.lat, c.lng) / 1.609 }))
+            .filter((x) => x.miles <= Math.max(3, radius || 3))
+            .sort((a, b) => a.miles - b.miles)
+            .slice(0, 6),
+        );
+      } catch {
+        setPublicNear([]);
+      }
+    }
+    setHosts(found);
   }
   async function byPostcode() {
     setBusy(true);
@@ -253,9 +280,24 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
   }, [hosts]);
   const STEPS = ["Range", "Location", "Hosts", "Charge"];
 
+  const [open, setOpen] = useState(false);
+  function close(o: boolean) {
+    setOpen(o);
+    if (!o) { setStep(0); setHosts(null); setPicked(null); setPublicNear(null); }
+  }
+
   return (
+    <>
+    <div className="lw-box space-y-3 rounded-3xl border-2 border-primary bg-primary/10 p-6 text-center">
+      <p className="text-lg font-semibold">Low on range?</p>
+      <p className="text-sm text-muted-foreground">Four quick steps to find a Lendawatt host or the nearest public charger.</p>
+      <Button className="h-14 w-full text-base shadow-[0_0_18px_var(--primary)]" onClick={() => setOpen(true)}>⚡ Find a charge</Button>
+    </div>
+    <Dialog open={open} onOpenChange={close}>
+    <DialogContent className="charge-theme max-h-[92vh] overflow-y-auto rounded-2xl sm:max-w-lg">
+    <DialogTitle className="sr-only">Find a charge</DialogTitle>
     <div className="space-y-6">
-      <div className="flex items-center justify-between text-xs">
+      <div className="flex items-center justify-between pr-8 text-xs">
         <span className="text-muted-foreground">Step {step + 1} of {STEPS.length}</span>
         <span className="font-semibold tabular-nums text-primary">{Math.round(((step + 1) / STEPS.length) * 100)}%</span>
       </div>
@@ -293,18 +335,29 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
               />
               <span className="text-lg font-medium text-muted-foreground">miles</span>
             </label>
-            <div className="md:hidden">
-              <Slider value={[miles]} min={0} max={60} step={1} onValueChange={(v) => setMilesLeft(String(v[0]))} aria-label="Miles left slider" />
-            </div>
             {milesLeft && (
               <p className="text-center text-sm text-muted-foreground">
                 {radius > 0 ? `We'll look within ${radius} miles.` : "That's very low — we'll show only the closest hosts. Call your breakdown cover too."}
               </p>
             )}
-            <label className="flex items-center justify-between gap-3 rounded-xl bg-muted/50 p-4 text-sm font-medium">
-              It's an emergency (I can't reach a public charger)
-              <Switch checked={emergency} onCheckedChange={setEmergency} />
-            </label>
+            <div>
+              <p className="text-sm font-semibold">Is this an emergency?</p>
+              <div className="mt-2 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Is this an emergency?">
+                {([[true, "🚨 Yes", "I can't reach a public charger"], [false, "🗓️ No", "Planning ahead"]] as const).map(([v, t, sub]) => (
+                  <button
+                    key={String(v)}
+                    type="button"
+                    role="radio"
+                    aria-checked={emergency === v}
+                    onClick={() => setEmergency(v)}
+                    className={`rounded-xl border-2 p-3 text-center transition-all ${emergency === v ? (v ? "border-destructive bg-destructive/15 shadow-[0_0_14px_var(--destructive)]" : "border-primary bg-primary/15 shadow-[0_0_14px_var(--primary)]") : "border-border bg-muted/40"}`}
+                  >
+                    <span className="block font-semibold">{t}</span>
+                    <span className="mt-0.5 block text-xs text-muted-foreground">{sub}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
             <Button className="h-12 w-full" disabled={!milesLeft} onClick={() => setStep(1)}>Next</Button>
           </div>
         )}
@@ -333,9 +386,40 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
               <button type="button" className="text-sm text-primary underline" onClick={() => { setHosts(null); setStep(1); }}>Change area</button>
             </div>
             {hosts && hosts.length > 0 && <CompatibilityNote state={compat} hostId={null} />}
-            {hosts && hosts.length === 0 && (
-              <div className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-                No community hosts in range yet. Try the public charger map, and ask EV owners you know to sign up as hosts.
+            {hosts && hosts.length === 0 && publicNear === null && <Loader2 className="mx-auto size-5 animate-spin text-muted-foreground" />}
+            {hosts && hosts.length === 0 && publicNear && publicNear.length > 0 && (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">No Lendawatt hosts in range yet, so here are public chargers you can reach.</p>
+                {publicNear.map(({ c, miles: m }, i) => (
+                  <a
+                    key={c.id}
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ animationDelay: `${i * 60}ms` }}
+                    className="block animate-in fade-in slide-in-from-bottom-2 fill-mode-both rounded-2xl border border-border bg-card p-5 transition hover:border-primary"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold">{c.name}</span>
+                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">{m.toFixed(1)} mi</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {[c.operator, c.maxKw ? `${c.maxKw} kW` : null, c.fee === "free" ? "Free" : null].filter(Boolean).join(" · ") || "Public charger"} · Tap for directions
+                    </p>
+                  </a>
+                ))}
+              </div>
+            )}
+            {hosts && hosts.length === 0 && publicNear && publicNear.length === 0 && (
+              <div className="animate-in fade-in zoom-in-95 rounded-2xl border border-border bg-card p-8 text-center">
+                <div className="text-6xl" aria-hidden>😢</div>
+                <p className="mt-3 text-lg font-semibold">We're really sorry</p>
+                <p className="mt-1 text-sm text-muted-foreground">We couldn't find a Lendawatt host or a public charger within reach. Here's who can help right now.</p>
+                <div className="mt-5 grid gap-2">
+                  <Button asChild className="h-12"><a href="tel:999">Unsafe? Call 999</a></Button>
+                  <Button asChild variant="outline" className="h-auto min-h-12 whitespace-normal"><a href="tel:03001235000">Motorway: National Highways 0300 123 5000</a></Button>
+                </div>
+                <p className="mt-3 text-xs text-muted-foreground">Many breakdown services can tow an EV to a charger, so call your breakdown cover too.</p>
               </div>
             )}
             {hosts?.map((h, i) => (
@@ -358,6 +442,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                 </div>
               </button>
             ))}
+            <Button variant="ghost" className="w-full" onClick={() => { setHosts(null); setStep(1); }}>Back</Button>
           </div>
         )}
 
@@ -396,8 +481,11 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
           </div>
         )}
       </div>
-      {asking && <AskForm host={asking} emergency={emergency} initialRange={milesLeft} onClose={() => setAsking(null)} onSent={onSent} />}
+      {asking && <AskForm host={asking} emergency={emergency} initialRange={milesLeft} onClose={() => setAsking(null)} onSent={() => { close(false); onSent(); }} />}
     </div>
+    </DialogContent>
+    </Dialog>
+    </>
   );
 }
 
@@ -417,6 +505,20 @@ function AskForm({ host, emergency, initialRange = "", onClose, onSent }: { host
     setBusy(true);
     try {
       await requestCharge({ host: host.host_id, car, connector, range: range ? Number(range) : null, emergency, message });
+      // Mirror the request into Messages so the host sees it in their normal inbox too (best effort).
+      try {
+        const { data: me } = await supabase.auth.getUser();
+        if (me.user) {
+          const convo = await fetchOrCreateConversation(me.user.id, host.host_id);
+          await sendMessage(
+            convo,
+            me.user.id,
+            `⚡ Lendawatt request${emergency ? " (emergency)" : ""}: could I use your charger?\nCar: ${car || "not given"}${range ? ` · ${range} miles left` : ""}${message ? `\n${message}` : ""}\n\nApprove or decline it in Lendawatt → Requests.`,
+          );
+        }
+      } catch {
+        /* the request itself was sent; the inbox copy is optional */
+      }
       toast.success(`Request sent to ${host.username}`);
       qc.invalidateQueries({ queryKey: ["charge-requests"] });
       onClose();

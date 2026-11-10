@@ -124,7 +124,7 @@ export function Sidebar() {
         <NavLink to="/" icon={Home} label="Home" collapsed={collapsed} exact />
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/essentials" icon={Wrench} label="Essentials" collapsed={collapsed} />
-        <NavLink to="/ev-chargers/community" icon={CommunityChargerMark as unknown as typeof Home} label="Community chargers" collapsed={collapsed} />
+        <NavLink to="/ev-chargers/community" icon={CommunityChargerMark as unknown as typeof Home} label="Lendawatt" collapsed={collapsed} />
         <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
         <Tooltip>
           <TooltipTrigger asChild>

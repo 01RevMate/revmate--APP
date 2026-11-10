@@ -17,7 +17,7 @@ export function CommunityChargerCard({ className = "", compact = false }: { clas
           <CommunityChargerLogo className="size-full" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold">Community chargers</span>
+          <span className="block text-sm font-semibold">Lendawatt</span>
           <span className="block truncate text-xs text-muted-foreground">Know an EV driver? Members lend home chargers in emergencies</span>
         </span>
         <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
@@ -32,7 +32,7 @@ export function CommunityChargerCard({ className = "", compact = false }: { clas
         </span>
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-primary">
-            <Zap className="size-3" /> Community chargers
+            <Zap className="size-3" /> Lendawatt
           </p>
           <p className="mt-0.5 text-lg font-extrabold leading-tight">Low on range? We've got you.</p>
           <p className="mt-1 text-xs text-background/70">

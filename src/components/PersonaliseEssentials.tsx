@@ -10,7 +10,7 @@ export const HOME_TOOL_LABELS: Record<string, string> = {
   chargers: "EV chargers", sell: "Sell", ask: "Ask for help",
 };
 export const HOME_SECTION_LABELS: Record<string, string> = {
-  cars: "My cars", community: "Community chargers", tools: "Quick buttons", buy: "Buy", "your-car": "Your car",
+  cars: "My cars", community: "Lendawatt", tools: "Quick buttons", buy: "Buy", "your-car": "Your car",
   shops: "Shops", deals: "Deals", listings: "Latest for sale",
 };
 
