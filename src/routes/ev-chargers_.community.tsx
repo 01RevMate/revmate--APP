@@ -293,7 +293,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
       <Button className="h-14 w-full text-base shadow-[0_0_18px_var(--primary)]" onClick={() => setOpen(true)}>⚡ Find a charge</Button>
     </div>
     <Dialog open={open} onOpenChange={close}>
-    <DialogContent className="charge-theme lw-wizard max-h-[92dvh] w-[calc(100%-1.5rem)] overflow-y-auto rounded-lg p-5 sm:max-w-xl sm:p-8">
+    <DialogContent className="charge-theme lw-wizard max-h-[85dvh] max-sm:top-4 max-sm:translate-y-0 w-[calc(100%-1.5rem)] overflow-y-auto rounded-lg p-5 sm:max-w-xl sm:p-8">
     <div className="pb-2 pt-2">
       <LendawattBrand />
       <DialogTitle className="mt-5 text-center text-2xl">Find a charge</DialogTitle>
@@ -328,8 +328,9 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
             </div>
             <label className="flex items-baseline justify-center gap-2 rounded-lg border border-primary/40 bg-card px-4 py-7 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
               <input
-                autoFocus
                 inputMode="numeric"
+                enterKeyHint="done"
+                onFocus={(e) => { const el = e.currentTarget; setTimeout(() => el.scrollIntoView({ block: "center", behavior: "smooth" }), 300); }}
                 value={milesLeft}
                 onChange={(e) => setMilesLeft(e.target.value.replace(/\D/g, "").slice(0, 3))}
                 placeholder="0"
