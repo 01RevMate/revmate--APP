@@ -1,0 +1,2 @@
+DROP POLICY IF EXISTS "make_segments_read" ON public.vehicle_make_segments;
+CREATE POLICY "make_segments_read" ON public.vehicle_make_segments FOR SELECT USING (length(btrim(make)) > 0 AND length(btrim(segment)) > 0);

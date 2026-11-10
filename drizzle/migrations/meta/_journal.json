@@ -526,6 +526,20 @@
       "when": 1794317803627,
       "tag": "0074_community_charger_badge",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1794318415347,
+      "tag": "0075_tighten_public_read_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1794318430201,
+      "tag": "0076_fix_make_segments_read",
+      "breakpoints": true
     }
   ]
 }
