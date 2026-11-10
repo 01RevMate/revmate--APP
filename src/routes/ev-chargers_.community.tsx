@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { searchRadius, bandWithinRadius, RANGE_SAFETY_MILES } from "@/lib/rangeRadius";
 import { CommunityChargerLogo } from "@/components/CommunityChargerLogo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -171,12 +172,15 @@ function StrandedPanel() {
 function NeedCharge({ onSent }: { onSent: () => void }) {
   const [postcode, setPostcode] = useState("");
   const [emergency, setEmergency] = useState(true);
+  const [milesLeft, setMilesLeft] = useState("");
+  const radius = searchRadius(milesLeft ? Number(milesLeft) : null);
   const [busy, setBusy] = useState(false);
   const [hosts, setHosts] = useState<NearbyHost[] | null>(null);
   const [asking, setAsking] = useState<NearbyHost | null>(null);
 
   async function search(lat: number, lng: number) {
-    setHosts(await findNearbyHosts(lat, lng, emergency));
+    const found = await findNearbyHosts(lat, lng, emergency);
+    setHosts(found.filter((h) => bandWithinRadius(h.band_order, radius)));
   }
   async function byPostcode() {
     setBusy(true);
@@ -219,6 +223,17 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
           It's an emergency (I can't reach a public charger)
           <Switch checked={emergency} onCheckedChange={setEmergency} />
         </label>
+        <label className="block text-sm font-medium">
+          Miles left on your car
+          <Input className="mt-2 h-11" inputMode="numeric" value={milesLeft} onChange={(e) => setMilesLeft(e.target.value.replace(/\D/g, "").slice(0, 3))} placeholder="e.g. 18" />
+        </label>
+        {milesLeft && (
+          <p className="text-xs text-muted-foreground">
+            {radius > 0
+              ? `We'll look within ${radius} miles — keeping ${RANGE_SAFETY_MILES} miles spare in case your range is optimistic.`
+              : "That's very low. We'll only show the closest hosts — and call your breakdown cover too."}
+          </p>
+        )}
         <div className="flex gap-2">
           <Input className="h-11" value={postcode} onChange={(e) => setPostcode(e.target.value)} placeholder="Postcode or area, e.g. LS6" />
           <Button onClick={byPostcode} disabled={busy || !postcode.trim()}>Search</Button>
@@ -229,6 +244,13 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
         <p className="text-xs text-muted-foreground">Your location is rounded to about 1 km, used for this search only and not saved.</p>
       </div>
 
+      <div className="border-l-2 border-primary pl-4 text-sm">
+        <p className="font-semibold">Being a good guest</p>
+        <ul className="mt-1 space-y-1 text-muted-foreground">
+          <li>Wait in your car while you charge, if you can.</li>
+          <li>Only take what you need to get to your next charger or home.</li>
+        </ul>
+      </div>
       {busy && <Loader2 className="mx-auto size-5 animate-spin text-muted-foreground" />}
       {hosts && hosts.length === 0 && (
         <p className="py-6 text-center text-sm text-muted-foreground">
@@ -259,7 +281,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
           <HostReviews hostId={h.host_id} />
         </div>
       ))}
-      {asking && <AskForm host={asking} emergency={emergency} onClose={() => setAsking(null)} onSent={onSent} />}
+      {asking && <AskForm host={asking} emergency={emergency} initialRange={milesLeft} onClose={() => setAsking(null)} onSent={onSent} />}
     </div>
   );
 }
@@ -268,11 +290,11 @@ function Tag({ children }: { children: React.ReactNode }) {
   return <span className="rounded-full bg-muted px-2 py-0.5">{children}</span>;
 }
 
-function AskForm({ host, emergency, onClose, onSent }: { host: NearbyHost; emergency: boolean; onClose: () => void; onSent: () => void }) {
+function AskForm({ host, emergency, initialRange = "", onClose, onSent }: { host: NearbyHost; emergency: boolean; initialRange?: string; onClose: () => void; onSent: () => void }) {
   const qc = useQueryClient();
   const [car, setCar] = useState("");
   const [connector, setConnector] = useState("type2");
-  const [range, setRange] = useState("");
+  const [range, setRange] = useState(initialRange);
   const [message, setMessage] = useState("");
   const [agree, setAgree] = useState(false);
   const [busy, setBusy] = useState(false);

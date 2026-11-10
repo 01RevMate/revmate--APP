@@ -81,6 +81,7 @@ export type NearbyHost = {
   username: string;
   avatar_url: string | null;
   band: string;
+  band_order: number;
   connector: string;
   kw: number;
   fits: string;
