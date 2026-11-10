@@ -456,3 +456,21 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
   box-shadow: 0 0 22px oklch(0.9 0.24 145 / 60%);
   font-weight: 700;
 }
+
+/* Magic Card (after Uiverse alexruix), in Lendawatt green: gradient frame + soft glow beneath. */
+.lw-magic {
+  --lw-magic: linear-gradient(to left, oklch(0.9 0.24 145), oklch(0.62 0.17 165));
+  border: 4px solid transparent !important;
+  border-radius: 1rem;
+  background: linear-gradient(var(--lw-inner, var(--card)), var(--lw-inner, var(--card))) padding-box, var(--lw-magic) border-box;
+  box-shadow: 0 22px 40px -14px oklch(0.85 0.22 148 / 70%);
+  transition: box-shadow 0.5s, transform 0.3s;
+}
+.lw-magic:hover { box-shadow: 0 10px 24px -14px oklch(0.85 0.22 148 / 40%); }
+.lw-panel.lw-magic { --lw-inner: var(--lw-panel); }
+.charge-theme.lw-wizard.lw-magic {
+  --lw-inner: oklch(0.36 0.11 152);
+  background: linear-gradient(170deg, oklch(0.46 0.14 148), oklch(0.34 0.11 152)) padding-box, var(--lw-magic) border-box;
+  border-width: 5px !important;
+}
+.lw-box.lw-magic { animation: lw-box 3s ease-in-out infinite; }

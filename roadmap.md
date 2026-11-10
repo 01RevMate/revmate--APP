@@ -43,3 +43,4 @@
 
 - [x] Polish Lendawatt window, centre original logos and heading, and move stranded help to a red bottom panel.
 - [x] Lendawatt Find a charge: minimal Curva-style profile boxes (their charger / your car)
+- [x] Green Magic Card (Uiverse) borders on Lendawatt boxes and window

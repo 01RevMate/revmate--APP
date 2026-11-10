@@ -307,13 +307,13 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
 
   return (
     <>
-    <div className="lw-box space-y-4 rounded-lg border border-primary bg-card p-6 text-center sm:p-8">
+    <div className="lw-box lw-magic space-y-4 bg-card p-6 text-center sm:p-8">
       <p className="text-lg font-semibold">Low on range?</p>
       <p className="text-sm text-muted-foreground">Find a Lendawatt host or public charger within reach.</p>
       <Button className="h-14 w-full text-base shadow-[0_0_18px_var(--primary)]" onClick={() => setOpen(true)}>⚡ Find a charge</Button>
     </div>
     <Dialog open={open} onOpenChange={close}>
-    <DialogContent className="charge-theme lw-wizard max-h-[85dvh] max-sm:top-4 max-sm:translate-y-0 w-[calc(100%-1.5rem)] overflow-y-auto rounded-lg p-5 sm:max-w-xl sm:p-8">
+    <DialogContent className="charge-theme lw-wizard lw-magic max-h-[85dvh] max-sm:top-4 max-sm:translate-y-0 w-[calc(100%-1.5rem)] overflow-y-auto rounded-lg p-5 sm:max-w-xl sm:p-8">
     <div className="pb-2 pt-2">
       <LendawattBrand />
       <DialogTitle className="mt-5 text-center text-2xl">Find a charge</DialogTitle>
@@ -453,7 +453,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                 type="button"
                 onClick={() => { setPicked(h); setSub(0); setStep(3); }}
                 style={{ animationDelay: `${i * 80}ms` }}
-                className="flex w-full animate-in fade-in slide-in-from-bottom-2 fill-mode-both items-center gap-4 rounded-2xl bg-card p-4 text-left ring-1 ring-border transition hover:ring-primary"
+                className="flex w-full animate-in fade-in slide-in-from-bottom-2 fill-mode-both items-center gap-4 lw-magic p-4 text-left"
               >
                 <HostAvatar name={h.username} src={h.avatar_url} />
                 <div className="min-w-0 flex-1">
@@ -482,13 +482,13 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                     <p className="text-sm font-semibold text-primary">{picked.band}</p>
                   </div>
                 </div>
-                <div className="lw-panel rounded-2xl p-5 text-center">
+                <div className="lw-panel lw-magic p-5 text-center">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Your car</p>
                   <p className="mt-2 text-lg font-semibold">{compat.data?.car ?? (compat.loading ? "Checking…" : "Not in your Garage")}</p>
                   {milesLeft && <p className="text-sm text-muted-foreground">{milesLeft} miles left</p>}
                 </div>
                 <div className="flex justify-center text-primary" aria-hidden>⇅</div>
-                <div className="lw-panel rounded-2xl p-5 text-center">
+                <div className="lw-panel lw-magic p-5 text-center">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{picked.username}'s charger</p>
                   <p className="mt-2 text-lg font-semibold">{CONNECTOR_LABEL[picked.connector]}</p>
                   <p className="text-sm text-muted-foreground">{picked.kw} kW · {FITS_LABEL[picked.fits]} · {picked.cost === "free" ? "Free" : picked.price_note || "Small fee"}</p>
@@ -575,7 +575,7 @@ function AskForm({ host, emergency, initialRange = "", initialCar = "", onClose,
     }
   }
   return (
-    <div className="lw-panel space-y-4 rounded-2xl p-5 text-center">
+    <div className="lw-panel lw-magic space-y-4 p-5 text-center">
       <div className="flex items-center justify-center gap-3">
         <HostAvatar name={host.username} src={host.avatar_url} />
         <p className="text-lg font-bold">Message {host.username}</p>
