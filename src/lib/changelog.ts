@@ -35,6 +35,7 @@ export const RELEASES: Release[] = [
       "Now called Lendawatt. Find a charge is a quick step-by-step pop-up: miles left, location, nearby hosts, then your pick.",
       "AI compatibility notes for each host based on your saved EV. If no hosts are near, we show nearby public chargers.",
       "Charge requests also appear in Messages.",
+      "A clearer Lendawatt charge window with centred RevMate and community logos, spacious steps and a red help panel at the bottom.",
     ],
     requiredSql: [
       "drizzle/migrations/0072_community_charger_network.sql",

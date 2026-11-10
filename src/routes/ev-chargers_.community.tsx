@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { searchRadius, bandWithinRadius, RANGE_SAFETY_MILES } from "@/lib/rangeRadius";
 import { fetchChargers, boundsAround, kmBetween, type Charger } from "@/lib/evChargers";
 import { LendawattIntro } from "@/components/LendawattIntro";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { fetchOrCreateConversation, sendMessage } from "@/lib/messages";
 import { CompatibilityNote, useChargerCompat } from "@/components/ChargerCompatibility";
 import { CommunityChargerLogo } from "@/components/CommunityChargerLogo";
@@ -97,27 +97,12 @@ function CommunityChargersPage() {
       <Link to="/ev-chargers" className="inline-flex items-center gap-1 text-sm text-muted-foreground">
         <ChevronLeft className="size-4" /> EV chargers
       </Link>
-      <header className="relative mt-6 text-foreground">
-        <div className="pointer-events-none absolute -right-10 -top-16 size-56 rounded-full bg-primary/20 blur-3xl" />
-        <div className="relative mb-6 flex items-center gap-2">
-          <img src="/brand/revmate-logo-dark.png" alt="RevMate" className="h-7 w-auto object-contain" />
-          <span className="text-xs font-bold uppercase tracking-widest text-primary">Lendawatt Community · RevMate</span>
-        </div>
-        <div className="relative flex items-center gap-4">
-          <span className="flex size-20 shrink-0 items-center justify-center rounded-2xl overflow-hidden">
-            <CommunityChargerLogo className="size-full" />
-          </span>
-          <div>
-            <h1 className="text-2xl font-extrabold leading-tight">Lendawatt</h1>
-            <p className="mt-2 text-base text-muted-foreground">
-              EV drivers helping each other when the range runs low.
-            </p>
-          </div>
-        </div>
+      <header className="mt-8 text-center text-foreground">
+        <LendawattBrand />
+        <h1 className="mt-5 text-3xl font-extrabold leading-tight">Lendawatt</h1>
+        <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-muted-foreground">EV drivers helping each other when the range runs low.</p>
         <NetworkStats />
       </header>
-
-      <StrandedPanel />
 
       {!user ? (
         <div className="mt-10">
@@ -181,16 +166,30 @@ function CommunityChargersPage() {
           <li>Hosts' location is kept to about 1 km. An exact meeting place is only shown to the driver the host approves, and it's deleted after 4 hours.</li>
         </ul>
       </details>
+      <StrandedPanel />
     </div>
+    </div>
+  );
+}
+
+function LendawattBrand() {
+  return (
+    <div className="text-center">
+      <p className="mb-4 text-xs font-bold uppercase text-primary">Lendawatt Community · by RevMate</p>
+      <div className="flex items-center justify-center gap-5">
+        <img src="/brand/revmate-logo-dark.png" alt="RevMate" className="h-12 w-20 object-contain" />
+        <span className="text-xl text-muted-foreground" aria-hidden="true">+</span>
+        <CommunityChargerLogo className="size-16" />
+      </div>
     </div>
   );
 }
 
 function StrandedPanel() {
   return (
-    <div className="mt-8 border-l-2 border-destructive pl-4 text-sm">
-      <p className="flex items-center gap-2 font-semibold"><Phone className="size-4" /> Stranded right now?</p>
-      <p className="mt-1 leading-relaxed text-muted-foreground">
+    <div className="lw-help mt-8 rounded-lg border border-destructive/60 bg-destructive/10 p-5 text-sm">
+      <p className="flex items-center justify-center gap-2 font-semibold"><Phone className="size-4" /> Stranded right now?</p>
+      <p className="mt-2 text-center leading-relaxed text-muted-foreground">
         If you're unsafe, call <a className="font-semibold text-foreground underline" href="tel:999">999</a>. On a motorway, National Highways is on{" "}
         <a className="font-semibold text-foreground underline" href="tel:03001235000">0300 123 5000</a>. Many breakdown services can tow an EV to a charger.{" "}
         <Link to="/ev-chargers" className="font-semibold text-foreground underline">See public chargers on the map</Link>.
@@ -288,16 +287,20 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
 
   return (
     <>
-    <div className="lw-box space-y-3 rounded-3xl border-2 border-primary bg-primary/10 p-6 text-center">
+    <div className="lw-box space-y-4 rounded-lg border border-primary bg-card p-6 text-center sm:p-8">
       <p className="text-lg font-semibold">Low on range?</p>
-      <p className="text-sm text-muted-foreground">Four quick steps to find a Lendawatt host or the nearest public charger.</p>
+      <p className="text-sm text-muted-foreground">Find a Lendawatt host or public charger within reach.</p>
       <Button className="h-14 w-full text-base shadow-[0_0_18px_var(--primary)]" onClick={() => setOpen(true)}>⚡ Find a charge</Button>
     </div>
     <Dialog open={open} onOpenChange={close}>
-    <DialogContent className="charge-theme max-h-[92vh] overflow-y-auto rounded-2xl sm:max-w-lg">
-    <DialogTitle className="sr-only">Find a charge</DialogTitle>
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pr-8 text-xs">
+    <DialogContent className="charge-theme lw-wizard max-h-[92dvh] w-[calc(100%-1.5rem)] overflow-y-auto rounded-lg p-5 sm:max-w-xl sm:p-8">
+    <div className="pb-2 pt-2">
+      <LendawattBrand />
+      <DialogTitle className="mt-5 text-center text-2xl">Find a charge</DialogTitle>
+      <DialogDescription className="mt-2 text-center text-sm leading-relaxed text-muted-foreground">A little help to get you on your way.</DialogDescription>
+    </div>
+    <div className="space-y-7">
+      <div className="flex items-center justify-between text-xs">
         <span className="text-muted-foreground">Step {step + 1} of {STEPS.length}</span>
         <span className="font-semibold tabular-nums text-primary">{Math.round(((step + 1) / STEPS.length) * 100)}%</span>
       </div>
@@ -318,12 +321,12 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
 
       <div key={step} className="animate-in fade-in slide-in-from-right-6 duration-300">
         {step === 0 && (
-          <div className="space-y-5 rounded-2xl border border-border bg-card p-6">
+          <div className="space-y-6">
             <div>
-              <p className="text-lg font-semibold">How many miles have you got left?</p>
-              <p className="mt-1 text-sm text-muted-foreground">We keep {RANGE_SAFETY_MILES} miles spare in case your range is optimistic.</p>
+              <p className="text-center text-xl font-semibold leading-snug">How many miles have you got left?</p>
+              <p className="mt-2 text-center text-sm leading-relaxed text-muted-foreground">We keep {RANGE_SAFETY_MILES} miles spare in case your range is optimistic.</p>
             </div>
-            <label className="flex items-baseline justify-center gap-2">
+            <label className="flex items-baseline justify-center gap-2 rounded-lg border border-primary/40 bg-card px-4 py-7 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
               <input
                 autoFocus
                 inputMode="numeric"
@@ -341,20 +344,21 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
               </p>
             )}
             <div>
-              <p className="text-sm font-semibold">Is this an emergency?</p>
-              <div className="mt-2 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Is this an emergency?">
+              <p className="text-center text-sm font-semibold">Is this an emergency?</p>
+              <div className="mt-3 grid grid-cols-2 gap-3" role="radiogroup" aria-label="Is this an emergency?">
                 {([[true, "🚨 Yes", "I can't reach a public charger"], [false, "🗓️ No", "Planning ahead"]] as const).map(([v, t, sub]) => (
-                  <button
+                  <Button
+                    variant="outline"
                     key={String(v)}
                     type="button"
                     role="radio"
                     aria-checked={emergency === v}
                     onClick={() => setEmergency(v)}
-                    className={`rounded-xl border-2 p-3 text-center transition-all ${emergency === v ? (v ? "border-destructive bg-destructive/15 shadow-[0_0_14px_var(--destructive)]" : "border-primary bg-primary/15 shadow-[0_0_14px_var(--primary)]") : "border-border bg-muted/40"}`}
+                    className={`h-auto min-h-24 flex-col gap-1 whitespace-normal rounded-lg border p-3 text-center transition-all ${emergency === v ? "border-primary bg-primary/15 text-foreground" : "border-border bg-card text-foreground"}`}
                   >
                     <span className="block font-semibold">{t}</span>
                     <span className="mt-0.5 block text-xs text-muted-foreground">{sub}</span>
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -363,7 +367,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
         )}
 
         {step === 1 && (
-          <div className="space-y-4 rounded-2xl border border-border bg-card p-6">
+          <div className="space-y-5">
             <div>
               <p className="text-lg font-semibold">Where are you?</p>
               <p className="mt-1 text-sm text-muted-foreground">Rounded to about 1 km, used for this search only and not saved.</p>
@@ -397,7 +401,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ animationDelay: `${i * 60}ms` }}
-                    className="block animate-in fade-in slide-in-from-bottom-2 fill-mode-both rounded-2xl border border-border bg-card p-5 transition hover:border-primary"
+                    className="block animate-in fade-in slide-in-from-bottom-2 fill-mode-both rounded-lg border border-border bg-card p-5 transition hover:border-primary"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold">{c.name}</span>
@@ -411,7 +415,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
               </div>
             )}
             {hosts && hosts.length === 0 && publicNear && publicNear.length === 0 && (
-              <div className="animate-in fade-in zoom-in-95 rounded-2xl border border-border bg-card p-8 text-center">
+              <div className="animate-in fade-in zoom-in-95 rounded-lg border border-border bg-card p-8 text-center">
                 <div className="text-6xl" aria-hidden>😢</div>
                 <p className="mt-3 text-lg font-semibold">We're really sorry</p>
                 <p className="mt-1 text-sm text-muted-foreground">We couldn't find a Lendawatt host or a public charger within reach. Here's who can help right now.</p>
@@ -428,7 +432,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                 type="button"
                 onClick={() => { setPicked(h); setStep(3); }}
                 style={{ animationDelay: `${i * 60}ms` }}
-                className="w-full animate-in fade-in slide-in-from-bottom-2 fill-mode-both rounded-2xl border border-border bg-card p-5 text-left transition hover:border-primary"
+                className="w-full animate-in fade-in slide-in-from-bottom-2 fill-mode-both rounded-lg border border-border bg-card p-5 text-left transition hover:border-primary"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold">{h.username}</span>
@@ -448,7 +452,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
 
         {step === 3 && picked && (
           <div className="space-y-4">
-            <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="rounded-lg border border-border bg-card p-6">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-lg font-semibold">{picked.username}</span>
                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">{picked.band}</span>
@@ -464,7 +468,7 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
               <CompatibilityNote state={compat} hostId={picked.host_id} />
               <HostReviews hostId={picked.host_id} />
             </div>
-            <div className="rounded-2xl border border-primary/40 bg-primary/5 p-6 text-sm">
+            <div className="rounded-lg border border-primary/40 bg-primary/5 p-6 text-sm">
               <p className="font-semibold">Being a good guest</p>
               <ul className="mt-2 space-y-1 text-muted-foreground">
                 <li>Wait in your car while you charge, if you can.</li>

@@ -51,3 +51,5 @@ have their safety design written down there.
 to get the Pixel ID, ad settings). When the user asks about the TikTok
 Pixel or TikTok ads, start from that file. Wider TikTok and app store notes
 are in `APP_STORE_GUIDE.md`; payments and deals are in `MONETISATION_SETUP.md`.
+
+- Lendawatt page and search dialog share a local brand header; keep their surface styling scoped to `.charge-theme` so the main app theme is unaffected.

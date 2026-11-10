@@ -40,3 +40,5 @@
 - Find-a-charge steps in a closable pop-up
 - Charge requests also appear in Messages
 - Find a charge launcher in pulsing green box
+
+- [x] Polish Lendawatt window, centre original logos and heading, and move stranded help to a red bottom panel.

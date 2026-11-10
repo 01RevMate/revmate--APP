@@ -414,3 +414,8 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
   50% { box-shadow: 0 0 28px 4px color-mix(in oklab, var(--primary) 65%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) { .lw-box { animation: none; } }
+
+/* Local Lendawatt surfaces preserve the sub-brand in either app theme. */
+.lw-help { --destructive: oklch(0.68 0.2 25); }
+.lw-wizard { --shadow-window: 0 24px 80px oklch(0.05 0 0 / 55%); box-shadow: var(--shadow-window); }
+.lw-wizard input { caret-color: var(--primary); }
