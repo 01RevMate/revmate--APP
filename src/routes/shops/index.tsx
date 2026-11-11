@@ -15,7 +15,7 @@ export const Route = createFileRoute("/shops/")({
     seo({
       title: "Car shops — parts, detailing, air fresheners & more — RevMate",
       description:
-        "Car stuff from UK brands and small makers: parts, detailing, air fresheners, styling, wheels, tech and merch.",
+        "Car stuff from UK brands and small makers: parts, detailing, air fresheners, styling, wheels, tech and gifts.",
       path: "/shops",
     }),
   component: ShopsPage,
