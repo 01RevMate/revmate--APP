@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Warehouse, MessageCircle, Plus, ShoppingBag } from "lucide-react";
+import { Home, Warehouse, MessageCircle, Plus, Store } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useHideOnScroll } from "@/hooks/useHideOnScroll";
@@ -103,7 +103,7 @@ export function BottomNav() {
     >
       <div className="flex flex-1">
         <NavItem to="/" icon={Home} label="Home" exact />
-        <NavItem to="/marketplace" icon={ShoppingBag} label="Buy & Sell" />
+        <NavItem to="/marketplace" icon={Store} label="Buy & Sell" />
       </div>
       <ComposeButton />
       <div className="flex flex-1">
