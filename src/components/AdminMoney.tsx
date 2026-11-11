@@ -662,7 +662,7 @@ function Shop() {
   return (
     <form onSubmit={save} className="space-y-3">
       <p className="rounded-xl bg-muted/60 p-3 text-sm text-muted-foreground">
-        Sell stickers and merch with no stock: set up a free print-on-demand shop (Teemill, Printful
+        Sell stickers and gifts with no stock: set up a free print-on-demand shop (Teemill, Printful
         + Shopify, or Etsy) and paste its link. It shows in the menu and in Settings. Leave it blank
         to hide it.
       </p>

@@ -14,7 +14,7 @@ export const SHOP_CATEGORIES = [
   { id: "wheels_tyres", label: "Wheels & tyres", emoji: "🛞" },
   { id: "tech", label: "Tech & gadgets", emoji: "📱" },
   { id: "performance", label: "Performance", emoji: "🏁" },
-  { id: "merch", label: "Merch & clothing", emoji: "👕" },
+  { id: "merch", label: "Gifts & clothing", emoji: "👕" },
 ] as const;
 
 export type ShopCategory = (typeof SHOP_CATEGORIES)[number]["id"];
