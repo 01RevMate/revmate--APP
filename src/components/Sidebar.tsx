@@ -20,6 +20,7 @@ import {
   Clapperboard,
   Wrench,
   Store,
+  Building,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -125,7 +126,7 @@ export function Sidebar() {
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/essentials" icon={Wrench} label="Essentials" collapsed={collapsed} />
         <NavLink to="/ev-chargers/community" icon={CommunityChargerMark as unknown as typeof Home} label="Lendawatt" collapsed={collapsed} />
-        <NavLink to="/marketplace" icon={ShoppingBag} label="Buy & Sell" collapsed={collapsed} />
+        <NavLink to="/marketplace" icon={Store} label="Buy & Sell" collapsed={collapsed} />
         <Tooltip>
           <TooltipTrigger asChild>
             <a
@@ -171,7 +172,7 @@ export function Sidebar() {
           requireAuth
         />
         {isAdmin && <NavLink to="/admin" icon={ShieldCheck} label="Admin" collapsed={collapsed} />}
-        <NavLink to="/businesses/manage" icon={Store} label="My business" collapsed={collapsed} />
+        <NavLink to="/businesses/manage" icon={Building} label="My business" collapsed={collapsed} />
       </nav>
 
       <Tooltip>
