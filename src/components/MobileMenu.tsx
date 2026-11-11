@@ -25,7 +25,6 @@ import {
   Download,
   MessageSquareHeart,
   Gem,
-  Shirt,
   Store,
   Building,
   Building2,
@@ -200,18 +199,6 @@ export function MobileMenu() {
           )}
           {money?.payments_enabled && (
             <MenuLink to="/plus" icon={Gem} label="RevMate Plus" onNavigate={close} />
-          )}
-          {money?.shop_url && (
-            <a
-              href={money.shop_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${item} w-full`}
-              onClick={close}
-            >
-              <Shirt className="size-5 shrink-0" />
-              {money.shop_label}
-            </a>
           )}
           {feedbackOn && (
             <button
