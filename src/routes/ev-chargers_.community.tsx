@@ -122,16 +122,18 @@ function CommunityChargersPage() {
 
       {!user ? (
         <div className="mt-10">
+          <section className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+            <h2 className="text-lg font-semibold text-foreground">EV run out of charge?</h2>
+            <p>If your electric car is low on battery and there's no public charger in range, Lendawatt helps you look for RevMate members nearby who offer their home charger in an emergency.</p>
+            <p>Tell us how many miles you have left and your postcode. We'll search for hosts within reach, or nearby public chargers if no hosts are found. Availability isn't guaranteed.</p>
+            <p>Hosts approve each request before sharing a temporary meeting place with that driver only. Requests and conversations stay inside RevMate; no phone numbers are shared.</p>
+          </section>
+          <div className="mt-8">
           <p className="text-base">Sign in to find a member's charger or offer yours. It's for members aged 18 and over.</p>
           <Button className="mt-3" onClick={() => openAuth("Create a free account to join the community charger network.")}>
             Sign in or join
           </Button>
-          <section className="mt-12 space-y-3 text-sm leading-relaxed text-muted-foreground">
-            <h2 className="text-lg font-semibold text-foreground">EV run out of charge?</h2>
-            <p>If your electric car is low on battery and there's no public charger in range, Lendawatt shows RevMate members nearby who'll lend their home charger in an emergency.</p>
-            <p>Tell us how many miles you have left and your postcode. We'll find hosts within reach, or the nearest public chargers if no one is around. The host approves before their address is shared.</p>
-            <p>If you're unsafe, call 999. On a motorway, call National Highways on 0300 123 5000.</p>
-          </section>
+          </div>
         </div>
       ) : (
         <>

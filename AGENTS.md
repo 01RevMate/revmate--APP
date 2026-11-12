@@ -53,3 +53,4 @@ Pixel or TikTok ads, start from that file. Wider TikTok and app store notes
 are in `APP_STORE_GUIDE.md`; payments and deals are in `MONETISATION_SETUP.md`.
 
 - Lendawatt page and search dialog share a local brand header; keep their surface styling scoped to `.charge-theme` so the main app theme is unaffected.
+- Public browsing paths live in `src/lib/publicPaths.ts` for isolated access tests; Lendawatt exposes only its explanation signed out and keeps private tools behind its existing session branch.

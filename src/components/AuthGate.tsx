@@ -14,33 +14,9 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { BrandLogo } from "@/components/BrandLogo";
 import { safeRedirect } from "@/lib/authRedirect";
+import { isPublicPath } from "@/lib/publicPaths";
+export { isPublicPath } from "@/lib/publicPaths";
 
-// Signed-out visitors can browse the feed and Buy & Sell — enough to see
-// what RevMate is — and everything else asks them to join. Account pages and
-// the legal/help pages stay open.
-const PUBLIC_PATHS: RegExp[] = [
-  /^\/$/,
-  /^\/marketplace(\/[^/]+)?\/?$/,
-  /^\/(login|signup|forgot-password|reset-password)\/?$/,
-  /^\/legal\/.+/,
-  /^\/community-standards\/?$/,
-  /^\/businesses(\/[^/]+)?\/?$/,
-  // Research, fixes, meets and the groups directory are useful to anyone and
-  // help people find RevMate on Google.
-  /^\/cars(\/.*)?$/,
-  /^\/issues\/?$/,
-  /^\/meets(\/[^/]+)?\/?$/,
-  /^\/groups\/?$/,
-  /^\/ev-chargers(\/home)?\/?$/,
-  /^\/fuel-prices\/?$/,
-  // TikTok / ad landing pages and the Plus page.
-  /^\/go\/[^/]+\/?$/,
-  /^\/plus\/?$/,
-  /^\/diagnose\/?$/,
-  /^\/shops(\/[^/]+)?\/?$/,
-  /^\/store(\/[^/]+)?\/?$/,
-  /^\/basket\/?$/,
-];
 
 // What people were trying to open, so the join screen can sell exactly that.
 const PITCHES: { match: RegExp; title: string; pitch: string }[] = [
@@ -100,10 +76,6 @@ const PERKS = [
   { icon: BadgePoundSterling, text: "Watch listings and get price-drop alerts" },
   { icon: MessageCircle, text: "Message buyers and sellers" },
 ];
-
-export function isPublicPath(pathname: string) {
-  return PUBLIC_PATHS.some((pattern) => pattern.test(pathname));
-}
 
 /** Shows the page if it's public or you're signed in; otherwise the join screen. */
 export function AuthGate({ children }: { children: ReactNode }) {

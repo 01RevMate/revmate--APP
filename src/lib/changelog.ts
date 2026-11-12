@@ -38,6 +38,7 @@ export const RELEASES: Release[] = [
       "A clearer Lendawatt charge window with centred RevMate and community logos, spacious steps and a red help panel at the bottom.",
     ],
     fixes: [
+      "Lendawatt's emergency-charging explanation is visible before joining, while requests, hosting and shared meeting places remain member-only. The public EV map has its own search and sharing details.",
       "The RevMate icon now shows in browser tabs, on phones and beside search results on every page, including Lendawatt.",
     ],
     requiredSql: [

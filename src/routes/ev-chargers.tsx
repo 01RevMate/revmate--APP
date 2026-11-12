@@ -58,9 +58,15 @@ export const Route = createFileRoute("/ev-chargers")({
           "Free map of public EV charging points across the UK: rapid and ultra-rapid chargers, plug types (Type 2, CCS, CHAdeMO, Tesla), speeds, costs and directions.",
       },
       { property: "og:title", content: "EV charger map — RevMate" },
+      {
+        property: "og:description",
+        content: "Find public EV charging points across the UK. Search nearby rapid and ultra-rapid chargers, compare connectors and charging speeds, and get directions with RevMate.",
+      },
+      { property: "og:url", content: "https://revmate.co.uk/ev-chargers" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://revmate.co.uk/ev-chargers" }],
   }),
   component: EvChargersPage,
 });
