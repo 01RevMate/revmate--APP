@@ -17,6 +17,7 @@ const PUBLIC_PATHS: RegExp[] = [
   /^\/diagnose\/?$/,
   /^\/shops(\/[^/]+)?\/?$/,
   /^\/store(\/[^/]+)?\/?$/,
+  /^\/shop\/?$/,
   /^\/basket\/?$/,
 ];
 

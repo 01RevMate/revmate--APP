@@ -7,12 +7,12 @@ import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { useMoneySettings } from "@/lib/money";
 import { useShopCount } from "@/lib/shops";
 import { useStoreOpen } from "@/lib/store";
+import { ShopNavLink } from "@/components/ShopNavLink";
 import {
   Menu,
   Home,
   Stethoscope,
   Car,
-  ShoppingBag,
   Users,
   Warehouse,
   MessageCircle,
@@ -30,7 +30,6 @@ import {
   Building2,
   ShoppingCart,
   Package,
-  ExternalLink,
 } from "lucide-react";
 import { isAppInstalled } from "@/lib/pwaInstall";
 import { openInstallPrompt } from "@/components/InstallAppPrompt";
@@ -126,18 +125,12 @@ export function MobileMenu() {
           <MenuLink to="/cars" icon={Car} label="Browse Cars" onNavigate={close} />
           <MenuLink to="/essentials" icon={Wrench} label="Essentials" onNavigate={close} />
           <MenuLink to="/marketplace" icon={Store} label="Buy & Sell" onNavigate={close} />
-          <a
-            href="https://shop.revmate.co.uk/?utm_source=app&utm_medium=nav&utm_campaign=launch_nov26"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Shop, opens in a new tab"
+          <ShopNavLink
             className={item}
-            onClick={close}
-          >
-            <ShoppingBag className="size-5 shrink-0" />
-            Shop
-            <ExternalLink className="ml-auto size-4 opacity-60" />
-          </a>
+            activeClassName={`${item} bg-accent text-foreground`}
+            showExternalIcon
+            onNavigate={close}
+          />
           {storeOpen && (
             <MenuLink to="/store" icon={ShoppingCart} label="RevMate Store" onNavigate={close} />
           )}
@@ -153,7 +146,12 @@ export function MobileMenu() {
           {(shopCount ?? 0) > 0 && (
             <MenuLink to="/shops" icon={Building2} label="Shops" onNavigate={close} />
           )}
-          <MenuLink to="/ev-chargers/community" icon={CommunityChargerMark as unknown as typeof Home} label="Lendawatt" onNavigate={close} />
+          <MenuLink
+            to="/ev-chargers/community"
+            icon={CommunityChargerMark as unknown as typeof Home}
+            label="Lendawatt"
+            onNavigate={close}
+          />
           <MenuLink to="/meets" icon={CalendarDays} label="Meets & Events" onNavigate={close} />
           {BATTLES_ENABLED && (
             <MenuLink to="/battles" icon={Trophy} label="Top cars" onNavigate={close} />
@@ -183,7 +181,12 @@ export function MobileMenu() {
             requireAuth
             onNavigate={close}
           />
-          <MenuLink to="/businesses/manage" icon={Building} label="My business" onNavigate={close} />
+          <MenuLink
+            to="/businesses/manage"
+            icon={Building}
+            label="My business"
+            onNavigate={close}
+          />
           {showInstall && (
             <button
               type="button"
