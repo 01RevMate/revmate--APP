@@ -10,7 +10,7 @@
 
 ## Open
 - [x] Make Lendawatt explanation public, retain private member actions, and correct EV map search metadata; desktop/mobile and privacy tests passed.
-- [ ] Publish public charger-page changes (waiting on user approval).
+- [x] Publishing requested for public charger-page changes with user approval; deployment completion not yet verified.
 - [x] Check Google’s globe icon: published icon declarations and ICO/48px/192px images return 200; Google controls when its results update.
 - [x] Remove Shop from the mobile bottom bar; desktop link stays unpublished until the shop is live
 - [x] Create an official RevMate Christmas coming-soon shop post through the authenticated admin posting UI; confirmed in feed
