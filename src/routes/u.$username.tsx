@@ -60,6 +60,7 @@ import {
   type VehicleCatalogSelection,
 } from "@/lib/vehicleCatalog";
 import { recordProfileView } from "@/lib/follows";
+import { modelPowertrain } from "@/lib/ukModels";
 
 export const Route = createFileRoute("/u/$username")({
   loader: ({ params }) => fetchProfileSeo(params.username),
@@ -712,7 +713,7 @@ function AddCarForm({
               setTrim(next.derivative);
               setEngine(next.engine);
               setFuelType(
-                next.fuelTypeCode ? garageFuelTypeForCatalogFuel(next.fuelTypeCode) : null,
+                next.fuelTypeCode ? garageFuelTypeForCatalogFuel(next.fuelTypeCode) : modelPowertrain(next.make, next.model),
               );
             }}
           />

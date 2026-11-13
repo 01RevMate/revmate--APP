@@ -54,3 +54,5 @@ are in `APP_STORE_GUIDE.md`; payments and deals are in `MONETISATION_SETUP.md`.
 
 - Lendawatt page and search dialog share a local brand header; keep their surface styling scoped to `.charge-theme` so the main app theme is unaffected.
 - Public browsing paths live in `src/lib/publicPaths.ts` for isolated access tests; Lendawatt exposes only its explanation signed out and keeps private tools behind its existing session branch.
+- Resolve missing garage fuel categories through the shared EV model resolver; explicit member fuel choices win so mixed-engine cars aren't misclassified.
+- Lendawatt compatibility and requests use the same selected current garage car or temporary friend-car details; scope cached results by member, vehicle and connector to prevent stale pairing.

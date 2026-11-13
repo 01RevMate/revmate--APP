@@ -38,6 +38,7 @@ export const RELEASES: Release[] = [
       "A clearer Lendawatt charge window with centred RevMate and community logos, spacious steps and a red help panel at the bottom.",
     ],
     fixes: [
+      "Lendawatt recognises uncategorised EVs, fills saved car details automatically, and lets you switch cars or help a friend. Matching and requests use the same car and confirmed connection. Dedicated alerts open Requests, with separate driver/host lists and clearer delivery feedback.",
       "Lendawatt's emergency-charging explanation is visible before joining, while requests, hosting and shared meeting places remain member-only. The public EV map has its own search and sharing details.",
       "The RevMate icon now shows in browser tabs, on phones and beside search results on every page, including Lendawatt.",
     ],

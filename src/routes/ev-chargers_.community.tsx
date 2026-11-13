@@ -1,4 +1,7 @@
 import chargerLogo from "@/assets/lendawatt-logo.jpg.asset.json";
+import { ChargingVehiclePicker } from "@/components/ChargingVehiclePicker";
+import { fetchGarage } from "@/lib/garage";
+import { defaultChargingCar, chargingCarLabel, chargeMessage, type ChargingVehicle } from "@/lib/evVehicle";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { searchRadius, bandWithinRadius, RANGE_SAFETY_MILES } from "@/lib/rangeRadius";
@@ -82,8 +85,8 @@ export const Route = createFileRoute("/ev-chargers_/community")({
       }),
     }],
   }),
-  validateSearch: (s: Record<string, unknown>): { tab?: Tab | undefined } =>
-    ({ tab: TABS.includes(s["tab"] as Tab) ? (s["tab"] as Tab) : undefined }),
+  validateSearch: (s: Record<string, unknown>): { tab?: Tab | undefined; group?: "driver" | "hosting" | undefined } =>
+    ({ tab: TABS.includes(s["tab"] as Tab) ? (s["tab"] as Tab) : undefined, group: s["group"] === "hosting" ? "hosting" : s["group"] === "driver" ? "driver" : undefined }),
   component: CommunityChargersPage,
 });
 
@@ -97,14 +100,15 @@ function CommunityChargersPage() {
   const { open: openAuth } = useAuthModal();
   const search = Route.useSearch();
   const [tab, setTab] = useState<Tab>(search.tab ?? "need");
-  const [group, setGroup] = useState<"driver" | "hosting">(search.tab === "host" || search.tab === "settings" ? "hosting" : "driver");
+  const [group, setGroup] = useState<"driver" | "hosting">(search.group ?? (search.tab === "host" || search.tab === "settings" ? "hosting" : "driver"));
   useEffect(() => {
     if (search.tab) {
       setTab(search.tab);
       if (search.tab === "host" || search.tab === "settings") setGroup("hosting");
       else if (search.tab === "need") setGroup("driver");
+      else if (search.group) setGroup(search.group);
     }
-  }, [search.tab]);
+  }, [search.tab, search.group]);
 
   return (
     <div className="charge-theme lw-edge min-h-screen">
@@ -172,7 +176,7 @@ function CommunityChargersPage() {
           <div className="mt-8">
           {tab === "need" && <NeedCharge onSent={() => setTab("requests")} />}
           {tab === "host" && <HostSetup userId={user.id} onSettings={() => { setGroup("hosting"); setTab("settings"); }} />}
-          {tab === "requests" && <Requests />}
+          {tab === "requests" && <Requests group={group} />}
           {tab === "settings" && <SettingsPanel userId={user.id} onHost={() => { setGroup("hosting"); setTab("host"); }} />}
           </div>
         </>
@@ -223,13 +227,23 @@ function StrandedPanel() {
 }
 
 function NeedCharge({ onSent }: { onSent: () => void }) {
+  const { user } = useAuth();
+  const { data: cars = [], isLoading: carsLoading, error: carsError } = useQuery({ queryKey: ["garage", user?.id], enabled: !!user, queryFn: () => user ? fetchGarage(user.id) : Promise.resolve([]) });
+  const [selectedId, setSelectedId] = useState("");
+  const [otherCar, setOtherCar] = useState<ChargingVehicle | null>(null);
+  const [connector, setConnector] = useState("not_sure");
+  const automatic = defaultChargingCar(cars);
+  const carId = selectedId || automatic?.id || (carsLoading ? "" : "other");
+  const vehicle = carId === "other" ? otherCar : cars.find((car) => car.id === carId) ?? null;
+  const carLabel = chargingCarLabel(vehicle);
+  const ready = !!vehicle?.make.trim() && !!vehicle.model.trim();
   const [postcode, setPostcode] = useState("");
   const [emergency, setEmergency] = useState(true);
   const [milesLeft, setMilesLeft] = useState("");
   const radius = searchRadius(milesLeft ? Number(milesLeft) : null);
   const [busy, setBusy] = useState(false);
   const [hosts, setHosts] = useState<NearbyHost[] | null>(null);
-  const compat = useChargerCompat(hosts);
+  const compat = useChargerCompat(hosts, carId !== "other" ? carId : undefined, carId === "other" ? vehicle : null, connector);
   const [asking, setAsking] = useState<NearbyHost | null>(null);
 
   const [publicNear, setPublicNear] = useState<{ c: Charger; miles: number }[] | null>(null);
@@ -489,7 +503,9 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                 </div>
                 <div className="lw-panel lw-magic p-5 text-center">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Your car</p>
-                  <p className="mt-2 text-lg font-semibold">{compat.data?.car ?? (compat.loading ? "Checking…" : "Not in your Garage")}</p>
+                  <p className="mt-2 text-lg font-semibold">{carLabel || "Which car needs a charge?"}</p>
+                  <ChargingVehiclePicker cars={cars} selectedId={carId} vehicle={vehicle} connector={connector} onSelect={(id) => { setSelectedId(id); setConnector("not_sure"); }} onVehicle={setOtherCar} onConnector={setConnector} />
+                  {carsError && <p role="alert" className="mt-2 text-sm text-destructive">Couldn't load your cars. Enter another car to continue.</p>}
                   {milesLeft && <p className="text-sm text-muted-foreground">{milesLeft} miles left</p>}
                 </div>
                 <ArrowUpDown className="mx-auto size-5 text-primary" aria-hidden />
@@ -499,14 +515,14 @@ function NeedCharge({ onSent }: { onSent: () => void }) {
                   <p className="text-sm text-muted-foreground">{picked.kw} kW · {FITS_LABEL[picked.fits]} · {picked.cost === "free" ? "Free" : picked.price_note || "Small fee"}</p>
                 </div>
                 <CompatibilityNote state={compat} hostId={picked.host_id} />
-                <Button className="mx-auto flex h-12 w-full max-w-xs rounded-full" onClick={() => setSub(1)}>Message {picked.username}</Button>
+                <Button disabled={!ready} className="mx-auto flex h-12 w-full max-w-xs rounded-full" onClick={() => setSub(1)}>Message {picked.username}</Button>
                 <Button variant="ghost" className="mx-auto flex" onClick={() => { setPicked(null); setStep(2); }}>Back</Button>
               </div>
             )}
 
             {sub === 1 && (
               <div key="s1" className="animate-in fade-in zoom-in-95 duration-500">
-                <AskForm host={picked} emergency={emergency} initialRange={milesLeft} initialCar={compat.data?.car ?? ""} onClose={() => setSub(0)} onSent={() => { close(false); onSent(); }} />
+                <AskForm host={picked} emergency={emergency} initialRange={milesLeft} initialCar={carLabel} connector={connector} onClose={() => setSub(0)} onSent={() => { close(false); onSent(); }} />
               </div>
             )}
           </div>
@@ -551,22 +567,24 @@ const presetText = (kind: "topup" | "emergency" | "planned", name: string, miles
     planned: `Hi ${name}, I'll be passing through your area soon and wondered if I could arrange a charge at a time that suits you. Happy to fit around you. Thanks!`,
   })[kind];
 
-function AskForm({ host, emergency, initialRange = "", initialCar = "", onClose, onSent }: { host: NearbyHost; emergency: boolean; initialRange?: string; initialCar?: string; onClose: () => void; onSent: () => void }) {
+function AskForm({ host, emergency, initialRange = "", initialCar = "", connector = "not_sure", onClose, onSent }: { host: NearbyHost; emergency: boolean; initialRange?: string; initialCar?: string; connector?: string; onClose: () => void; onSent: () => void }) {
   const qc = useQueryClient();
-  const [car, setCar] = useState(initialCar);
+  const car = initialCar;
   const [range] = useState(initialRange);
   const name = host.username.replace(/^@/, "");
   const [preset, setPreset] = useState<"topup" | "emergency" | "planned">(emergency ? "emergency" : "topup");
   const [intro, setIntro] = useState(presetText(emergency ? "emergency" : "topup", name, initialRange));
   const [qs, setQs] = useState<string[]>([]);
-  const message = [intro.trim(), ...qs].filter(Boolean).join("\n");
+  const message = chargeMessage(intro, qs);
   const toggleQ = (q: string) => setQs((cur) => (cur.includes(q) ? cur.filter((x) => x !== q) : [...cur, q]));
   const [agree, setAgree] = useState(false);
   const [busy, setBusy] = useState(false);
   async function send() {
+    if (message.length > 500) { toast.error("Please keep your message and questions within 500 characters."); return; }
     setBusy(true);
     try {
-      await requestCharge({ host: host.host_id, car, connector: "not_sure", range: range ? Number(range) : null, emergency, message });
+      await requestCharge({ host: host.host_id, car, connector, range: range ? Number(range) : null, emergency: preset === "planned" ? false : emergency, message });
+      let inboxSent = false;
       try {
         const { data: me } = await supabase.auth.getUser();
         if (me.user) {
@@ -574,14 +592,16 @@ function AskForm({ host, emergency, initialRange = "", initialCar = "", onClose,
           await sendMessage(
             convo,
             me.user.id,
-            `⚡ Lendawatt request${emergency ? " (emergency)" : ""}\nCar: ${car || "not given"}${range ? ` · ${range} miles left` : ""}\n\n${message}\n\nApprove or decline it in Lendawatt → Requests.`,
+            `Lendawatt request${preset !== "planned" && emergency ? " (emergency)" : ""}\nCar: ${car}\nConnection: ${CONNECTOR_LABEL[connector]}${range ? ` · ${range} miles left` : ""}\n\n${message}\n\nApprove or decline in Lendawatt: /ev-chargers/community?tab=requests&group=hosting`,
           );
+          inboxSent = true;
         }
       } catch {
         /* the request itself was sent; the inbox copy is optional */
       }
-      toast.success(`Message sent to ${host.username}`);
+      toast.success(`Request sent to ${host.username}${inboxSent ? " and copied to Messages" : " — they'll find it in Lendawatt and Notifications"}`);
       qc.invalidateQueries({ queryKey: ["charge-requests"] });
+      qc.invalidateQueries({ queryKey: ["conversations"] });
       onSent();
     } catch (e) {
       toast.error(errMsg(e));
@@ -596,7 +616,7 @@ function AskForm({ host, emergency, initialRange = "", initialCar = "", onClose,
         <p className="text-lg font-bold">Message {host.username}</p>
       </div>
       <div className="flex flex-wrap justify-center gap-2" role="radiogroup" aria-label="Message type">
-        {([["topup", "Quick top-up"], ["emergency", "Emergency"], ["planned", "Planned visit"]] as const).map(([k, l]) => (
+        {([["topup", "Quick top-up"], ["emergency", "Emergency"], ["planned", "Planned visit"]] as const).filter(([k]) => k !== "planned" || host.mode === "any").map(([k, l]) => (
           <button key={k} type="button" role="radio" aria-checked={preset === k}
             onClick={() => { setPreset(k); setIntro(presetText(k, name, initialRange)); }}
             className={`rounded-full px-4 py-2 text-sm font-semibold transition ${preset === k ? "bg-primary text-primary-foreground" : "bg-card text-foreground"}`}>{l}</button>
@@ -619,13 +639,14 @@ function AskForm({ host, emergency, initialRange = "", initialCar = "", onClose,
           ))}
         </div>
       </div>
-      <Input value={car} onChange={(e) => setCar(e.target.value)} placeholder="Your car, e.g. Kia Niro EV" maxLength={80} className="lw-field h-12 rounded-xl text-center" aria-label="Your car" />
+      <p className="text-sm font-semibold">{car} · {CONNECTOR_LABEL[connector]}</p>
+      <p className="text-xs text-muted-foreground">{message.length}/500</p>
       <p className="text-xs leading-relaxed text-muted-foreground">Please wait in your car if you can, and only take what you need.</p>
       <label className="flex items-start justify-center gap-2 text-left text-xs text-muted-foreground">
         <Checkbox checked={agree} onCheckedChange={(v) => setAgree(v === true)} className="mt-0.5" />
         Arranged between members. RevMate doesn't handle payments.
       </label>
-      <Button className="mx-auto flex h-12 w-full max-w-xs rounded-full shadow-[0_0_18px_var(--primary)]" onClick={send} disabled={busy || !agree || !car.trim() || !message.trim()}>
+      <Button className="mx-auto flex h-12 w-full max-w-xs rounded-full shadow-[0_0_18px_var(--primary)]" onClick={send} disabled={busy || !agree || !car.trim() || !message.trim() || message.length > 500}>
         {busy ? <Loader2 className="size-4 animate-spin" /> : "Send message"}
       </Button>
       <Button variant="ghost" className="mx-auto flex" onClick={onClose}>Back</Button>
@@ -905,9 +926,12 @@ const STATUS: Record<string, string> = {
   done: "Finished", expired: "Expired", cancelled: "Cancelled",
 };
 
-function Requests() {
-  const { data = [], isLoading } = useQuery({ queryKey: ["charge-requests"], queryFn: fetchMyRequests, refetchInterval: 30_000 });
+function Requests({ group }: { group: "driver" | "hosting" }) {
+  const { user } = useAuth();
+  const { data: all = [], isLoading, error, refetch } = useQuery({ queryKey: ["charge-requests", user?.id], queryFn: fetchMyRequests, refetchInterval: 15_000 });
+  const data = all.filter((r) => group === "hosting" ? r.role === "host" : r.role === "driver");
   if (isLoading) return <Loader2 className="mx-auto mt-6 size-5 animate-spin" />;
+  if (error) return <div role="alert">Couldn't load requests.<Button variant="ghost" onClick={() => void refetch()}>Try again</Button></div>;
   if (!data.length) return <p className="py-6 text-center text-sm text-muted-foreground">No requests yet.</p>;
   return <div className="mt-4 space-y-3">{data.map((r) => <RequestCard key={r.id} r={r} />)}</div>;
 }
@@ -943,12 +967,12 @@ function RequestCard({ r }: { r: ChargeRequest }) {
       <p className="mt-1 text-muted-foreground">
         <Zap className="mr-1 inline size-3.5" />{r.car} · {CONNECTOR_LABEL[r.connector]}{r.range_miles != null ? ` · ${r.range_miles} mi left` : ""}
       </p>
-      {r.message && <p className="mt-1">{r.message}</p>}
+      {r.message && <p className="mt-1 whitespace-pre-line">{r.message}</p>}
       {r.role === "driver" && (r.status === "done" || r.status === "expired") && r.expires_at && r.rating == null && (
         <ReviewForm id={r.id} name={r.other_username} />
       )}
 
-      {r.shared_location && (
+      {r.shared_location && r.status === "approved" && r.expires_at && new Date(r.expires_at).getTime() > Date.now() && (
         <div className="mt-2 rounded-md bg-primary/10 p-2">
           <p className="font-semibold"><MapPin className="mr-1 inline size-4" />{r.role === "host" ? "You shared" : "Meet here"}: {r.shared_location}</p>
           {r.role === "driver" && r.status === "approved" && (
@@ -977,7 +1001,7 @@ function RequestCard({ r }: { r: ChargeRequest }) {
         </Button>
         {r.role === "host" && r.status === "pending" && (
           <>
-            <Input value={location} onChange={(e) => setLocation(e.target.value)} maxLength={300} placeholder="Where to come — address, what3words…" className="basis-full" />
+            <Input aria-label="Private meeting address" value={location} onChange={(e) => setLocation(e.target.value)} maxLength={300} placeholder="Private meeting address or map-ready place" className="basis-full" />
             <Button size="sm" disabled={busy || location.trim().length < 3} onClick={() => act(() => respondToRequest(r.id, "approve", location), "Approved — only they can see the location")}>
               Approve and share location
             </Button>

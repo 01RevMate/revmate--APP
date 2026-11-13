@@ -46,7 +46,7 @@ export const ShopNavLink = forwardRef<HTMLAnchorElement, ShopNavLinkProps>(funct
       ref={ref}
       to="/shop"
       className={className}
-      activeProps={activeClassName ? { className: activeClassName } : undefined}
+      {...(activeClassName ? { activeProps: { className: activeClassName } } : {})}
       onClick={onClick}
     >
       {icon}

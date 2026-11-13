@@ -2,9 +2,10 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { Output, streamText } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayRunIdFetch } from "./ai/run-id.server";
+import type { ChargingVehicle } from "./evVehicle";
 
 export type CompatHost = { host_id: string; connector: string; kw: number; fits: string; notes: string | null };
-export type DriverEv = { make: string; model: string; year: number | null; trim: string | null; spec: string | null } | null;
+export type DriverEv = (ChargingVehicle & { connector?: string }) | null;
 
 const schema = z.object({
   results: z.array(
@@ -37,8 +38,8 @@ export async function explainCompatibility(driverEv: DriverEv, hosts: CompatHost
         role: "user",
         content: JSON.stringify({
           driver_car: driverEv ?? "not saved",
-          connector_labels: { type2: "Type 2 socket or tethered cable", three_pin: "3-pin household plug", other: "other/unspecified" },
-          fits_labels: { car: "driveway fits a car", van: "fits a van", small: "small space only", street: "street parking only" },
+          connector_labels: { type2_socket: "Type 2 socket; driver must bring a suitable cable", type2_tethered: "Tethered Type 2 cable", type2: "Driver confirms Type 2 AC connection", three_pin: "3-pin household plug; driver needs a suitable portable EV charging lead", not_sure: "Unconfirmed; ask the driver/host" },
+          fits_labels: { large: "fits most cars", van: "fits vans and big SUVs", small: "small car driveway" },
           hosts,
         }),
       },

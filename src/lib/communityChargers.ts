@@ -1,25 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { fetchGarage } from "./garage";
+import { vehicleFuel } from "./evVehicle";
 
 /** True when the signed-in member has an electric car in their garage — used to put EV features first. */
 export function useOwnsEv(): boolean {
   const { user } = useAuth();
   const { data } = useQuery({
-    queryKey: ["owns-ev", user?.id],
+    queryKey: ["garage", user?.id],
     enabled: !!user,
     staleTime: 10 * 60_000,
     queryFn: async () => {
-      const { count } = await supabase
-        .from("garage_cars")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user!.id)
-        .eq("fuel_type", "electric")
-        .eq("ownership_status", "current");
-      return (count ?? 0) > 0;
+      if (!user) return [];
+      return fetchGarage(user.id);
     },
   });
-  return !!data;
+  return (data ?? []).some((car) => car.ownership_status === "current" && vehicleFuel(car) === "electric");
 }
 
 // Community home-charger help network. Location rules (docs/LOCATION_PRIVACY.md):
@@ -110,7 +107,7 @@ export async function requestCharge(input: {
   emergency: boolean;
   message: string;
 }) {
-  const { error } = await supabase.rpc("request_charge", {
+  const { data, error } = await supabase.rpc("request_charge", {
     p_host: input.host,
     p_car: input.car,
     p_connector: input.connector,
@@ -119,6 +116,7 @@ export async function requestCharge(input: {
     p_message: input.message,
   });
   if (error) throw error;
+  return data;
 }
 
 export type ChargeRequest = {
@@ -175,7 +173,7 @@ export function useIsChargerHost(): boolean {
   const { data } = useQuery({
     queryKey: ["my-charger-host", user?.id],
     enabled: !!user,
-    queryFn: () => fetchMyHost(user!.id),
+    queryFn: () => user ? fetchMyHost(user.id) : Promise.resolve(null),
   });
   return !!data;
 }

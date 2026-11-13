@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { vehicleFuel } from "./evVehicle";
 
 export type GarageCar = Tables<"garage_cars">;
 export type GarageMod = Tables<"garage_mods">;
@@ -48,7 +49,7 @@ export async function fetchGarage(userId: string): Promise<GarageCar[]> {
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return data;
+  return data.map((car) => ({ ...car, fuel_type: vehicleFuel(car) as GarageCar["fuel_type"] }));
 }
 
 export async function fetchGarageCar(id: string): Promise<GarageCar | null> {
@@ -99,7 +100,7 @@ export async function addGarageCar(input: {
     horsepower: input.horsepower ?? null,
     mileage: input.mileage ?? null,
     color: input.color || null,
-    fuel_type: input.fuelType || null,
+    fuel_type: vehicleFuel({ make: input.make, model: input.model, fuel_type: input.fuelType ?? null }) as GarageCar["fuel_type"],
     transmission: input.transmission || null,
     bio: input.bio || null,
   };

@@ -197,9 +197,9 @@ function notificationDetails(notification: NotificationWithContext, actorLabel?:
     case "badge":
       return { Icon: Award, text: notification.message ?? "You earned a new badge" };
     case "charge_request":
-      return { Icon: Zap, text: `${actor} ${notification.message ?? "asked to use your charger"}` };
+      return { Icon: Zap, text: `Lendawatt · ${actor} ${notification.message ?? "asked to use your charger"}` };
     case "charge_update":
-      return { Icon: Zap, text: `${actor} ${notification.message ?? "replied to your charge request"}` };
+      return { Icon: Zap, text: `Lendawatt · ${actor} ${notification.message ?? "replied to your charge request"}` };
     default:
       return { Icon: Bell, text: "You have a new RevMate notification" };
   }
@@ -342,7 +342,7 @@ export function NotificationCenter() {
                 className={`flex items-center border-b p-3 ${n.read_at ? "" : "bg-primary/5"}`}
               >
                 <a
-                  href={n.action_url ?? "/"}
+                  href={n.kind === "charge_request" ? "/ev-chargers/community?tab=requests&group=hosting" : n.kind === "charge_update" ? "/ev-chargers/community?tab=requests&group=driver" : n.action_url ?? "/"}
                   onClick={() => {
                     void markRead(ids);
                     setOpen(false);

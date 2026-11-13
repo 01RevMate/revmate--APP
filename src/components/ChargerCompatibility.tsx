@@ -3,20 +3,23 @@ import { useServerFn } from "@tanstack/react-start";
 import { AlertTriangle, CheckCircle2, HelpCircle, Loader2, XCircle } from "lucide-react";
 import { getChargerCompatibility } from "@/lib/chargerCompat.functions";
 import type { NearbyHost } from "@/lib/communityChargers";
+import type { ChargingVehicle } from "@/lib/evVehicle";
+import { useAuth } from "@/hooks/useAuth";
 
 type CompatData = Awaited<ReturnType<typeof getChargerCompatibility>>;
 export type CompatState = { data: CompatData | undefined; loading: boolean; failed: boolean };
 
-export function useChargerCompat(hosts: NearbyHost[] | null): CompatState {
+export function useChargerCompat(hosts: NearbyHost[] | null, garageCarId?: string, vehicle?: ChargingVehicle | null, connector = "not_sure"): CompatState {
+  const { user } = useAuth();
   const fn = useServerFn(getChargerCompatibility);
   const ids = (hosts ?? []).map((h) => h.host_id).join(",");
   const q = useQuery({
-    queryKey: ["charger-compat", ids],
-    enabled: !!hosts && hosts.length > 0,
+    queryKey: ["charger-compat", user?.id, ids, hosts, garageCarId, vehicle, connector],
+    enabled: !!user && !!hosts?.length && (!!garageCarId || (!!vehicle?.make.trim() && !!vehicle.model.trim())),
     staleTime: 10 * 60_000,
     retry: false,
     queryFn: () =>
-      fn({ data: { hosts: hosts!.map((h) => ({ host_id: h.host_id, connector: h.connector, kw: h.kw, fits: h.fits, notes: h.notes })) } }),
+      fn({ data: { hosts: (hosts ?? []).map((h) => ({ host_id: h.host_id, connector: h.connector, kw: h.kw, fits: h.fits, notes: h.notes })), garageCarId, vehicle, connector } }),
   });
   return { data: q.data, loading: q.isLoading, failed: q.isError };
 }
@@ -49,7 +52,7 @@ export function CompatibilityNote({ state, hostId }: { state: CompatState; hostI
       </p>
     );
   const r = state.data?.results.find((x) => x.host_id === hostId);
-  if (!r) return null;
+  if (!r) return <p className="mt-3 text-sm text-muted-foreground">{state.data?.error ?? "Compatibility isn't confirmed. Check your car's connector and cable with the host before travelling."}</p>;
   const v = VERDICT[r.verdict];
   const Icon = v.icon;
   return (
