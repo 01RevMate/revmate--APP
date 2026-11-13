@@ -107,6 +107,8 @@ export async function requestCharge(input: {
   emergency: boolean;
   message: string;
 }) {
+  // Expire stale pending requests before the duplicate-request check runs.
+  await fetchMyRequests();
   const { data, error } = await supabase.rpc("request_charge", {
     p_host: input.host,
     p_car: input.car,

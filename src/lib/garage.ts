@@ -55,7 +55,7 @@ export async function fetchGarage(userId: string): Promise<GarageCar[]> {
 export async function fetchGarageCar(id: string): Promise<GarageCar | null> {
   const { data, error } = await supabase.from("garage_cars").select("*").eq("id", id).maybeSingle();
   if (error) throw error;
-  return data;
+  return data ? { ...data, fuel_type: vehicleFuel(data) as GarageCar["fuel_type"] } : null;
 }
 
 export async function addGarageCar(input: {

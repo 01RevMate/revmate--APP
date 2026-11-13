@@ -47,9 +47,21 @@ assert.equal((await db.query("SELECT * FROM nearby_charger_hosts(53.80,-1.55,fal
 
 // Request → approve → only the two members see the place, and only until it expires.
 const rid = (await db.query("SELECT request_charge($1,'Kia Niro','type2',8,true,'Please!') AS id", [host])).rows[0].id;
+await db.exec("RESET ROLE");
+const alert = (await db.query("SELECT user_id,kind,action_url FROM notifications WHERE kind='charge_request'")).rows[0];
+assert.equal(alert.user_id, host);
+assert.equal(alert.kind, "charge_request");
+assert.equal(alert.action_url, "/ev-chargers/community");
+await as(driver);
 await assert.rejects(() => db.query("SELECT shared_location FROM charge_requests"));
 await as(host);
+const received = (await db.query("SELECT role,car,connector FROM my_charge_requests()")).rows[0];
+assert.equal(received.role, "host");
+assert.equal(received.car, "Kia Niro");
+assert.equal(received.connector, "type2");
 await db.query("SELECT respond_charge_request($1,'approve','12 Demo Road')", [rid]);
+await db.exec("RESET ROLE");
+assert.equal((await db.query("SELECT user_id FROM notifications WHERE kind='charge_update'")).rows[0].user_id, driver);
 await as(driver);
 assert.equal((await db.query("SELECT shared_location FROM my_charge_requests()")).rows[0].shared_location, "12 Demo Road");
 await db.exec(`RESET ROLE; UPDATE charge_requests SET expires_at = now() - interval '1 minute';`);
