@@ -12,7 +12,6 @@ import {
   PanelLeftClose,
   PanelLeft,
   ShieldCheck,
-  ShoppingBag,
   Settings,
   MessageCircle,
   Trophy,
@@ -28,6 +27,8 @@ import { useProfile } from "@/hooks/useProfile";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { CountBadge } from "@/components/CountBadge";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { ShopNavLink } from "@/components/ShopNavLink";
+import { shopNavTooltip } from "@/lib/shop";
 
 const STORAGE_KEY = "revmate:sidebarCollapsed";
 
@@ -125,22 +126,22 @@ export function Sidebar() {
         <NavLink to="/" icon={Home} label="Home" collapsed={collapsed} exact />
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/essentials" icon={Wrench} label="Essentials" collapsed={collapsed} />
-        <NavLink to="/ev-chargers/community" icon={CommunityChargerMark as unknown as typeof Home} label="Lendawatt" collapsed={collapsed} />
+        <NavLink
+          to="/ev-chargers/community"
+          icon={CommunityChargerMark as unknown as typeof Home}
+          label="Lendawatt"
+          collapsed={collapsed}
+        />
         <NavLink to="/marketplace" icon={Store} label="Buy & Sell" collapsed={collapsed} />
         <Tooltip>
           <TooltipTrigger asChild>
-            <a
-              href="https://shop.revmate.co.uk/?utm_source=app&utm_medium=nav&utm_campaign=launch_nov26"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Shop, opens in a new tab"
+            <ShopNavLink
               className={`${item} ${collapsed ? itemCollapsed : ""}`}
-            >
-              <ShoppingBag className="size-5 shrink-0" />
-              {!collapsed && "Shop"}
-            </a>
+              activeClassName={`${item} ${collapsed ? itemCollapsed : ""} ${activeItem}`}
+              showLabel={!collapsed}
+            />
           </TooltipTrigger>
-          <TooltipContent side="right">Shop, opens in a new tab</TooltipContent>
+          <TooltipContent side="right">{shopNavTooltip()}</TooltipContent>
         </Tooltip>
         <NavLink to="/meets" icon={CalendarDays} label="Meets & Events" collapsed={collapsed} />
         {BATTLES_ENABLED && (
@@ -172,7 +173,12 @@ export function Sidebar() {
           requireAuth
         />
         {isAdmin && <NavLink to="/admin" icon={ShieldCheck} label="Admin" collapsed={collapsed} />}
-        <NavLink to="/businesses/manage" icon={Building} label="My business" collapsed={collapsed} />
+        <NavLink
+          to="/businesses/manage"
+          icon={Building}
+          label="My business"
+          collapsed={collapsed}
+        />
       </nav>
 
       <Tooltip>

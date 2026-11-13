@@ -34,6 +34,7 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as UpdatesDotjsonRouteImport } from './routes/updates[.]json'
@@ -195,6 +196,11 @@ const SellRoute = SellRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -411,6 +417,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
+  '/shop': typeof ShopRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
@@ -475,6 +482,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
+  '/shop': typeof ShopRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
@@ -540,6 +548,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/sell': typeof SellRoute
   '/settings': typeof SettingsRoute
+  '/shop': typeof ShopRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/updates.json': typeof UpdatesDotjsonRoute
@@ -606,6 +615,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sell'
     | '/settings'
+    | '/shop'
     | '/signup'
     | '/sitemap.xml'
     | '/updates.json'
@@ -670,6 +680,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sell'
     | '/settings'
+    | '/shop'
     | '/signup'
     | '/sitemap.xml'
     | '/updates.json'
@@ -734,6 +745,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sell'
     | '/settings'
+    | '/shop'
     | '/signup'
     | '/sitemap.xml'
     | '/updates.json'
@@ -799,6 +811,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SellRoute: typeof SellRoute
   SettingsRoute: typeof SettingsRoute
+  ShopRoute: typeof ShopRoute
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UpdatesDotjsonRoute: typeof UpdatesDotjsonRoute
@@ -1012,6 +1025,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -1314,6 +1334,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SellRoute: SellRoute,
   SettingsRoute: SettingsRoute,
+  ShopRoute: ShopRoute,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UpdatesDotjsonRoute: UpdatesDotjsonRoute,
