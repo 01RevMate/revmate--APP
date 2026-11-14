@@ -226,7 +226,8 @@ function Home() {
           <PullToRefresh onRefresh={refreshFeed}>
             <div className="mx-auto max-w-2xl py-4 sm:px-4 sm:py-6">
               <div className="space-y-4 px-3 sm:px-0">
-                <h1 className="text-lg font-bold leading-tight">RevMate — the UK car community</h1>
+                {/* Kept in the page for search engines and screen readers, but not shown: the app already says what it is. */}
+                <h1 className="sr-only">RevMate — the UK car community</h1>
                 <HomeModeSwitch />
                 {engagement && <StoriesRow />}
                 <FeedScopeBar
@@ -322,7 +323,7 @@ function Home() {
                 }}
               />
               {/* Phones: one thin line between posts. Wider screens: separate cards. */}
-              <div className="mt-4 divide-y divide-border border-y border-border sm:space-y-4 sm:divide-y-0 sm:border-y-0">
+              <div className="feed-list mt-4 divide-y divide-border border-y border-border sm:space-y-4 sm:divide-y-0 sm:border-y-0">
                 {isLoading &&
                   Array.from({ length: 3 }).map((_, i) => (
                   <PostCardSkeleton key={i} immersive media={i === 0} />

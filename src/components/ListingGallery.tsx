@@ -32,7 +32,14 @@ export function ListingGallery({
 
   if (photos.length === 0) return null;
   return (
-    <div className="-mx-4 mt-3 sm:mx-0">
+    <div
+      className="glow-wrap -mx-4 mt-3 sm:mx-0"
+      style={
+        {
+          "--glow-src": `url(${JSON.stringify(photos[index] ?? photos[0])})`,
+        } as React.CSSProperties
+      }
+    >
       <div className="relative overflow-hidden bg-muted sm:rounded-2xl">
         <div
           ref={trackRef}
