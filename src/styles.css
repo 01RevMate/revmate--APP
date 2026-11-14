@@ -566,24 +566,18 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
 
 /* ---------------------------------------------------------------------------
  * Soft "neumorphic" cards (adapted from Uiverse.io cards), day and night.
- * The page and cards share one surface colour, and cards look raised from it
- * with a light and a dark shadow. The black and green charger sub-brand keeps
+ * Colours are the app's normal ones; only the shadows change, so cards look
+ * raised (and fields pressed in) with a light and a dark shadow. The black and green charger sub-brand keeps
  * its own flat style.
  * ------------------------------------------------------------------------- */
 :root:not(.dark) {
-  --background: #e0e0e0;
-  --card: #e0e0e0;
-  --popover: #ebebeb;
-  --border: oklch(0.83 0 0);
-  --neu-dark: #bebebe;
+  --neu-dark: rgba(15, 23, 42, 0.14);
   --neu-light: #ffffff;
 }
 
 .dark {
-  --background: #212121;
-  --card: #212121;
-  --neu-dark: rgb(25, 25, 25);
-  --neu-light: rgb(60, 60, 60);
+  --neu-dark: rgba(0, 0, 0, 0.5);
+  --neu-light: rgba(255, 255, 255, 0.05);
 }
 
 body:not(.charge-theme) [class*="bg-card"][class*="rounded-"]:not(
@@ -594,8 +588,8 @@ body:not(.charge-theme) [class*="bg-card"][class*="rounded-"]:not(
   border-color: transparent;
   border-radius: 1.25rem;
   box-shadow:
-    8px 8px 18px var(--neu-dark),
-    -8px -8px 18px var(--neu-light);
+    6px 6px 14px var(--neu-dark),
+    -6px -6px 14px var(--neu-light);
 }
 
 /* Pressed-in look, for wells and selected states: add class "neu-inset". */
@@ -642,7 +636,6 @@ body:not(.charge-theme)
     textarea,
     select
   ):not(.charge-theme *, .lw-miles) {
-  background-color: var(--background);
   border-color: transparent;
   border-radius: 0.9rem;
   box-shadow:
