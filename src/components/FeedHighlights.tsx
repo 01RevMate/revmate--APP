@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { CalendarDays, Clapperboard, Crown, Swords, Trophy } from "lucide-react";
-import { fetchActiveChallenge, fetchCarOfTheWeek, useHasRevs } from "@/lib/engagement";
+import { fetchActiveChallenge, fetchCarOfTheWeek } from "@/lib/engagement";
 import { BATTLES_ENABLED } from "@/lib/features";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 
@@ -23,8 +23,7 @@ export function FeedHighlights() {
   const car = champion?.garage_cars;
   // Sponsor columns arrive with the money SQL (0064); older rows have none.
   const sponsor = (challenge ?? {}) as { sponsor_name?: string | null; prize?: string | null };
-  const hasRevs = useHasRevs();
-  const quickLinks = 1 + (BATTLES_ENABLED ? 1 : 0) + (hasRevs ? 1 : 0);
+  const quickLinks = 1 + (BATTLES_ENABLED ? 1 : 0) + 1;
 
   return (
     <div className="space-y-3">
@@ -39,7 +38,7 @@ export function FeedHighlights() {
             className="from-rose-500 to-orange-500"
           />
         )}
-        {hasRevs && (
+        {(
           <QuickLink
             to="/revs"
             icon={Clapperboard}

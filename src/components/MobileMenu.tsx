@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { BATTLES_ENABLED } from "@/lib/features";
-import { useHasRevs } from "@/lib/engagement";
 import { useLaunchKitFeature } from "@/lib/launch";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { useMoneySettings } from "@/lib/money";
@@ -87,7 +86,6 @@ function MenuLink({
 // only has room for Home/Garage/Messages plus the compose button, so the
 // rest lives behind this hamburger next to the logo.
 export function MobileMenu() {
-  const hasRevs = useHasRevs();
   const feedbackOn = useLaunchKitFeature();
   const money = useMoneySettings();
   const shopCount = useShopCount();
@@ -156,7 +154,7 @@ export function MobileMenu() {
           {BATTLES_ENABLED && (
             <MenuLink to="/battles" icon={Trophy} label="Top cars" onNavigate={close} />
           )}
-          {hasRevs && <MenuLink to="/revs" icon={Clapperboard} label="Revs" onNavigate={close} />}
+          {<MenuLink to="/revs" icon={Clapperboard} label="Revs" onNavigate={close} />}
           <MenuLink to="/groups" icon={Users} label="Groups" requireAuth onNavigate={close} />
           <MenuLink to="/ask" icon={Stethoscope} label="Ask for help" onNavigate={close} />
           <MenuLink

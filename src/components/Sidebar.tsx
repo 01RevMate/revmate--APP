@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { CommunityChargerMark } from "@/components/CommunityChargerMark";
 import { Link } from "@tanstack/react-router";
 import { BATTLES_ENABLED } from "@/lib/features";
-import { useHasRevs } from "@/lib/engagement";
 import {
   Home,
   Stethoscope,
@@ -93,7 +92,6 @@ function NavLink({
 export function Sidebar() {
   const { isAdmin } = useProfile();
   const unread = useUnreadMessages();
-  const hasRevs = useHasRevs();
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -147,7 +145,7 @@ export function Sidebar() {
         {BATTLES_ENABLED && (
           <NavLink to="/battles" icon={Trophy} label="Top cars" collapsed={collapsed} />
         )}
-        {hasRevs && <NavLink to="/revs" icon={Clapperboard} label="Revs" collapsed={collapsed} />}
+        {<NavLink to="/revs" icon={Clapperboard} label="Revs" collapsed={collapsed} />}
         <NavLink to="/groups" icon={Users} label="Groups" collapsed={collapsed} requireAuth />
         <NavLink to="/ask" icon={Stethoscope} label="Ask for help" collapsed={collapsed} />
         <NavLink
