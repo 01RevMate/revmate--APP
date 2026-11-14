@@ -6,6 +6,7 @@ import { fetchMarketListings, formatPrice, type MarketListing } from "@/lib/mark
 import { keySpecs } from "@/lib/vehicleSpecs";
 import { priceGuide, useCompareList } from "@/lib/marketDeals";
 import { CardGridSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/marketplace/compare")({
   head: () => ({
@@ -41,10 +42,11 @@ function extraRows(l: MarketListing): Record<string, string | null> {
 
 function ComparePage() {
   const [ids, setIds] = useCompareList();
-  const { data: listings, isLoading } = useQuery({
+  const { data: listings, isLoading: listingsLoading } = useQuery({
     queryKey: ["listings", "market"],
     queryFn: fetchMarketListings,
   });
+  const isLoading = useMinSkeleton(listingsLoading);
   const picked = ids
     .map((id) => listings?.find((l) => l.id === id))
     .filter((l): l is MarketListing => !!l);
@@ -83,7 +85,7 @@ function ComparePage() {
           Nothing to compare yet. Open a car and tap "Compare" — you can pick up to three.
         </p>
       )}
-      {picked.length > 0 && (
+      {!isLoading && picked.length > 0 && (
         <div className="-mx-4 mt-4 overflow-x-auto px-4 pb-2">
           {/* A grid, not a table: every column is the same width and every photo
               the same shape, whatever size the original photos are. */}

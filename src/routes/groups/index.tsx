@@ -27,6 +27,7 @@ import {
   GroupIconPicker,
 } from "@/components/GroupCover";
 import { CardGridSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/groups/")({
   head: () =>
@@ -75,10 +76,11 @@ function GroupsPage() {
 
   const {
     data: groups,
-    isLoading,
+    isLoading: groupsLoading,
     error,
     refetch,
   } = useQuery({ queryKey: ["groups", "directory"], queryFn: fetchGroups });
+  const isLoading = useMinSkeleton(groupsLoading);
   const { data: memberships } = useQuery({
     queryKey: ["groups", "mine", user?.id],
     queryFn: () => fetchMyGroups(user!.id),
@@ -322,7 +324,7 @@ function GroupsPage() {
       )}
       {isLoading && <CardGridSkeleton />}
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {visibleGroups.map((group) => (
+        {!isLoading && visibleGroups.map((group) => (
           <Link
             key={group.id}
             to="/groups/$slug"

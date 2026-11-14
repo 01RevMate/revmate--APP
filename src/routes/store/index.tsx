@@ -10,6 +10,7 @@ import { SHOP_CATEGORIES } from "@/lib/shops";
 import { useStoreOpen, useStoreProducts } from "@/lib/store";
 import { seo } from "@/lib/seo";
 import { CardGridSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 type StoreSearch = { category?: string | undefined };
 
@@ -36,7 +37,8 @@ function StorePage() {
   const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [fitsMine, setFitsMine] = useState(false);
-  const { data: products, isLoading } = useStoreProducts(search.category);
+  const { data: products, isLoading: productsLoading } = useStoreProducts(search.category);
+  const isLoading = useMinSkeleton(productsLoading);
   const { data: garage } = useQuery({
     queryKey: ["garage", user?.id],
     enabled: !!user,
@@ -125,7 +127,7 @@ function StorePage() {
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {shown.map((p) => (
+        {!isLoading && shown.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}
       </div>

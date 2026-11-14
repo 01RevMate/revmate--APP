@@ -4,6 +4,7 @@ import { Plus, Store } from "lucide-react";
 import { fetchShops, isPromotedShop, SHOP_CATEGORIES, shopCategoryLabel } from "@/lib/shops";
 import { seo } from "@/lib/seo";
 import { CardGridSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 type ShopSearch = { category?: string | undefined };
 
@@ -27,13 +28,14 @@ function ShopsPage() {
   const navigate = useNavigate({ from: "/shops/" });
   const {
     data: shops,
-    isLoading,
+    isLoading: shopsLoading,
     error,
   } = useQuery({
     queryKey: ["shops", "list", search.category ?? ""],
     queryFn: () => fetchShops(search.category),
     retry: false,
   });
+  const isLoading = useMinSkeleton(shopsLoading);
   const chip = (active: boolean) =>
     `shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium ${active ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`;
 
@@ -67,7 +69,7 @@ function ShopsPage() {
       </div>
 
       <ul className="mt-4 space-y-2">
-        {shops?.map((s) => (
+        {!isLoading && shops?.map((s) => (
           <li key={s.id}>
             <Link
               to="/shops/$slug"

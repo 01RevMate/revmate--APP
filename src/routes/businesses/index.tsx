@@ -19,6 +19,7 @@ import { MIN_PHOTOS } from "@/components/BusinessManager";
 import { seo } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { ListRowsSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 type DirSearch = {
   sector?: string | undefined;
@@ -54,11 +55,12 @@ function BusinessesPage() {
   const enabled = useBusinessesFeature();
   const [area, setArea] = useState(search.area ?? "");
   const profilesOn = useBusinessProfilesFeature();
-  const { data: businesses, isLoading } = useQuery({
+  const { data: businesses, isLoading: businessesLoading } = useQuery({
     queryKey: ["businesses", search],
     queryFn: () => fetchBusinesses(search),
     enabled,
   });
+  const isLoading = useMinSkeleton(businessesLoading);
   const ids = (businesses ?? []).map((b) => b.id);
   const { data: photoMap } = useQuery({
     queryKey: ["businesses", "photos", ids],
@@ -157,7 +159,7 @@ function BusinessesPage() {
 
       {isLoading && enabled && <ListRowsSkeleton />}
       <ul className="mt-4 space-y-2">
-        {ranked.map((b) => {
+        {!isLoading && ranked.map((b) => {
           const pics = photoMap?.get(b.id);
           const status = openStatus((b as BusinessProfile).opening_hours);
           return (

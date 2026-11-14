@@ -7,6 +7,7 @@ import { usePaidReturn } from "@/hooks/usePaidReturn";
 import { formatPence } from "@/lib/money";
 import { fetchMyOrders, ORDER_STATUS_LABEL, useBasket } from "@/lib/store";
 import { ListRowsSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/orders")({
   head: () => ({
@@ -26,12 +27,13 @@ function OrdersPage() {
     if (new URL(window.location.href).searchParams.get("paid") === "1") clear();
   }, [clear]);
   usePaidReturn("Thanks for your order! We'll keep you posted here.", [["orders"]]);
-  const { data: orders, isLoading } = useQuery({
+  const { data: orders, isLoading: ordersLoading } = useQuery({
     queryKey: ["orders", user?.id],
     enabled: !!user,
     queryFn: () => fetchMyOrders(user!.id),
     retry: false,
   });
+  const isLoading = useMinSkeleton(ordersLoading);
 
   if (loading) return <main className="min-h-[60vh]" />;
   if (!user) {
@@ -64,7 +66,7 @@ function OrdersPage() {
         </p>
       )}
       <ul className="mt-4 space-y-3">
-        {orders?.map((o) => {
+        {!isLoading && orders?.map((o) => {
           const step = STEPS.indexOf(o.status as (typeof STEPS)[number]);
           return (
             <li key={o.id} className="rounded-2xl border border-border p-4">

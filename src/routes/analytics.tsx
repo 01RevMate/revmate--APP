@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { fetchAccountAnalytics } from "@/lib/follows";
 import { PageSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/analytics")({
   head: () => ({ meta: [
@@ -22,7 +23,8 @@ function AnalyticsPage() {
     enabled: !!user,
   });
 
-  if (loading) return <PageSkeleton />;
+  const showSkeleton = useMinSkeleton(loading);
+  if (showSkeleton) return <PageSkeleton />;
   if (!user) {
     return (
       <div className="mx-auto max-w-xl px-4 py-12 text-center">

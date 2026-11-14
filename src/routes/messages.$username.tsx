@@ -24,6 +24,7 @@ import { Avatar } from "@/components/Avatar";
 import { MessageImageViewer } from "@/components/MessageImageViewer";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { ThreadSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/messages/$username")({
   head: ({ params }) => {
@@ -191,7 +192,8 @@ function MessageThreadPageContent() {
     }
   }
 
-  if (!otherProfile) {
+  const showSkeleton = useMinSkeleton(!otherProfile);
+  if (showSkeleton || !otherProfile) {
     return <ThreadSkeleton />;
   }
 
