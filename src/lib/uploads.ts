@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 // Client-side guardrails matching the storage buckets' server-side
@@ -17,7 +18,11 @@ export function validateImageFile(file: File): string | null {
   return null;
 }
 
-export async function uploadImage(bucket: "post-images" | "user-media", userId: string, file: File): Promise<string> {
+export async function uploadImage(
+  bucket: "post-images" | "user-media",
+  userId: string,
+  file: File,
+): Promise<string> {
   const ext = file.name.split(".").pop() || "jpg";
   const path = `${userId}/${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await supabase.storage.from(bucket).upload(path, file);
@@ -40,4 +45,40 @@ export async function uploadImageBlob(
   if (uploadError) throw uploadError;
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
+}
+
+/**
+ * Looks at a picture the person just chose and warns, without blocking, when it
+ * is likely to look wrong: too small or blurry, a very heavy file, or an odd
+ * shape that grids and thumbnails will crop. Call it after validateImageFile.
+ */
+export function warnAboutImage(file: File): void {
+  if (typeof window === "undefined" || file.type === "image/gif") return;
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+    const { naturalWidth: w, naturalHeight: h } = img;
+    const shortSide = Math.min(w, h);
+    const ratio = w / h;
+    const warnings: string[] = [];
+    if (shortSide < 400) {
+      warnings.push(`is very small (${w}×${h}) and will look blurry. Use a larger photo.`);
+    } else if (shortSide < 800) {
+      warnings.push(`is on the small side (${w}×${h}) and may look soft on big screens.`);
+    }
+    if (Math.max(w, h) > 6000) {
+      warnings.push(`is huge (${w}×${h}) and will load slowly. A smaller export is fine.`);
+    } else if (file.size > 4 * 1024 * 1024) {
+      warnings.push(
+        `is a heavy file (${(file.size / (1024 * 1024)).toFixed(1)}MB) and will load slowly.`,
+      );
+    }
+    if (ratio > 2.2 || ratio < 0.55) {
+      warnings.push("has an unusual shape and may be cropped in thumbnails and grids.");
+    }
+    for (const warning of warnings) toast.warning(`${file.name} ${warning}`, { duration: 7000 });
+  };
+  img.onerror = () => URL.revokeObjectURL(url);
+  img.src = url;
 }

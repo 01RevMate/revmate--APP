@@ -90,7 +90,7 @@ export function RepostedPost({ postId }: { postId: string }) {
                   src={image.image_url}
                   alt=""
                   placeholderClassName={visibleImages.length > 1 ? "" : "min-h-48"}
-                  className={`${visibleImages.length > 1 ? "size-full" : "max-h-72 w-full"} object-cover`}
+                  className={visibleImages.length > 1 ? "size-full object-cover" : "h-auto w-full object-contain"}
                 />
                 {isLastTile && hiddenImageCount > 0 && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/60">
@@ -118,7 +118,7 @@ export function RepostedPost({ postId }: { postId: string }) {
             src={media.image_url}
             alt=""
             placeholderClassName="min-h-48"
-            className="max-h-72 w-full object-cover"
+            className="h-auto w-full object-contain"
           />
         ))
       )}

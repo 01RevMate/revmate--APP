@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Search, UserRound } from "lucide-react";
@@ -16,6 +17,15 @@ const AUTH_PATHS = new Set(["/login", "/signup", "/forgot-password", "/reset-pas
 
 export function TopNav() {
   const hidden = useHideOnScroll();
+  // Tell sticky bars lower down the page whether the nav has slid away, so they
+  // can move up to fill the gap instead of leaving it open above them.
+  useEffect(() => {
+    if (hidden) document.documentElement.dataset["navHidden"] = "1";
+    else delete document.documentElement.dataset["navHidden"];
+    return () => {
+      delete document.documentElement.dataset["navHidden"];
+    };
+  }, [hidden]);
   const { user, loading } = useAuth();
   const { data: profile } = useProfile();
   const navigate = useNavigate();

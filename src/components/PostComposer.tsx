@@ -31,7 +31,7 @@ import {
   POST_CATEGORY_LABELS,
   type Post,
 } from "@/lib/posts";
-import { validateImageFile } from "@/lib/uploads";
+import { validateImageFile, warnAboutImage } from "@/lib/uploads";
 import { useEngagementFeatures, useSocialFeatures } from "@/lib/features";
 import {
   createPollOptions,
@@ -205,6 +205,7 @@ export function PostComposer({
         toast.error(problem);
         continue;
       }
+      warnAboutImage(file);
       accepted.push({ file, previewUrl: URL.createObjectURL(file) });
     }
     if (files.length > room) {

@@ -386,7 +386,7 @@ function MarketplacePage() {
       </header>
 
       {/* Sticky so the search is always one thumb away while scrolling. */}
-      <div className="sticky top-14 z-20 -mx-3 mt-3 space-y-2 border-b border-border bg-background/95 px-3 pb-2.5 pt-2 backdrop-blur sm:-mx-4 sm:px-4 md:top-0">
+      <div className="sticky top-14 z-20 -mx-3 mt-3 space-y-2 border-b border-border bg-background px-3 pb-2.5 pt-2 transition-[top] duration-300 ease-out [html[data-nav-hidden]_&]:top-0 sm:-mx-4 sm:px-4 md:top-0">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <input

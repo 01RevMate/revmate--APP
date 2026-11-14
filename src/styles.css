@@ -571,6 +571,7 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
  * its own flat style.
  * ------------------------------------------------------------------------- */
 :root:not(.dark) {
+  --glow-color: rgba(59, 130, 246, 0.55);
   --neu-dark: rgba(15, 23, 42, 0.14);
   --neu-light: #ffffff;
   --neu-card: 6px 6px 14px var(--neu-dark), -6px -6px 14px var(--neu-light);
@@ -581,6 +582,7 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
 
 /* Night mode: an even shadow on every side (top, bottom, left and right). */
 .dark {
+  --glow-color: rgba(255, 255, 255, 0.4);
   --neu-dark: rgba(0, 0, 0, 0.75);
   --neu-light: rgba(255, 255, 255, 0.05);
   --neu-card: 0 0 16px 3px var(--neu-dark), 0 0 0 1px var(--neu-light);
@@ -787,5 +789,116 @@ body:not(.charge-theme)
 @media (prefers-reduced-motion: no-preference) {
   .glow-wrap::before {
     transition: background-image 0.3s ease;
+  }
+}
+
+/* Coloured shadow for photo cards: a blurred copy of the card's photo sits behind
+ * it and shows out the bottom and sides, so the shadow takes the photo's colours.
+ * Wrap the card in .glow-card and set --glow-src: url("…"). The wrapper's own
+ * scroll area needs a little padding below so the shadow isn't clipped. */
+.glow-card {
+  position: relative;
+  isolation: isolate;
+}
+.glow-card::before {
+  content: "";
+  position: absolute;
+  inset: 16% 5% -7%;
+  z-index: -1;
+  border-radius: 1.5rem;
+  background: var(--glow-src, none) center / cover no-repeat;
+  filter: blur(18px) saturate(1.8);
+  opacity: 0.75;
+  pointer-events: none;
+}
+.glow-card > * {
+  box-shadow: none !important;
+}
+
+/* Buttons glow softly when hovered and flare brighter when pressed. */
+body:not(.charge-theme)
+  :is(button, a, [role="button"]):is(
+    [class*="bg-primary"], [class*="bg-secondary"], [class*="bg-card"],
+    [class*="bg-background"], [class*="bg-muted"]
+  ):not(
+    nav *, aside *, .charge-theme *, [class*="bg-primary/"], [class*="bg-secondary/"],
+    [class*="bg-card/"], [class*="bg-background/"], [class*="bg-muted/"], [class*="absolute"],
+    [class*="fixed"], :disabled, [aria-disabled="true"]
+  ):hover {
+  box-shadow:
+    var(--neu-btn),
+    0 0 16px 2px var(--glow-color);
+}
+body:not(.charge-theme)
+  :is(button, a, [role="button"]):is(
+    [class*="bg-primary"], [class*="bg-secondary"], [class*="bg-card"],
+    [class*="bg-background"], [class*="bg-muted"]
+  ):not(nav *, aside *, .charge-theme *, [class*="absolute"], [class*="fixed"], :disabled):active {
+  box-shadow:
+    var(--neu-btn-down),
+    0 0 26px 5px var(--glow-color);
+}
+@media (prefers-reduced-motion: reduce) {
+  body :is(button, a, [role="button"]):hover {
+    transition: none;
+  }
+}
+
+/* Toggle switches (adapted from a Uiverse.io switch): a pressed-in pill track and a
+ * round thumb that slides across and turns green, with a soft glow, when on. This
+ * restyles every role="switch" in the app (the shared Switch and custom toggles). */
+:root:not(.dark) {
+  --sw-off: #d4d4d8;
+  --sw-off-thumb: #8e8e93;
+  --sw-on: #cdeccf;
+  --sw-on-thumb: #2fa84f;
+}
+.dark {
+  --sw-off: #313033;
+  --sw-off-thumb: #aeaaae;
+  --sw-on: #3a4b39;
+  --sw-on-thumb: #84da89;
+}
+[role="switch"] {
+  position: relative !important;
+  flex-shrink: 0;
+  width: 3.5rem !important;
+  height: 1.75rem !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 9999px !important;
+  background: var(--sw-off) !important;
+  box-shadow: var(--neu-field) !important;
+  transition: background-color 0.2s ease !important;
+}
+[role="switch"][aria-checked="true"] {
+  background: var(--sw-on) !important;
+}
+[role="switch"] > span {
+  position: absolute !important;
+  top: 0.25rem !important;
+  left: 0.25rem !important;
+  display: block !important;
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  border-radius: 9999px !important;
+  background: var(--sw-off-thumb) !important;
+  box-shadow: none !important;
+  translate: none !important;
+  transform: none !important;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease,
+    box-shadow 0.3s ease !important;
+}
+[role="switch"][aria-checked="true"] > span {
+  background: var(--sw-on-thumb) !important;
+  box-shadow: 0 0 10px var(--sw-on-thumb) !important;
+  transform: translateX(1.75rem) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  [role="switch"],
+  [role="switch"] > span {
+    transition: none !important;
   }
 }

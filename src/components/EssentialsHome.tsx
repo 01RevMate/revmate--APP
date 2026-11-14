@@ -144,39 +144,48 @@ function MyCars() {
   }
 
   return (
-    <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [&::-webkit-scrollbar]:hidden">
+    <div className="-mx-4 -mb-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-7 pt-1 [&::-webkit-scrollbar]:hidden">
       {cars.map((car) => (
-        <Link
+        <div
           key={car.id}
-          to="/u/$username/cars/$carId"
-          params={{ username: displayUsernameWithoutAt(profile?.username), carId: car.id }}
-          className={`relative flex h-44 shrink-0 snap-start flex-col justify-between overflow-hidden rounded-3xl bg-slate-900 p-4 text-white shadow-sm ${cars.length === 1 ? "w-full" : "w-[85%] sm:w-80"}`}
+          className={`glow-card shrink-0 snap-start ${cars.length === 1 ? "w-full" : "w-[85%] sm:w-80"}`}
+          style={
+            car.photo_url
+              ? ({ "--glow-src": `url(${JSON.stringify(car.photo_url)})` } as React.CSSProperties)
+              : undefined
+          }
         >
-          {car.photo_url && (
-            <img
-              src={car.photo_url}
-              alt={`${[car.make, car.model].filter(Boolean).join(" ")}${car.nickname ? ` “${car.nickname}”` : ""}`}
-              className="absolute inset-0 size-full object-cover"
-            />
-          )}
-          <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
-          <span className="relative">
-            <span className="block text-lg font-bold leading-tight drop-shadow">
-              {car.nickname || `${car.make} ${car.model}`}
+          <Link
+            to="/u/$username/cars/$carId"
+            params={{ username: displayUsernameWithoutAt(profile?.username), carId: car.id }}
+            className="relative flex h-44 w-full flex-col justify-between overflow-hidden rounded-3xl bg-slate-900 p-4 text-white"
+          >
+            {car.photo_url && (
+              <img
+                src={car.photo_url}
+                alt={`${[car.make, car.model].filter(Boolean).join(" ")}${car.nickname ? ` “${car.nickname}”` : ""}`}
+                className="absolute inset-0 size-full object-cover"
+              />
+            )}
+            <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+            <span className="relative">
+              <span className="block text-lg font-bold leading-tight drop-shadow">
+                {car.nickname || `${car.make} ${car.model}`}
+              </span>
+              <span className="block text-sm text-white/80 drop-shadow">
+                {[car.year, car.make, car.model].filter(Boolean).join(" ")}
+              </span>
             </span>
-            <span className="block text-sm text-white/80 drop-shadow">
-              {[car.year, car.make, car.model].filter(Boolean).join(" ")}
-            </span>
-          </span>
-          {careOn ? (
-            <span className="relative flex gap-2">
-              <DueBlock label="MOT" date={car.mot_due} />
-              <DueBlock label="Tax" date={car.tax_due} />
-            </span>
-          ) : (
-            <span className="relative text-sm font-medium text-white/80">Open your car →</span>
-          )}
-        </Link>
+            {careOn ? (
+              <span className="relative flex gap-2">
+                <DueBlock label="MOT" date={car.mot_due} />
+                <DueBlock label="Tax" date={car.tax_due} />
+              </span>
+            ) : (
+              <span className="relative text-sm font-medium text-white/80">Open your car →</span>
+            )}
+          </Link>
+        </div>
       ))}
     </div>
   );
@@ -281,13 +290,46 @@ export function EssentialsHome() {
     const viewed = all.filter((x) => viewedIds.includes(x.id));
     return rankListings(all, buildSignals({ ...interests, viewed })).slice(0, 8);
   }, [listings, interests, viewedIds]);
-  const tools: Record<string, { hint: string; icon: LucideIcon; colour: string; link: LinkTarget }> = {
-    diagnose: { hint: "Step-by-step diagnosis", icon: Stethoscope, colour: "bg-destructive", link: { to: "/diagnose" } },
-    mechanic: { hint: "Garages, bodywork & EV", icon: Store, colour: "bg-chart-2", link: { to: "/businesses" } },
-    fuel: { hint: "Today's petrol & diesel prices", icon: Fuel, colour: "bg-chart-1", link: { to: "/fuel-prices" } },
-    chargers: { hint: "Rapid & fast chargers near you", icon: PlugZap, colour: "bg-chart-2", link: { to: "/ev-chargers" } },
-    sell: { hint: "List a car or part", icon: BadgePoundSterling, colour: "bg-primary", link: { to: "/sell" } },
-    ask: { hint: "Get advice from owners", icon: MessageCircleQuestion, colour: "bg-chart-1", link: { to: "/ask" } },
+  const tools: Record<
+    string,
+    { hint: string; icon: LucideIcon; colour: string; link: LinkTarget }
+  > = {
+    diagnose: {
+      hint: "Step-by-step diagnosis",
+      icon: Stethoscope,
+      colour: "bg-destructive",
+      link: { to: "/diagnose" },
+    },
+    mechanic: {
+      hint: "Garages, bodywork & EV",
+      icon: Store,
+      colour: "bg-chart-2",
+      link: { to: "/businesses" },
+    },
+    fuel: {
+      hint: "Today's petrol & diesel prices",
+      icon: Fuel,
+      colour: "bg-chart-1",
+      link: { to: "/fuel-prices" },
+    },
+    chargers: {
+      hint: "Rapid & fast chargers near you",
+      icon: PlugZap,
+      colour: "bg-chart-2",
+      link: { to: "/ev-chargers" },
+    },
+    sell: {
+      hint: "List a car or part",
+      icon: BadgePoundSterling,
+      colour: "bg-primary",
+      link: { to: "/sell" },
+    },
+    ask: {
+      hint: "Get advice from owners",
+      icon: MessageCircleQuestion,
+      colour: "bg-chart-1",
+      link: { to: "/ask" },
+    },
   };
   const sections: Record<string, React.ReactNode> = {
     community: <CommunityChargerCard compact={!ownsEv} />,
@@ -299,10 +341,12 @@ export function EssentialsHome() {
     ),
     tools: (
       <section className="grid grid-cols-2 gap-3">
-        {preferences.tools.filter(id => !preferences.hiddenTools.includes(id)).map(id => {
-          const tool = tools[id];
-          return tool ? <ToolTile key={id} title={HOME_TOOL_LABELS[id] ?? id} {...tool} /> : null;
-        })}
+        {preferences.tools
+          .filter((id) => !preferences.hiddenTools.includes(id))
+          .map((id) => {
+            const tool = tools[id];
+            return tool ? <ToolTile key={id} title={HOME_TOOL_LABELS[id] ?? id} {...tool} /> : null;
+          })}
       </section>
     ),
     buy: (
@@ -358,37 +402,53 @@ export function EssentialsHome() {
     ),
     shops: <ShopsSection />,
     deals: <DealsStrip placement="essentials" />,
-    listings: latest.length > 0 ? (
+    listings:
+      latest.length > 0 ? (
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-lg font-bold">{interests.garage.length || interests.savedFilters.length ? "For sale for you" : "Latest for sale"}</h2>
+            <h2 className="text-lg font-bold">
+              {interests.garage.length || interests.savedFilters.length
+                ? "For sale for you"
+                : "Latest for sale"}
+            </h2>
             <Link to="/marketplace" className="text-sm font-medium text-[#007aff]">
               See all
             </Link>
           </div>
-          <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 [&::-webkit-scrollbar]:hidden">
+          <div className="-mx-4 -mb-6 flex gap-3 overflow-x-auto px-4 pb-7 pt-1 [&::-webkit-scrollbar]:hidden">
             {latest.map((listing) => (
-              <Link
+              <div
                 key={listing.id}
-                to="/marketplace/$listingId"
-                params={{ listingId: listing.id }}
-                className="w-40 shrink-0 overflow-hidden rounded-2xl bg-card shadow-sm"
+                className="glow-card w-40 shrink-0"
+                style={
+                  listing.photos?.[0]
+                    ? ({
+                        "--glow-src": `url(${JSON.stringify(listing.photos[0])})`,
+                      } as React.CSSProperties)
+                    : undefined
+                }
               >
-                <div className="aspect-[4/3] bg-muted">
-                  {listing.photos?.[0] && (
-                    <img
-                      src={listing.photos[0]}
-                      alt={listing.title}
-                      loading="lazy"
-                      className="size-full object-cover"
-                    />
-                  )}
-                </div>
-                <div className="p-2.5">
-                  <p className="text-sm font-bold">{formatPrice(listing.price)}</p>
-                  <p className="truncate text-xs text-muted-foreground">{listing.title}</p>
-                </div>
-              </Link>
+                <Link
+                  to="/marketplace/$listingId"
+                  params={{ listingId: listing.id }}
+                  className="block overflow-hidden rounded-2xl bg-card"
+                >
+                  <div className="aspect-[4/3] bg-muted">
+                    {listing.photos?.[0] && (
+                      <img
+                        src={listing.photos[0]}
+                        alt={listing.title}
+                        loading="lazy"
+                        className="size-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div className="p-2.5">
+                    <p className="text-sm font-bold">{formatPrice(listing.price)}</p>
+                    <p className="truncate text-xs text-muted-foreground">{listing.title}</p>
+                  </div>
+                </Link>
+              </div>
             ))}
           </div>
         </section>
@@ -404,11 +464,12 @@ export function EssentialsHome() {
         <PersonaliseEssentials preferences={preferences} onSave={save} />
       </div>
       <FoundingSpotsBanner />
-      {(ownsEv ? ["community", ...preferences.sections.filter(id => id !== "community")] : preferences.sections).filter(id => !preferences.hiddenSections.includes(id)).map(id =>
-        sections[id] ? <div key={id}>{sections[id]}</div> : null,
-      )}
+      {(ownsEv
+        ? ["community", ...preferences.sections.filter((id) => id !== "community")]
+        : preferences.sections
+      )
+        .filter((id) => !preferences.hiddenSections.includes(id))
+        .map((id) => (sections[id] ? <div key={id}>{sections[id]}</div> : null))}
     </div>
   );
 }
-
-

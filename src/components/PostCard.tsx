@@ -694,16 +694,7 @@ export function PostCard({
       ))}
 
       {postImages.length > 0 && (
-        <div
-          className={`mt-3 ${postImages.length === 1 && postImages[0] ? "glow-wrap-sm" : ""}`}
-          style={
-            postImages.length === 1 && postImages[0]
-              ? ({
-                  "--glow-src": `url(${JSON.stringify(postImages[0].image_url)})`,
-                } as React.CSSProperties)
-              : undefined
-          }
-        >
+        <div className="mt-3">
           <div
             className={`grid gap-1 overflow-hidden ${immersive ? "-mx-3 rounded-none sm:mx-0 sm:rounded-md" : "rounded-md"} ${
               postImages.length === 1 ? "grid-cols-1" : "grid-cols-2"
@@ -728,7 +719,7 @@ export function PostCard({
                     src={image.image_url}
                     alt={`Post photo ${index + 1}`}
                     placeholderClassName={postImages.length > 1 ? "" : "min-h-64"}
-                    className={`${postImages.length > 1 ? "size-full" : "max-h-96 w-full"} object-cover transition-transform hover:scale-[1.01]`}
+                    className={`${postImages.length > 1 ? "size-full object-cover" : "h-auto w-full object-contain"} transition-transform hover:scale-[1.01]`}
                   />
                   {isLastTile && remaining > 0 && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/60">

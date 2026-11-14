@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Loader2, Star, Upload, X } from "lucide-react";
 import { toast } from "sonner";
-import { uploadImage, validateImageFile } from "@/lib/uploads";
+import { uploadImage, validateImageFile, warnAboutImage } from "@/lib/uploads";
 
 /** Add, remove and choose the cover photo (the first one) for an advert. */
 export function ListingPhotosEditor({
@@ -24,6 +24,7 @@ export function ListingPhotosEditor({
     const valid = files.filter((file) => {
       const problem = validateImageFile(file);
       if (problem) toast.error(problem);
+      else warnAboutImage(file);
       return !problem;
     });
     if (valid.length > room) toast.error(`Up to ${max} photos.`);

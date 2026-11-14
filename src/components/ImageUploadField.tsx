@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Upload, X } from "lucide-react";
-import { uploadImage, validateImageFile } from "@/lib/uploads";
+import { uploadImage, validateImageFile, warnAboutImage } from "@/lib/uploads";
 import { Avatar } from "@/components/Avatar";
 
 export function ImageUploadField({
@@ -29,6 +29,7 @@ export function ImageUploadField({
       toast.error(problem);
       return;
     }
+    warnAboutImage(file);
     setUploading(true);
     try {
       const url = await uploadImage("user-media", userId, file);
