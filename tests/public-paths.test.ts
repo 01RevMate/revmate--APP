@@ -12,3 +12,10 @@ describe("Lendawatt public access", () => {
     }
   });
 });
+
+describe("legacy Shopify product links", () => {
+  it("stays public so the redirect reaches the storefront", () => {
+    expect(isPublicPath("/products/audi-rs6-split-the-bill-hoodie.json")).toBe(true);
+    expect(isPublicPath("/products/mini-original-troublemakers-hoodie-revmate-edition")).toBe(true);
+  });
+});

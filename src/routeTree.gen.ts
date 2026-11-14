@@ -61,6 +61,7 @@ import { Route as MeetsIndexRouteImport } from './routes/meets/index'
 import { Route as MeetsMeetIdRouteImport } from './routes/meets/$meetId'
 import { Route as MessagesUsernameRouteImport } from './routes/messages.$username'
 import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
+import { Route as ProductsSplatRouteImport } from './routes/products.$'
 import { Route as ReviewListingIdRouteImport } from './routes/review.$listingId'
 import { Route as ShopsIndexRouteImport } from './routes/shops/index'
 import { Route as ShopsSlugRouteImport } from './routes/shops/$slug'
@@ -334,6 +335,11 @@ const PostsPostIdRoute = PostsPostIdRouteImport.update({
   path: '/posts/$postId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductsSplatRoute = ProductsSplatRouteImport.update({
+  id: '/products/$',
+  path: '/products/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReviewListingIdRoute = ReviewListingIdRouteImport.update({
   id: '/review/$listingId',
   path: '/review/$listingId',
@@ -439,6 +445,7 @@ export interface FileRoutesByFullPath {
   '/meets/$meetId': typeof MeetsMeetIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/products/$': typeof ProductsSplatRoute
   '/review/$listingId': typeof ReviewListingIdRoute
   '/shops/$slug': typeof ShopsSlugRoute
   '/shops/new': typeof ShopsNewRoute
@@ -504,6 +511,7 @@ export interface FileRoutesByTo {
   '/meets/$meetId': typeof MeetsMeetIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/products/$': typeof ProductsSplatRoute
   '/review/$listingId': typeof ReviewListingIdRoute
   '/shops/$slug': typeof ShopsSlugRoute
   '/shops/new': typeof ShopsNewRoute
@@ -570,6 +578,7 @@ export interface FileRoutesById {
   '/meets/$meetId': typeof MeetsMeetIdRoute
   '/messages/$username': typeof MessagesUsernameRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/products/$': typeof ProductsSplatRoute
   '/review/$listingId': typeof ReviewListingIdRoute
   '/shops/$slug': typeof ShopsSlugRoute
   '/shops/new': typeof ShopsNewRoute
@@ -637,6 +646,7 @@ export interface FileRouteTypes {
     | '/meets/$meetId'
     | '/messages/$username'
     | '/posts/$postId'
+    | '/products/$'
     | '/review/$listingId'
     | '/shops/$slug'
     | '/shops/new'
@@ -702,6 +712,7 @@ export interface FileRouteTypes {
     | '/meets/$meetId'
     | '/messages/$username'
     | '/posts/$postId'
+    | '/products/$'
     | '/review/$listingId'
     | '/shops/$slug'
     | '/shops/new'
@@ -767,6 +778,7 @@ export interface FileRouteTypes {
     | '/meets/$meetId'
     | '/messages/$username'
     | '/posts/$postId'
+    | '/products/$'
     | '/review/$listingId'
     | '/shops/$slug'
     | '/shops/new'
@@ -832,6 +844,7 @@ export interface RootRouteChildren {
   MarketplaceCompareRoute: typeof MarketplaceCompareRoute
   MeetsMeetIdRoute: typeof MeetsMeetIdRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
+  ProductsSplatRoute: typeof ProductsSplatRoute
   ReviewListingIdRoute: typeof ReviewListingIdRoute
   ShopsSlugRoute: typeof ShopsSlugRoute
   ShopsNewRoute: typeof ShopsNewRoute
@@ -1216,6 +1229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsPostIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/products/$': {
+      id: '/products/$'
+      path: '/products/$'
+      fullPath: '/products/$'
+      preLoaderRoute: typeof ProductsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/review/$listingId': {
       id: '/review/$listingId'
       path: '/review/$listingId'
@@ -1355,6 +1375,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceCompareRoute: MarketplaceCompareRoute,
   MeetsMeetIdRoute: MeetsMeetIdRoute,
   PostsPostIdRoute: PostsPostIdRoute,
+  ProductsSplatRoute: ProductsSplatRoute,
   ReviewListingIdRoute: ReviewListingIdRoute,
   ShopsSlugRoute: ShopsSlugRoute,
   ShopsNewRoute: ShopsNewRoute,

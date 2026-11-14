@@ -19,6 +19,8 @@ const PUBLIC_PATHS: RegExp[] = [
   /^\/store(\/[^/]+)?\/?$/,
   /^\/shop\/?$/,
   /^\/basket\/?$/,
+  // Legacy Shopify product links redirect to the new storefront.
+  /^\/products(\/.*)?$/,
 ];
 
 export function isPublicPath(pathname: string) {
