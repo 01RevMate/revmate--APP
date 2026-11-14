@@ -573,11 +573,20 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
 :root:not(.dark) {
   --neu-dark: rgba(15, 23, 42, 0.14);
   --neu-light: #ffffff;
+  --neu-card: 6px 6px 14px var(--neu-dark), -6px -6px 14px var(--neu-light);
+  --neu-btn: 4px 4px 9px var(--neu-dark), -4px -4px 9px var(--neu-light);
+  --neu-btn-down: inset 3px 3px 7px var(--neu-dark), inset -3px -3px 7px var(--neu-light);
+  --neu-field: inset 4px 4px 9px var(--neu-dark), inset -4px -4px 9px var(--neu-light);
 }
 
+/* Night mode: an even shadow on every side (top, bottom, left and right). */
 .dark {
-  --neu-dark: rgba(0, 0, 0, 0.5);
+  --neu-dark: rgba(0, 0, 0, 0.75);
   --neu-light: rgba(255, 255, 255, 0.05);
+  --neu-card: 0 0 16px 3px var(--neu-dark), 0 0 0 1px var(--neu-light);
+  --neu-btn: 0 0 10px 2px var(--neu-dark), 0 0 0 1px var(--neu-light);
+  --neu-btn-down: inset 0 0 8px 2px var(--neu-dark);
+  --neu-field: inset 0 0 10px 2px var(--neu-dark), 0 0 0 1px var(--neu-light);
 }
 
 body:not(.charge-theme) [class*="bg-card"][class*="rounded-"]:not(
@@ -588,15 +597,13 @@ body:not(.charge-theme) [class*="bg-card"][class*="rounded-"]:not(
   border-color: transparent;
   border-radius: 1.25rem;
   box-shadow:
-    6px 6px 14px var(--neu-dark),
-    -6px -6px 14px var(--neu-light);
+    var(--neu-card);
 }
 
 /* Pressed-in look, for wells and selected states: add class "neu-inset". */
 .neu-inset {
   box-shadow:
-    inset 5px 5px 10px var(--neu-dark),
-    inset -5px -5px 10px var(--neu-light);
+    var(--neu-field);
 }
 
 /* Buttons: raised like the cards, pressing sinks them in. Filled (primary) buttons
@@ -612,8 +619,7 @@ body:not(.charge-theme)
   ) {
   border-color: transparent;
   box-shadow:
-    4px 4px 9px var(--neu-dark),
-    -4px -4px 9px var(--neu-light);
+    var(--neu-btn);
   transition:
     box-shadow 0.15s ease,
     background-color 0.15s ease,
@@ -625,8 +631,7 @@ body:not(.charge-theme)
     [class*="bg-background"], [class*="bg-muted"]
   ):not(nav *, aside *, .charge-theme *, [class*="absolute"], [class*="fixed"]):active {
   box-shadow:
-    inset 3px 3px 7px var(--neu-dark),
-    inset -3px -3px 7px var(--neu-light);
+    var(--neu-btn-down);
 }
 
 /* Text fields: pressed in, like a well cut into the surface. */
@@ -639,6 +644,84 @@ body:not(.charge-theme)
   border-color: transparent;
   border-radius: 0.9rem;
   box-shadow:
-    inset 4px 4px 9px var(--neu-dark),
-    inset -4px -4px 9px var(--neu-light);
+    var(--neu-field);
+}
+
+/* Desktop icon rail (adapted from a Uiverse.io icon button): a colour fill rises
+ * from the bottom on hover or when the page is active, and a label slides out. */
+.rail-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.rail-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 20%;
+  color: var(--muted-foreground);
+  background-color: var(--card);
+  box-shadow: var(--neu-btn);
+  transition:
+    color 0.3s ease-in-out,
+    box-shadow 0.3s ease-in-out;
+}
+.rail-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: var(--primary);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s ease-in-out;
+}
+.rail-item > svg {
+  position: relative;
+  z-index: 1;
+}
+.rail-item:hover,
+.rail-item:focus-visible,
+.rail-item[data-status="active"] {
+  color: var(--primary-foreground);
+  box-shadow: var(--neu-card);
+}
+.rail-item:hover::before,
+.rail-item:focus-visible::before,
+.rail-item[data-status="active"]::before {
+  transform: scaleY(1);
+}
+.rail-tip {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 6px);
+  z-index: 60;
+  padding: 6px 12px;
+  border-radius: 15px;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-8px, -50%);
+  transition: all 0.3s ease;
+}
+.rail-wrap:hover .rail-tip,
+.rail-wrap:focus-within .rail-tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(8px, -50%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rail-item,
+  .rail-item::before,
+  .rail-tip {
+    transition: none;
+  }
 }

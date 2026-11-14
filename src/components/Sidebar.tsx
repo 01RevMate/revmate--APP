@@ -33,7 +33,6 @@ const STORAGE_KEY = "revmate:sidebarCollapsed";
 
 const item =
   "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-foreground";
-const itemCollapsed = "justify-center px-2";
 const activeItem = "bg-accent text-foreground";
 
 function NavLink({
@@ -57,6 +56,31 @@ function NavLink({
   const { open: openAuthModal } = useAuthModal();
   const linkProps = exact ? { activeOptions: { exact: true } } : {};
   const blocked = requireAuth && !user;
+  if (collapsed) {
+    return (
+      <div className="rail-wrap">
+        <Link
+          to={to}
+          aria-label={label}
+          onClick={(e) => {
+            if (blocked) {
+              e.preventDefault();
+              openAuthModal(`Create a free account to use ${label}.`);
+            }
+          }}
+          className="rail-item"
+          {...linkProps}
+        >
+          <Icon className="size-5 shrink-0" />
+          <CountBadge count={badge} className="absolute -right-1.5 -top-1.5 z-10" />
+        </Link>
+        <span className="rail-tip" role="tooltip">
+          {label}
+        </span>
+      </div>
+    );
+  }
+
   const link = (
     <Link
       to={to}
@@ -66,37 +90,30 @@ function NavLink({
           openAuthModal(`Create a free account to use ${label}.`);
         }
       }}
-      className={`${item} ${collapsed ? itemCollapsed : ""}`}
-      activeProps={{ className: `${item} ${collapsed ? itemCollapsed : ""} ${activeItem}` }}
+      className={item}
+      activeProps={{ className: `${item} ${activeItem}` }}
       {...linkProps}
     >
       <span className="relative">
         <Icon className="size-5 shrink-0" />
-        {collapsed && <CountBadge count={badge} className="absolute -right-2.5 -top-2" />}
       </span>
-      {!collapsed && label}
-      {!collapsed && <CountBadge count={badge} className="ml-auto" />}
+      {label}
+      <CountBadge count={badge} className="ml-auto" />
     </Link>
   );
 
-  if (!collapsed) return link;
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>{link}</TooltipTrigger>
-      <TooltipContent side="right">{label}</TooltipContent>
-    </Tooltip>
-  );
+  return link;
 }
 
 export function Sidebar() {
   const { isAdmin } = useProfile();
   const unread = useUnreadMessages();
-  const [collapsed, setCollapsed] = useState(false);
+  // Desktop shows a slim icon rail by default; the toggle expands it to full labels.
+  const [collapsed, setCollapsed] = useState(true);
 
   useEffect(() => {
     try {
-      setCollapsed(localStorage.getItem(STORAGE_KEY) === "1");
+      setCollapsed(localStorage.getItem(STORAGE_KEY) !== "0");
     } catch {
       // ignore
     }
@@ -116,11 +133,11 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-card/50 py-4 md:flex ${
-        collapsed ? "w-16 px-2" : "w-60 px-3"
+      className={`sticky top-0 z-40 hidden h-screen shrink-0 flex-col border-r border-border bg-card/50 py-4 md:flex ${
+        collapsed ? "w-20 px-3" : "w-60 px-3"
       }`}
     >
-      <nav className="space-y-1">
+      <nav className={collapsed ? "space-y-2.5" : "space-y-1"}>
         <NavLink to="/" icon={Home} label="Home" collapsed={collapsed} exact />
         <NavLink to="/cars" icon={Car} label="Browse Cars" collapsed={collapsed} />
         <NavLink to="/essentials" icon={Wrench} label="Essentials" collapsed={collapsed} />
@@ -131,16 +148,16 @@ export function Sidebar() {
           collapsed={collapsed}
         />
         <NavLink to="/marketplace" icon={Store} label="Buy & Sell" collapsed={collapsed} />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <ShopNavLink
-              className={`${item} ${collapsed ? itemCollapsed : ""}`}
-              activeClassName={`${item} ${collapsed ? itemCollapsed : ""} ${activeItem}`}
-              showLabel={!collapsed}
-            />
-          </TooltipTrigger>
-          <TooltipContent side="right">{shopNavTooltip()}</TooltipContent>
-        </Tooltip>
+        {collapsed ? (
+          <div className="rail-wrap">
+            <ShopNavLink className="rail-item" showLabel={false} />
+            <span className="rail-tip" role="tooltip">
+              {shopNavTooltip()}
+            </span>
+          </div>
+        ) : (
+          <ShopNavLink className={item} activeClassName={`${item} ${activeItem}`} />
+        )}
         <NavLink to="/meets" icon={CalendarDays} label="Meets & Events" collapsed={collapsed} />
         {BATTLES_ENABLED && (
           <NavLink to="/battles" icon={Trophy} label="Top cars" collapsed={collapsed} />
