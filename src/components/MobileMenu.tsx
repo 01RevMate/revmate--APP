@@ -35,6 +35,7 @@ import { openInstallPrompt } from "@/components/InstallAppPrompt";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
+import { useBusinessAccount } from "@/hooks/useBusinessAccount";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { CountBadge } from "@/components/CountBadge";
 import { CommunityChargerMark } from "@/components/CommunityChargerMark";
@@ -97,6 +98,7 @@ export function MobileMenu() {
     setShowInstall(!isAppInstalled());
   }, [open]);
   const { isAdmin } = useProfile();
+  const businessAccount = useBusinessAccount();
   const unread = useUnreadMessages();
 
   function close() {
@@ -179,12 +181,14 @@ export function MobileMenu() {
             requireAuth
             onNavigate={close}
           />
-          <MenuLink
-            to="/businesses/manage"
-            icon={Building}
-            label="My business"
-            onNavigate={close}
-          />
+          {businessAccount.enabled && (
+            <MenuLink
+              to="/businesses/manage"
+              icon={Building}
+              label="My business"
+              onNavigate={close}
+            />
+          )}
           {showInstall && (
             <button
               type="button"

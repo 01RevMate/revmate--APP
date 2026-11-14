@@ -11,6 +11,14 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
+### 0. Business account switch (run this)
+
+- File: `drizzle/migrations/0079_business_account.sql` (`sql-to-run/32_business_account.sql`).
+- Added: 2026-11-14
+- Adds `profiles.business_account` (default false) and switches it on for anyone
+  who already owns a business. Until it runs, only existing business owners see
+  business tools, and nobody can switch them on from Settings.
+
 ### 1. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).

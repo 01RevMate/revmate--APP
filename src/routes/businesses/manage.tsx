@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { BUSINESS_SECTORS, createMyBusiness, fetchMyBusinesses } from "@/lib/businesses";
 import { uploadImage, validateImageFile } from "@/lib/uploads";
+import { useBusinessAccount } from "@/hooks/useBusinessAccount";
 
 export const Route = createFileRoute("/businesses/manage")({
   head: () => ({ meta: [
@@ -26,6 +27,7 @@ const inputClass = "w-full rounded-md border border-input bg-background px-3 py-
 function MyBusinessPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const businessAccount = useBusinessAccount();
   const { data: mine = [], isPending, error, refetch } = useQuery({
     queryKey: ["my-businesses", user?.id],
     queryFn: () => user ? fetchMyBusinesses(user.id) : Promise.resolve([]),
@@ -64,6 +66,12 @@ function MyBusinessPage() {
     <h1 className="text-2xl font-bold">Your business on RevMate</h1>
     <p className="mt-3 text-sm text-muted-foreground">Use your normal RevMate account to add your business.</p>
     <div className="mt-4 flex gap-2"><Button asChild><Link to="/login" search={{ redirect: "/businesses/manage" }}>Log in</Link></Button><Button asChild variant="outline"><Link to="/signup" search={{ redirect: "/businesses/manage" }}>Create account</Link></Button></div>
+  </main>;
+
+  if (!isPending && !businessAccount.loading && !businessAccount.enabled) return <main className="mx-auto max-w-xl px-4 py-10">
+    <h1 className="flex items-center gap-2 text-2xl font-bold"><Store className="size-6 text-primary" /> Business account</h1>
+    <p className="mt-3 text-sm text-muted-foreground">Business tools are switched off. Turn on a business account in your Settings to add a business profile, get reviews and promote your business.</p>
+    <div className="mt-5"><Button asChild><Link to="/settings">Open Settings</Link></Button></div>
   </main>;
 
   const showForm = adding || (!isPending && !error && mine.length === 0);

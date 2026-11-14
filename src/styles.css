@@ -823,7 +823,7 @@ body:not(.charge-theme)
   ):not(
     nav *, aside *, .charge-theme *, [class*="bg-primary/"], [class*="bg-secondary/"],
     [class*="bg-card/"], [class*="bg-background/"], [class*="bg-muted/"], [class*="absolute"],
-    [class*="fixed"], :disabled, [aria-disabled="true"]
+    [class*="fixed"], :disabled, [aria-disabled="true"], .sticky *, [class*="overflow-x-auto"] *
   ):hover {
   box-shadow:
     var(--neu-btn),
@@ -833,7 +833,10 @@ body:not(.charge-theme)
   :is(button, a, [role="button"]):is(
     [class*="bg-primary"], [class*="bg-secondary"], [class*="bg-card"],
     [class*="bg-background"], [class*="bg-muted"]
-  ):not(nav *, aside *, .charge-theme *, [class*="absolute"], [class*="fixed"], :disabled):active {
+  ):not(
+    nav *, aside *, .charge-theme *, [class*="absolute"], [class*="fixed"], :disabled, .sticky *,
+    [class*="overflow-x-auto"] *
+  ):active {
   box-shadow:
     var(--neu-btn-down),
     0 0 26px 5px var(--glow-color);
@@ -861,7 +864,12 @@ body:not(.charge-theme)
 }
 [role="switch"] {
   position: relative !important;
-  flex-shrink: 0;
+  flex: 0 0 3.5rem !important;
+  min-width: 3.5rem !important;
+  max-width: 3.5rem !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+  margin-right: 0.25rem;
   width: 3.5rem !important;
   height: 1.75rem !important;
   padding: 0 !important;
@@ -887,14 +895,14 @@ body:not(.charge-theme)
   translate: none !important;
   transform: none !important;
   transition:
-    transform 0.3s ease,
+    left 0.3s ease,
     background-color 0.3s ease,
     box-shadow 0.3s ease !important;
 }
 [role="switch"][aria-checked="true"] > span {
   background: var(--sw-on-thumb) !important;
   box-shadow: 0 0 10px var(--sw-on-thumb) !important;
-  transform: translateX(1.75rem) !important;
+  left: calc(100% - 1.5rem) !important;
 }
 @media (prefers-reduced-motion: reduce) {
   [role="switch"],

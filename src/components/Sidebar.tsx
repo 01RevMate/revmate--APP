@@ -23,6 +23,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useProfile } from "@/hooks/useProfile";
+import { useBusinessAccount } from "@/hooks/useBusinessAccount";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { CountBadge } from "@/components/CountBadge";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
@@ -107,6 +108,7 @@ function NavLink({
 
 export function Sidebar() {
   const { isAdmin } = useProfile();
+  const businessAccount = useBusinessAccount();
   const unread = useUnreadMessages();
   // Desktop shows a slim icon rail by default; the toggle expands it to full labels.
   const [collapsed, setCollapsed] = useState(true);
@@ -188,12 +190,14 @@ export function Sidebar() {
           requireAuth
         />
         {isAdmin && <NavLink to="/admin" icon={ShieldCheck} label="Admin" collapsed={collapsed} />}
-        <NavLink
-          to="/businesses/manage"
-          icon={Building}
-          label="My business"
-          collapsed={collapsed}
-        />
+        {businessAccount.enabled && (
+          <NavLink
+            to="/businesses/manage"
+            icon={Building}
+            label="My business"
+            collapsed={collapsed}
+          />
+        )}
       </nav>
 
       <Tooltip>
