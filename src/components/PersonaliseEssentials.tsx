@@ -48,7 +48,7 @@ export function PersonaliseEssentials({ preferences, onSave }: {
           <DialogTitle>Personalise your home</DialogTitle>
           <DialogDescription>Your Essentials choices are saved on this device.</DialogDescription>
         </DialogHeader>
-        <div className="min-h-0 overflow-y-auto pr-1">
+        <div className="min-h-0 overflow-y-auto px-2">
           <h3 className="text-sm font-semibold">Quick buttons</h3>
           {rows("tools", "hiddenTools", HOME_TOOL_LABELS)}
           <h3 className="mt-6 text-sm font-semibold">Home sections</h3>
