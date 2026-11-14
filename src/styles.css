@@ -563,3 +563,37 @@ input[type="datetime-local"]::-webkit-date-and-time-value {
 .charge-theme.lw-wizard .lw-glow-on { box-shadow: 0 0 0 2px var(--primary), 0 0 22px color-mix(in oklab, var(--primary) 65%, transparent); }
 .charge-theme.lw-wizard input.lw-miles { font-size: 6rem !important; line-height: 1; border: 0 !important; box-shadow: none !important; background: transparent !important; }
 .charge-theme.lw-wizard .lw-miles-wrap { border-radius: 0 !important; background: transparent !important; }
+
+/* ---------------------------------------------------------------------------
+ * Day-mode soft "neumorphic" cards (adapted from a Uiverse.io card).
+ * Day mode only: the page and cards share one soft grey, and cards look
+ * raised from it with a light and a dark shadow. Night mode and the black and
+ * green charger sub-brand keep their existing flat style.
+ * ------------------------------------------------------------------------- */
+:root:not(.dark) {
+  --background: #e0e0e0;
+  --card: #e0e0e0;
+  --popover: #ebebeb;
+  --border: oklch(0.83 0 0);
+  --neu-dark: #bebebe;
+  --neu-light: #ffffff;
+}
+
+:root:not(.dark) body:not(.charge-theme) [class*="bg-card"][class*="rounded-"]:not(
+    nav, aside, header, button, input, select, textarea, [role="dialog"], .charge-theme *,
+    [class*="bg-card/"], [class*="rounded-full"], [class*="rounded-md"], [class*="rounded-sm"],
+    [class*="fixed"], [class*="sticky"]
+  ) {
+  border-color: transparent;
+  border-radius: 1.25rem;
+  box-shadow:
+    8px 8px 18px var(--neu-dark),
+    -8px -8px 18px var(--neu-light);
+}
+
+/* Pressed-in look, for wells and selected states: add class "neu-inset". */
+:root:not(.dark) .neu-inset {
+  box-shadow:
+    inset 5px 5px 10px var(--neu-dark),
+    inset -5px -5px 10px var(--neu-light);
+}
