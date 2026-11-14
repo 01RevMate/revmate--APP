@@ -604,3 +604,48 @@ body:not(.charge-theme) [class*="bg-card"][class*="rounded-"]:not(
     inset 5px 5px 10px var(--neu-dark),
     inset -5px -5px 10px var(--neu-light);
 }
+
+/* Buttons: raised like the cards, pressing sinks them in. Filled (primary) buttons
+ * keep their colour and just gain the soft shadow. */
+body:not(.charge-theme)
+  :is(button, a, [role="button"]):is(
+    [class*="bg-primary"], [class*="bg-secondary"], [class*="bg-card"],
+    [class*="bg-background"], [class*="bg-muted"]
+  ):not(
+    nav *, aside *, .charge-theme *, [class*="bg-primary/"], [class*="bg-secondary/"],
+    [class*="bg-card/"], [class*="bg-background/"], [class*="bg-muted/"], [class*="absolute"],
+    [class*="fixed"]
+  ) {
+  border-color: transparent;
+  box-shadow:
+    4px 4px 9px var(--neu-dark),
+    -4px -4px 9px var(--neu-light);
+  transition:
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+body:not(.charge-theme)
+  :is(button, a, [role="button"]):is(
+    [class*="bg-primary"], [class*="bg-secondary"], [class*="bg-card"],
+    [class*="bg-background"], [class*="bg-muted"]
+  ):not(nav *, aside *, .charge-theme *, [class*="absolute"], [class*="fixed"]):active {
+  box-shadow:
+    inset 3px 3px 7px var(--neu-dark),
+    inset -3px -3px 7px var(--neu-light);
+}
+
+/* Text fields: pressed in, like a well cut into the surface. */
+body:not(.charge-theme)
+  :is(
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="hidden"], [type="color"]),
+    textarea,
+    select
+  ):not(.charge-theme *, .lw-miles) {
+  background-color: var(--background);
+  border-color: transparent;
+  border-radius: 0.9rem;
+  box-shadow:
+    inset 4px 4px 9px var(--neu-dark),
+    inset -4px -4px 9px var(--neu-light);
+}
