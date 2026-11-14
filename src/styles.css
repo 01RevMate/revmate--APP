@@ -247,6 +247,81 @@
   }
 }
 
+/* Splash loader: "loading" followed by car parts rolling through in red.
+   Adapted from Uiverse (kennyotsu). The fade colour must match the splash
+   background so the top/bottom of the rolling words dissolve into it. */
+.rev-loader {
+  --bg-color: #000;
+  color: rgb(124, 124, 124);
+  font-weight: 500;
+  font-size: 25px;
+  box-sizing: content-box;
+  height: 40px;
+  padding: 10px;
+  display: flex;
+  border-radius: 8px;
+}
+
+.rev-loader-words {
+  overflow: hidden;
+  position: relative;
+}
+
+.rev-loader-words::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    var(--bg-color) 10%,
+    transparent 30%,
+    transparent 70%,
+    var(--bg-color) 90%
+  );
+  z-index: 20;
+}
+
+.rev-loader-word {
+  display: block;
+  height: 100%;
+  padding-left: 6px;
+  color: #ef4444;
+  animation: rev-word-roll 4s infinite;
+}
+
+/* Five words with the first repeated at the end, so the roll loops cleanly. */
+@keyframes rev-word-roll {
+  10% {
+    transform: translateY(-102%);
+  }
+  25% {
+    transform: translateY(-100%);
+  }
+  35% {
+    transform: translateY(-202%);
+  }
+  50% {
+    transform: translateY(-200%);
+  }
+  60% {
+    transform: translateY(-302%);
+  }
+  75% {
+    transform: translateY(-300%);
+  }
+  85% {
+    transform: translateY(-402%);
+  }
+  100% {
+    transform: translateY(-400%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-loader-word {
+    animation: none;
+  }
+}
+
 /* Press-and-hold controls: no text selection, magnifier or copy bubble. */
 .no-callout,
 .no-callout * {
