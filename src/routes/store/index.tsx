@@ -9,6 +9,7 @@ import { formatPence, useMoneySettings } from "@/lib/money";
 import { SHOP_CATEGORIES } from "@/lib/shops";
 import { useStoreOpen, useStoreProducts } from "@/lib/store";
 import { seo } from "@/lib/seo";
+import { CardGridSkeleton } from "@/components/PageSkeletons";
 
 type StoreSearch = { category?: string | undefined };
 
@@ -128,6 +129,7 @@ function StorePage() {
           <ProductCard key={p.id} product={p} />
         ))}
       </div>
+      {isLoading && <CardGridSkeleton />}
       {!isLoading && shown.length === 0 && (
         <p className="mt-6 text-center text-sm text-muted-foreground">Nothing here yet.</p>
       )}

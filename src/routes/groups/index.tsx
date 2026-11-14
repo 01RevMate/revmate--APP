@@ -26,6 +26,7 @@ import {
   GroupIcon,
   GroupIconPicker,
 } from "@/components/GroupCover";
+import { CardGridSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/groups/")({
   head: () =>
@@ -319,7 +320,7 @@ function GroupsPage() {
           </button>
         </div>
       )}
-      {isLoading && <p className="mt-8 text-sm text-muted-foreground">Loading groups…</p>}
+      {isLoading && <CardGridSkeleton />}
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visibleGroups.map((group) => (
           <Link

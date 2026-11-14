@@ -46,6 +46,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { PageSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/meets/$meetId")({
   loader: ({ params }) => fetchMeetSeo(params.meetId),
@@ -72,7 +73,8 @@ function MeetPage() {
     enabled: !!meet,
   });
 
-  if (isLoading) {
+  const showSkeleton = useMinSkeleton(isLoading);
+  if (showSkeleton) {
     return <PageSkeleton />;
   }
   if (!meet) {

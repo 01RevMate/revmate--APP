@@ -62,6 +62,7 @@ import {
 import { recordProfileView } from "@/lib/follows";
 import { modelPowertrain } from "@/lib/ukModels";
 import { ProfileSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/u/$username")({
   loader: ({ params }) => fetchProfileSeo(params.username),
@@ -179,7 +180,8 @@ function GarageProfilePage() {
     }
   }
 
-  if (isLoading) {
+  const showSkeleton = useMinSkeleton(isLoading);
+  if (showSkeleton) {
     return <ProfileSkeleton />;
   }
 

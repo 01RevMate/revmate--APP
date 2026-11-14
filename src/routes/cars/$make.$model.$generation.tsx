@@ -10,6 +10,7 @@ import { fetchListingsForCar } from "@/lib/listings";
 import { PostCard } from "@/components/PostCard";
 import { CarLogo } from "@/components/CarLogo";
 import { PageSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/cars/$make/$model/$generation")({
   head: ({ params }) => {
@@ -76,7 +77,8 @@ function CarPage() {
     queryFn: () => fetchListingsForCar(car!.id),
   });
 
-  if (carQuery.isLoading) {
+  const showSkeleton = useMinSkeleton(carQuery.isLoading);
+  if (showSkeleton) {
     return <PageSkeleton wide />;
   }
 

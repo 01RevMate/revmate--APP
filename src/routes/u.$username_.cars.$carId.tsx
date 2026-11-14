@@ -15,6 +15,7 @@ import { PostCard } from "@/components/PostCard";
 import { BuildTimeline } from "@/components/BuildTimeline";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
 import { PageSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/u/$username_/cars/$carId")({
   loader: ({ params }) => fetchGarageCarSeo(params.carId, params.username),
@@ -52,7 +53,8 @@ function CarProfilePage() {
   const careOn = useCarCareFeature();
   const diagnosticsOn = useDiagnosticsFeature();
 
-  if (isLoading) {
+  const showSkeleton = useMinSkeleton(isLoading);
+  if (showSkeleton) {
     return <PageSkeleton />;
   }
 

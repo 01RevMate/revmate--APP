@@ -18,6 +18,7 @@ import {
 import { MIN_PHOTOS } from "@/components/BusinessManager";
 import { seo } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
+import { ListRowsSkeleton } from "@/components/PageSkeletons";
 
 type DirSearch = {
   sector?: string | undefined;
@@ -154,7 +155,7 @@ function BusinessesPage() {
         </div>
       )}
 
-      {isLoading && enabled && <p className="mt-6 text-sm text-muted-foreground">Loading…</p>}
+      {isLoading && enabled && <ListRowsSkeleton />}
       <ul className="mt-4 space-y-2">
         {ranked.map((b) => {
           const pics = photoMap?.get(b.id);

@@ -16,7 +16,7 @@ export const getRouter = () => {
     // briefly so it doesn't flicker away.
     defaultPendingComponent: PageSkeleton,
     defaultPendingMs: 300,
-    defaultPendingMinMs: 400,
+    defaultPendingMinMs: 1000,
   });
 
   return router;

@@ -53,6 +53,7 @@ import { BusinessProCard } from "@/components/BusinessProCard";
 import { usePaidReturn } from "@/hooks/usePaidReturn";
 import { Button } from "@/components/ui/button";
 import { PageSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 async function fetchBusinessSeo(id: string) {
   try {
@@ -144,7 +145,8 @@ function BusinessPage() {
   const [viewer, setViewer] = useState<{ list: BusinessPhoto[]; index: number } | null>(null);
   const [photoFilter, setPhotoFilter] = useState<"all" | "business" | "customer">("all");
 
-  if (isLoading) return <PageSkeleton />;
+  const showSkeleton = useMinSkeleton(isLoading);
+  if (showSkeleton) return <PageSkeleton />;
   if (!business)
     return (
       <main className="mx-auto max-w-2xl px-4 py-10">

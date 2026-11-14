@@ -64,6 +64,7 @@ import { GroupRulesEditor, type GroupRulesDraft } from "@/components/GroupRulesE
 import { MakeSelect } from "@/components/MakeSelect";
 import { ModelSelect } from "@/components/ModelSelect";
 import { PageSkeleton, PostListSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/groups/$slug")({
   loader: ({ params }) => fetchGroupSeo(params.slug),
@@ -102,6 +103,7 @@ function GroupPage() {
   const approved = membership?.status === "approved";
   const canModerate =
     isAdmin || (approved && ["owner", "admin", "moderator"].includes(membership.role));
+  const showGroupSkeleton = useMinSkeleton(isLoading);
   const canViewPosts =
     !!group &&
     membership?.status !== "banned" &&
@@ -116,6 +118,7 @@ function GroupPage() {
     queryFn: () => fetchGroupPosts(group!.id),
     refetchInterval: 240000,
   });
+  const showPostsSkeleton = useMinSkeleton(postsLoading);
   const { data: pendingMembers } = useQuery({
     queryKey: ["groups", group?.id, "pending-members", user?.id],
     enabled: !!group && canModerate,
@@ -256,8 +259,7 @@ function GroupPage() {
         </button>
       </main>
     );
-  if (isLoading)
-    return <PageSkeleton />;
+  if (showGroupSkeleton) return <PageSkeleton />;
   if (!group)
     return (
       <main className="mx-auto max-w-3xl px-4 py-10">
@@ -500,7 +502,7 @@ function GroupPage() {
               </div>
             ) : (
               <div className="mt-5 space-y-4">
-                {visiblePosts.map((post) => (
+                {!showPostsSkeleton && visiblePosts.map((post) => (
                   <PostCard
                     key={post.id}
                     post={post}
@@ -510,13 +512,13 @@ function GroupPage() {
                     onHide={() => reviewPost(post.id, "rejected")}
                   />
                 ))}
-                {postsLoading && <PostListSkeleton count={2} />}
+                {showPostsSkeleton && <PostListSkeleton count={2} />}
                 {postsError && (
                   <p role="alert" className="text-sm text-destructive">
                     Could not load posts. <button onClick={refresh}>Try again</button>
                   </p>
                 )}
-                {!postsLoading && !postsError && visiblePosts.length === 0 && (
+                {!showPostsSkeleton && !postsError && visiblePosts.length === 0 && (
                   <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
                     No approved posts yet.
                   </div>

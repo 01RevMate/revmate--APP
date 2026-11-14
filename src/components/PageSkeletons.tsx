@@ -97,3 +97,48 @@ export function PageSkeleton({ wide = false }: { wide?: boolean }) {
     </div>
   );
 }
+
+/** Rows with an avatar and two lines of text: leaderboards, inboxes, member lists. */
+export function ListRowsSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="mt-4 space-y-3" aria-busy="true" aria-label="Loading">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
+          <Skeleton className="size-10 shrink-0 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-3 w-2/3" />
+          </div>
+          <Skeleton className="h-5 w-10" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Grid of image cards: shops, store products, groups, businesses. */
+export function CardGridSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div
+      className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3"
+      aria-busy="true"
+      aria-label="Loading"
+    >
+      {Array.from({ length: count }).map((_, i) => (
+        <ListingCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
+/** Chat bubbles alternating left and right. */
+export function ThreadSkeleton() {
+  return (
+    <div className="mx-auto max-w-2xl space-y-3 px-4 py-10" aria-busy="true" aria-label="Loading messages">
+      <Skeleton className="h-10 w-40" />
+      {["w-2/3", "w-1/2 ml-auto", "w-3/5", "w-2/5 ml-auto", "w-1/2"].map((w, i) => (
+        <Skeleton key={i} className={`h-12 rounded-2xl ${w}`} />
+      ))}
+    </div>
+  );
+}

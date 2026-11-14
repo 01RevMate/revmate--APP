@@ -5,6 +5,7 @@ import { PriceGuideBadge } from "@/components/PriceGuideBadge";
 import { fetchMarketListings, formatPrice, type MarketListing } from "@/lib/marketplace";
 import { keySpecs } from "@/lib/vehicleSpecs";
 import { priceGuide, useCompareList } from "@/lib/marketDeals";
+import { CardGridSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/marketplace/compare")({
   head: () => ({
@@ -76,7 +77,7 @@ function ComparePage() {
         ← Back to Buy & Sell
       </Link>
       <h1 className="mt-2 text-2xl font-extrabold tracking-tight">Compare cars</h1>
-      {isLoading && <p className="mt-4 text-sm text-muted-foreground">Loading…</p>}
+      {isLoading && <CardGridSkeleton count={4} />}
       {!isLoading && picked.length === 0 && (
         <p className="mt-6 rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
           Nothing to compare yet. Open a car and tap "Compare" — you can pick up to three.

@@ -75,6 +75,7 @@ import {
 import { useAdFree } from "@/lib/money";
 import { SkeletonImage } from "@/components/SkeletonImage";
 import { ListingCardSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 type ListingFilter = "car" | "part";
 type Sort =
@@ -167,11 +168,12 @@ function MarketplacePage() {
     staleTime: 5 * 60_000,
   });
 
-  const { data: listings, isLoading } = useQuery({
+  const { data: listings, isLoading: listingsLoading } = useQuery({
     queryKey: ["listings", "market"],
     queryFn: fetchMarketListings,
     refetchInterval: 120_000,
   });
+  const isLoading = useMinSkeleton(listingsLoading);
   const watchKey = ["watchlist-ids", user?.id];
   const { data: watchIds } = useQuery({
     queryKey: watchKey,
@@ -670,7 +672,7 @@ function MarketplacePage() {
       )}
 
       <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4">
-        {visible.map((listing, index) => (
+        {!isLoading && visible.map((listing, index) => (
           <GridItems
             key={listing.id}
             index={index}
@@ -693,7 +695,7 @@ function MarketplacePage() {
             />
           </GridItems>
         ))}
-        {visible.length > 0 && (
+        {!isLoading && visible.length > 0 && (
           <li>
             <Link
               to="/sell"

@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { fetchAccountAnalytics } from "@/lib/follows";
+import { PageSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/analytics")({
   head: () => ({ meta: [
@@ -21,7 +22,7 @@ function AnalyticsPage() {
     enabled: !!user,
   });
 
-  if (loading) return <p className="p-6 text-sm text-muted-foreground">Loading…</p>;
+  if (loading) return <PageSkeleton />;
   if (!user) {
     return (
       <div className="mx-auto max-w-xl px-4 py-12 text-center">

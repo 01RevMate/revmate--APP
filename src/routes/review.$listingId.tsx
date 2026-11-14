@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { leaveSellerReview } from "@/lib/marketDeals";
 import { displayUsername } from "@/lib/usernames";
 import { PageSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/review/$listingId")({
   head: () => ({
@@ -49,7 +50,8 @@ function ReviewPage() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
-  if (isLoading)
+  const showSkeleton = useMinSkeleton(isLoading);
+  if (showSkeleton)
     return <PageSkeleton />;
   const isBuyer = !!data && !!user && data.listing.buyer_id === user.id;
   if (!data || !isBuyer) {

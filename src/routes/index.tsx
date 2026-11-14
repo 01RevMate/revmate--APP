@@ -30,6 +30,7 @@ import { FeedScopeBar, type FeedScope } from "@/components/FeedScopeBar";
 import { CategoryFilterBar, type CategoryFilter } from "@/components/CategoryFilterBar";
 import { useAdFree } from "@/lib/money";
 import { useSeenTracker } from "@/lib/impressions";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/")({
   head: () =>
@@ -116,7 +117,7 @@ function Home() {
   const filterCarId = sessionFilterCarId ?? activeCar?.id ?? null;
   const {
     data: pages,
-    isLoading,
+    isLoading: feedLoading,
     error: feedError,
     fetchNextPage,
     hasNextPage,
@@ -182,6 +183,7 @@ function Home() {
     staleTime: 10 * 60_000,
   });
   const ads = adFree ? undefined : adsData;
+  const isLoading = useMinSkeleton(feedLoading);
   const feedWithAds = useMemo(() => {
     type Item = (typeof feedItems)[number] | { kind: "ad"; ad: AdForMe };
     if (!ads?.length) return feedItems as Item[];
@@ -338,7 +340,7 @@ function Home() {
                   </div>
                 )}
 
-                {feedWithAds.map((item) =>
+                {!isLoading && feedWithAds.map((item) =>
                   item.kind === "ad" ? (
                     <AdCard key={`ad-${item.ad.id}`} ad={item.ad} />
                   ) : item.kind === "news" ? (

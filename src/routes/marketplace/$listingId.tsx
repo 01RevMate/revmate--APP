@@ -80,6 +80,7 @@ import { ListingSummary } from "@/components/ListingSummary";
 import { isAuction } from "@/lib/auctions";
 import { usePaidReturn } from "@/hooks/usePaidReturn";
 import { ListingDetailSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
   // Loaded on the server so shared links show the photo, price and car.
@@ -190,7 +191,8 @@ function ListingDetailPage() {
     if (market && user) void recordListingView(loadedId);
   }, [loadedId, market, user]);
 
-  if (isLoading) {
+  const showSkeleton = useMinSkeleton(isLoading);
+  if (showSkeleton) {
     return <ListingDetailSkeleton />;
   }
 

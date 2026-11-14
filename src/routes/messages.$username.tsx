@@ -23,6 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
 import { MessageImageViewer } from "@/components/MessageImageViewer";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
+import { ThreadSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/messages/$username")({
   head: ({ params }) => {
@@ -191,7 +192,7 @@ function MessageThreadPageContent() {
   }
 
   if (!otherProfile) {
-    return <p className="mx-auto max-w-2xl px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
+    return <ThreadSkeleton />;
   }
 
   const latestOwnMessageId = [...(messages ?? [])]

@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePaidReturn } from "@/hooks/usePaidReturn";
 import { formatPence } from "@/lib/money";
 import { fetchMyOrders, ORDER_STATUS_LABEL, useBasket } from "@/lib/store";
+import { ListRowsSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/orders")({
   head: () => ({
@@ -53,6 +54,7 @@ function OrdersPage() {
       <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
         <Package className="size-6" /> My orders
       </h1>
+      {isLoading && <ListRowsSkeleton count={4} />}
       {!isLoading && (orders?.length ?? 0) === 0 && (
         <p className="mt-6 text-sm text-muted-foreground">
           No orders yet.{" "}

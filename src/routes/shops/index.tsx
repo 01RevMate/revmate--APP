@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Plus, Store } from "lucide-react";
 import { fetchShops, isPromotedShop, SHOP_CATEGORIES, shopCategoryLabel } from "@/lib/shops";
 import { seo } from "@/lib/seo";
+import { CardGridSkeleton } from "@/components/PageSkeletons";
 
 type ShopSearch = { category?: string | undefined };
 
@@ -106,6 +107,7 @@ function ShopsPage() {
         ))}
       </ul>
 
+      {isLoading && <CardGridSkeleton />}
       {!isLoading && !error && shops?.length === 0 && (
         <p className="mt-4 rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
           No shops here yet. Make something for cars? Be the first.

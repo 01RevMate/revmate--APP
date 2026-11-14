@@ -11,6 +11,8 @@ import {
   fetchGarageCarModelLeaderboard,
   type GarageCar,
 } from "@/lib/garage";
+import { ListRowsSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
@@ -87,7 +89,8 @@ function BrandsTab({ onSelectBrand }: { onSelectBrand: (make: string) => void })
     queryKey: ["leaderboard", "brands"],
     queryFn: () => fetchGarageCarBrandLeaderboard(),
   });
-  if (isLoading) return <p className="mt-6 text-sm text-muted-foreground">Loading…</p>;
+  const showSkeleton = useMinSkeleton(isLoading);
+  if (showSkeleton) return <RankRows />;
   if (!data || data.length === 0)
     return <p className="mt-6 text-sm text-muted-foreground">No ranked cars yet.</p>;
   return (
@@ -123,6 +126,7 @@ function ModelsTab({
     queryKey: ["leaderboard", "models", filterMake],
     queryFn: () => fetchGarageCarModelLeaderboard(filterMake ?? undefined),
   });
+  const showSkeleton = useMinSkeleton(isLoading);
   return (
     <div>
       {filterMake && (
@@ -130,8 +134,8 @@ function ModelsTab({
           Showing {filterMake} only — clear filter
         </button>
       )}
-      {isLoading && <p className="mt-6 text-sm text-muted-foreground">Loading…</p>}
-      {!isLoading && (!data || data.length === 0) && (
+      {showSkeleton && <RankRows />}
+      {!showSkeleton && (!data || data.length === 0) && (
         <p className="mt-6 text-sm text-muted-foreground">No ranked cars yet.</p>
       )}
       <ul className="mt-4 space-y-2">
@@ -161,7 +165,8 @@ function CarsTab() {
     queryKey: ["leaderboard", "cars"],
     queryFn: () => fetchGarageCarLeaderboard(),
   });
-  if (isLoading) return <p className="mt-6 text-sm text-muted-foreground">Loading…</p>;
+  const showSkeleton = useMinSkeleton(isLoading);
+  if (showSkeleton) return <RankRows />;
   if (!data || data.length === 0)
     return <p className="mt-6 text-sm text-muted-foreground">No ranked cars yet.</p>;
   return (
@@ -215,3 +220,5 @@ function ReactionCounts({ likes, dislikes }: { likes: number; dislikes: number }
     </div>
   );
 }
+
+const RankRows = () => <ListRowsSkeleton count={8} />;

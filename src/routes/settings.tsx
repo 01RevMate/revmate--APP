@@ -41,6 +41,7 @@ import { APP_VERSION } from "@/lib/changelog";
 import { fetchBlockedProfiles, unblockProfile } from "@/lib/moderation";
 import { displayUsernameWithoutAt, normalizeUsername } from "@/lib/usernames";
 import { PageSkeleton } from "@/components/PageSkeletons";
+import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/settings")({
   validateSearch: (search: Record<string, unknown>): { section?: string } =>
@@ -159,7 +160,8 @@ function SettingsPage() {
     toast.success("Password updated");
   }
 
-  if (loading) {
+  const showSkeleton = useMinSkeleton(loading);
+  if (showSkeleton) {
     return <PageSkeleton />;
   }
 
