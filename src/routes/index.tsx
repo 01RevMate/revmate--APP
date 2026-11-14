@@ -322,7 +322,9 @@ function Home() {
               {/* Phones: one thin line between posts. Wider screens: separate cards. */}
               <div className="mt-4 divide-y divide-border border-y border-border sm:space-y-4 sm:divide-y-0 sm:border-y-0">
                 {isLoading &&
-                  Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} immersive />)}
+                  Array.from({ length: 3 }).map((_, i) => (
+                  <PostCardSkeleton key={i} immersive media={i === 0} />
+                ))}
 
                 {!isLoading && !feedError && filteredPosts.length === 0 && (
                   <div className="mx-3 rounded-lg border border-dashed border-border bg-background p-8 text-center text-sm text-muted-foreground sm:mx-0">

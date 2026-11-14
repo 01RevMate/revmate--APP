@@ -73,6 +73,8 @@ import {
   type Partner,
 } from "@/lib/marketplace";
 import { useAdFree } from "@/lib/money";
+import { SkeletonImage } from "@/components/SkeletonImage";
+import { ListingCardSkeleton } from "@/components/PageSkeletons";
 
 type ListingFilter = "car" | "part";
 type Sort =
@@ -629,7 +631,7 @@ function MarketplacePage() {
               >
                 <div className="aspect-[4/3] bg-muted">
                   {listing.photos?.[0] && (
-                    <img
+                    <SkeletonImage
                       src={listing.photos[0]}
                       alt=""
                       loading="lazy"
@@ -650,7 +652,7 @@ function MarketplacePage() {
       {isLoading && (
         <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="aspect-[3/4] animate-pulse rounded-xl bg-muted" />
+            <ListingCardSkeleton key={i} />
           ))}
         </div>
       )}
@@ -757,7 +759,7 @@ function PartnerTile({ partner }: { partner: Partner }) {
     >
       <div className="relative aspect-[4/3] bg-muted">
         {partner.image_url ? (
-          <img
+          <SkeletonImage
             src={partner.image_url}
             alt={partner.name}
             loading="lazy"
@@ -791,7 +793,11 @@ function PartnerBanner({ partner }: { partner: Partner }) {
       className="mt-3 flex items-center gap-3 rounded-xl border border-border bg-card p-2 pr-3 shadow-sm hover:shadow-md"
     >
       {partner.image_url && (
-        <img src={partner.image_url} alt="" className="size-12 shrink-0 rounded-lg object-cover" />
+        <SkeletonImage
+          src={partner.image_url}
+          alt=""
+          className="size-12 shrink-0 rounded-lg object-cover"
+        />
       )}
       <div className="min-w-0 flex-1">
         <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">

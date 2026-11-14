@@ -1,3 +1,4 @@
+import { SkeletonImage } from "@/components/SkeletonImage";
 import { displayUsername } from "@/lib/usernames";
 
 export function Avatar({
@@ -13,7 +14,13 @@ export function Avatar({
   alt?: string | undefined;
 }) {
   if (photoUrl) {
-    return <img src={photoUrl} alt={alt ?? ""} className={`${className} shrink-0 rounded-full object-cover`} />;
+    return (
+      <SkeletonImage
+        src={photoUrl}
+        alt={alt ?? ""}
+        className={`${className} shrink-0 rounded-full object-cover`}
+      />
+    );
   }
   return (
     <div

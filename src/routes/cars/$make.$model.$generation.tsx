@@ -9,6 +9,7 @@ import { fetchMyLikedPostIds, fetchPostsByCar } from "@/lib/posts";
 import { fetchListingsForCar } from "@/lib/listings";
 import { PostCard } from "@/components/PostCard";
 import { CarLogo } from "@/components/CarLogo";
+import { PageSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/cars/$make/$model/$generation")({
   head: ({ params }) => {
@@ -76,7 +77,7 @@ function CarPage() {
   });
 
   if (carQuery.isLoading) {
-    return <p className="mx-auto max-w-5xl px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
+    return <PageSkeleton wide />;
   }
 
   if (!car) {

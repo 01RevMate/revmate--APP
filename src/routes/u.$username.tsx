@@ -61,6 +61,7 @@ import {
 } from "@/lib/vehicleCatalog";
 import { recordProfileView } from "@/lib/follows";
 import { modelPowertrain } from "@/lib/ukModels";
+import { ProfileSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/u/$username")({
   loader: ({ params }) => fetchProfileSeo(params.username),
@@ -179,7 +180,7 @@ function GarageProfilePage() {
   }
 
   if (isLoading) {
-    return <p className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
+    return <ProfileSkeleton />;
   }
 
   if (!profile) {

@@ -79,6 +79,7 @@ import { AuctionPanel } from "@/components/AuctionPanel";
 import { ListingSummary } from "@/components/ListingSummary";
 import { isAuction } from "@/lib/auctions";
 import { usePaidReturn } from "@/hooks/usePaidReturn";
+import { ListingDetailSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/marketplace/$listingId")({
   // Loaded on the server so shared links show the photo, price and car.
@@ -190,7 +191,7 @@ function ListingDetailPage() {
   }, [loadedId, market, user]);
 
   if (isLoading) {
-    return <p className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
+    return <ListingDetailSkeleton />;
   }
 
   if (!listing) {

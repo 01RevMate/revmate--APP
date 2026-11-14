@@ -5,6 +5,7 @@ import { BadgeCheck, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { FeedVideo } from "@/components/FeedVideo";
 import { RichText } from "@/components/RichText";
+import { SkeletonImage } from "@/components/SkeletonImage";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { isVideoUrl } from "@/lib/social";
@@ -108,11 +109,12 @@ export function NewsCard({
           className={`-mx-3 mt-3 grid gap-1 overflow-hidden sm:mx-0 sm:rounded-md ${images.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}
         >
           {images.slice(0, 4).map((url) => (
-            <img
+            <SkeletonImage
               key={url}
               src={url}
               alt=""
               loading="lazy"
+              placeholderClassName={images.length === 1 ? "min-h-64" : ""}
               className={`w-full object-cover ${images.length === 1 ? "max-h-[70vh]" : "aspect-square"}`}
             />
           ))}

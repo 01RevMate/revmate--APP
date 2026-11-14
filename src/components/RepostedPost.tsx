@@ -5,6 +5,7 @@ import { Avatar } from "@/components/Avatar";
 import { RichText } from "@/components/RichText";
 import { FeedVideo } from "@/components/FeedVideo";
 import { ForSaleListingBox } from "@/components/ForSaleListingBox";
+import { SkeletonImage } from "@/components/SkeletonImage";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { fetchOriginalPost, isVideoUrl } from "@/lib/social";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
@@ -85,9 +86,10 @@ export function RepostedPost({ postId }: { postId: string }) {
                 key={image.id}
                 className={`relative overflow-hidden bg-muted ${visibleImages.length > 1 ? "aspect-square" : ""}`}
               >
-                <img
+                <SkeletonImage
                   src={image.image_url}
                   alt=""
+                  placeholderClassName={visibleImages.length > 1 ? "" : "min-h-48"}
                   className={`${visibleImages.length > 1 ? "size-full" : "max-h-72 w-full"} object-cover`}
                 />
                 {isLastTile && hiddenImageCount > 0 && (
@@ -112,7 +114,12 @@ export function RepostedPost({ postId }: { postId: string }) {
             <FeedVideo src={media.image_url} className="max-h-72 w-full" />
           </div>
         ) : (
-          <img src={media.image_url} alt="" className="max-h-72 w-full object-cover" />
+          <SkeletonImage
+            src={media.image_url}
+            alt=""
+            placeholderClassName="min-h-48"
+            className="max-h-72 w-full object-cover"
+          />
         ))
       )}
       {isForSale && <ForSaleListingBox post={original} viewerId={user?.id} edgeClassName="" />}

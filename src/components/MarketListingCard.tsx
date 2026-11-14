@@ -11,6 +11,7 @@ import {
 import { isAutomatic } from "@/lib/vehicleSpecs";
 import { PART_CATEGORY_LABELS, type MyCar, type PriceGuide } from "@/lib/marketDeals";
 import { PriceGuideBadge } from "@/components/PriceGuideBadge";
+import { SkeletonImage } from "@/components/SkeletonImage";
 import { roughMiles } from "@/lib/myArea";
 import { auctionEnded, isAuction, timeLeft } from "@/lib/auctions";
 
@@ -81,7 +82,7 @@ export function MarketListingCard({
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         {listing.photos?.[0] ? (
-          <img
+          <SkeletonImage
             src={listing.photos[0]}
             alt={listing.title}
             loading="lazy"

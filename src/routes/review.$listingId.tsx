@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { leaveSellerReview } from "@/lib/marketDeals";
 import { displayUsername } from "@/lib/usernames";
+import { PageSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/review/$listingId")({
   head: () => ({
@@ -49,7 +50,7 @@ function ReviewPage() {
   const [done, setDone] = useState(false);
 
   if (isLoading)
-    return <p className="mx-auto max-w-md px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
+    return <PageSkeleton />;
   const isBuyer = !!data && !!user && data.listing.buyer_id === user.id;
   if (!data || !isBuyer) {
     return (

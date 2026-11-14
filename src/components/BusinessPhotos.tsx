@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, Images, Store, X } from "lucide-react";
 import type { BusinessPhoto } from "@/lib/businesses";
+import { SkeletonImage } from "@/components/SkeletonImage";
 
 /**
  * The photo grid at the top of a business, like Google's: one big photo and
@@ -42,7 +43,7 @@ export function PhotoMosaic({
         className={small.length ? "col-span-2 row-span-2" : ""}
         aria-label={`Open photo 1 of ${name}`}
       >
-        <img src={shown[0]!.url} alt="" className="size-full object-cover" />
+        <SkeletonImage src={shown[0]!.url} alt="" className="size-full object-cover" />
       </button>
       {small.map((p, i) => {
         const last = i === small.length - 1;
@@ -56,7 +57,7 @@ export function PhotoMosaic({
             }
             className={`relative ${small.length === 1 ? "col-span-2 row-span-2" : small.length === 2 ? "col-span-2" : small.length === 3 && i === 0 ? "col-span-2" : ""}`}
           >
-            <img src={p.url} alt="" loading="lazy" className="size-full object-cover" />
+            <SkeletonImage src={p.url} alt="" loading="lazy" className="size-full object-cover" />
             {last && (
               <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full bg-black/65 px-2.5 py-1 text-xs font-semibold text-white">
                 <Images className="size-3.5" /> {photos.length}

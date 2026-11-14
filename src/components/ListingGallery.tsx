@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Heart } from "lucide-react";
+import { SkeletonImage } from "@/components/SkeletonImage";
 
 /**
  * Swipeable photo gallery for a listing: one big photo at a time, edge to
@@ -42,7 +43,7 @@ export function ListingGallery({
           className="flex snap-x snap-mandatory overflow-x-auto [&::-webkit-scrollbar]:hidden"
         >
           {photos.map((url, i) => (
-            <img
+            <SkeletonImage
               key={url + i}
               src={url}
               alt={`${title} — photo ${i + 1}`}
@@ -100,7 +101,7 @@ export function ListingGallery({
               aria-label={`Show photo ${i + 1}`}
               className={`size-20 shrink-0 overflow-hidden rounded-xl ring-2 ring-offset-2 ring-offset-background ${i === index ? "ring-foreground" : "ring-transparent opacity-80"}`}
             >
-              <img src={url} alt="" loading="lazy" className="size-full object-cover" />
+              <SkeletonImage src={url} alt="" loading="lazy" className="size-full object-cover" />
             </button>
           ))}
         </div>

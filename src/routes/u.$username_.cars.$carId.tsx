@@ -14,6 +14,7 @@ import { GarageCarCard } from "@/components/GarageCarCard";
 import { PostCard } from "@/components/PostCard";
 import { BuildTimeline } from "@/components/BuildTimeline";
 import { displayUsernameWithoutAt } from "@/lib/usernames";
+import { PageSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/u/$username_/cars/$carId")({
   loader: ({ params }) => fetchGarageCarSeo(params.carId, params.username),
@@ -52,7 +53,7 @@ function CarProfilePage() {
   const diagnosticsOn = useDiagnosticsFeature();
 
   if (isLoading) {
-    return <p className="mx-auto max-w-2xl px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
+    return <PageSkeleton />;
   }
 
   if (!car) {

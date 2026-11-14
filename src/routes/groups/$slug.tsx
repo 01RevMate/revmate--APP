@@ -63,6 +63,7 @@ import { JoinGroupDialog } from "@/components/JoinGroupDialog";
 import { GroupRulesEditor, type GroupRulesDraft } from "@/components/GroupRulesEditor";
 import { MakeSelect } from "@/components/MakeSelect";
 import { ModelSelect } from "@/components/ModelSelect";
+import { PageSkeleton, PostListSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/groups/$slug")({
   loader: ({ params }) => fetchGroupSeo(params.slug),
@@ -256,11 +257,7 @@ function GroupPage() {
       </main>
     );
   if (isLoading)
-    return (
-      <main className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">
-        Loading group…
-      </main>
-    );
+    return <PageSkeleton />;
   if (!group)
     return (
       <main className="mx-auto max-w-3xl px-4 py-10">
@@ -513,9 +510,7 @@ function GroupPage() {
                     onHide={() => reviewPost(post.id, "rejected")}
                   />
                 ))}
-                {postsLoading && (
-                  <p className="text-sm text-muted-foreground">Loading discussions…</p>
-                )}
+                {postsLoading && <PostListSkeleton count={2} />}
                 {postsError && (
                   <p role="alert" className="text-sm text-destructive">
                     Could not load posts. <button onClick={refresh}>Try again</button>

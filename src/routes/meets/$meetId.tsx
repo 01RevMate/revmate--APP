@@ -45,6 +45,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { PageSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/meets/$meetId")({
   loader: ({ params }) => fetchMeetSeo(params.meetId),
@@ -72,7 +73,7 @@ function MeetPage() {
   });
 
   if (isLoading) {
-    return <p className="mx-auto max-w-2xl px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
+    return <PageSkeleton />;
   }
   if (!meet) {
     return (

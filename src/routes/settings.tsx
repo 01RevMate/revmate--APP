@@ -40,6 +40,7 @@ import { PrivacyDataSettings } from "@/components/PrivacyDataSettings";
 import { APP_VERSION } from "@/lib/changelog";
 import { fetchBlockedProfiles, unblockProfile } from "@/lib/moderation";
 import { displayUsernameWithoutAt, normalizeUsername } from "@/lib/usernames";
+import { PageSkeleton } from "@/components/PageSkeletons";
 
 export const Route = createFileRoute("/settings")({
   validateSearch: (search: Record<string, unknown>): { section?: string } =>
@@ -159,7 +160,7 @@ function SettingsPage() {
   }
 
   if (loading) {
-    return <p className="mx-auto max-w-xl px-4 py-10 text-sm text-muted-foreground">Loading…</p>;
+    return <PageSkeleton />;
   }
 
   if (!user) {

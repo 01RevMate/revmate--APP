@@ -30,6 +30,7 @@ import { PostComments } from "@/components/PostComments";
 import { ReactionButton } from "@/components/ReactionButton";
 import { PostPoll } from "@/components/PostPoll";
 import { ForSaleListingBox } from "@/components/ForSaleListingBox";
+import { SkeletonImage } from "@/components/SkeletonImage";
 import { RepostedPost } from "@/components/RepostedPost";
 import { RichText } from "@/components/RichText";
 import { FeedVideo } from "@/components/FeedVideo";
@@ -713,9 +714,10 @@ export function PostCard({
                 }
                 className={`relative overflow-hidden bg-muted ${postImages.length > 1 ? "aspect-square" : ""}`}
               >
-                <img
+                <SkeletonImage
                   src={image.image_url}
                   alt={`Post photo ${index + 1}`}
+                  placeholderClassName={postImages.length > 1 ? "" : "min-h-64"}
                   className={`${postImages.length > 1 ? "size-full" : "max-h-96 w-full"} object-cover transition-transform hover:scale-[1.01]`}
                 />
                 {isLastTile && remaining > 0 && (

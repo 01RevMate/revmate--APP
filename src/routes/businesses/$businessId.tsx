@@ -52,6 +52,7 @@ import { displayUsername } from "@/lib/usernames";
 import { BusinessProCard } from "@/components/BusinessProCard";
 import { usePaidReturn } from "@/hooks/usePaidReturn";
 import { Button } from "@/components/ui/button";
+import { PageSkeleton } from "@/components/PageSkeletons";
 
 async function fetchBusinessSeo(id: string) {
   try {
@@ -143,10 +144,7 @@ function BusinessPage() {
   const [viewer, setViewer] = useState<{ list: BusinessPhoto[]; index: number } | null>(null);
   const [photoFilter, setPhotoFilter] = useState<"all" | "business" | "customer">("all");
 
-  if (isLoading)
-    return (
-      <main className="mx-auto max-w-2xl px-4 py-10 text-sm text-muted-foreground">Loading…</main>
-    );
+  if (isLoading) return <PageSkeleton />;
   if (!business)
     return (
       <main className="mx-auto max-w-2xl px-4 py-10">
