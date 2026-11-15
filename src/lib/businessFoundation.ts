@@ -335,3 +335,195 @@ export async function reportBusinessPhoto(
       /duplicate|23505/i.test(error.message) ? "You've already reported this photo" : error.message,
     );
 }
+
+// ===================================================================================================
+// Phase 2: trust and safety (migration 0081). Same rule: off unless the database says it's installed.
+// ===================================================================================================
+
+/** The 0081 columns on a business. */
+export type BusinessTrustFields = {
+  rating_score?: number;
+  trust_level?: "new" | "trusted" | "caution";
+};
+
+export function useBusinessTrust(): boolean {
+  const { data } = useQuery({
+    queryKey: ["feature", "business-trust"],
+    queryFn: async () => {
+      try {
+        const { data, error } = await looseDb.rpc("business_trust_ready");
+        return !error && data === true;
+      } catch {
+        return false;
+      }
+    },
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
+  return data === true;
+}
+
+export type BusinessActivity = {
+  followers?: number;
+  reviews?: number;
+  replies?: number;
+  last_reply?: string | null;
+  photos?: number;
+  last_photo?: string | null;
+};
+
+export async function fetchBusinessActivity(businessId: string): Promise<BusinessActivity> {
+  return (
+    (await rpc<BusinessActivity | null>("business_activity", { p_business: businessId })) ?? {}
+  );
+}
+
+export const REVIEW_REPORT_REASONS: [string, string][] = [
+  ["fake", "Looks fake"],
+  ["not_a_customer", "Not a customer"],
+  ["abusive", "Abusive or offensive"],
+  ["off_topic", "Not about this business"],
+  ["other", "Something else"],
+];
+
+export async function reportReview(
+  reviewId: string,
+  userId: string,
+  reason: string,
+  details: string,
+) {
+  const { error } = await looseDb
+    .from("review_reports")
+    .insert({ review_id: reviewId, reporter_id: userId, reason, details: details.slice(0, 1000) });
+  if (error)
+    throw new Error(
+      /duplicate|23505/i.test(error.message)
+        ? "You've already reported this review"
+        : error.message,
+    );
+}
+
+export const adminResolveReviewReport = (
+  reportId: string,
+  decision: "upheld" | "dismissed",
+  note?: string,
+) =>
+  rpc("admin_resolve_review_report", {
+    p_report: reportId,
+    p_decision: decision,
+    p_note: note ?? null,
+  });
+export const adminResolveFlag = (
+  flagId: string,
+  decision: "cleared" | "confirmed",
+  note?: string,
+) => rpc("admin_resolve_flag", { p_flag: flagId, p_decision: decision, p_note: note ?? null });
+export const adminResolveAppeal = (
+  appealId: string,
+  decision: "upheld" | "dismissed",
+  note: string,
+) => rpc("admin_resolve_appeal", { p_appeal: appealId, p_decision: decision, p_note: note });
+export const appealDecision = (
+  businessId: string,
+  kind: "report" | "flag" | "review" | "suspension",
+  refId: string,
+  message: string,
+) =>
+  rpc<string>("appeal_decision", {
+    p_business: businessId,
+    p_ref_kind: kind,
+    p_ref_id: refId,
+    p_message: message,
+  });
+
+export type BusinessNotice = ApprovalLogEntry & { ref_kind: string | null; ref_id: string | null };
+
+/** Decisions against a business the owner may appeal (from the log they can read), minus ones already appealed. */
+export async function fetchAppealableNotices(
+  businessId: string,
+): Promise<{ notices: BusinessNotice[]; appealed: Set<string> }> {
+  const [log, appeals] = await Promise.all([
+    looseDb
+      .from("business_approval_log")
+      .select("*")
+      .eq("business_id", businessId)
+      .in("kind", ["report_upheld", "flag_confirmed", "review_hidden"])
+      .order("created_at", { ascending: false })
+      .limit(20),
+    looseDb.from("business_appeals").select("ref_id").eq("business_id", businessId),
+  ]);
+  if (log.error) throw new Error(log.error.message);
+  const appealed = new Set(
+    ((appeals.data as { ref_id: string }[] | null) ?? []).map((a) => a.ref_id),
+  );
+  return { notices: (log.data as BusinessNotice[] | null) ?? [], appealed };
+}
+
+export type AdminFlag = {
+  id: string;
+  kind: "new_account" | "linked_account" | "review_burst";
+  detail: string;
+  created_at: string;
+  business_id: string;
+  businesses: { name: string } | null;
+  business_reviews: { rating: number; body: string } | null;
+};
+
+export async function fetchOpenFlags(): Promise<AdminFlag[]> {
+  const { data, error } = await looseDb
+    .from("business_flags")
+    .select(
+      "id, kind, detail, created_at, business_id, businesses(name), business_reviews(rating, body)",
+    )
+    .eq("status", "open")
+    .order("created_at", { ascending: true })
+    .limit(100);
+  if (error) throw new Error(error.message);
+  return (data as AdminFlag[] | null) ?? [];
+}
+
+export type AdminReviewReport = {
+  id: string;
+  reason: string;
+  details: string;
+  created_at: string;
+  business_reviews: {
+    rating: number;
+    body: string;
+    business_id: string;
+    businesses: { name: string } | null;
+  } | null;
+};
+
+export async function fetchOpenReviewReports(): Promise<AdminReviewReport[]> {
+  const { data, error } = await looseDb
+    .from("review_reports")
+    .select(
+      "id, reason, details, created_at, business_reviews(rating, body, business_id, businesses(name))",
+    )
+    .eq("status", "open")
+    .order("created_at", { ascending: true })
+    .limit(100);
+  if (error) throw new Error(error.message);
+  return (data as AdminReviewReport[] | null) ?? [];
+}
+
+export type AdminAppeal = {
+  id: string;
+  ref_kind: string;
+  message: string;
+  created_at: string;
+  business_id: string;
+  businesses: { name: string } | null;
+};
+
+export async function fetchOpenAppeals(): Promise<AdminAppeal[]> {
+  const { data, error } = await looseDb
+    .from("business_appeals")
+    .select("id, ref_kind, message, created_at, business_id, businesses(name)")
+    .eq("status", "open")
+    .order("created_at", { ascending: true })
+    .limit(100);
+  if (error) throw new Error(error.message);
+  return (data as AdminAppeal[] | null) ?? [];
+}
