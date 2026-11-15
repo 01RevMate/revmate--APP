@@ -23,6 +23,17 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 - Until it runs, the new tools stay hidden (the app checks `business_foundation_ready()` and treats anything
   other than `true` as off), and existing pages work as before.
 
+### 0b. Business trust and safety (Phase 2, needs 0080 first)
+
+- File: `drizzle/migrations/0081_business_trust_safety.sql` (`sql-to-run/34_business_trust_safety.sql`).
+  Rollback that keeps all collected data: `drizzle/migrations/0081_business_trust_safety_down.sql`.
+- Added: 2026-11-15. **Do not run until the `business-phase-2` pull request has been reviewed and approved.**
+- Adds smoothed ratings and a trust level calculated in the database, upheld-only report counts, review flags
+  (new accounts, same-company email, bursts) that go to an admin queue and never suspend anyone, per-review
+  reports, owner appeals, daily limits on reviews and reports, and a confirmed-email / day-old-account rule for
+  creating a business. Snapshot of the old numbers: `business_trust_backup_20261115`.
+- Until it runs, the new trust tools stay hidden (the app checks `business_trust_ready()`).
+
 ### 1. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).

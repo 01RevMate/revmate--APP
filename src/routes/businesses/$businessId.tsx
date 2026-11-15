@@ -47,8 +47,13 @@ import {
 import { PhotoLightbox, PhotoMosaic } from "@/components/BusinessPhotos";
 import { BusinessManager } from "@/components/BusinessManager";
 import { BusinessStatusPanel } from "@/components/BusinessStatusPanel";
+import { BusinessNotices } from "@/components/BusinessNotices";
+import { BusinessActivityRow } from "@/components/BusinessActivityRow";
 import {
   APPROVAL_LABELS,
+  REVIEW_REPORT_REASONS,
+  reportReview,
+  useBusinessTrust,
   approvalOf,
   fetchBusinessFollowerCount,
   fetchIsFollowingBusiness,
@@ -141,6 +146,7 @@ function BusinessPage() {
   const queryClient = useQueryClient();
   const profilesOn = useBusinessProfilesFeature();
   const foundation = useBusinessFoundation();
+  const trustReady = useBusinessTrust();
   usePaidReturn("You're on Business Pro. Thanks!", [["business"], ["businesses"]]);
   const { data: business, isLoading } = useQuery({
     queryKey: ["business", businessId],
@@ -208,6 +214,7 @@ function BusinessPage() {
         ← All businesses
       </Link>
       {foundation && isOwner && <BusinessStatusPanel business={business} />}
+      {foundation && trustReady && isOwner && <BusinessNotices business={business} />}
       {foundation && isAdmin && !isOwner && !isLive(business) && (
         <p className="mt-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
           Not public: {APPROVAL_LABELS[approvalOf(business).approval_status]}
@@ -228,7 +235,9 @@ function BusinessPage() {
         <h1 className="flex items-center gap-1.5 text-2xl font-bold leading-tight">
           {business.name}
           {business.verified && (
-            <BadgeCheck className="size-6 shrink-0 text-primary" aria-label="Verified by RevMate" />
+            <span title="RevMate checked this is a genuine car business. It isn't a guarantee of the quality of their work.">
+              <BadgeCheck className="size-6 shrink-0 text-primary" aria-label="Verified by RevMate" />
+            </span>
           )}
         </h1>
         <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
@@ -285,6 +294,7 @@ function BusinessPage() {
           )}
         </div>
         {foundation && isLive(business) && <FollowerCount businessId={business.id} />}
+        {foundation && trustReady && isLive(business) && <BusinessActivityRow businessId={business.id} />}
       </section>
 
       <nav className="sticky top-0 z-10 -mx-4 mt-4 flex border-b border-border bg-background/95 px-4 backdrop-blur">
@@ -507,6 +517,65 @@ function BusinessPage() {
   );
 }
 
+function ReportReviewControl({ reviewId, userId, onLogin }: { reviewId: string; userId: string | null; onLogin: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("fake");
+  const [details, setDetails] = useState("");
+  const [busy, setBusy] = useState(false);
+  if (!open)
+    return (
+      <button
+        type="button"
+        onClick={() => (userId ? setOpen(true) : onLogin())}
+        className="ml-3 mt-2 text-xs text-muted-foreground underline-offset-2 hover:underline"
+      >
+        Report this review
+      </button>
+    );
+  return (
+    <form
+      className="mt-2 space-y-2 rounded-xl bg-muted/60 p-3"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (!userId) return;
+        setBusy(true);
+        try {
+          await reportReview(reviewId, userId, reason, details);
+          toast.success("Thanks. RevMate will check this review.");
+          setOpen(false);
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Couldn't send the report");
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <label className="block text-xs font-medium">
+        What's wrong with it?
+        <select value={reason} onChange={(e) => setReason(e.target.value)} className="mt-1 w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm">
+          {REVIEW_REPORT_REASONS.map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+      </label>
+      <textarea
+        value={details}
+        onChange={(e) => setDetails(e.target.value)}
+        rows={2}
+        maxLength={1000}
+        placeholder="Anything else we should know (optional)"
+        className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm"
+      />
+      <div className="flex gap-2">
+        <button disabled={busy} className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+          {busy ? "Sending…" : "Send report"}
+        </button>
+        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1.5 text-sm">Cancel</button>
+      </div>
+    </form>
+  );
+}
+
 /** How the owner's edits are handled: live businesses send changes for approval, drafts save directly. */
 function manageMode(foundation: boolean, isOwner: boolean, isAdmin: boolean, business: BusinessProfile) {
   if (!foundation || isAdmin || !isOwner) return "direct" as const;
@@ -664,6 +733,7 @@ function ReviewsSection({
   refresh: () => void;
 }) {
   const queryClient = useQueryClient();
+  const trustReady = useBusinessTrust();
   const mine = reviews.find((r) => r.user_id === user?.id);
   const isOwner = user?.id === business.owner_user_id;
   const [writing, setWriting] = useState(false);
@@ -859,6 +929,12 @@ function ReviewsSection({
         </form>
       )}
 
+      {trustReady && !preview && (
+        <p className="mt-3 text-xs text-muted-foreground">
+          Ratings only count reviews from established accounts. Reviews waiting on a check, or removed by RevMate, don't
+          count. RevMate doesn't vouch for the quality of any business's work.
+        </p>
+      )}
       <ul className="mt-4 divide-y divide-border">
         {shown.map((r) => (
           <ReviewItem
@@ -869,6 +945,9 @@ function ReviewsSection({
             canReply={canReply && profilesOn}
             businessName={business.name}
             refresh={refresh}
+            {...(trustReady && !preview
+              ? { reporting: { userId: user?.id ?? null, onLogin: () => openAuthModal("Create a free account to report a review.") } }
+              : {})}
           />
         ))}
         {reviews.length === 0 && (
@@ -897,6 +976,7 @@ function ReviewItem({
   canReply,
   businessName,
   refresh,
+  reporting,
 }: {
   review: BusinessReview;
   photos: BusinessPhoto[];
@@ -904,6 +984,8 @@ function ReviewItem({
   canReply: boolean;
   businessName: string;
   refresh: () => void;
+  /** Set when review reporting is available. `userId` is null when signed out. */
+  reporting?: { userId: string | null; onLogin: () => void };
 }) {
   const reply = r as BusinessReview & {
     owner_reply?: string | null;
@@ -981,6 +1063,9 @@ function ReviewItem({
         >
           {reply.owner_reply ? "Edit reply" : "Reply"}
         </button>
+      )}
+      {reporting && reporting.userId !== r.user_id && (
+        <ReportReviewControl reviewId={r.id} userId={reporting.userId} onLogin={reporting.onLogin} />
       )}
       {replying && (
         <form onSubmit={sendReply} className="mt-2 space-y-2">

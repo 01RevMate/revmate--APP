@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { BUSINESS_CATEGORY_LABELS } from "@/lib/businesses";
 import {
   adminConfirmLegacyBusiness,
+  adminResolveAppeal,
+  adminResolveFlag,
   adminResolvePhotoReport,
+  adminResolveReviewReport,
   adminReviewBusiness,
   adminReviewPhoto,
   adminReviewRevision,
@@ -14,14 +17,28 @@ import {
   fetchApprovalLog,
   fetchBusinessesByApproval,
   fetchLegacyBusinesses,
+  fetchOpenAppeals,
+  fetchOpenFlags,
   fetchOpenPhotoReports,
+  fetchOpenReviewReports,
   fetchPendingPhotos,
   fetchPendingRevisions,
   fetchPendingTierRequests,
   type QueueBusiness,
+  useBusinessTrust,
 } from "@/lib/businessFoundation";
 
-type Tab = "pending" | "appealed" | "changes" | "tiers" | "photos" | "reports" | "legacy";
+type Tab =
+  | "pending"
+  | "appealed"
+  | "changes"
+  | "tiers"
+  | "photos"
+  | "reports"
+  | "legacy"
+  | "flags"
+  | "reviewReports"
+  | "decisionAppeals";
 
 /** Admin: the approval queue and everything else waiting on a person (migration 0080). */
 export function AdminBusinessApprovals() {
@@ -46,6 +63,22 @@ export function AdminBusinessApprovals() {
     queryFn: fetchOpenPhotoReports,
   });
   const legacy = useQuery({ queryKey: ["admin", "ba", "legacy"], queryFn: fetchLegacyBusinesses });
+  const trust = useBusinessTrust();
+  const flags = useQuery({
+    queryKey: ["admin", "ba", "flags"],
+    queryFn: fetchOpenFlags,
+    enabled: trust,
+  });
+  const reviewReports = useQuery({
+    queryKey: ["admin", "ba", "review-reports"],
+    queryFn: fetchOpenReviewReports,
+    enabled: trust,
+  });
+  const decisionAppeals = useQuery({
+    queryKey: ["admin", "ba", "decision-appeals"],
+    queryFn: fetchOpenAppeals,
+    enabled: trust,
+  });
 
   const act = useMutation({
     mutationFn: (fn: () => Promise<unknown>) => fn(),
@@ -65,6 +98,13 @@ export function AdminBusinessApprovals() {
     ["photos", "Photos", photos.data?.length ?? 0],
     ["reports", "Photo reports", reports.data?.length ?? 0],
     ["legacy", "Legacy approvals", legacy.data?.length ?? 0],
+    ...(trust
+      ? ([
+          ["flags", "Flags", flags.data?.length ?? 0],
+          ["reviewReports", "Review reports", reviewReports.data?.length ?? 0],
+          ["decisionAppeals", "Decision appeals", decisionAppeals.data?.length ?? 0],
+        ] as [Tab, string, number][])
+      : []),
   ];
 
   return (
@@ -253,9 +293,94 @@ export function AdminBusinessApprovals() {
             ))}
           </>
         )}
-        {isEmpty(tab, { pending, appealed, revisions, tiers, photos, reports, legacy }) && (
-          <p className="text-sm text-muted-foreground">Nothing waiting here.</p>
-        )}
+        {tab === "flags" &&
+          (flags.data ?? []).map((f) => (
+            <div key={f.id} className="rounded-xl border border-border p-3 text-sm">
+              <p className="font-semibold">
+                {f.businesses?.name ?? "Business"} · {f.kind.replace(/_/g, " ")}
+              </p>
+              <p className="text-muted-foreground">{f.detail}</p>
+              {f.business_reviews && (
+                <p className="mt-1 break-words rounded-md bg-muted/60 p-2">
+                  {f.business_reviews.rating}★ {f.business_reviews.body || "(no text)"}
+                </p>
+              )}
+              <p className="mt-1 text-xs text-muted-foreground">
+                Nothing is suspended automatically. Clearing counts the review; confirming removes
+                it (the owner can appeal).
+              </p>
+              <Decision
+                busy={act.isPending}
+                choices={[
+                  { label: "Clear (counts)", decision: "cleared" },
+                  { label: "Confirm (remove)", decision: "confirmed", reason: true },
+                ]}
+                onDecide={(decision, reason) =>
+                  act.mutate(() =>
+                    adminResolveFlag(f.id, decision as "cleared" | "confirmed", reason),
+                  )
+                }
+              />
+            </div>
+          ))}
+        {tab === "reviewReports" &&
+          (reviewReports.data ?? []).map((r) => (
+            <div key={r.id} className="rounded-xl border border-border p-3 text-sm">
+              <p className="font-semibold">{r.business_reviews?.businesses?.name ?? "Business"}</p>
+              <p className="break-words rounded-md bg-muted/60 p-2">
+                {r.business_reviews?.rating}★ {r.business_reviews?.body || "(no text)"}
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                {r.reason.replace(/_/g, " ")}
+                {r.details ? `: ${r.details}` : ""}
+              </p>
+              <Decision
+                busy={act.isPending}
+                choices={[
+                  { label: "Remove review", decision: "upheld", reason: true },
+                  { label: "Dismiss", decision: "dismissed" },
+                ]}
+                onDecide={(decision, reason) =>
+                  act.mutate(() =>
+                    adminResolveReviewReport(r.id, decision as "upheld" | "dismissed", reason),
+                  )
+                }
+              />
+            </div>
+          ))}
+        {tab === "decisionAppeals" &&
+          (decisionAppeals.data ?? []).map((a) => (
+            <div key={a.id} className="rounded-xl border border-border p-3 text-sm">
+              <p className="font-semibold">
+                {a.businesses?.name ?? "Business"} appeals a {a.ref_kind}
+              </p>
+              <p className="mt-1 break-words rounded-md bg-muted/60 p-2">{a.message}</p>
+              <Decision
+                busy={act.isPending}
+                choices={[
+                  { label: "Uphold appeal (reverse)", decision: "upheld", reason: true },
+                  { label: "Dismiss (final)", decision: "dismissed", reason: true },
+                ]}
+                onDecide={(decision, reason) =>
+                  act.mutate(() =>
+                    adminResolveAppeal(a.id, decision as "upheld" | "dismissed", reason ?? ""),
+                  )
+                }
+              />
+            </div>
+          ))}
+        {isEmpty(tab, {
+          pending,
+          appealed,
+          revisions,
+          tiers,
+          photos,
+          reports,
+          legacy,
+          flags,
+          reviewReports,
+          decisionAppeals,
+        }) && <p className="text-sm text-muted-foreground">Nothing waiting here.</p>}
       </div>
     </section>
   );
