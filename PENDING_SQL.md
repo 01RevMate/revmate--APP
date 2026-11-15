@@ -11,13 +11,17 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
-### 0. Business account switch (run this)
+### 0. Business foundation: approvals, tiers, follows, photo checks (Phase 1)
 
-- File: `drizzle/migrations/0079_business_account.sql` (`sql-to-run/32_business_account.sql`).
-- Added: 2026-11-14
-- Adds `profiles.business_account` (default false) and switches it on for anyone
-  who already owns a business. Until it runs, only existing business owners see
-  business tools, and nobody can switch them on from Settings.
+- File: `drizzle/migrations/0080_business_foundation.sql` (`sql-to-run/33_business_foundation.sql`).
+  Rollback that keeps all collected data: `drizzle/migrations/0080_business_foundation_down.sql`.
+- Added: 2026-11-15. **Do not run until the `business-phase-1` pull request has been reviewed and approved.**
+- Adds the approval workflow (`draft → pending → approved / needs_changes / rejected / appealed`), suspension,
+  listing/full tiers, reviewed edits to live businesses, personal-account follows (count only), photo review
+  and photo reports, an approval log, and a snapshot table `business_foundation_backup_20261115`.
+  Every business that is live today is kept online and marked as a legacy approval.
+- Until it runs, the new tools stay hidden (the app checks `business_foundation_ready()` and treats anything
+  other than `true` as off), and existing pages work as before.
 
 ### 1. Phone push notifications (optional, needs a few setup steps)
 
