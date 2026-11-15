@@ -14,6 +14,7 @@ import {
 } from "@/lib/businesses";
 import { uploadImage, validateImageFile } from "@/lib/uploads";
 import { Button } from "@/components/ui/button";
+import { submitBusinessRevision } from "@/lib/businessFoundation";
 
 export const MIN_PHOTOS = 5;
 
@@ -25,10 +26,18 @@ export function BusinessManager({
   business,
   photos,
   userId,
+  mode = "direct",
 }: {
   business: BusinessProfile;
   photos: BusinessPhoto[];
   userId: string;
+  /**
+   * direct: saves straight away (drafts, or an admin).
+   * revision: the business is live, so changes to its public details are sent for approval and the
+   *   live version stays as it is until they are approved.
+   * locked: the business is under review, so those details can't change right now.
+   */
+  mode?: "direct" | "revision" | "locked";
 }) {
   const queryClient = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -113,11 +122,9 @@ export function BusinessManager({
         DAYS.map(([key]) => [key, hours[key] ?? null]),
       ) as OpeningHours;
       const anyHours = Object.values(cleanHours).some(Boolean);
-      await saveBusinessProfile(business.id, {
+      const proposed = {
         name: name.trim(),
         category,
-        town: town.trim() || null,
-        contact_name: contactName.trim() || null,
         logo_url: logo,
         description: description.trim(),
         address: address.trim() || null,
@@ -129,9 +136,52 @@ export function BusinessManager({
           .map((s) => s.trim())
           .filter(Boolean)
           .slice(0, 30),
-        opening_hours: anyHours ? cleanHours : null,
-      });
-      toast.success("Profile saved");
+      };
+      if (mode === "revision" || mode === "locked") {
+        // Public details wait for approval; the rest (town, contact name, hours) apply at once.
+        const live = {
+          name: business.name,
+          category: business.category,
+          logo_url: business.logo_url,
+          description: business.description ?? "",
+          address: business.address ?? null,
+          phone: business.phone ?? null,
+          website: business.website ?? null,
+          email: business.email ?? null,
+          services: business.services ?? [],
+        };
+        const changes: Record<string, unknown> = {};
+        for (const key of Object.keys(proposed) as (keyof typeof proposed)[]) {
+          if (JSON.stringify(proposed[key]) !== JSON.stringify(live[key])) changes[key] = proposed[key];
+        }
+        await saveBusinessProfile(business.id, {
+          ...live,
+          town: town.trim() || null,
+          contact_name: contactName.trim() || null,
+          opening_hours: anyHours ? cleanHours : null,
+        });
+        if (mode === "locked") {
+          toast.success(
+            Object.keys(changes).length > 0
+              ? "Saved your hours and contact name. Other details can't change while the business is being reviewed."
+              : "Profile saved",
+          );
+        } else if (Object.keys(changes).length > 0) {
+          await submitBusinessRevision(business.id, changes);
+          toast.success("Changes sent for approval. Your live profile stays as it is until they're approved.");
+        } else {
+          toast.success("Profile saved");
+        }
+      } else {
+        await saveBusinessProfile(business.id, {
+          ...proposed,
+          town: town.trim() || null,
+          contact_name: contactName.trim() || null,
+          opening_hours: anyHours ? cleanHours : null,
+        });
+        toast.success("Profile saved");
+      }
+      void queryClient.invalidateQueries({ queryKey: ["business-revision", business.id] });
       refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't save the profile");
@@ -145,6 +195,18 @@ export function BusinessManager({
     <section className="mt-6 border-t border-border pt-5">
       <h2 className="text-lg font-bold">Manage your profile</h2>
       <p className="text-sm text-muted-foreground">Only you and RevMate's team see this box.</p>
+      {mode === "revision" && (
+        <p className="mt-2 rounded-md bg-muted/60 p-2 text-sm">
+          Your business is live. Changes to its name, category, description, logo, website, address, phone, email or
+          services are checked by RevMate first; everything else saves at once. New photos are checked too.
+        </p>
+      )}
+      {mode === "locked" && (
+        <p className="mt-2 rounded-md bg-muted/60 p-2 text-sm">
+          Your business is being reviewed, so its public details can't be changed right now. You can still add photos
+          and set opening hours.
+        </p>
+      )}
 
       <div className="mt-4">
         <div className="flex items-center justify-between gap-2">
@@ -189,6 +251,16 @@ export function BusinessManager({
             {ownPhotos.map((p) => (
               <div key={p.id} className="relative aspect-square overflow-hidden rounded-lg">
                 <img src={p.url} alt="" loading="lazy" className="size-full object-cover" />
+                {p.review_status === "pending" && (
+                  <span className="absolute inset-x-0 bottom-0 bg-black/70 px-1 py-0.5 text-center text-[10px] font-semibold text-white">
+                    Awaiting approval
+                  </span>
+                )}
+                {p.review_status === "rejected" && (
+                  <span className="absolute inset-x-0 bottom-0 bg-red-600/85 px-1 py-0.5 text-center text-[10px] font-semibold text-white">
+                    Removed
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={() => void remove(p)}

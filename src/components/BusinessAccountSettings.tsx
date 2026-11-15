@@ -4,10 +4,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useBusinessAccount } from "@/hooks/useBusinessAccount";
+import { APPROVAL_LABELS, approvalOf, useBusinessFoundation } from "@/lib/businessFoundation";
 
 /** Settings → Business account: the on switch, then a short setup checklist. */
 export function BusinessAccountSettings() {
   const { enabled, switchAvailable, hasBusiness, businesses, setEnabled } = useBusinessAccount();
+  const foundation = useBusinessFoundation();
   const first = businesses[0];
 
   function toggle(next: boolean) {
@@ -55,13 +57,35 @@ export function BusinessAccountSettings() {
         </p>
       )}
 
+      {enabled && foundation && businesses.length > 0 && (
+        <ul className="space-y-1.5" aria-label="Your businesses">
+          {businesses.map((b) => (
+            <li
+              key={b.id}
+              className="flex items-center justify-between gap-3 rounded-xl bg-card px-3 py-2 text-sm"
+            >
+              <span className="min-w-0 truncate font-medium">{b.name}</span>
+              <span className="shrink-0 text-xs text-muted-foreground">
+                {approvalOf(b).suspended_at
+                  ? "Suspended"
+                  : APPROVAL_LABELS[approvalOf(b).approval_status]}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
       {enabled && (
         <ol className="space-y-2">
           <Step
             done={hasBusiness}
             icon={Store}
             title="1. Create your business profile"
-            text="Name, what you do, town and contact details."
+            text={
+              foundation
+                ? "Name, what you do and where. RevMate checks every business before anyone else can see it."
+                : "Name, what you do, town and contact details."
+            }
             to="/businesses/manage"
             cta={hasBusiness ? "Manage" : "Create"}
           />

@@ -7,7 +7,7 @@ been run live in `applied/` for reference.
 | # | File | What it does | Status |
 |---|------|--------------|--------|
 | 30 | `30_business_profiles.sql` | Business photo galleries, review photos, owner replies, opening hours, more sectors | **Run this** |
-| 32 | `32_business_account.sql` | Business account switch in Settings (hides business tools until turned on) | **Run this** |
+| 33 | `33_business_foundation.sql` | Business approvals, tiers, edit review, follows, photo checks (rollback: `drizzle/migrations/0080_business_foundation_down.sql`) | **Run this, after the business-phase-1 pull request is approved** |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 

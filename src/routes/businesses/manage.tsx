@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { BUSINESS_SECTORS, createMyBusiness, fetchMyBusinesses } from "@/lib/businesses";
 import { uploadImage, validateImageFile } from "@/lib/uploads";
 import { useBusinessAccount } from "@/hooks/useBusinessAccount";
+import { APPROVAL_LABELS, approvalOf, useBusinessFoundation } from "@/lib/businessFoundation";
 
 export const Route = createFileRoute("/businesses/manage")({
   head: () => ({ meta: [
@@ -28,6 +29,7 @@ function MyBusinessPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const businessAccount = useBusinessAccount();
+  const foundation = useBusinessFoundation();
   const { data: mine = [], isPending, error, refetch } = useQuery({
     queryKey: ["my-businesses", user?.id],
     queryFn: () => user ? fetchMyBusinesses(user.id) : Promise.resolve([]),
@@ -55,7 +57,7 @@ function MyBusinessPage() {
     setSaving(true);
     try {
       const id = await createMyBusiness({ name: fields.name.trim(), category: fields.category, description: fields.description.trim(), town: fields.town.trim() || null, contact_name: fields.contact_name.trim() || null, email: fields.email.trim() || null, phone: fields.phone.trim() || null, logo_url: logo });
-      toast.success("Business added — you can now manage its profile");
+      toast.success("Draft saved. Finish your profile, then submit it for approval.");
       await navigate({ to: "/businesses/$businessId", params: { businessId: id }, search: { manage: true } });
     } catch (err) { toast.error(err instanceof Error ? err.message : "Couldn't add your business"); }
     finally { setSaving(false); }
@@ -74,15 +76,19 @@ function MyBusinessPage() {
     <div className="mt-5"><Button asChild><Link to="/settings">Open Settings</Link></Button></div>
   </main>;
 
-  const showForm = adding || (!isPending && !error && mine.length === 0);
+  // Adding a business needs the approval system installed; until then nothing can be created here
+  // (businesses no longer go live instantly), so the add form and button stay hidden.
+  const showForm = foundation && (adding || (!isPending && !error && mine.length === 0));
   return <main className="mx-auto max-w-2xl px-4 py-6">
     <Link to="/businesses" className="text-sm text-muted-foreground">← All businesses</Link>
-    <div className="mt-3 flex flex-wrap items-center justify-between gap-3"><h1 className="flex items-center gap-2 text-2xl font-bold"><Store className="size-6 text-primary" /> My business</h1>{mine.length > 0 && !showForm && <Button onClick={() => setAdding(true)}><Plus /> Add business</Button>}</div>
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-3"><h1 className="flex items-center gap-2 text-2xl font-bold"><Store className="size-6 text-primary" /> My business</h1>{foundation && mine.length > 0 && !showForm && mine.length < 3 && <Button onClick={() => setAdding(true)}><Plus /> Add business</Button>}</div>
+    {!foundation && mine.length === 0 && !isPending && <p className="mt-4 rounded-xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground">Adding a business isn't available just yet. We're getting business approvals ready, and it will switch on here as soon as they are.</p>}
+    {foundation && <p className="mt-3 text-sm text-muted-foreground">New businesses are checked by RevMate before anyone else can see them. You can have up to 3.</p>}
     {isPending && <p className="mt-4 text-muted-foreground">Loading your businesses…</p>}
     {error && <div role="alert" className="mt-4"><p>Couldn't load your businesses.</p><Button variant="outline" onClick={() => void refetch()}>Try again</Button></div>}
     <ul className="mt-4 divide-y divide-border">{mine.map(b => <li key={b.id} className="flex items-center gap-3 py-4">
       {b.logo_url ? <img src={b.logo_url} alt={`${b.name} logo`} className="size-12 rounded-md object-contain" /> : <Store className="size-10 text-muted-foreground" />}
-      <div className="min-w-0 flex-1"><p className="break-words font-semibold">{b.name}</p><p className="text-xs text-muted-foreground">{b.status === "active" ? "Live" : "Suspended"} · {b.verified ? "Verified" : "Not verified"}</p></div>
+      <div className="min-w-0 flex-1"><p className="break-words font-semibold">{b.name}</p><p className="text-xs text-muted-foreground">{foundation ? (approvalOf(b).suspended_at ? "Suspended" : APPROVAL_LABELS[approvalOf(b).approval_status]) : b.status === "active" ? "Live" : "Suspended"} · {b.verified ? "Verified" : "Not verified"}</p></div>
       <Button asChild variant="outline"><Link to="/businesses/$businessId" params={{ businessId: b.id }} search={{ manage: true }}>Manage</Link></Button>
     </li>)}</ul>
     {showForm && <form onSubmit={submit} className="mt-5 space-y-4 border-t border-border pt-5">

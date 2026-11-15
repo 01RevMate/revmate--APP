@@ -81,6 +81,7 @@ export async function searchEverything(query: string) {
       supabase
         .from("businesses")
         .select("id, name, category, town, rating_avg, reviews_count, verified")
+        .eq("status", "active")
         .or(`name.ilike.%${q}%,town.ilike.%${q}%,description.ilike.%${q}%`)
         .limit(6),
     ),

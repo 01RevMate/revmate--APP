@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronLeft, ChevronRight, Images, Store, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Flag, Images, Store, X } from "lucide-react";
+import { toast } from "sonner";
 import type { BusinessPhoto } from "@/lib/businesses";
+import { PHOTO_REPORT_REASONS, reportBusinessPhoto } from "@/lib/businessFoundation";
 import { SkeletonImage } from "@/components/SkeletonImage";
 
 /**
@@ -76,13 +78,20 @@ export function PhotoLightbox({
   index,
   onIndex,
   onClose,
+  reporting,
 }: {
   photos: BusinessPhoto[];
   index: number;
   onIndex: (index: number) => void;
   onClose: () => void;
+  /** When set, signed-in members can report the photo. `userId` is null when signed out. */
+  reporting?: { userId: string | null; onLogin: () => void };
 }) {
   const [touchX, setTouchX] = useState<number | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reason, setReason] = useState("inappropriate");
+  const [details, setDetails] = useState("");
+  const [sending, setSending] = useState(false);
   const photo = photos[index];
   const go = (step: number) => onIndex((index + step + photos.length) % photos.length);
 
@@ -155,9 +164,74 @@ export function PhotoLightbox({
           </>
         )}
       </div>
-      <p className="min-h-12 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2 text-center text-sm text-white/85">
-        {photo.caption}
-      </p>
+      <p className="min-h-12 px-4 pt-2 text-center text-sm text-white/85">{photo.caption}</p>
+      {reporting && (
+        <div className="px-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-center">
+          {!reportOpen ? (
+            <button
+              type="button"
+              onClick={() => (reporting.userId ? setReportOpen(true) : reporting.onLogin())}
+              className="inline-flex items-center gap-1.5 text-xs text-white/70 underline-offset-2 hover:text-white hover:underline"
+            >
+              <Flag className="size-3.5" /> Report this photo
+            </button>
+          ) : (
+            <form
+              className="mx-auto max-w-sm space-y-2 rounded-xl bg-white/10 p-3 text-left"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!reporting.userId) return;
+                setSending(true);
+                try {
+                  await reportBusinessPhoto(photo.id, reporting.userId, reason, details);
+                  toast.success("Thanks, we'll take a look at that photo");
+                  setReportOpen(false);
+                  setDetails("");
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Couldn't send the report");
+                } finally {
+                  setSending(false);
+                }
+              }}
+            >
+              <label className="block text-xs font-medium">
+                What's wrong with it?
+                <select
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  className="mt-1 w-full rounded-md bg-black/50 px-2 py-1.5 text-sm text-white"
+                >
+                  {PHOTO_REPORT_REASONS.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <textarea
+                value={details}
+                onChange={(e) => setDetails(e.target.value)}
+                maxLength={1000}
+                rows={2}
+                placeholder="Anything else we should know (optional)"
+                className="w-full rounded-md bg-black/50 px-2 py-1.5 text-sm text-white placeholder:text-white/50"
+              />
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  disabled={sending}
+                  className="rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-black disabled:opacity-50"
+                >
+                  {sending ? "Sending…" : "Send report"}
+                </button>
+                <button type="button" onClick={() => setReportOpen(false)} className="px-3 py-1.5 text-sm text-white/80">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      )}
     </div>,
     document.body,
   );
