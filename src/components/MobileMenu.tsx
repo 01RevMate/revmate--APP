@@ -125,6 +125,7 @@ export function MobileMenu() {
           <MenuLink to="/cars" icon={Car} label="Browse Cars" onNavigate={close} />
           <MenuLink to="/essentials" icon={Wrench} label="Essentials" onNavigate={close} />
           <MenuLink to="/marketplace" icon={Store} label="Buy & Sell" onNavigate={close} />
+          <MenuLink to="/businesses" icon={Building2} label="Find a business" onNavigate={close} />
           <ShopNavLink
             className={item}
             activeClassName={`${item} bg-accent text-foreground`}

@@ -9,6 +9,7 @@ been run live in `applied/` for reference.
 | 30 | `30_business_profiles.sql` | Business photo galleries, review photos, owner replies, opening hours, more sectors | **Run this** |
 | 33 | `33_business_foundation.sql` | Business approvals, tiers, edit review, follows, photo checks (rollback: `drizzle/migrations/0080_business_foundation_down.sql`) | **Run this, after the business-phase-1 pull request is approved** |
 | 34 | `34_business_trust_safety.sql` | Business trust and safety: smoothed ratings, review flags and reports, appeals, spam limits (rollback: `drizzle/migrations/0081_business_trust_safety_down.sql`). Needs 33 first. | **Run after 33, once the business-phase-2 pull request is approved** |
+| 35 | `35_business_discovery.sql` | Business search for every member: ranked search, nationwide option, rating / open-now filters (rollback: `drizzle/migrations/0082_business_discovery_down.sql`). Needs 33 and 34 first. | **Run after 34, once the business-phase-3 pull request is approved** |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 

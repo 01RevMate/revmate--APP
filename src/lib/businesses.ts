@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { BusinessApproval } from "@/lib/businessFoundation";
+import type { BusinessApproval, BusinessTrustFields } from "@/lib/businessFoundation";
 import { looseDb } from "@/lib/looseDb";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
@@ -443,7 +443,8 @@ export type DayKey = (typeof DAYS)[number][0];
 export type OpeningHours = Partial<Record<DayKey, { open: string; close: string } | null>>;
 
 /** The profile fields 0070 adds (not in the generated types until it runs). */
-export type BusinessProfile = Business & BusinessApproval & {
+export type BusinessProfile = Business & BusinessApproval & BusinessTrustFields & {
+  serves_nationwide?: boolean;
   address?: string | null;
   email?: string | null;
   opening_hours?: OpeningHours | null;
@@ -593,6 +594,8 @@ export async function saveBusinessProfile(
     address: string | null;
     services: string[];
     opening_hours: OpeningHours | null;
+    /** Only sent once the discovery update (0082) is installed. */
+    serves_nationwide?: boolean;
   },
 ) {
   const { error } = await looseDb.from("businesses").update(fields).eq("id", id);
