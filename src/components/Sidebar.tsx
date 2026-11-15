@@ -19,6 +19,7 @@ import {
   Wrench,
   Store,
   Building,
+  Building2,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -150,6 +151,7 @@ export function Sidebar() {
           collapsed={collapsed}
         />
         <NavLink to="/marketplace" icon={Store} label="Buy & Sell" collapsed={collapsed} />
+        <NavLink to="/businesses" icon={Building2} label="Find a business" collapsed={collapsed} />
         {collapsed ? (
           <div className="rail-wrap">
             <ShopNavLink className="rail-item" showLabel={false} />

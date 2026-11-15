@@ -16,6 +16,8 @@ import {
   type BusinessProfile,
 } from "@/lib/businesses";
 import { MIN_PHOTOS } from "@/components/BusinessManager";
+import { BusinessDiscovery } from "@/components/BusinessDiscovery";
+import { NEEDS, useBusinessDiscovery, type DiscoveryFilters } from "@/lib/businessDiscovery";
 import { seo } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { ListRowsSkeleton } from "@/components/PageSkeletons";
@@ -25,6 +27,14 @@ type DirSearch = {
   sector?: string | undefined;
   category?: string | undefined;
   area?: string | undefined;
+  // Member search (needs the discovery update): words, what they need, and filters.
+  q?: string | undefined;
+  need?: string | undefined;
+  scope?: "local" | "national" | "any" | undefined;
+  rating?: number | undefined;
+  trusted?: boolean | undefined;
+  open?: boolean | undefined;
+  sort?: "rating" | undefined;
 };
 
 export const Route = createFileRoute("/businesses/")({
@@ -38,6 +48,17 @@ export const Route = createFileRoute("/businesses/")({
     ...(typeof search["area"] === "string" && search["area"]
       ? { area: search["area"].slice(0, 30) }
       : {}),
+    ...(typeof search["q"] === "string" && search["q"] ? { q: search["q"].slice(0, 80) } : {}),
+    ...(typeof search["need"] === "string" && NEEDS.some((n) => n.id === search["need"])
+      ? { need: search["need"] }
+      : {}),
+    ...(search["scope"] === "local" || search["scope"] === "national" || search["scope"] === "any"
+      ? { scope: search["scope"] }
+      : {}),
+    ...(Number(search["rating"]) >= 3 ? { rating: Number(search["rating"]) >= 4 ? 4 : 3 } : {}),
+    ...(search["trusted"] === true || search["trusted"] === "true" ? { trusted: true } : {}),
+    ...(search["open"] === true || search["open"] === "true" ? { open: true } : {}),
+    ...(search["sort"] === "rating" ? { sort: "rating" as const } : {}),
   }),
   head: () =>
     seo({
@@ -55,17 +76,18 @@ function BusinessesPage() {
   const enabled = useBusinessesFeature();
   const [area, setArea] = useState(search.area ?? "");
   const profilesOn = useBusinessProfilesFeature();
+  const discovery = useBusinessDiscovery();
   const { data: businesses, isLoading: businessesLoading } = useQuery({
     queryKey: ["businesses", search],
     queryFn: () => fetchBusinesses(search),
-    enabled,
+    enabled: enabled && !discovery,
   });
   const isLoading = useMinSkeleton(businessesLoading);
   const ids = (businesses ?? []).map((b) => b.id);
   const { data: photoMap } = useQuery({
     queryKey: ["businesses", "photos", ids],
     queryFn: () => fetchPhotoSummaries(ids),
-    enabled: profilesOn && ids.length > 0,
+    enabled: profilesOn && ids.length > 0 && !discovery,
   });
   // Promoted first (already sorted), then profiles with enough photos.
   const ranked = [...(businesses ?? [])].sort(
@@ -77,6 +99,41 @@ function BusinessesPage() {
   const sector =
     BUSINESS_SECTORS.find((s) => s.id === search.sector) ??
     (search.category ? sectorOf(search.category) : null);
+
+  if (discovery) {
+    const filters: DiscoveryFilters = {
+      q: search.q,
+      need: search.need,
+      area: search.area,
+      scope: search.scope,
+      minRating: search.rating,
+      trusted: search.trusted,
+      openNow: search.open,
+      sort: search.sort,
+    };
+    return (
+      <>
+        <BusinessDiscovery
+          filters={filters}
+          onChange={(patch) =>
+            void navigate({
+              search: {
+                ...search,
+                ...("q" in patch ? { q: patch.q } : {}),
+                ...("need" in patch ? { need: patch.need } : {}),
+                ...("area" in patch ? { area: patch.area } : {}),
+                ...("scope" in patch ? { scope: patch.scope } : {}),
+                ...("minRating" in patch ? { rating: patch.minRating } : {}),
+                ...("trusted" in patch ? { trusted: patch.trusted } : {}),
+                ...("openNow" in patch ? { open: patch.openNow } : {}),
+                ...("sort" in patch ? { sort: patch.sort === "rating" ? ("rating" as const) : undefined } : {}),
+              },
+            })
+          }
+        />
+      </>
+    );
+  }
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6">
