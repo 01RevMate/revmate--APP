@@ -34,6 +34,15 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
   creating a business. Snapshot of the old numbers: `business_trust_backup_20261115`.
 - Until it runs, the new trust tools stay hidden (the app checks `business_trust_ready()`).
 
+### 0c. Business discovery: search for every member (Phase 3, needs 0080 and 0081 first)
+
+- File: `drizzle/migrations/0082_business_discovery.sql` (`sql-to-run/35_business_discovery.sql`).
+  Rollback: `drizzle/migrations/0082_business_discovery_down.sql` (keeps the `serves_nationwide` column and data).
+- Added: 2026-11-15. **Do not run until the `business-phase-3` pull request has been reviewed and approved.**
+- Adds `search_businesses()` (ranked by relevance, closeness to the member's area and trust, never by payment;
+  only approved, non-suspended businesses) and a "serves nationwide" option for businesses.
+- Until it runs, the directory keeps its earlier search (the app checks `business_discovery_ready()`).
+
 ### 1. Phone push notifications (optional, needs a few setup steps)
 
 - File: `drizzle/migrations/0032_push_notifications.sql` (`sql-to-run/13_push_notifications.sql`).
