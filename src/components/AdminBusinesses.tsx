@@ -1,3 +1,5 @@
+import { AdminBusinessApprovals } from "@/components/AdminBusinessApprovals";
+import { useBusinessFoundation } from "@/lib/businessFoundation";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -53,6 +55,7 @@ const EMPTY: Draft = {
 /** Admin: add and verify local businesses, and handle reports about them. */
 export function AdminBusinesses({ userId }: { userId: string }) {
   const profilesOn = useBusinessProfilesFeature();
+  const foundation = useBusinessFoundation();
   const queryClient = useQueryClient();
   const { data: businesses } = useQuery({
     queryKey: ["admin", "businesses"],
@@ -151,6 +154,8 @@ export function AdminBusinesses({ userId }: { userId: string }) {
 
   const input = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-normal";
   return (
+    <>
+    {foundation && <AdminBusinessApprovals />}
     <section className="mt-6 max-w-2xl">
       <h2 className="text-lg font-semibold">Local businesses</h2>
       <p className="mt-1 text-sm text-muted-foreground">
@@ -410,5 +415,6 @@ export function AdminBusinesses({ userId }: { userId: string }) {
         )}
       </ul>
     </section>
+    </>
   );
 }

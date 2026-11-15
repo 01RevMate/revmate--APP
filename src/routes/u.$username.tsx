@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MyAreaCard } from "@/components/MyAreaCard";
+import { ProfileBusinessCard } from "@/components/ProfileBusinessCard";
 import { fetchProfileSeo } from "@/lib/seoData";
 import { profileHead } from "@/lib/seoHeads";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -347,6 +348,8 @@ function GarageProfilePage() {
         <Section title="Community">
           <ProfileConnections userId={profile.user_id} />
         </Section>
+
+        <ProfileBusinessCard ownerId={profile.user_id} viewerIsOwner={isOwner} />
 
         <Section title="Garage">
           <div className="relative mt-14 rounded-b-xl border-x border-b border-border bg-card px-3 pb-3 pt-4 shadow-sm sm:px-5 sm:pb-5">

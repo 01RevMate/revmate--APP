@@ -15,6 +15,8 @@ import {
   Share2,
   Star,
   Truck,
+  UserCheck,
+  UserPlus,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -44,6 +46,17 @@ import {
 } from "@/lib/businesses";
 import { PhotoLightbox, PhotoMosaic } from "@/components/BusinessPhotos";
 import { BusinessManager } from "@/components/BusinessManager";
+import { BusinessStatusPanel } from "@/components/BusinessStatusPanel";
+import {
+  APPROVAL_LABELS,
+  approvalOf,
+  fetchBusinessFollowerCount,
+  fetchIsFollowingBusiness,
+  followBusiness,
+  isLive,
+  unfollowBusiness,
+  useBusinessFoundation,
+} from "@/lib/businessFoundation";
 import { useProfile } from "@/hooks/useProfile";
 import { uploadImage, validateImageFile } from "@/lib/uploads";
 import { supabase } from "@/integrations/supabase/client";
@@ -127,6 +140,7 @@ function BusinessPage() {
   const { open: openAuthModal } = useAuthModal();
   const queryClient = useQueryClient();
   const profilesOn = useBusinessProfilesFeature();
+  const foundation = useBusinessFoundation();
   usePaidReturn("You're on Business Pro. Thanks!", [["business"], ["businesses"]]);
   const { data: business, isLoading } = useQuery({
     queryKey: ["business", businessId],
@@ -193,6 +207,13 @@ function BusinessPage() {
       <Link to="/businesses" className="text-sm text-muted-foreground hover:text-foreground">
         ← All businesses
       </Link>
+      {foundation && isOwner && <BusinessStatusPanel business={business} />}
+      {foundation && isAdmin && !isOwner && !isLive(business) && (
+        <p className="mt-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+          Not public: {APPROVAL_LABELS[approvalOf(business).approval_status]}
+          {business.suspended_at ? " (suspended)" : ""}. Only the owner and admins can see this page.
+        </p>
+      )}
       <div className="mt-3">
         <PhotoMosaic
           photos={gallery}
@@ -259,7 +280,11 @@ function BusinessPage() {
             <ActionButton href={business.website} icon={Globe} label="Website" external />
           )}
           <ActionButton onClick={() => void share()} icon={Share2} label="Share" />
+          {foundation && isLive(business) && !isOwner && (
+            <FollowAction businessId={business.id} userId={user?.id ?? null} onLogin={() => openAuthModal("Create a free account to follow businesses.")} />
+          )}
         </div>
+        {foundation && isLive(business) && <FollowerCount businessId={business.id} />}
       </section>
 
       <nav className="sticky top-0 z-10 -mx-4 mt-4 flex border-b border-border bg-background/95 px-4 backdrop-blur">
@@ -455,7 +480,13 @@ function BusinessPage() {
       )}
 
       {tab === "manage" && canManage && user && (
-        <BusinessManager key={business.id} business={business} photos={photos} userId={user.id} />
+        <BusinessManager
+          key={business.id}
+          business={business}
+          photos={photos}
+          userId={user.id}
+          mode={manageMode(foundation, isOwner, isAdmin, business)}
+        />
       )}
       {tab === "manage" && isOwner && <BusinessProCard businessId={business.id} />}
 
@@ -467,9 +498,61 @@ function BusinessPage() {
           index={viewer.index}
           onIndex={(index) => setViewer((v) => (v ? { ...v, index } : v))}
           onClose={() => setViewer(null)}
+          {...(foundation
+            ? { reporting: { userId: user?.id ?? null, onLogin: () => openAuthModal("Create a free account to report a photo.") } }
+            : {})}
         />
       )}
     </main>
+  );
+}
+
+/** How the owner's edits are handled: live businesses send changes for approval, drafts save directly. */
+function manageMode(foundation: boolean, isOwner: boolean, isAdmin: boolean, business: BusinessProfile) {
+  if (!foundation || isAdmin || !isOwner) return "direct" as const;
+  const status = approvalOf(business).approval_status;
+  if (status === "approved") return "revision" as const;
+  return status === "draft" || status === "needs_changes" ? ("direct" as const) : ("locked" as const);
+}
+
+function FollowerCount({ businessId }: { businessId: string }) {
+  const { data } = useQuery({
+    queryKey: ["business-followers", businessId],
+    queryFn: () => fetchBusinessFollowerCount(businessId),
+    staleTime: 60_000,
+  });
+  if (!data) return null;
+  return (
+    <p className="mt-2 text-sm text-muted-foreground">
+      {data} {data === 1 ? "follower" : "followers"}
+    </p>
+  );
+}
+
+function FollowAction({ businessId, userId, onLogin }: { businessId: string; userId: string | null; onLogin: () => void }) {
+  const queryClient = useQueryClient();
+  const { data: following = false } = useQuery({
+    queryKey: ["business-following", businessId, userId],
+    queryFn: () => fetchIsFollowingBusiness(userId!, businessId),
+    enabled: !!userId,
+  });
+  async function toggle() {
+    if (!userId) return onLogin();
+    try {
+      if (following) await unfollowBusiness(userId, businessId);
+      else await followBusiness(userId, businessId);
+      void queryClient.invalidateQueries({ queryKey: ["business-following", businessId, userId] });
+      void queryClient.invalidateQueries({ queryKey: ["business-followers", businessId] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't update");
+    }
+  }
+  return (
+    <ActionButton
+      onClick={() => void toggle()}
+      icon={following ? UserCheck : UserPlus}
+      label={following ? "Following" : "Follow"}
+    />
   );
 }
 

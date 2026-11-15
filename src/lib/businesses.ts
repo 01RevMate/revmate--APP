@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { BusinessApproval } from "@/lib/businessFoundation";
 import { looseDb } from "@/lib/looseDb";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
@@ -254,8 +255,10 @@ export async function createMyBusiness(fields: Pick<TablesInsert<"businesses">, 
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError || !auth.user) throw new Error("Please sign in to add your business.");
   const id = crypto.randomUUID();
-  const { error } = await supabase.from("businesses").insert({ ...fields, id, owner_user_id: auth.user.id, verified: false, status: "active" });
-  if (error) throw error;
+  // A new business always starts as a private draft; it only goes public once an admin approves it
+  // (see businessFoundation.ts). The database enforces this regardless of what is sent here.
+  const { error } = await looseDb.from("businesses").insert({ ...fields, id, owner_user_id: auth.user.id, verified: false, approval_status: "draft", tier: "listing" });
+  if (error) throw new Error(error.message);
   return id;
 }
 
@@ -440,7 +443,7 @@ export type DayKey = (typeof DAYS)[number][0];
 export type OpeningHours = Partial<Record<DayKey, { open: string; close: string } | null>>;
 
 /** The profile fields 0070 adds (not in the generated types until it runs). */
-export type BusinessProfile = Business & {
+export type BusinessProfile = Business & BusinessApproval & {
   address?: string | null;
   email?: string | null;
   opening_hours?: OpeningHours | null;
@@ -457,6 +460,8 @@ export type BusinessPhoto = {
   caption: string;
   position: number;
   created_at: string;
+  /** 0080: owner uploads wait for approval; older photos are 'approved'. */
+  review_status?: "pending" | "approved" | "rejected";
 };
 
 /** True once 0070 has run (photo galleries, hours, replies, new sectors). */
