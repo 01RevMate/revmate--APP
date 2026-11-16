@@ -554,6 +554,13 @@
       "when": 1794321165706,
       "tag": "0078_charge_host_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "7",
+      "when": 1794821709387,
+      "tag": "0079_restrict_schema_features",
+      "breakpoints": true
     }
   ]
 }
