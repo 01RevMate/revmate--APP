@@ -24,7 +24,9 @@ export function Stars({ rating, className = "size-3.5" }: { rating: number; clas
 export function TrustBadge({
   business,
 }: {
-  business: Pick<Business, "rating_avg" | "reviews_count" | "reports_count"> & BusinessTrustFields;
+  business: Pick<Business, "rating_avg" | "reviews_count" | "reports_count"> & {
+    trust_level?: BusinessTrustFields["trust_level"] | string | null;
+  };
 }) {
   const level = business.trust_level ?? trustLevel(business);
   if (level === "trusted")
