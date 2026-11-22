@@ -1327,9 +1327,11 @@ export type Database = {
       car_faults: {
         Row: {
           car_id: string
+          cost_source_url: string | null
           created_at: string
           description: string | null
           id: string
+          last_checked: string | null
           source: Database["public"]["Enums"]["fault_source"]
           source_url: string | null
           title: string
@@ -1339,9 +1341,11 @@ export type Database = {
         }
         Insert: {
           car_id: string
+          cost_source_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          last_checked?: string | null
           source?: Database["public"]["Enums"]["fault_source"]
           source_url?: string | null
           title: string
@@ -1351,9 +1355,11 @@ export type Database = {
         }
         Update: {
           car_id?: string
+          cost_source_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          last_checked?: string | null
           source?: Database["public"]["Enums"]["fault_source"]
           source_url?: string | null
           title?: string
@@ -5692,7 +5698,7 @@ export type Database = {
     Enums: {
       account_status: "active" | "banned" | "removed"
       car_status: "verified" | "unverified"
-      fault_source: "ai" | "owner"
+      fault_source: "ai" | "owner" | "editorial"
       friendship_status: "pending" | "accepted"
       fuel_type: "petrol" | "diesel" | "electric" | "hybrid" | "lpg" | "other"
       garage_car_ownership_status: "current" | "previous"
@@ -5867,7 +5873,7 @@ export const Constants = {
     Enums: {
       account_status: ["active", "banned", "removed"],
       car_status: ["verified", "unverified"],
-      fault_source: ["ai", "owner"],
+      fault_source: ["ai", "owner", "editorial"],
       friendship_status: ["pending", "accepted"],
       fuel_type: ["petrol", "diesel", "electric", "hybrid", "lpg", "other"],
       garage_car_ownership_status: ["current", "previous"],
