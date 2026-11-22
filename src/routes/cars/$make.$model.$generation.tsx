@@ -1,10 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { breadcrumbs, seo } from "@/lib/seo";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, ThumbsDown, Users } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { carLabel, engineOptions, fetchCarBySlug, yearRange } from "@/lib/cars";
+import { carLabel, engineOptions, fetchCarBySlug, fetchCarFaults, yearRange } from "@/lib/cars";
+import { loadForSsr } from "@/lib/ssrLoad";
+import { carPageHead } from "@/lib/seoHeads";
 import { fetchMyLikedPostIds, fetchPostsByCar } from "@/lib/posts";
 import { fetchListingsForCar } from "@/lib/listings";
 import { PostCard } from "@/components/PostCard";
@@ -13,31 +13,39 @@ import { PageSkeleton } from "@/components/PageSkeletons";
 import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
 export const Route = createFileRoute("/cars/$make/$model/$generation")({
-  head: ({ params }) => {
-    const pretty = [params.make, params.model, params.generation]
-      .map((p) => p.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()))
-      .join(" ");
-    const path = `/cars/${params.make}/${params.model}/${params.generation}`;
-    return seo({
-      title: `${pretty} — specs, common faults & for sale | RevMate`,
-      description: `${pretty}: specs, common faults and how owners fixed them, and cars for sale in the UK.`,
-      path,
-      jsonLd: breadcrumbs([
-        { name: "Cars", path: "/cars" },
-        { name: pretty, path },
-      ]),
+  // The car, its faults, tagged posts and listings load here so the first HTML (the one Google
+  // reads) already contains them. If the database is slow, the page fetches in the browser instead.
+  loader: async ({ params }) => {
+    const result = await loadForSsr(async () => {
+      const car = await fetchCarBySlug(params.make, params.model, params.generation);
+      if (!car) return { car: null, faults: [], posts: [], listings: [] };
+      const [faults, posts, listings] = await Promise.all([
+        fetchCarFaults(car.id),
+        fetchPostsByCar(car.id),
+        fetchListingsForCar(car.id),
+      ]);
+      return { car, faults, posts, listings };
     });
+    // A car that doesn't exist should be a real 404, not a 200 page that says "not found".
+    if (result.ok && !result.data.car) throw notFound();
+    return result;
   },
+  head: ({ params, loaderData }) => carPageHead(params, loaderData),
   component: CarPage,
 });
 
 function CarPage() {
   const { make, model, generation } = Route.useParams();
   const { user } = useAuth();
+  const loaded = Route.useLoaderData();
+  // Data fetched by the loader seeds the queries, so the browser doesn't fetch it again straight away.
+  const seed = loaded.ok ? loaded.data : null;
 
   const carQuery = useQuery({
     queryKey: ["car", make, model, generation],
     queryFn: () => fetchCarBySlug(make, model, generation),
+    ...(seed ? { initialData: seed.car } : {}),
+    staleTime: 60_000,
   });
   const car = carQuery.data;
 
@@ -45,6 +53,8 @@ function CarPage() {
     queryKey: ["posts-by-car", car?.id],
     enabled: !!car,
     queryFn: () => fetchPostsByCar(car!.id),
+    ...(seed ? { initialData: seed.posts } : {}),
+    staleTime: 60_000,
   });
 
   const { data: likedIds } = useQuery({
@@ -60,21 +70,17 @@ function CarPage() {
   const faults = useQuery({
     queryKey: ["faults", car?.id],
     enabled: !!car,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("car_faults")
-        .select("*")
-        .eq("car_id", car!.id)
-        .order("upvotes", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => fetchCarFaults(car!.id),
+    ...(seed ? { initialData: seed.faults } : {}),
+    staleTime: 60_000,
   });
 
   const listings = useQuery({
     queryKey: ["listings", car?.id],
     enabled: !!car,
     queryFn: () => fetchListingsForCar(car!.id),
+    ...(seed ? { initialData: seed.listings } : {}),
+    staleTime: 60_000,
   });
 
   const showSkeleton = useMinSkeleton(carQuery.isLoading);

@@ -72,6 +72,17 @@ export async function fetchCarBySlug(make: string, model: string, generation: st
   return approvedMake ? { ...data, make: approvedMake } : null;
 }
 
+/** Common faults for one car, most upvoted first. */
+export async function fetchCarFaults(carId: string): Promise<CarFault[]> {
+  const { data, error } = await supabase
+    .from("car_faults")
+    .select("*")
+    .eq("car_id", carId)
+    .order("upvotes", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
 export async function setCarStatus(carId: string, status: Car["status"]) {
   const { error } = await supabase.from("cars").update({ status }).eq("id", carId);
   if (error) throw error;

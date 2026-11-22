@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { fetchPostSeo } from "@/lib/seoData";
 import { postHead } from "@/lib/seoHeads";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { loadForSsr } from "@/lib/ssrLoad";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchPost, fetchMyLikedPostIds } from "@/lib/posts";
 import { PostCard } from "@/components/PostCard";
@@ -9,12 +10,21 @@ import { PostCardSkeleton } from "@/components/PostCardSkeleton";
 
 export const Route = createFileRoute("/posts/$postId")({
   component: PostPage,
-  loader: ({ params }) => fetchPostSeo(params.postId),
-  head: ({ params, loaderData }) => postHead(params.postId, loaderData ?? null),
+  // The link-preview tags and the post itself both load here, so the first HTML (what Google reads)
+  // already contains the post. A slow database falls back to loading in the browser.
+  loader: async ({ params }) => {
+    const [seoData, full] = await Promise.all([
+      fetchPostSeo(params.postId),
+      loadForSsr(() => fetchPost(params.postId)),
+    ]);
+    return { seoData, full };
+  },
+  head: ({ params, loaderData }) => postHead(params.postId, loaderData?.seoData ?? null),
 });
 function PostPage() {
   const { postId } = Route.useParams();
   const { user } = useAuth();
+  const { full } = Route.useLoaderData();
   const {
     data: post,
     isLoading,
@@ -24,6 +34,10 @@ function PostPage() {
     queryKey: ["post", postId, user?.id],
     queryFn: () => fetchPost(postId),
     refetchInterval: 240000,
+    ...(full.ok ? { initialData: full.data } : {}),
+    // Signing in changes the query key; keep showing the server's copy while the signed-in one loads.
+    placeholderData: keepPreviousData,
+    staleTime: 60_000,
   });
   const { data: liked } = useQuery({
     queryKey: ["post", postId, "liked", user?.id],

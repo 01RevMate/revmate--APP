@@ -9,6 +9,7 @@ import type {
   fetchProfileSeo,
 } from "@/lib/seoData";
 import { displayUsername, displayUsernameWithoutAt } from "@/lib/usernames";
+import type { Car, CarFault } from "@/lib/cars";
 
 // Head tags for shareable pages. Pages that need an account (see AuthGate)
 // still get rich link previews, but stay out of Google until they're
@@ -39,22 +40,42 @@ export function postHead(postId: string, post: Loaded<typeof fetchPostSeo>) {
     path,
     image: pickShareImage(...images),
     type: "article",
-    noindex: !indexable(path),
-    jsonLd: {
-      "@context": "https://schema.org",
-      "@type": "SocialMediaPosting",
-      headline: firstLine,
-      articleBody: post.body,
-      datePublished: post.created_at,
-      url: absoluteUrl(path),
-      author: post.profiles
-        ? {
-            "@type": "Person",
-            name: author,
-            url: absoluteUrl(`/u/${displayUsernameWithoutAt(post.profiles.username)}`),
-          }
-        : undefined,
-    },
+    // Only fault posts (a problem and, ideally, its fix) are for Google; ordinary posts stay out.
+    noindex: !post.issue_status,
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "SocialMediaPosting",
+        headline: firstLine,
+        articleBody: post.body,
+        datePublished: post.created_at,
+        url: absoluteUrl(path),
+        author: post.profiles
+          ? {
+              "@type": "Person",
+              name: author,
+              url: absoluteUrl(`/u/${displayUsernameWithoutAt(post.profiles.username)}`),
+            }
+          : undefined,
+      },
+      // A fixed fault is a question with an accepted answer.
+      ...(post.issue_status === "resolved" && post.issue_fix
+        ? [
+            {
+              "@context": "https://schema.org",
+              "@type": "QAPage",
+              mainEntity: {
+                "@type": "Question",
+                name: firstLine,
+                text: post.body,
+                dateCreated: post.created_at,
+                answerCount: 1,
+                acceptedAnswer: { "@type": "Answer", text: post.issue_fix, url: absoluteUrl(path) },
+              },
+            },
+          ]
+        : []),
+    ],
   });
 }
 
@@ -218,5 +239,71 @@ export function meetHead(meetId: string, meet: Loaded<typeof fetchMeetSeo>) {
       image: meetShareImage({ id: meetId, title: meet.title, cover_url: meet.cover_url }),
       url: absoluteUrl(path),
     },
+  });
+}
+
+/** Cost text for a fault, only when a source backs it (never an unsourced estimate). */
+export function faultCostText(
+  fault: Pick<CarFault, "typical_cost_low" | "typical_cost_high"> & {
+    cost_source_url?: string | null;
+  },
+) {
+  if (!fault.cost_source_url) return null;
+  if (fault.typical_cost_low == null || fault.typical_cost_high == null) return null;
+  return `£${fault.typical_cost_low}–£${fault.typical_cost_high}`;
+}
+
+/**
+ * Car research page: the real car name, its top faults in the description, and the faults as a
+ * schema.org ItemList (fault and what to do about it) so search engines can read them.
+ */
+export function carPageHead(
+  params: { make: string; model: string; generation: string },
+  loaded: { ok: true; data: { car: Car | null; faults: CarFault[] } } | { ok: false } | undefined,
+) {
+  const pretty = [params.make, params.model, params.generation]
+    .map((p) => p.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()))
+    .join(" ");
+  const path = `/cars/${params.make}/${params.model}/${params.generation}`;
+  const data = loaded?.ok ? loaded.data : null;
+  const car = data?.car ?? null;
+  const name = car ? `${car.make} ${car.model} ${car.generation}` : pretty;
+  const faults = data?.faults ?? [];
+  const faultNames = faults.slice(0, 3).map((f) => f.title);
+  const description = faultNames.length
+    ? `${name}: common faults include ${faultNames.join(", ")}. Specs, how owners fixed them, and cars for sale in the UK.`
+    : `${name}: specs, common faults and how owners fixed them, and cars for sale in the UK.`;
+  const faultList = faults.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: `Common faults: ${name}`,
+        numberOfItems: faults.length,
+        itemListElement: faults.map((fault, index) => {
+          const cost = faultCostText(fault);
+          const text = [fault.description, cost ? `Typical cost: ${cost}.` : null]
+            .filter(Boolean)
+            .join(" ");
+          return {
+            "@type": "ListItem",
+            position: index + 1,
+            name: fault.title,
+            ...(text ? { description: summarise(text, 400) } : {}),
+            ...(fault.source_url ? { url: fault.source_url } : {}),
+          };
+        }),
+      }
+    : null;
+  return seo({
+    title: `${name} — specs, common faults & for sale | RevMate`,
+    description,
+    path,
+    jsonLd: [
+      breadcrumbs([
+        { name: "Cars", path: "/cars" },
+        { name, path },
+      ]),
+      ...(faultList ? [faultList] : []),
+    ],
   });
 }

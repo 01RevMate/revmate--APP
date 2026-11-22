@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { LogIn, Search, Stethoscope } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,7 +9,15 @@ import { MakeSelect } from "@/components/MakeSelect";
 import { ModelSelect } from "@/components/ModelSelect";
 import { fetchMyLikedPostIds } from "@/lib/posts";
 import { fetchGarage } from "@/lib/garage";
-import { fetchIssuePosts, ISSUE_SYSTEMS, useDiagnosticsFeature } from "@/lib/diagnostics";
+import {
+  fetchIssuePage,
+  ISSUE_PAGE_SIZE,
+  ISSUE_SYSTEMS,
+  useDiagnosticsFeature,
+  type IssueFilters,
+} from "@/lib/diagnostics";
+import { useIssueSearchFeature } from "@/lib/features";
+import { loadForSsr } from "@/lib/ssrLoad";
 import { seo } from "@/lib/seo";
 
 type IssueSearch = {
@@ -17,7 +25,17 @@ type IssueSearch = {
   model?: string | undefined;
   system?: string | undefined;
   fixed?: boolean | undefined;
+  /** Words to look for in the fault and its fix, e.g. "leak footwell". */
+  q?: string | undefined;
 };
+
+const filtersFrom = (search: IssueSearch): IssueFilters => ({
+  ...(search.make ? { make: search.make } : {}),
+  ...(search.model ? { model: search.model } : {}),
+  ...(search.system ? { system: search.system } : {}),
+  ...(search.q ? { query: search.q } : {}),
+  resolvedOnly: !!search.fixed,
+});
 
 export const Route = createFileRoute("/issues")({
   validateSearch: (search: Record<string, unknown>): IssueSearch => ({
@@ -27,7 +45,13 @@ export const Route = createFileRoute("/issues")({
       ? { system: search["system"] }
       : {}),
     ...(search["fixed"] === true || search["fixed"] === "true" ? { fixed: true } : {}),
+    ...(typeof search["q"] === "string" && search["q"].trim()
+      ? { q: search["q"].trim().slice(0, 100) }
+      : {}),
   }),
+  // The first page of fault posts loads here, so the HTML Google reads already contains them.
+  loaderDeps: ({ search }) => ({ search }),
+  loader: ({ deps }) => loadForSsr(() => fetchIssuePage(filtersFrom(deps.search), 0)),
   head: () =>
     seo({
       title: "Car problems & fixes — RevMate",
@@ -44,6 +68,9 @@ function IssuesPage() {
   const navigate = useNavigate({ from: "/issues" });
   const { user } = useAuth();
   const enabled = useDiagnosticsFeature();
+  const wordSearch = useIssueSearchFeature();
+  const loaded = Route.useLoaderData();
+  const [words, setWords] = useState(search.q ?? "");
   const [make, setMake] = useState(search.make ?? "");
   const [model, setModel] = useState(search.model ?? "");
   const setSearch = (next: IssueSearch) => void navigate({ search: next, replace: true });
@@ -56,17 +83,18 @@ function IssuesPage() {
     (c) => c.ownership_status !== "previous" && c.make && c.model,
   );
 
-  const { data: posts, isLoading } = useQuery({
+  const pages = useInfiniteQuery({
     queryKey: ["issues", search],
-    queryFn: () =>
-      fetchIssuePosts({
-        ...(search.make ? { make: search.make } : {}),
-        ...(search.model ? { model: search.model } : {}),
-        ...(search.system ? { system: search.system } : {}),
-        resolvedOnly: !!search.fixed,
-      }),
+    queryFn: ({ pageParam }) => fetchIssuePage(filtersFrom(search), pageParam),
+    initialPageParam: 0,
+    getNextPageParam: (last, all) =>
+      last.hasMore ? all.reduce((n, page) => n + page.posts.length, 0) : undefined,
+    ...(loaded.ok ? { initialData: { pages: [loaded.data], pageParams: [0] } } : {}),
+    staleTime: 60_000,
     enabled,
   });
+  const posts = pages.data?.pages.flatMap((page) => page.posts);
+  const isLoading = pages.isLoading;
   const { data: likedIds } = useQuery({
     queryKey: ["issues", "liked", user?.id, posts?.map((p) => p.id)],
     queryFn: () =>
@@ -154,6 +182,26 @@ function IssuesPage() {
         </button>
       </form>
 
+      {/* Minimal, unstyled word search (needs the 0083 update); Jordan to design. */}
+      {wordSearch && (
+        <form
+          className="mt-3 flex gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSearch({ ...search, q: words.trim() || undefined });
+          }}
+        >
+          <input
+            value={words}
+            onChange={(e) => setWords(e.target.value)}
+            placeholder="Describe the problem, e.g. leak footwell"
+            aria-label="Describe the problem"
+            className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+          <button className="rounded-md border border-input px-3 py-2 text-sm">Search</button>
+        </form>
+      )}
+
       <div className="-mx-4 mt-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [&::-webkit-scrollbar]:hidden">
         <button
           type="button"
@@ -188,6 +236,16 @@ function IssuesPage() {
         {posts?.map((post) => (
           <PostCard key={post.id} post={post} liked={likedIds?.has(post.id) ?? false} />
         ))}
+        {pages.hasNextPage && (
+          <button
+            type="button"
+            disabled={pages.isFetchingNextPage}
+            onClick={() => void pages.fetchNextPage()}
+            className="w-full rounded-md border border-input px-3 py-2 text-sm"
+          >
+            {pages.isFetchingNextPage ? "Loading…" : `Show more (${ISSUE_PAGE_SIZE} at a time)`}
+          </button>
+        )}
         {enabled && !isLoading && posts?.length === 0 && (
           <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
             Nothing reported yet for this. If you have the problem, post it in Diagnostics so owners
