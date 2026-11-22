@@ -575,6 +575,13 @@
       "when": 1795361444045,
       "tag": "0081_fault_library_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1795362417821,
+      "tag": "0082_fault_quote_deal_slot",
+      "breakpoints": true
     }
   ]
 }
