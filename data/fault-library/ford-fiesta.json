@@ -1,0 +1,35 @@
+{
+  "car": { "make": "Ford", "model": "Fiesta", "generation": "All years" },
+  "faults": [
+    {
+      "title": "Stiff gear selection (2008-2017)",
+      "description": "On the 2008-2017 car, first and reverse can be awkward to select. Auto Express suggests slotting into any gear you can find first, then moving to the one you want. Check this on a test drive before buying.",
+      "source_url": "https://www.autoexpress.co.uk/ford/fiesta/356270/used-ford-fiesta-mk7-2008-2017-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Door seals coming away",
+      "description": "Door rubbers on the 2008-2017 car can lift off the frame, causing wind noise at speed and water leaks into the cabin. Auto Express says re-gluing the seal is usually enough to put it right.",
+      "source_url": "https://www.autoexpress.co.uk/ford/fiesta/356270/used-ford-fiesta-mk7-2008-2017-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Buckled alloy wheels",
+      "description": "The 16 and 17 inch alloys on the 2008-2017 car can buckle, which shows up as a vibration as soon as you pull away. Look over the wheels and feel for vibration on the test drive.",
+      "source_url": "https://www.autoexpress.co.uk/ford/fiesta/356270/used-ford-fiesta-mk7-2008-2017-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Worn steering racks and track rod ends",
+      "description": "Auto Express reports that steering racks on the 2008-2017 car don't always last long and track rod ends can wear out early. It describes repairs as generally not too costly but gives no figure.",
+      "source_url": "https://www.autoexpress.co.uk/ford/fiesta/356270/used-ford-fiesta-mk7-2008-2017-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Pollen filter letting water in (2002-2008)",
+      "description": "On the 2002-2008 car, a faulty pollen filter can let water into the cabin, so look for damp patches. What Car's page (last updated 2013) also advises listening for water pump noise at idle on these cars.",
+      "source_url": "https://whatcar.com/news/common-ford-fiesta-problems",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

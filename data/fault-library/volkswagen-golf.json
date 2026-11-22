@@ -1,0 +1,35 @@
+{
+  "car": { "make": "Volkswagen", "model": "Golf", "generation": "All years" },
+  "faults": [
+    {
+      "title": "Automatic gearbox glitches (Mk7, 2013-2019)",
+      "description": "Carbuyer lists glitches and failures of the automatic gearbox among the Mk7's common problems. Test any automatic carefully and ask for evidence of servicing and any gearbox work.",
+      "source_url": "https://www.carbuyer.co.uk/volkswagen/golf/73525/used-volkswagen-golf-review-2013-2019-mk7/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Leaking dampers (Mk7)",
+      "description": "Leaking dampers are named as a common Mk7 problem. Look for oil on the dampers and listen for knocks over bumps on a test drive.",
+      "source_url": "https://www.carbuyer.co.uk/volkswagen/golf/73525/used-volkswagen-golf-review-2013-2019-mk7/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Headlight failure (Mk7)",
+      "description": "Headlight failures are listed among the Mk7's known faults. Check both headlights work on dipped and main beam before buying.",
+      "source_url": "https://www.carbuyer.co.uk/volkswagen/golf/73525/used-volkswagen-golf-review-2013-2019-mk7/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Broken timing chains on some petrol engines (Mk7)",
+      "description": "Carbuyer says timing chains have broken on some Mk7 petrol engines. The page doesn't say which engines. A full service history is described as crucial, so ask for it and for any chain work.",
+      "source_url": "https://www.carbuyer.co.uk/volkswagen/golf/73525/used-volkswagen-golf-review-2013-2019-mk7/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Electric handbrake and driver's wiper",
+      "description": "Electric handbrake faults are reported on the Mk7, though the page calls it largely reliable and says owners are divided. A smearing driver's wiper is usually cured by fitting upgraded blades.",
+      "source_url": "https://www.carbuyer.co.uk/volkswagen/golf/73525/used-volkswagen-golf-review-2013-2019-mk7/reliability",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}
