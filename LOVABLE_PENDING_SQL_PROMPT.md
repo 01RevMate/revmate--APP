@@ -21,6 +21,54 @@ Step 30 is complete. The unchanged SQL is now at
 
 ---
 
+## Prompt G3 — fixed-price quote slot (growth foundations)
+
+```
+Please run sql-to-run/38_fault_quote_deal_slot.sql on the connected Supabase
+database, exactly as committed. It allows a new 'faults' placement in
+affiliate_deals and inserts one starter deal (BookMyGarage) that is switched
+off. Then regenerate the Supabase types and confirm with:
+
+  select placement, partner, active from public.affiliate_deals where placement = 'faults';
+
+(it should return one row with active = false).
+```
+
+---
+
+## Prompt G2 — fault library schema (growth foundations)
+
+```
+Please run sql-to-run/37_fault_library_schema.sql on the connected Supabase
+database, exactly as committed. It adds an 'editorial' value to the
+fault_source enum and two nullable columns (cost_source_url, last_checked)
+to car_faults. It changes no existing rows. Then regenerate the Supabase
+types and confirm with:
+
+  select column_name from information_schema.columns
+  where table_name = 'car_faults' and column_name in ('cost_source_url', 'last_checked');
+
+(it should return both names).
+```
+
+---
+
+## Prompt G1 — fault search (growth foundations)
+
+```
+Please run sql-to-run/36_search_issue_posts.sql on the connected Supabase
+database, exactly as committed. It adds one search function
+(public.search_issue_posts, SECURITY INVOKER) and one index on the posts
+table. It changes no data. Then confirm it works with:
+
+  select count(*) from public.search_issue_posts(p_limit => 5);
+
+(it should return a number without an error), and regenerate the Supabase
+types.
+```
+
+---
+
 ## Prompt 1 — phone push notifications (optional)
 
 ```

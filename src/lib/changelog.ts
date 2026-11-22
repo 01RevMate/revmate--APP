@@ -24,6 +24,24 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: "1.35.0",
+    date: "2026-11-22",
+    title: "Faster, findable fault pages",
+    status: "needs_database_update",
+    highlights: [
+      "Car pages, the Faults list and fault posts now load with their content ready, so Google and sharing previews can read them.",
+      "Fault search matches words (\"leak footwell\" finds \"water leak in the footwell\") and no longer loses older fixes. Needs a database update.",
+      "Common faults can now show where each cost comes from, and costs without a source are hidden.",
+      "The sitemap lists every car with a fault or public post, and every public fault post.",
+      "A clearly labelled \"Get a fixed-price quote\" ad slot on car pages and fixed fault posts (off until a deal is switched on).",
+    ],
+    requiredSql: [
+      "sql-to-run/36_search_issue_posts.sql",
+      "sql-to-run/37_fault_library_schema.sql",
+      "sql-to-run/38_fault_quote_deal_slot.sql",
+    ],
+  },
+  {
     version: "1.34.0",
     date: "2026-11-10",
     title: "Lendawatt — community chargers",

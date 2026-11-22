@@ -78,7 +78,7 @@ export function fetchPostSeo(id: string) {
     const { data } = await supabase
       .from("posts")
       .select(
-        "id, body, created_at, category, profiles!posts_user_id_fkey(username, avatar_url), post_images(image_url, position)",
+        "id, body, created_at, category, issue_status, issue_fix, profiles!posts_user_id_fkey(username, avatar_url), post_images(image_url, position)",
       )
       .eq("id", id)
       .maybeSingle();
@@ -87,6 +87,8 @@ export function fetchPostSeo(id: string) {
       body: string;
       created_at: string;
       category: string;
+      issue_status: string | null;
+      issue_fix: string | null;
       profiles: { username: string; avatar_url: string | null } | null;
       post_images: { image_url: string; position: number }[] | null;
     } | null;

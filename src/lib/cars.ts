@@ -3,7 +3,15 @@ import type { Tables } from "@/integrations/supabase/types";
 import { canonicalApprovedVehicleMake } from "@/lib/approvedVehicleMakes";
 
 export type Car = Tables<"cars">;
-export type CarFault = Tables<"car_faults">;
+/**
+ * A fault. `source` is "ai" | "owner" | "editorial" (editorial, `cost_source_url` and `last_checked`
+ * arrive with migration 0084, so they are optional until the generated types catch up).
+ */
+export type CarFault = Omit<Tables<"car_faults">, "source"> & {
+  source: "ai" | "owner" | "editorial";
+  cost_source_url?: string | null;
+  last_checked?: string | null;
+};
 export type Listing = Tables<"listings">;
 
 export function slugify(value: string) {
@@ -70,6 +78,17 @@ export async function fetchCarBySlug(make: string, model: string, generation: st
   if (!data) return null;
   const approvedMake = canonicalApprovedVehicleMake(data.make);
   return approvedMake ? { ...data, make: approvedMake } : null;
+}
+
+/** Common faults for one car, most upvoted first. */
+export async function fetchCarFaults(carId: string): Promise<CarFault[]> {
+  const { data, error } = await supabase
+    .from("car_faults")
+    .select("*")
+    .eq("car_id", carId)
+    .order("upvotes", { ascending: false });
+  if (error) throw error;
+  return data;
 }
 
 export async function setCarStatus(carId: string, status: Car["status"]) {

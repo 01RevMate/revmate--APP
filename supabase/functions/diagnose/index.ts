@@ -9,7 +9,7 @@
 // 0066_diagnosis_and_shops.sql): off until an admin switches it on, with a
 // per-member and a whole-site daily cap so the bill can't run away.
 //
-// Secrets: ANTHROPIC_API_KEY. Optional: DIAGNOSE_MODEL (default claude-opus-5-5).
+// Secrets: ANTHROPIC_API_KEY. Optional: DIAGNOSE_MODEL (default claude-haiku-5-5).
 import Anthropic from "npm:@anthropic-ai/sdk@0.135.0";
 import { betaZodOutputFormat } from "npm:@anthropic-ai/sdk@0.135.0/helpers/beta/zod";
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -28,7 +28,7 @@ const corsHeaders = {
 };
 
 const apiKey = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
-const model = Deno.env.get("DIAGNOSE_MODEL") || "claude-opus-5-5";
+const model = Deno.env.get("DIAGNOSE_MODEL") || "claude-haiku-5-5";
 
 const admin = createClient(
   Deno.env.get("SUPABASE_URL") ?? "",

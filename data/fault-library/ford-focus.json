@@ -1,0 +1,29 @@
+{
+  "car": { "make": "Ford", "model": "Focus", "generation": "All years" },
+  "faults": [
+    {
+      "title": "Coolant leak from thermostat housing (Mk3, 2011-2018)",
+      "description": "Carbuyer says the thermostat housing on the Mk3 can drip coolant, which it calls an easy fix. Coolant leaks were also covered by a recall, so check the recall work was done.",
+      "source_url": "https://carbuyer.co.uk/reviews/ford/focus/hatchback/143875/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Stop-start failing when the battery is low (Mk3)",
+      "description": "The stop-start system on the Mk3 can fail when the battery is weak. Carbuyer advises checking the engine stops and restarts smoothly at a standstill.",
+      "source_url": "https://carbuyer.co.uk/reviews/ford/focus/hatchback/143875/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Automatic gearbox, power steering and clutch problems (Mk3)",
+      "description": "Carbuyer names automatic gearbox issues, power steering failure and clutch problems on the Mk3, without detail. A broken clutch pressure plate was fixed under recall. Test each carefully.",
+      "source_url": "https://carbuyer.co.uk/reviews/ford/focus/hatchback/143875/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Several Mk3 recalls to confirm",
+      "description": "Carbuyer says the Mk3 was recalled quite often. If all recall work has been done the issues shouldn't be a worry, so ask for proof or check with a Ford dealer using the VIN.",
+      "source_url": "https://carbuyer.co.uk/reviews/ford/focus/hatchback/143875/reliability",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

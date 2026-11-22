@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { absoluteUrl, pickShareImage } from "@/lib/seo";
-import { carPath } from "@/lib/cars";
+import { carPath, type Car } from "@/lib/cars";
 import { looseRpc } from "@/lib/publicProfiles";
 
 // Pages anyone can open without an account: static pages, every live
@@ -36,10 +36,55 @@ const escapeXml = (value: string) =>
     (c) => `&${{ "<": "lt", ">": "gt", "&": "amp", "'": "apos", '"': "quot" }[c]};`,
   );
 
+// Google reads up to 50,000 URLs per sitemap; we split well before that so each file stays fast.
+const MAX_URLS_PER_SITEMAP = 5000;
+
+type CarRow = Pick<Car, "id" | "make" | "model" | "generation" | "created_at">;
+
+/**
+ * Every car page worth reading: a car with at least one fault, or at least one public post, whatever
+ * its status (the seeded cars are "unverified"). Read as a signed-out visitor, so the `cars` access
+ * rule decides what is public and nothing private can leak.
+ */
+async function fetchCarsWithContent(): Promise<CarRow[]> {
+  const byId = new Map<string, CarRow>();
+  const { data: withFaults } = await supabase
+    .from("cars")
+    .select("id, make, model, generation, created_at, car_faults!inner(id)")
+    .limit(5000);
+  for (const car of withFaults ?? []) byId.set(car.id, car);
+
+  const { data: tagged } = await supabase
+    .from("posts")
+    .select("car_id")
+    .not("car_id", "is", null)
+    .is("group_id", null)
+    .limit(5000);
+  const postCarIds = [...new Set((tagged ?? []).map((p) => p.car_id as string))].filter(
+    (id) => !byId.has(id),
+  );
+  for (let i = 0; i < postCarIds.length; i += 100) {
+    const { data } = await supabase
+      .from("cars")
+      .select("id, make, model, generation, created_at")
+      .in("id", postCarIds.slice(i, i + 100));
+    for (const car of data ?? []) byId.set(car.id, car);
+  }
+  return [...byId.values()];
+}
+
+const xml = (body: string) =>
+  new Response(body, {
+    headers: {
+      "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": "public, max-age=900",
+    },
+  });
+
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
-      GET: async () => {
+      GET: async ({ request }: { request: Request }) => {
         const { data: listings } = await supabase
           .from("listings")
           .select("id, title, photos, created_at")
@@ -53,11 +98,17 @@ export const Route = createFileRoute("/sitemap.xml")({
           .eq("status", "active")
           .limit(5000);
 
-        // Every car research page (specs, common faults, for sale).
-        const { data: cars } = await supabase
-          .from("cars")
-          .select("make, model, generation, created_at")
-          .eq("status", "verified")
+        // Every car research page with faults or public posts (specs, common faults, for sale).
+        const cars = await fetchCarsWithContent();
+
+        // Public fault posts: a problem and (when solved) its fix. The signed-out access rules
+        // (adults only, no groups) apply to this read, so nothing private is listed.
+        const { data: faultPosts } = await supabase
+          .from("posts")
+          .select("id, created_at")
+          .not("issue_status", "is", null)
+          .is("group_id", null)
+          .order("created_at", { ascending: false })
           .limit(5000);
 
         // Upcoming car meets (public events).
@@ -88,10 +139,18 @@ export const Route = createFileRoute("/sitemap.xml")({
               .join("");
             return `<url><loc>${escapeXml(absoluteUrl(`/marketplace/${listing.id}`))}</loc><lastmod>${listing.created_at.slice(0, 10)}</lastmod><changefreq>daily</changefreq><priority>0.8</priority>${images}</url>`;
           }),
-          ...(cars ?? []).map((car) => {
+          ...cars.map((car) => {
             const { params } = carPath(car);
-            return `<url><loc>${escapeXml(absoluteUrl(`/cars/${params.make}/${params.model}/${params.generation}`))}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`;
+            // Slugs can contain "/" and brackets (e.g. "197/200-(mk3)"), so encode each segment.
+            const path = [params.make, params.model, params.generation]
+              .map(encodeURIComponent)
+              .join("/");
+            return `<url><loc>${escapeXml(absoluteUrl(`/cars/${path}`))}</loc><lastmod>${car.created_at.slice(0, 10)}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>`;
           }),
+          ...(faultPosts ?? []).map(
+            (post) =>
+              `<url><loc>${escapeXml(absoluteUrl(`/posts/${post.id}`))}</loc><lastmod>${post.created_at.slice(0, 10)}</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>`,
+          ),
           ...(meets ?? []).map(
             (m) =>
               `<url><loc>${escapeXml(absoluteUrl(`/meets/${m.id}`))}</loc><lastmod>${m.created_at.slice(0, 10)}</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>`,
@@ -106,14 +165,26 @@ export const Route = createFileRoute("/sitemap.xml")({
           ),
         ];
 
-        return new Response(
-          `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls.join("\n")}\n</urlset>\n`,
-          {
-            headers: {
-              "Content-Type": "application/xml; charset=utf-8",
-              "Cache-Control": "public, max-age=900",
-            },
-          },
+        const urlset = (entries: string[]) =>
+          `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${entries.join("\n")}\n</urlset>\n`;
+
+        if (urls.length <= MAX_URLS_PER_SITEMAP) return xml(urlset(urls));
+
+        // Too many for one file: /sitemap.xml becomes an index, and /sitemap.xml?page=N holds each slice.
+        const pages = Math.ceil(urls.length / MAX_URLS_PER_SITEMAP);
+        const page = Number(new URL(request.url).searchParams.get("page"));
+        if (Number.isInteger(page) && page >= 1 && page <= pages) {
+          return xml(
+            urlset(urls.slice((page - 1) * MAX_URLS_PER_SITEMAP, page * MAX_URLS_PER_SITEMAP)),
+          );
+        }
+        const today = new Date().toISOString().slice(0, 10);
+        return xml(
+          `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${Array.from(
+            { length: pages },
+            (_, i) =>
+              `<sitemap><loc>${escapeXml(absoluteUrl(`/sitemap.xml?page=${i + 1}`))}</loc><lastmod>${today}</lastmod></sitemap>`,
+          ).join("\n")}\n</sitemapindex>\n`,
         );
       },
     },

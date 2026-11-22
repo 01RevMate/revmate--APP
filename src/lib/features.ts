@@ -54,3 +54,20 @@ export function useGroupIconsFeature(): boolean {
  * Top cars tabs and related copy) without touching anything else.
  */
 export const BATTLES_ENABLED = false;
+
+/**
+ * True once 0083_search_issue_posts.sql has been applied (word-based, paged fault search).
+ * Probed with a one-row call; the app falls back to its older search until then.
+ */
+export function useIssueSearchFeature(): boolean {
+  const { data } = useQuery({
+    queryKey: ["feature", "issue-search"],
+    queryFn: async () => {
+      const { error } = await supabase.rpc("search_issue_posts" as never, { p_limit: 1 } as never);
+      return !error;
+    },
+    staleTime: Infinity,
+    retry: false,
+  });
+  return data === true;
+}

@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPublicProfile, PROFILE_PAGE } from "@/lib/publicProfiles";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useMatches, useRouterState } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import {
   BadgePoundSterling,
   CalendarDays,
@@ -84,6 +85,21 @@ export function AuthGate({ children }: { children: ReactNode }) {
   const href = useRouterState({ select: (state) => state.location.href });
 
   if (user || isPublicPath(pathname)) return <>{children}</>;
+  // A fault post is decided first, even while sign-in is still being checked, so the server's
+  // first HTML (what Google reads) already contains it.
+  const postMatch = POST_PAGE.exec(pathname);
+  if (postMatch) {
+    return (
+      <PublicFaultPostGate
+        postId={postMatch[1]!}
+        pathname={pathname}
+        href={href}
+        authLoading={loading}
+      >
+        {children}
+      </PublicFaultPostGate>
+    );
+  }
   // Don't flash the join screen at people who are signed in while we check.
   if (loading) return <div className="min-h-[60vh]" />;
   const profileMatch = PROFILE_PAGE.exec(pathname);
@@ -94,6 +110,54 @@ export function AuthGate({ children }: { children: ReactNode }) {
       </PublicProfileGate>
     );
   }
+  return <JoinWall pathname={pathname} redirect={safeRedirect(href)} />;
+}
+
+const POST_PAGE = /^\/posts\/([^/]+)\/?$/;
+
+/**
+ * Fault posts (a problem, and its fix once solved) are public so they can be found on Google;
+ * every other post still needs an account. "Visible" means the signed-out database rules let a
+ * visitor read it, so only adults' public posts ever qualify.
+ */
+function PublicFaultPostGate({
+  postId,
+  pathname,
+  href,
+  authLoading,
+  children,
+}: {
+  postId: string;
+  pathname: string;
+  href: string;
+  authLoading: boolean;
+  children: ReactNode;
+}) {
+  // The route's loader has already fetched the post as a signed-out visitor on the server.
+  const loaded = useMatches({
+    select: (matches) =>
+      (matches.find((m) => m.routeId === "/posts/$postId")?.loaderData as
+        | { full?: { ok: boolean; data?: { issue_status?: string | null } | null } }
+        | undefined)?.full,
+  });
+  const decided = loaded?.ok === true;
+  const { data, isLoading } = useQuery({
+    queryKey: ["public-fault-post", postId],
+    enabled: !decided,
+    queryFn: async () => {
+      const { data: row } = await supabase
+        .from("posts")
+        .select("id, issue_status")
+        .eq("id", postId)
+        .maybeSingle();
+      return row;
+    },
+    staleTime: 5 * 60_000,
+  });
+  const issueStatus = decided ? loaded.data?.issue_status : data?.issue_status;
+  if (issueStatus) return <>{children}</>;
+  // Not a public fault post: don't flash the join screen at signed-in people while we check.
+  if (authLoading || (!decided && isLoading)) return <div className="min-h-[60vh]" />;
   return <JoinWall pathname={pathname} redirect={safeRedirect(href)} />;
 }
 

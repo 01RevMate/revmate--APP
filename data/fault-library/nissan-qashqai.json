@@ -1,0 +1,35 @@
+{
+  "car": { "make": "Nissan", "model": "Qashqai", "generation": "All years" },
+  "faults": [
+    {
+      "title": "Weak battery (2014-2021)",
+      "description": "Carbuyer lists a weak battery among the problems on the 2014-2021 Qashqai. Ask whether the battery has been replaced and check the electrics work.",
+      "source_url": "https://www.carbuyer.co.uk/nissan/qashqai/137625/used-nissan-qashqai-review-2014-to-2021-mk2/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Water getting into the cabin",
+      "description": "Water ingress into the cabin is reported on the 2014-2021 Qashqai. Look for damp carpets and misting, and check the boot and footwells on a viewing.",
+      "source_url": "https://www.carbuyer.co.uk/nissan/qashqai/137625/used-nissan-qashqai-review-2014-to-2021-mk2/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Air conditioning and parking sensor failures",
+      "description": "Carbuyer reports air-conditioning failures and water getting into the parking sensors, which then stop working. Test the air conditioning and every parking sensor before buying.",
+      "source_url": "https://www.carbuyer.co.uk/nissan/qashqai/137625/used-nissan-qashqai-review-2014-to-2021-mk2/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Faulty media system",
+      "description": "The infotainment system can be fiddly, cut out the radio or fail to remember stations, according to Carbuyer. Try it thoroughly on a test drive.",
+      "source_url": "https://www.carbuyer.co.uk/nissan/qashqai/137625/used-nissan-qashqai-review-2014-to-2021-mk2/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Radiator fan recall (2019)",
+      "description": "Carbuyer lists a 2019 recall for a radiator fan that could fail, calling it a more important recall. Other recalls include a 2016 exhaust sensor. Check recall work was completed using the VIN.",
+      "source_url": "https://www.carbuyer.co.uk/nissan/qashqai/137625/used-nissan-qashqai-review-2014-to-2021-mk2/reliability",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { looseDb } from "@/lib/looseDb";
 import { POST_SELECT, resolvePostPhotos, type PostWithAuthor } from "@/lib/posts";
 
 // Smart diagnostic posts (0045): which part of the car the problem is in,
@@ -109,4 +109,86 @@ export async function fetchIssuePosts(filters: {
       b.created_at.localeCompare(a.created_at),
   );
   return resolvePostPhotos(posts);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Paged, word-based fault search (migration 0083: search_issue_posts).
+// Until that migration has run, the same call quietly falls back to the older method (newest 300
+// fault posts, filtered in the browser), so nothing breaks before the SQL is applied.
+// ---------------------------------------------------------------------------------------------
+
+export const ISSUE_PAGE_SIZE = 20;
+
+export type IssueFilters = {
+  make?: string | undefined;
+  model?: string | undefined;
+  system?: string | undefined;
+  resolvedOnly?: boolean | undefined;
+  /** Words to look for in the post and its fix, e.g. "leak footwell". */
+  query?: string | undefined;
+};
+
+export type IssuePage = { posts: PostWithAuthor[]; hasMore: boolean };
+
+async function searchIssuePostsRpc(
+  filters: IssueFilters,
+  offset: number,
+  limit: number,
+): Promise<IssuePage | null> {
+  try {
+    const { data, error } = await looseDb
+      .rpc("search_issue_posts", {
+        p_make: filters.make ?? null,
+        p_model: filters.model ?? null,
+        p_system: filters.system ?? null,
+        p_resolved_only: !!filters.resolvedOnly,
+        p_query: filters.query?.trim() || null,
+        // One extra row tells us whether there is another page.
+        p_limit: limit + 1,
+        p_offset: offset,
+      })
+      .select(POST_SELECT);
+    if (error) return null; // function not installed yet (or briefly unavailable): use the fallback
+    const rows = (data as unknown as PostWithAuthor[] | null) ?? [];
+    return { posts: await resolvePostPhotos(rows.slice(0, limit)), hasMore: rows.length > limit };
+  } catch {
+    return null;
+  }
+}
+
+async function legacyIssuePage(
+  filters: IssueFilters,
+  offset: number,
+  limit: number,
+): Promise<IssuePage> {
+  const words = norm(filters.query).split(/\s+/).filter(Boolean);
+  const all = await fetchIssuePosts({
+    ...(filters.make ? { make: filters.make } : {}),
+    ...(filters.model ? { model: filters.model } : {}),
+    ...(filters.system ? { system: filters.system } : {}),
+    resolvedOnly: !!filters.resolvedOnly,
+  });
+  const matching = words.length
+    ? all.filter((post) => {
+        const text = norm(
+          `${post.body} ${(post as { issue_fix?: string | null }).issue_fix ?? ""}`,
+        );
+        return words.every((word) => text.includes(word));
+      })
+    : all;
+  return {
+    posts: matching.slice(offset, offset + limit),
+    hasMore: matching.length > offset + limit,
+  };
+}
+
+/** One page of fault posts: fixed first, then best word match, then newest. */
+export async function fetchIssuePage(
+  filters: IssueFilters,
+  offset = 0,
+  limit = ISSUE_PAGE_SIZE,
+): Promise<IssuePage> {
+  return (
+    (await searchIssuePostsRpc(filters, offset, limit)) ?? legacyIssuePage(filters, offset, limit)
+  );
 }

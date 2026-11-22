@@ -227,13 +227,14 @@ export function useAdFree(): boolean {
 
 // ---------- Deals ----------
 
-export type DealPlacement = "essentials" | "ev_chargers" | "fuel" | "marketplace";
+export type DealPlacement = "essentials" | "ev_chargers" | "fuel" | "marketplace" | "faults";
 
 export const DEAL_PLACEMENTS: { value: DealPlacement; label: string }[] = [
   { value: "essentials", label: "Essentials" },
   { value: "ev_chargers", label: "EV chargers" },
   { value: "fuel", label: "Fuel prices" },
   { value: "marketplace", label: "Buy & Sell" },
+  { value: "faults", label: "Fault pages (get a quote)" },
 ];
 
 export type Deal = {
