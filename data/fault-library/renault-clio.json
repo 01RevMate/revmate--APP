@@ -1,0 +1,15 @@
+{
+  "car": {
+    "make": "Renault",
+    "model": "Clio",
+    "generation": "Mk4"
+  },
+  "faults": [
+    {
+      "title": "Brake-hose chafing recall",
+      "description": "Some Mk4 Clios built between 2012 and 2015 were recalled because brake hoses could chafe and leak fluid. Check whether the VIN is affected and ensure the recall repair has been completed.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154649/used-renault-clio-buying-guide-2013-present-mk4",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

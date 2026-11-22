@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Toyota",
+    "model": "Aygo",
+    "generation": "Mk1 (2005–2014)"
+  },
+  "faults": [
+    {
+      "title": "Water entering the boot",
+      "description": "On the first-generation Aygo, water can enter around the rear window or lamps and leave the boot damp. Check for staining or moisture and repair the leak path before drying the trim.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154740/used-toyota-aygo-buying-guide-2005-2014-mk1",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Water-pump coolant leak",
+      "description": "Coolant can escape from the Mk1 Aygo's water pump. Check for falling coolant level or visible leaks and have the cooling system repaired before the engine overheats.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154740/used-toyota-aygo-buying-guide-2005-2014-mk1",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

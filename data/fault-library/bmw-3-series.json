@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "BMW",
+    "model": "3 Series",
+    "generation": "F30"
+  },
+  "faults": [
+    {
+      "title": "Front-seat frame squeaks",
+      "description": "Corrosion around the front-seat hinges or adjustment mechanism can cause squeaks in the F30. Move each seat through its range and have the frame and mechanism inspected if noise persists.",
+      "source_url": "https://www.autoexpress.co.uk/bmw/3-series/36924/used-bmw-3-series-f30-mk6-2012-2018-review-and-buyers-guide",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Bluetooth pairing failure",
+      "description": "Some F30 cars have trouble connecting a phone over Bluetooth. Test pairing and reconnection with a current phone; the reported remedy can be a software update from a BMW workshop.",
+      "source_url": "https://www.autoexpress.co.uk/bmw/3-series/36924/used-bmw-3-series-f30-mk6-2012-2018-review-and-buyers-guide",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

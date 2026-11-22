@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Mercedes-Benz",
+    "model": "C-Class",
+    "generation": "W205"
+  },
+  "faults": [
+    {
+      "title": "Squealing brakes",
+      "description": "Some 2014–2021 C-Class cars have been reported with brakes that squeal and are difficult to quieten. Check braking performance and have the system inspected rather than treating persistent noise as harmless.",
+      "source_url": "https://www.carbuyer.co.uk/mercedes/c-class/139570/used-mercedes-c-class-saloon-review-2014-2021-mk4/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Infotainment and navigation glitches",
+      "description": "Owners have reported electrical problems affecting the W205 infotainment or satnav. Test the display and navigation during a drive and check for software or hardware faults if the issue repeats.",
+      "source_url": "https://www.carbuyer.co.uk/mercedes/c-class/139570/used-mercedes-c-class-saloon-review-2014-2021-mk4/reliability",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Audi",
+    "model": "A3",
+    "generation": "8V"
+  },
+  "faults": [
+    {
+      "title": "Water-pump leak",
+      "description": "Some third-generation A3 owners have reported water-pump leaks. Check for coolant loss or fluid beneath the car and have the cooling system inspected before overheating develops.",
+      "source_url": "https://www.carbuyer.co.uk/audi/a3/76459/used-audi-a3-review-2012-to-2020-mk3/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Retracting infotainment screen creak",
+      "description": "The A3's pop-up infotainment display can creak as it rises or retracts. Check the mechanism in both directions; lubrication or replacement may be needed if the noise persists.",
+      "source_url": "https://www.carbuyer.co.uk/audi/a3/76459/used-audi-a3-review-2012-to-2020-mk3/reliability",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

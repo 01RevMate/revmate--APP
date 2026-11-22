@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Ford",
+    "model": "Kuga",
+    "generation": "Mk2 (2012–2019)"
+  },
+  "faults": [
+    {
+      "title": "Manual-petrol clutch pressure plate fault",
+      "description": "On some petrol Mk2 Kugas with a manual gearbox, a faulty clutch pressure plate can cause a burning clutch smell. Stop using a car with this symptom and check whether the relevant recall repair was done.",
+      "source_url": "https://www.carbuyer.co.uk/reviews/ford/kuga/suv/62527/review/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Tailgate-catch knocking",
+      "description": "A knock from the rear of a Mk2 Kuga can come from the tailgate catch. Check the catch and surrounding fittings before attributing the sound to the suspension.",
+      "source_url": "https://www.carbuyer.co.uk/reviews/ford/kuga/suv/62527/review/reliability",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

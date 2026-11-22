@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Nissan",
+    "model": "Juke",
+    "generation": "F15"
+  },
+  "faults": [
+    {
+      "title": "Air-conditioning pipe failure",
+      "description": "A pipe in the first-generation Juke's air-conditioning system can fail and stop cold air reaching the cabin. Test the system and have leaks located before replacing parts or simply recharging it.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154222/used-nissan-juke-buying-guide-2010-2014-mk1",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Turbo-related stalling recall on early cars",
+      "description": "Some Jukes built from March 2010 to November 2011 were recalled for a turbo issue that could stall the engine. Check the VIN and confirm the recall repair was completed on an affected car.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154222/used-nissan-juke-buying-guide-2010-2014-mk1",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

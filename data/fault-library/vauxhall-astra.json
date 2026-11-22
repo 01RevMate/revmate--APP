@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Vauxhall",
+    "model": "Astra",
+    "generation": "K"
+  },
+  "faults": [
+    {
+      "title": "Piston-ring trouble on early petrol engines",
+      "description": "Some early Astra K petrol engines have suffered piston-ring failure. Check the service record and investigate abnormal oil use, smoke or poor running before buying or continuing to drive a suspect car.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/astra/86774/used-vauxhall-astra-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Premature clutch wear",
+      "description": "Worn clutches have been reported even on low-mileage Astra K cars. Check for slipping, judder or an unusual biting point on a test drive and get the clutch inspected if any symptom is present.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/astra/86774/used-vauxhall-astra-review",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

@@ -6,6 +6,8 @@ Branch `growth-foundations`. One commit per task. Nothing was applied to the liv
 
 The original status below is a snapshot from before rollout. The live database now has migrations 0083–0085 and the 19 reviewed editorial faults. A live audit found **89** AI-sourced faults across 39 cars with no source URLs, rather than 11. Migration 0086 hides those 89 claims from public reads while retaining every row for later source review. Signed-out reads return the 19 editorial faults. The `diagnose` function's deployed revision remains unverified.
 
+The remaining 21 cars now have draft files in `data/fault-library/`: 41 additional fault descriptions, each linked to a page read on 22 November 2026, with no repair costs. The full 25-file library validates (60 faults). These 21 drafts need Jordan's source and wording review before import; they are not live.
+
 ## Status at a glance
 
 | # | Task | Status |

@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "MINI",
+    "model": "Hatch",
+    "generation": "F56"
+  },
+  "faults": [
+    {
+      "title": "Manual clutch action problems",
+      "description": "On some third-generation manual MINI hatches, the clutch hydraulics or pedal return spring can cause trouble. Check that the pedal returns smoothly and have any sticking or inconsistent action inspected.",
+      "source_url": "https://www.carbuyer.co.uk/used-car-reviews/303816/used-mini-hatchback-review-2014-to-present-mk3",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Gear linkage jumping out of gear",
+      "description": "A worn or misadjusted linkage can make a third-generation MINI jump out of gear. During a test drive, check that each gear stays engaged and have the linkage adjusted or repaired if it does not.",
+      "source_url": "https://www.carbuyer.co.uk/used-car-reviews/303816/used-mini-hatchback-review-2014-to-present-mk3",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

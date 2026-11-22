@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "BMW",
+    "model": "1 Series",
+    "generation": "F20"
+  },
+  "faults": [
+    {
+      "title": "Blocked engine-bay drains",
+      "description": "Leaves can obstruct drains around the engine bay of the second-generation 1 Series, allowing water to collect and affect electrics. Check the drains and investigate any dampness or electrical warnings.",
+      "source_url": "https://www.carbuyer.co.uk/reviews/bmw/series-1/hatchback/53873/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Water entering light units",
+      "description": "Lights on the F20 can admit water and mist up. Persistent condensation, especially with a failed lamp, should prompt an inspection of the unit and its seals.",
+      "source_url": "https://www.carbuyer.co.uk/reviews/bmw/series-1/hatchback/53873/reliability",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

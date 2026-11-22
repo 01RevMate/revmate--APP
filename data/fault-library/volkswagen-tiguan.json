@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Volkswagen",
+    "model": "Tiguan",
+    "generation": "Mk1 (2008–2016)"
+  },
+  "faults": [
+    {
+      "title": "Power-steering problems",
+      "description": "The first-generation Tiguan can have steering-system trouble that may involve its control unit or larger steering assembly. Listen for unusual noises and have unexpected steering behaviour checked promptly.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154678/used-volkswagen-tiguan-buying-guide-2008-2016-mk1",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Front-suspension rattles",
+      "description": "Rattling from the front suspension is a reported Mk1 Tiguan weakness. Check for noise over uneven roads and ask a workshop to identify the worn or loose part before repair.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154678/used-volkswagen-tiguan-buying-guide-2008-2016-mk1",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

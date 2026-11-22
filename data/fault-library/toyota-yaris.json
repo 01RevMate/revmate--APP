@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Toyota",
+    "model": "Yaris",
+    "generation": "XP130"
+  },
+  "faults": [
+    {
+      "title": "Corrosion near rear number plate",
+      "description": "On the Mk3 Yaris, inspect the bodywork around the rear number plate for rust. If corrosion has started, have the affected area assessed and repaired before it spreads.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154293/used-toyota-yaris-buying-guide-2011-2015-mk3",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Intermittent petrol-engine misfire",
+      "description": "Some petrol Mk3 Yaris cars have been reported to misfire and then run normally after a restart. Record when it happens and have the ignition and engine controls checked if it recurs.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154293/used-toyota-yaris-buying-guide-2011-2015-mk3",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

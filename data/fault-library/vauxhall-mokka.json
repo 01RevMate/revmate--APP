@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Vauxhall",
+    "model": "Mokka",
+    "generation": "Mk1 (2012–2021)"
+  },
+  "faults": [
+    {
+      "title": "Handbrake not holding on slopes",
+      "description": "Some first-generation Mokka owners have reported a handbrake that does not hold the car securely on a steep incline. Have the parking-brake mechanism checked and repaired if it slips.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/mokka/95407/used-vauxhall-mokka-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Adaptive-headlamp faults",
+      "description": "The Mokka's adaptive headlights can develop problems, particularly on earlier cars. Test their movement and warning lights and have the fault diagnosed before replacing a lamp unit.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/mokka/95407/used-vauxhall-mokka-review",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

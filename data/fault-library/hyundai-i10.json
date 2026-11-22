@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Hyundai",
+    "model": "i10",
+    "generation": "Mk1 (2008–2014)"
+  },
+  "faults": [
+    {
+      "title": "Clutch judder",
+      "description": "Clutch judder is a reported first-generation i10 problem, for which Hyundai has had a fix. Check how the car moves off from rest and have persistent shudder inspected.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/155064/used-hyundai-i10-buying-guide-2008-2014-mk1",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Headlight-aim switch failure",
+      "description": "The switch used to adjust headlight height on a Mk1 i10 can fail or buzz. Test the adjustment and have the switch checked if it makes noise or does not change the beam aim.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/155064/used-hyundai-i10-buying-guide-2008-2014-mk1",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

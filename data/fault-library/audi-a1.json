@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Audi",
+    "model": "A1",
+    "generation": "Mk1 (2010–2018)"
+  },
+  "faults": [
+    {
+      "title": "Turbocharger trouble on 1.4 petrol",
+      "description": "Turbocharger faults have been reported on the 1.4-litre petrol Mk1 A1. Smoke from the exhaust is a reason to stop and have the engine and turbo inspected before further use.",
+      "source_url": "https://www.carbuyer.co.uk/audi/a1/38474/used-audi-a1-review-2010-to-2019-mk1/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Sticking electric windows",
+      "description": "Some first-generation A1 electric windows can stick. Operate every window during a viewing and have persistent binding or failed movement diagnosed before replacing parts.",
+      "source_url": "https://www.carbuyer.co.uk/audi/a1/38474/used-audi-a1-review-2010-to-2019-mk1/reliability",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

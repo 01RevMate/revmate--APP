@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Vauxhall",
+    "model": "Corsa",
+    "generation": "E"
+  },
+  "faults": [
+    {
+      "title": "Water entering driver's footwell",
+      "description": "Some 2014–2019 Corsas have been reported with water soaking the driver's footwell carpet. Check for dampness and trace the leak before drying the cabin, so the problem does not return.",
+      "source_url": "https://www.carbuyer.co.uk/reviews/vauxhall/corsa/hatchback/144673/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Intermittent electrical controls",
+      "description": "Owners have reported blank infotainment screens and electric windows operating unexpectedly. Test both systems during a viewing and have any recurring fault diagnosed rather than assuming it is normal behaviour.",
+      "source_url": "https://www.carbuyer.co.uk/reviews/vauxhall/corsa/hatchback/144673/reliability",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

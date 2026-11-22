@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Honda",
+    "model": "Jazz",
+    "generation": "Mk2 (2008–2014)"
+  },
+  "faults": [
+    {
+      "title": "Cold brake-pad clicking",
+      "description": "A clicking sound from the Mk2 Jazz's brakes when cold can come from pads moving in their mounts. Have the brakes checked if the noise persists after warming up or braking performance changes.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154789/used-honda-jazz-buying-guide-2008-2014-mk2",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Rear-suspension creak",
+      "description": "Some Mk2 Jazz cars creak from the rear suspension, especially in cold weather. The bushes or mounting points may need attention; have the source of the noise confirmed before replacing parts.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154789/used-honda-jazz-buying-guide-2008-2014-mk2",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

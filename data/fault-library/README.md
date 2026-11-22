@@ -1,8 +1,9 @@
 # Fault library
 
 Common faults for the most popular cars on UK roads, written for the car pages (`/cars/...`). One JSON
-file per car. These are **drafts for review**: nothing here is in the live database until Jordan has
-checked it and runs the import.
+file per car. The first four files (Fiesta, Focus, Qashqai and Golf) were reviewed and their 19
+faults are in the live database. The other 21 files are **drafts for review**; their 41 faults
+have not been imported. Review their source links and wording before running the importer again.
 
 ## The honesty rules
 

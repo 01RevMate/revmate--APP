@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Mercedes-Benz",
+    "model": "A-Class",
+    "generation": "W176"
+  },
+  "faults": [
+    {
+      "title": "Centre-console and dashboard rattles",
+      "description": "Some third-generation A-Class cars develop rattles around the dashboard or centre console. Listen on uneven roads and have loose trim or fittings identified before replacing components.",
+      "source_url": "https://www.carbuyer.co.uk/mercedes/a-class/62003/used-mercedes-a-class-review-2012-to-2018-mk3/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Intermittent electrical issues",
+      "description": "Electrical problems were a recurring owner complaint for the 2012–2018 A-Class. Test the displays, switches and other equipment; have a recurring fault diagnosed rather than relying on a reset.",
+      "source_url": "https://www.carbuyer.co.uk/mercedes/a-class/62003/used-mercedes-a-class-review-2012-to-2018-mk3/reliability",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

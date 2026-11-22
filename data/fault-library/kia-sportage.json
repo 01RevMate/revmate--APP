@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Kia",
+    "model": "Sportage",
+    "generation": "QL"
+  },
+  "faults": [
+    {
+      "title": "Juddering clutch",
+      "description": "Some 2016–2021 Sportage cars have been reported with clutch judder. Check for shudder when moving off and ask a workshop to identify the cause before assuming a clutch replacement is required.",
+      "source_url": "https://www.carbuyer.co.uk/kia/sportage/151880/used-kia-sportage-review-2016-to-2021-mk4/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Engine-computer faults",
+      "description": "Reports of engine-computer problems exist for this generation of Sportage. If warning lights or running faults appear, have diagnostic codes read and the underlying fault confirmed before repair.",
+      "source_url": "https://www.carbuyer.co.uk/kia/sportage/151880/used-kia-sportage-review-2016-to-2021-mk4/reliability",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Volkswagen",
+    "model": "Polo",
+    "generation": "Mk5 (6R)"
+  },
+  "faults": [
+    {
+      "title": "Diesel particulate filter blockage",
+      "description": "Diesel Mk5 Polos used mainly for short journeys may not get hot enough to clear the particulate filter. Check for warning lights and investigate sensor faults as well as the filter before deciding on a repair.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154314/used-volkswagen-polo-buying-guide-2011-2017-mk5",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Brake disc judder",
+      "description": "Some Mk5 Polos have reported rapid front disc wear or warped discs. A vibration or pulsing sensation while braking warrants an inspection of the discs and the rest of the braking system.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154314/used-volkswagen-polo-buying-guide-2011-2017-mk5",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

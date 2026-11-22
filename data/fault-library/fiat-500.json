@@ -1,0 +1,21 @@
+{
+  "car": {
+    "make": "Fiat",
+    "model": "500",
+    "generation": "Mk1 (2008 onwards)"
+  },
+  "faults": [
+    {
+      "title": "Fragile interior trim",
+      "description": "Interior pieces on the first-generation Fiat 500 can crack or break with use. Inspect handles, switches and trim fittings and repair loose parts before they interfere with normal operation.",
+      "source_url": "https://www.carbuyer.co.uk/fiat/500/303941/used-fiat-500-review-2008-to-present-mk1",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Electric power-steering recall",
+      "description": "A 2017 recall addressed electric power-steering problems on some Fiat 500s. Check the car's recall history by VIN and confirm any required remedial work was completed.",
+      "source_url": "https://www.carbuyer.co.uk/fiat/500/303941/used-fiat-500-review-2008-to-present-mk1",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}
