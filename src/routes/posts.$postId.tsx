@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { fetchPost, fetchMyLikedPostIds } from "@/lib/posts";
 import { PostCard } from "@/components/PostCard";
 import { PostCardSkeleton } from "@/components/PostCardSkeleton";
+import { DealsStrip } from "@/components/DealsStrip";
 
 export const Route = createFileRoute("/posts/$postId")({
   component: PostPage,
@@ -78,6 +79,10 @@ function PostPage() {
           liked={liked?.has(post.id) ?? false}
           onDeleted={() => refetch()}
         />
+      )}
+      {/* Quote slot on solved faults only. Labelled "Ad"; Jordan to design. */}
+      {post?.issue_status === "resolved" && (
+        <DealsStrip placement="faults" title="Get a fixed-price quote" />
       )}
     </main>
   );

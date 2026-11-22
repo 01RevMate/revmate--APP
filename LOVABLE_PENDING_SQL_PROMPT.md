@@ -21,6 +21,21 @@ Step 30 is complete. The unchanged SQL is now at
 
 ---
 
+## Prompt G3 — fixed-price quote slot (growth foundations)
+
+```
+Please run sql-to-run/38_fault_quote_deal_slot.sql on the connected Supabase
+database, exactly as committed. It allows a new 'faults' placement in
+affiliate_deals and inserts one starter deal (BookMyGarage) that is switched
+off. Then regenerate the Supabase types and confirm with:
+
+  select placement, partner, active from public.affiliate_deals where placement = 'faults';
+
+(it should return one row with active = false).
+```
+
+---
+
 ## Prompt G2 — fault library schema (growth foundations)
 
 ```

@@ -11,6 +11,15 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
+### G3. "Get a fixed-price quote" slot on fault pages (growth foundations)
+
+- File: `drizzle/migrations/0085_fault_quote_deal_slot.sql` (`sql-to-run/38_fault_quote_deal_slot.sql`).
+  Rollback: `drizzle/migrations/0085_fault_quote_deal_slot_down.sql`.
+- Added: 2026-11-22.
+- Adds a `faults` placement to Deals and a starter BookMyGarage deal that is **switched off**, pointing at
+  its normal website. Don't switch it on until it carries your tracking link (Admin → Money → Deals).
+  Anything shown is labelled "Ad" and hidden for Plus members. Until this runs, the slot simply doesn't show.
+
 ### G2. Fault library schema (growth foundations, run before importing any faults)
 
 - File: `drizzle/migrations/0084_fault_library_schema.sql` (`sql-to-run/37_fault_library_schema.sql`).

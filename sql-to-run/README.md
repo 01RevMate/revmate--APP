@@ -12,6 +12,7 @@ been run live in `applied/` for reference.
 | 35 | `35_business_discovery.sql` | Business search for every member: ranked search, nationwide option, rating / open-now filters (rollback: `drizzle/migrations/0082_business_discovery_down.sql`). Needs 33 and 34 first. | **Run after 34, once the business-phase-3 pull request is approved** |
 | 36 | `36_search_issue_posts.sql` | Fault search that scales and matches words (rollback: `drizzle/migrations/0083_search_issue_posts_down.sql`) | **Run this** |
 | 37 | `37_fault_library_schema.sql` | Fault library: `editorial` source, `cost_source_url`, `last_checked` (rollback: `drizzle/migrations/0084_fault_library_schema_down.sql`) | **Run this before importing faults** |
+| 38 | `38_fault_quote_deal_slot.sql` | `faults` Deals placement and a switched-off BookMyGarage starter deal (rollback: `drizzle/migrations/0085_fault_quote_deal_slot_down.sql`) | **Run this** |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 

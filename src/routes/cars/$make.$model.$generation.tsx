@@ -14,6 +14,7 @@ const FAULT_SOURCE_LABELS = {
 import { fetchMyLikedPostIds, fetchPostsByCar } from "@/lib/posts";
 import { fetchListingsForCar } from "@/lib/listings";
 import { PostCard } from "@/components/PostCard";
+import { DealsStrip } from "@/components/DealsStrip";
 import { CarLogo } from "@/components/CarLogo";
 import { PageSkeleton } from "@/components/PageSkeletons";
 import { useMinSkeleton } from "@/hooks/useMinSkeleton";
@@ -195,6 +196,11 @@ function CarPage() {
           )}
         </ul>
       </Section>
+
+      {/* Labelled "Ad" and hidden for Plus members; Jordan to design. */}
+      <div className="mt-8">
+        <DealsStrip placement="faults" title="Get a fixed-price quote" />
+      </div>
 
       <Section title="Community posts">
         <div className="space-y-4">
