@@ -9,6 +9,7 @@
 - Created @MiaAMG with her Mercedes A45, three posts, replies, car likes, and follows
 
 ## Open
+- [x] Permanently removed the six confirmed demo accounts, their 27 posts, demo businesses/activity and 23 uploaded files; all four real members and their seven posts preserved.
 - [x] Connect Lendawatt saved/friend vehicle selection and EV recognition, selected-car AI matching, messages, role-specific host alerts and requests; Morecambe search/send/read-back/cancel verified on a real session. Approval and expiry pass isolated database tests.
 - [ ] Verify host approval and driver directions using both real accounts; awaiting permission to sign in as the host. Public-map tiles render, but completed public-charger lookup remains unverified.
 - [x] Make Lendawatt explanation public, retain private member actions, and correct EV map search metadata; desktop/mobile and privacy tests passed.
