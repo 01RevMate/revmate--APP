@@ -8,6 +8,8 @@ The original status below is a snapshot from before rollout. The live database n
 
 The remaining 21 cars now have draft files in `data/fault-library/`: 41 additional fault descriptions, each linked to a page read on 22 November 2026, with no repair costs. The full 25-file library validates (60 faults). These 21 drafts need Jordan's source and wording review before import; they are not live.
 
+Live audit on 22 November: 45 cars; 39 have at least one fault; 0 cars have fault posts; 0 fault posts total (and 0 resolved or group fault posts). The database holds 89 `ai` and 19 `editorial` fault rows. `search_issue_posts()` is present as a security-invoker function, its `posts_issue_fts_idx` index exists, and the `faults` BookMyGarage deal is present but inactive. The `diagnose` source has the new default model, but the deployed revision could not be verified from logs. The AI diagnosis feature is disabled and its Anthropic key is not set; no live diagnosis call was made.
+
 ## Status at a glance
 
 | # | Task | Status |
