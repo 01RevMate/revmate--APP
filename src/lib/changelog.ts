@@ -29,7 +29,7 @@ export const RELEASES: Release[] = [
     title: "Faster, findable fault pages",
     status: "needs_database_update",
     highlights: [
-      "Added 19 source-linked editorial faults for the Ford Fiesta, Ford Focus, Nissan Qashqai and Volkswagen Golf, dated 22 November 2026; no unsourced repair costs added.",
+      "Added 19 source-linked editorial faults with descriptions for the Ford Fiesta, Ford Focus, Nissan Qashqai and Volkswagen Golf, dated 22 November 2026; no unsourced repair costs added.",
       "Car pages, the Faults list and fault posts now load with their content ready, so Google and sharing previews can read them.",
       "Fault search matches words (\"leak footwell\" finds \"water leak in the footwell\") and no longer loses older fixes. Needs a database update.",
       "Common faults can now show where each cost comes from, and costs without a source are hidden.",
