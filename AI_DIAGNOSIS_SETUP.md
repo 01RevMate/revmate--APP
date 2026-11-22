@@ -34,15 +34,16 @@ mechanic"**.
 
 ## Cost and limits
 
-- **Model:** Claude Opus 5.5 (`claude-opus-5-5`) at low effort, to keep each
-  step quick. Each step costs roughly 2–4p. A full diagnosis (1–4 AI steps)
-  is usually under 15p.
+- **Model:** Claude Haiku 5.5 (`claude-haiku-5-5`) by default, to keep each
+  step quick and cheap. The earlier default, Claude Opus 5.5, cost roughly
+  2–4p a step. Set the secret `DIAGNOSE_MODEL = claude-opus-5-5` to go back.
+  The edge function must be redeployed for a changed default to take effect.
 - **Limits** (Admin → Shops & AI): a whole-site cap per day (default 300
   steps, roughly £6–£12 a day at most) and a per-person cap (default 15).
   When a limit is hit, people are told to try tomorrow or ask the community.
   The built-in diagnosis keeps working.
-- **Cheaper model:** add the secret `DIAGNOSE_MODEL = claude-haiku-5-5` for
-  a much cheaper model. It's faster but less thorough.
+- **More thorough model:** add the secret `DIAGNOSE_MODEL = claude-opus-5-5`
+  for a stronger but costlier model.
 - **Backup model:** if Claude declines a request, the API automatically
   retries on Anthropic's recommended backup model (server-side
   `fallbacks: "default"`), so people don't hit a dead end.
