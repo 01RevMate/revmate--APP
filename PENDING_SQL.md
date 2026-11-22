@@ -11,6 +11,17 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
+### G1. Fault search that scales and matches words (growth foundations)
+
+- File: `drizzle/migrations/0083_search_issue_posts.sql` (`sql-to-run/36_search_issue_posts.sql`).
+  Rollback (touches no posts): `drizzle/migrations/0083_search_issue_posts_down.sql`.
+- Added: 2026-11-22.
+- Adds `search_issue_posts()` (database filter by make/model/part, word-based full-text matching on the post
+  and its fix, fixed posts first, paged) and a GIN index on fault posts. `SECURITY INVOKER`, so the existing
+  signed-out rules (adults only, no groups) still apply.
+- Until it runs, `/issues` keeps working with its earlier method (newest 300 fault posts, filtered in the
+  browser) and the word-search box stays hidden (`useIssueSearchFeature()` in `src/lib/features.ts`).
+
 ### 0. Business foundation: approvals, tiers, follows, photo checks (Phase 1)
 
 - File: `drizzle/migrations/0080_business_foundation.sql` (`sql-to-run/33_business_foundation.sql`).

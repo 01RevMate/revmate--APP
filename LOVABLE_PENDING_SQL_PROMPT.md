@@ -21,6 +21,22 @@ Step 30 is complete. The unchanged SQL is now at
 
 ---
 
+## Prompt G1 — fault search (growth foundations)
+
+```
+Please run sql-to-run/36_search_issue_posts.sql on the connected Supabase
+database, exactly as committed. It adds one search function
+(public.search_issue_posts, SECURITY INVOKER) and one index on the posts
+table. It changes no data. Then confirm it works with:
+
+  select count(*) from public.search_issue_posts(p_limit => 5);
+
+(it should return a number without an error), and regenerate the Supabase
+types.
+```
+
+---
+
 ## Prompt 1 — phone push notifications (optional)
 
 ```
