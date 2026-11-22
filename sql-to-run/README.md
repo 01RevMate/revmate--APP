@@ -10,9 +10,10 @@ been run live in `applied/` for reference.
 | 33 | `33_business_foundation.sql` | Business approvals, tiers, edit review, follows, photo checks (rollback: `drizzle/migrations/0080_business_foundation_down.sql`) | **Run this, after the business-phase-1 pull request is approved** |
 | 34 | `34_business_trust_safety.sql` | Business trust and safety: smoothed ratings, review flags and reports, appeals, spam limits (rollback: `drizzle/migrations/0081_business_trust_safety_down.sql`). Needs 33 first. | **Run after 33, once the business-phase-2 pull request is approved** |
 | 35 | `35_business_discovery.sql` | Business search for every member: ranked search, nationwide option, rating / open-now filters (rollback: `drizzle/migrations/0082_business_discovery_down.sql`). Needs 33 and 34 first. | **Run after 34, once the business-phase-3 pull request is approved** |
-| 36 | `36_search_issue_posts.sql` | Fault search that scales and matches words (rollback: `drizzle/migrations/0083_search_issue_posts_down.sql`) | **Run this** |
-| 37 | `37_fault_library_schema.sql` | Fault library: `editorial` source, `cost_source_url`, `last_checked` (rollback: `drizzle/migrations/0084_fault_library_schema_down.sql`) | **Run this before importing faults** |
-| 38 | `38_fault_quote_deal_slot.sql` | `faults` Deals placement and a switched-off BookMyGarage starter deal (rollback: `drizzle/migrations/0085_fault_quote_deal_slot_down.sql`) | **Run this** |
+| 36 | `applied/36_search_issue_posts.sql` | Fault search that scales and matches words (rollback: `drizzle/migrations/0083_search_issue_posts_down.sql`) | Applied 22 Nov 2026 |
+| 37 | `applied/37_fault_library_schema.sql` | Fault library: `editorial` source, `cost_source_url`, `last_checked` (rollback: `drizzle/migrations/0084_fault_library_schema_down.sql`) | Applied 22 Nov 2026 |
+| 38 | `applied/38_fault_quote_deal_slot.sql` | `faults` Deals placement and a switched-off BookMyGarage starter deal (rollback: `drizzle/migrations/0085_fault_quote_deal_slot_down.sql`) | Applied 22 Nov 2026 |
+| 39 | `applied/39_hide_unsourced_ai_faults.sql` | Hide unsourced AI fault claims from public reads; retain the records (rollback: `drizzle/migrations/0086_hide_unsourced_ai_faults_down.sql`) | Applied 22 Nov 2026 |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 

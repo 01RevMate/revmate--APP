@@ -36,6 +36,9 @@ export const RELEASES: Release[] = [
       "The sitemap lists every car with a fault or public post, and every public fault post.",
       "A clearly labelled \"Get a fixed-price quote\" ad slot on car pages and fixed fault posts (off until a deal is switched on).",
     ],
+    fixes: [
+      "Unsourced AI-generated fault claims are hidden from public car pages while their database records are kept for review.",
+    ],
     requiredSql: [
       "sql-to-run/36_search_issue_posts.sql",
       "sql-to-run/37_fault_library_schema.sql",

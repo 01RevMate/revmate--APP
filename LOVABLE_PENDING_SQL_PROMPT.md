@@ -21,7 +21,11 @@ Step 30 is complete. The unchanged SQL is now at
 
 ---
 
-## Prompt G3 — fixed-price quote slot (growth foundations)
+## Prompts G1–G3 — applied on 22 November 2026
+
+The following prompts are retained for reference; do not rerun them as pending setup.
+
+### Prompt G3 — fixed-price quote slot (growth foundations)
 
 ```
 Please run sql-to-run/38_fault_quote_deal_slot.sql on the connected Supabase

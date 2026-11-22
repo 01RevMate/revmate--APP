@@ -11,38 +11,6 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
-### G3. "Get a fixed-price quote" slot on fault pages (growth foundations)
-
-- File: `drizzle/migrations/0085_fault_quote_deal_slot.sql` (`sql-to-run/38_fault_quote_deal_slot.sql`).
-  Rollback: `drizzle/migrations/0085_fault_quote_deal_slot_down.sql`.
-- Added: 2026-11-22.
-- Adds a `faults` placement to Deals and a starter BookMyGarage deal that is **switched off**, pointing at
-  its normal website. Don't switch it on until it carries your tracking link (Admin → Money → Deals).
-  Anything shown is labelled "Ad" and hidden for Plus members. Until this runs, the slot simply doesn't show.
-
-### G2. Fault library schema (growth foundations, run before importing any faults)
-
-- File: `drizzle/migrations/0084_fault_library_schema.sql` (`sql-to-run/37_fault_library_schema.sql`).
-  Rollback (deletes nothing): `drizzle/migrations/0084_fault_library_schema_down.sql`.
-- Added: 2026-11-22.
-- Adds the `editorial` fault source and two columns on `car_faults`: `cost_source_url` and `last_checked`.
-- **Effect on the live site once the new code is deployed:** car pages only show a cost range when
-  `cost_source_url` is set, so the 11 AI-written cost ranges stop showing (the text stays) until sourced.
-  This applies even before this SQL runs.
-- The fault drafts in `data/fault-library/` are imported separately, after Jordan has reviewed them:
-  `bun run faults:validate`, then `bun run faults:import` (see `data/fault-library/README.md`).
-
-### G1. Fault search that scales and matches words (growth foundations)
-
-- File: `drizzle/migrations/0083_search_issue_posts.sql` (`sql-to-run/36_search_issue_posts.sql`).
-  Rollback (touches no posts): `drizzle/migrations/0083_search_issue_posts_down.sql`.
-- Added: 2026-11-22.
-- Adds `search_issue_posts()` (database filter by make/model/part, word-based full-text matching on the post
-  and its fix, fixed posts first, paged) and a GIN index on fault posts. `SECURITY INVOKER`, so the existing
-  signed-out rules (adults only, no groups) still apply.
-- Until it runs, `/issues` keeps working with its earlier method (newest 300 fault posts, filtered in the
-  browser) and the word-search box stays hidden (`useIssueSearchFeature()` in `src/lib/features.ts`).
-
 ### 0. Business foundation: approvals, tiers, follows, photo checks (Phase 1)
 
 - File: `drizzle/migrations/0080_business_foundation.sql` (`sql-to-run/33_business_foundation.sql`).
@@ -102,6 +70,9 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
   (Share → Add to Home Screen) and opened from there.
 
 ## Applied
+
+- 2026-11-22: `0086_hide_unsourced_ai_faults` (`sql-to-run/applied/39_hide_unsourced_ai_faults.sql`) applied. A restrictive SELECT policy hides AI fault claims without a source URL from the public API. All 89 AI rows remain in the database; signed-out reads return the 19 sourced editorial rows. Rollback: `drizzle/migrations/0086_hide_unsourced_ai_faults_down.sql`.
+- 2026-11-22: growth foundations 0083–0085 (`sql-to-run/applied/36_search_issue_posts.sql` through `38_fault_quote_deal_slot.sql`) applied. Confirmed `search_issue_posts()` and its GIN index; confirmed the fault quote starter deal remains inactive; the 19 reviewed editorial faults are present.
 
 - 2026-10-20: member business management (0071) applied; owners can create unverified business profiles and manage public contact names and logos without changing ownership, verification, suspension or promotion.
 

@@ -2,6 +2,10 @@
 
 Branch `growth-foundations`. One commit per task. Nothing was applied to the live database, no external account was created, and no secret was added or changed.
 
+## Follow-up on 22 November 2026
+
+The original status below is a snapshot from before rollout. The live database now has migrations 0083–0085 and the 19 reviewed editorial faults. A live audit found **89** AI-sourced faults across 39 cars with no source URLs, rather than 11. Migration 0086 hides those 89 claims from public reads while retaining every row for later source review. Signed-out reads return the 19 editorial faults. The `diagnose` function's deployed revision remains unverified.
+
 ## Status at a glance
 
 | # | Task | Status |
@@ -79,8 +83,8 @@ I could only use sources I actually opened. Most of the best sources (Parkers, W
 
 Notes on the four files: all say "All years" but several faults are tied to one generation in the text, and a single source (Carbuyer) backs most of them. **No costs are included.** The only figures found were a 2013 page with no currency sign and a cambelt service item that isn't a fault. Please review wording and add costs only where you have a source. The top-25 list itself was taken from DfT licensing data in `data/vehicle-catalog/`.
 
-### The 11 existing AI-sourced fault entries
-These have no source and need one (or removal) before the site presents them as fact. Query them with: `SELECT id, car_id, title FROM public.car_faults WHERE source = 'ai';`
+### The existing AI-sourced fault entries
+The live database contains 89 such rows across 39 cars, all without source URLs. They are now hidden from public reads by migration 0086, while the rows remain available for review. Query them with: `SELECT id, car_id, title FROM public.car_faults WHERE source = 'ai';`
 
 ## 7. Fixed-price quote slot
 
