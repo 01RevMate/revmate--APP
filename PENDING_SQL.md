@@ -11,6 +11,18 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 ## Pending
 
+### G2. Fault library schema (growth foundations, run before importing any faults)
+
+- File: `drizzle/migrations/0084_fault_library_schema.sql` (`sql-to-run/37_fault_library_schema.sql`).
+  Rollback (deletes nothing): `drizzle/migrations/0084_fault_library_schema_down.sql`.
+- Added: 2026-11-22.
+- Adds the `editorial` fault source and two columns on `car_faults`: `cost_source_url` and `last_checked`.
+- **Effect on the live site once the new code is deployed:** car pages only show a cost range when
+  `cost_source_url` is set, so the 11 AI-written cost ranges stop showing (the text stays) until sourced.
+  This applies even before this SQL runs.
+- The fault drafts in `data/fault-library/` are imported separately, after Jordan has reviewed them:
+  `bun run faults:validate`, then `bun run faults:import` (see `data/fault-library/README.md`).
+
 ### G1. Fault search that scales and matches words (growth foundations)
 
 - File: `drizzle/migrations/0083_search_issue_posts.sql` (`sql-to-run/36_search_issue_posts.sql`).

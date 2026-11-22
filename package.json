@@ -11,7 +11,9 @@
     "catalog:validate": "node scripts/import-vehicle-catalog.mjs --dry-run",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "faults:import": "node scripts/import-fault-library.mjs",
+    "faults:validate": "node scripts/import-fault-library.mjs --dry-run"
   },
   "overrides": {
     "rolldown": "1.2.1"

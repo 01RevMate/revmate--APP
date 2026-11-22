@@ -4,7 +4,13 @@ import { Heart, ThumbsDown, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { carLabel, engineOptions, fetchCarBySlug, fetchCarFaults, yearRange } from "@/lib/cars";
 import { loadForSsr } from "@/lib/ssrLoad";
-import { carPageHead } from "@/lib/seoHeads";
+import { carPageHead, faultCostText } from "@/lib/seoHeads";
+
+const FAULT_SOURCE_LABELS = {
+  ai: "AI-sourced",
+  owner: "Owner-reported",
+  editorial: "RevMate editorial",
+} as const;
 import { fetchMyLikedPostIds, fetchPostsByCar } from "@/lib/posts";
 import { fetchListingsForCar } from "@/lib/listings";
 import { PostCard } from "@/components/PostCard";
@@ -145,10 +151,24 @@ function CarPage() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-medium">{fault.title}</p>
                 <span className="text-xs text-muted-foreground">
-                  {fault.typical_cost_low != null && fault.typical_cost_high != null
-                    ? `£${fault.typical_cost_low}–£${fault.typical_cost_high}`
-                    : "Cost unknown"}{" "}
-                  · {fault.source === "ai" ? "AI-sourced" : "Owner-reported"}
+                  {/* A cost range is only shown when a source backs it; the source is linked. */}
+                  {faultCostText(fault) ?? "Cost unknown"}
+                  {faultCostText(fault) && fault.cost_source_url && (
+                    <>
+                      {" "}
+                      (
+                      <a
+                        href={fault.cost_source_url}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="underline"
+                      >
+                        cost source
+                      </a>
+                      )
+                    </>
+                  )}{" "}
+                  · {FAULT_SOURCE_LABELS[fault.source] ?? "Owner-reported"}
                   {fault.source_url && (
                     <>
                       {" "}

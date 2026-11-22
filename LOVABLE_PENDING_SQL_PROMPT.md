@@ -21,6 +21,23 @@ Step 30 is complete. The unchanged SQL is now at
 
 ---
 
+## Prompt G2 — fault library schema (growth foundations)
+
+```
+Please run sql-to-run/37_fault_library_schema.sql on the connected Supabase
+database, exactly as committed. It adds an 'editorial' value to the
+fault_source enum and two nullable columns (cost_source_url, last_checked)
+to car_faults. It changes no existing rows. Then regenerate the Supabase
+types and confirm with:
+
+  select column_name from information_schema.columns
+  where table_name = 'car_faults' and column_name in ('cost_source_url', 'last_checked');
+
+(it should return both names).
+```
+
+---
+
 ## Prompt G1 — fault search (growth foundations)
 
 ```
