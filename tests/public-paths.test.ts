@@ -1,6 +1,17 @@
 import { describe, expect, it } from "bun:test";
 import { isPublicPath } from "../src/lib/publicPaths";
 
+describe("app-wide search browsing", () => {
+  it("allows public search without opening member-only destinations", () => {
+    expect(isPublicPath("/search")).toBe(true);
+    expect(isPublicPath("/search/")).toBe(true);
+    expect(isPublicPath("/groups/private-club")).toBe(false);
+    expect(isPublicPath("/tags/private-tag")).toBe(false);
+    expect(isPublicPath("/messages")).toBe(false);
+    expect(isPublicPath("/settings")).toBe(false);
+  });
+});
+
 describe("Lendawatt public access", () => {
   it("allows the explanation before joining", () => {
     expect(isPublicPath("/ev-chargers/community")).toBe(true);

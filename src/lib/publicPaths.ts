@@ -1,6 +1,7 @@
 // Public browsing only; private actions keep their own session checks.
 const PUBLIC_PATHS: RegExp[] = [
   /^\/$/,
+  /^\/search\/?$/,
   /^\/marketplace(\/[^/]+)?\/?$/,
   /^\/(login|signup|forgot-password|reset-password)\/?$/,
   /^\/legal\/.+/,

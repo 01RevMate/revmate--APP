@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Search, UserRound } from "lucide-react";
+import { ArrowLeft, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -11,6 +11,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { PostingIdentitySwitcher } from "@/components/PostingIdentitySwitcher";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { MobileMenu } from "@/components/MobileMenu";
+import { TopSearch } from "@/components/TopSearch";
 
 const navLink = "text-sm text-muted-foreground transition-colors hover:text-foreground";
 const AUTH_PATHS = new Set(["/login", "/signup", "/forgot-password", "/reset-password"]);
@@ -88,17 +89,10 @@ export function TopNav() {
           </button>
         )}
         <MobileMenu />
+        {pathname !== "/search" && <TopSearch />}
         {user && profile && (
           <div className="ml-auto flex items-center gap-3">
             <NotificationCenter />
-            <Link
-              to="/search"
-              aria-label="Search"
-              title="Search"
-              className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
-            >
-              <Search className="size-5" />
-            </Link>
             <PostingIdentitySwitcher
               userId={user.id}
               username={profile.username}

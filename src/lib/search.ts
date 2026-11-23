@@ -1,38 +1,32 @@
 import { supabase } from "@/integrations/supabase/client";
 import { POST_SELECT, resolvePostPhotos, type PostWithAuthor } from "@/lib/posts";
+import { cleanSearchQuery, memberSearchAllowed, searchTools } from "@/lib/searchPolicy";
+import { searchBusinesses } from "@/lib/businessDiscovery";
 
 // Site-wide search: one query across people, cars, posts, listings,
 // groups, hashtags and businesses. Each part fails quietly on its own, so
 // a missing table (SQL not run yet) never breaks the rest.
 
-const clean = (q: string) =>
-  q
-    .trim()
-    .replace(/[%_,()*\\]/g, " ")
-    .replace(/\s+/g, " ");
-
-async function safe<T>(
-  run: () => PromiseLike<{ data: T | null; error: unknown }>,
-): Promise<T | []> {
-  try {
-    const { data, error } = await run();
-    return error || !data ? [] : data;
-  } catch {
-    return [];
-  }
-}
-
 export type SearchResults = Awaited<ReturnType<typeof searchEverything>>;
 
-export async function searchEverything(query: string) {
-  const q = clean(query);
+export async function searchEverything(query: string, memberId: string | null = null) {
+  const unavailable: string[] = [];
+  async function safe<T>(name: string, run: () => PromiseLike<{ data: T | null; error: unknown }>): Promise<T | []> {
+    try {
+      const { data, error } = await run();
+      if (error) { unavailable.push(name); return []; }
+      return data ?? [];
+    } catch { unavailable.push(name); return []; }
+  }
+  const q = cleanSearchQuery(query);
+  const signedIn = memberSearchAllowed(memberId);
   const handle = q.replace(/^@/, "");
   const tag = q.replace(/^#/, "").replace(/[^A-Za-z0-9_]/g, "");
   if (q.length < 2) {
-    return { people: [], cars: [], posts: [], listings: [], groups: [], tags: [], businesses: [] };
+    return { people: [], cars: [], posts: [], listings: [], groups: [], tags: [], businesses: [], models: [], chargers: [], tools: [], unavailable };
   }
-  const [people, cars, posts, listings, groups, tags, businesses] = await Promise.all([
-    safe(() =>
+  const [people, cars, posts, listings, groups, tags, businesses, models] = await Promise.all([
+    safe("People", () =>
       supabase
         .from("profiles")
         .select("user_id, username, avatar_url, bio")
@@ -40,52 +34,54 @@ export async function searchEverything(query: string) {
         .eq("account_status", "active")
         .limit(8),
     ),
-    safe(() =>
-      supabase
+    safe("Member cars", () => {
+      let request = supabase
         .from("garage_cars")
         .select(
           "id, nickname, make, model, year, photo_url, profiles!garage_cars_user_id_fkey(username)",
         )
-        .eq("ownership_status", "current")
-        .or(`nickname.ilike.%${q}%,make.ilike.%${q}%,model.ilike.%${q}%`)
-        .limit(8),
-    ),
-    safe(() =>
-      supabase
+        .eq("ownership_status", "current");
+      for (const word of q.split(" ")) request = request.or(`nickname.ilike.%${word}%,make.ilike.%${word}%,model.ilike.%${word}%`);
+      return request.limit(8);
+    }),
+    safe("Posts", () => {
+      let request = supabase
         .from("posts")
         .select(POST_SELECT)
         .is("group_id", null)
-        .ilike("body", `%${q}%`)
-        .order("created_at", { ascending: false })
-        .limit(10),
-    ),
-    safe(() =>
-      supabase
+        .ilike("body", `%${q}%`);
+      if (!signedIn) request = request.eq("audience", "public").not("issue_status", "is", null);
+      return request.order("created_at", { ascending: false }).limit(10);
+    }),
+    safe("Adverts", () => {
+      let request = supabase
         .from("listings")
         .select("id, title, price, photos, type")
-        .eq("status", "active")
-        .or(`title.ilike.%${q}%,description.ilike.%${q}%`)
-        .limit(8),
-    ),
-    safe(() =>
+        .eq("status", "active");
+      for (const word of q.split(" ")) request = request.or(`title.ilike.%${word}%,description.ilike.%${word}%`);
+      return request.limit(8);
+    }),
+    signedIn ? safe("Groups", () =>
       supabase
         .from("community_groups")
         .select("id, name, slug, member_count, make_name, model_name")
         .or(`name.ilike.%${q}%,description.ilike.%${q}%,make_name.ilike.%${q}%`)
         .limit(6),
-    ),
-    tag.length >= 1
-      ? safe(() => supabase.rpc("trending_hashtags", { prefix: tag, result_limit: 6 }))
+    ) : Promise.resolve([]),
+    signedIn && tag.length >= 1
+      ? safe("Hashtags", () => supabase.rpc("trending_hashtags", { prefix: tag, result_limit: 6 }))
       : Promise.resolve([]),
-    safe(() =>
-      supabase
-        .from("businesses")
-        .select("id, name, category, town, rating_avg, reviews_count, verified")
-        .eq("status", "active")
-        .or(`name.ilike.%${q}%,town.ilike.%${q}%,description.ilike.%${q}%`)
-        .limit(6),
-    ),
+    safe("Businesses", async () => ({ data: await searchBusinesses({ q }, 0, 6), error: null })),
+    safe("Car research", () => {
+      let request = supabase.from("cars").select("id, make, model, generation, make_slug, model_slug, generation_slug");
+      for (const word of q.split(" ")) request = request.or(`make.ilike.%${word}%,model.ilike.%${word}%,generation.ilike.%${word}%`);
+      return request.limit(8);
+    }),
   ]);
+  let resolvedPosts: PostWithAuthor[] = [];
+  try { resolvedPosts = await resolvePostPhotos(posts as unknown as PostWithAuthor[]); }
+  catch { unavailable.push("Post photos"); }
+  const destinations = searchTools(q);
   return {
     people: people as {
       user_id: string;
@@ -102,7 +98,7 @@ export async function searchEverything(query: string) {
       photo_url: string | null;
       profiles: { username: string } | null;
     }[],
-    posts: await resolvePostPhotos(posts as unknown as PostWithAuthor[]),
+    posts: resolvedPosts,
     listings: listings as {
       id: string;
       title: string;
@@ -131,5 +127,9 @@ export async function searchEverything(query: string) {
       reviews_count: number;
       verified: boolean;
     }[],
+    models: models as { id: string; make: string; model: string; generation: string; make_slug: string | null; model_slug: string | null; generation_slug: string | null }[],
+    chargers: destinations.filter((tool) => tool.kind === "chargers"),
+    tools: destinations.filter((tool) => tool.kind === "tools"),
+    unavailable,
   };
 }
