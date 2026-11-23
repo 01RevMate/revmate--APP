@@ -164,6 +164,7 @@ export function fetchMeetSeo(id: string) {
   });
 }
 
+// Business page SEO data: name, rating and a few recent reviews for structured data.
 export type BusinessSeo = {
   name: string;
   category: string;
