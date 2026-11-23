@@ -163,3 +163,51 @@ export function fetchMeetSeo(id: string) {
     return data;
   });
 }
+
+export type BusinessSeo = {
+  name: string;
+  category: string;
+  description: string | null;
+  town: string | null;
+  logo_url: string | null;
+  rating_avg: number;
+  reviews_count: number;
+  website: string | null;
+  phone: string | null;
+  reviews: { rating: number; body: string; created_at: string; username: string | null }[];
+};
+
+export function fetchBusinessSeo(id: string) {
+  return safely(async (): Promise<BusinessSeo | null> => {
+    const { data } = await supabase
+      .from("businesses")
+      .select(
+        "name, category, description, town, logo_url, rating_avg, reviews_count, website, phone",
+      )
+      .eq("id", id)
+      .maybeSingle();
+    if (!data) return null;
+    // A few recent reviews for Review structured data. Hidden reviews are never included.
+    const { data: reviews } = await supabase
+      .from("business_reviews")
+      .select("rating, body, created_at, profiles!business_reviews_user_id_fkey(username)")
+      .eq("business_id", id)
+      .is("hidden_at", null)
+      .order("created_at", { ascending: false })
+      .limit(5);
+    return {
+      ...data,
+      reviews: ((reviews ?? []) as unknown as {
+        rating: number;
+        body: string;
+        created_at: string;
+        profiles: { username: string } | null;
+      }[]).map((r) => ({
+        rating: r.rating,
+        body: r.body,
+        created_at: r.created_at,
+        username: r.profiles?.username ?? null,
+      })),
+    };
+  });
+}

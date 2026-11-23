@@ -35,6 +35,7 @@ export const RELEASES: Release[] = [
       "Common faults can now show where each cost comes from, and costs without a source are hidden.",
       "The sitemap lists every car with a fault or public post, and every public fault post.",
       "A clearly labelled \"Get a fixed-price quote\" ad slot on car pages and fixed fault posts (off until a deal is switched on).",
+      "Business pages now tell Google what kind of business they are (garages and MOT centres as repair shops), show recent reviews and a breadcrumb trail, and have a small shareable rating badge once a business has reviews.",
     ],
     requiredSql: [
       "sql-to-run/36_search_issue_posts.sql",

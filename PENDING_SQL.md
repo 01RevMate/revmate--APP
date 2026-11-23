@@ -47,33 +47,32 @@ folder. `LOVABLE_PENDING_SQL_PROMPT.md` has copy-and-paste Lovable prompts.
 
 - File: `drizzle/migrations/0080_business_foundation.sql` (`sql-to-run/33_business_foundation.sql`).
   Rollback that keeps all collected data: `drizzle/migrations/0080_business_foundation_down.sql`.
-- Added: 2026-11-15. **Do not run until the `business-phase-1` pull request has been reviewed and approved.**
+- Added: 2026-11-15. **APPLIED to the live database** (run through Lovable; confirmed by `business_*_ready()` returning `true`). Recorded 2026-11-23. The `business-phase-1` PR is merged.
 - Adds the approval workflow (`draft → pending → approved / needs_changes / rejected / appealed`), suspension,
   listing/full tiers, reviewed edits to live businesses, personal-account follows (count only), photo review
   and photo reports, an approval log, and a snapshot table `business_foundation_backup_20261115`.
   Every business that is live today is kept online and marked as a legacy approval.
-- Until it runs, the new tools stay hidden (the app checks `business_foundation_ready()` and treats anything
-  other than `true` as off), and existing pages work as before.
+- The app checks `business_foundation_ready()` and treats anything other than `true` as off. It returns `true` now.
 
 ### 0b. Business trust and safety (Phase 2, needs 0080 first)
 
 - File: `drizzle/migrations/0081_business_trust_safety.sql` (`sql-to-run/34_business_trust_safety.sql`).
   Rollback that keeps all collected data: `drizzle/migrations/0081_business_trust_safety_down.sql`.
-- Added: 2026-11-15. **Do not run until the `business-phase-2` pull request has been reviewed and approved.**
+- Added: 2026-11-15. **APPLIED to the live database** (run through Lovable; confirmed by `business_*_ready()` returning `true`). Recorded 2026-11-23. The `business-phase-2` PR is merged.
 - Adds smoothed ratings and a trust level calculated in the database, upheld-only report counts, review flags
   (new accounts, same-company email, bursts) that go to an admin queue and never suspend anyone, per-review
   reports, owner appeals, daily limits on reviews and reports, and a confirmed-email / day-old-account rule for
   creating a business. Snapshot of the old numbers: `business_trust_backup_20261115`.
-- Until it runs, the new trust tools stay hidden (the app checks `business_trust_ready()`).
+- The app checks `business_trust_ready()`. It returns `true` now.
 
 ### 0c. Business discovery: search for every member (Phase 3, needs 0080 and 0081 first)
 
 - File: `drizzle/migrations/0082_business_discovery.sql` (`sql-to-run/35_business_discovery.sql`).
   Rollback: `drizzle/migrations/0082_business_discovery_down.sql` (keeps the `serves_nationwide` column and data).
-- Added: 2026-11-15. **Do not run until the `business-phase-3` pull request has been reviewed and approved.**
+- Added: 2026-11-15. **APPLIED to the live database** (run through Lovable; confirmed by `business_*_ready()` returning `true`). Recorded 2026-11-23. The `business-phase-3` PR is merged.
 - Adds `search_businesses()` (ranked by relevance, closeness to the member's area and trust, never by payment;
   only approved, non-suspended businesses) and a "serves nationwide" option for businesses.
-- Until it runs, the directory keeps its earlier search (the app checks `business_discovery_ready()`).
+- The app checks `business_discovery_ready()`. It returns `true` now.
 
 ### 1. Phone push notifications (optional, needs a few setup steps)
 

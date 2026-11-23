@@ -11,6 +11,10 @@ export type Business = Tables<"businesses">;
 export type BusinessReview = Tables<"business_reviews"> & {
   profiles: { username: string; avatar_url: string | null } | null;
 };
+// LEGACY: `ad_campaigns` is the original admin-created sponsored-placement system (migration 0046).
+// The long-term paid path for businesses is Business Pro (`BusinessProCard`), tied to real review and
+// trust data. Before changing or removing anything that touches `ad_campaigns`, confirm there are no
+// live rows in production. Kept working as-is for now.
 export type AdCampaign = Tables<"ad_campaigns">;
 export type AdCampaignDraft = Omit<
   TablesInsert<"ad_campaigns">,
@@ -373,6 +377,7 @@ export async function setBusinessReportStatus(id: string, status: "upheld" | "di
   if (error) throw error;
 }
 
+// LEGACY: see the note on `AdCampaign` above.
 export async function fetchCampaigns() {
   const { data, error } = await supabase
     .from("ad_campaigns")
