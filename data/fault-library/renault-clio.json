@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "Renault",
+    "model": "Clio",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Failing ignition coils (Mk4)",
+      "description": "On the 2012-2019 Mk4, ignition coils can fail and cause poor running. Auto Express puts a replacement coil at around £40 plus fitting.",
+      "source_url": "https://www.autoexpress.co.uk/renault/clio/95102/used-renault-clio-mk4-2012-2019-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Weak tyre pressure and ABS sensors (Mk4)",
+      "description": "Mk4 tyre pressure sensors aren't very robust and have to be replaced if they fail. ABS sensors can fail too, shown by a warning light.",
+      "source_url": "https://www.autoexpress.co.uk/renault/clio/95102/used-renault-clio-mk4-2012-2019-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Mk4 recalls: brake hoses, wheels",
+      "description": "The Mk4 had eight recalls, including front brake hoses chafing on the wheelarch liner, fuel leaks, wheels coming loose, a detaching rear spoiler and rear seat hinges that could fail in a crash.",
+      "source_url": "https://www.autoexpress.co.uk/renault/clio/95102/used-renault-clio-mk4-2012-2019-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "E-Tech hybrid needing roadside resets (Mk5)",
+      "description": "Auto Express knows of no major issues on the 2019-on Mk5, but has heard of some E-Tech hybrids needing a roadside reset by a breakdown service.",
+      "source_url": "https://www.autoexpress.co.uk/renault/clio/358233/used-renault-clio-mk5-2019-date-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Steering column recall (Mk5)",
+      "description": "72 early Mk5s built June to October 2019 were recalled in February 2020 because the electric power steering assistance could fail. A new steering column was fitted.",
+      "source_url": "https://www.autoexpress.co.uk/renault/clio/358233/used-renault-clio-mk5-2019-date-review",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

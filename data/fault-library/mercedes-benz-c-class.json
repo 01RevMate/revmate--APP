@@ -1,0 +1,33 @@
+{
+  "car": {
+    "make": "Mercedes-Benz",
+    "model": "C-Class",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Squealing front brakes (Mk4)",
+      "description": "On the 2014-2021 Mk4, the brakes (mostly the fronts) can squeal, and Auto Express says this can be hard to cure.",
+      "source_url": "https://www.autoexpress.co.uk/mercedes/c-class/36948/used-mercedes-c-class-mk4-2014-2021-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Excessive wind noise (Mk4)",
+      "description": "Badly fitting doors and seals can let a lot of wind noise into the cabin.",
+      "source_url": "https://www.autoexpress.co.uk/mercedes/c-class/36948/used-mercedes-c-class-mk4-2014-2021-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Stained MB-Tex upholstery (Mk4)",
+      "description": "The artificial leather MB-Tex seat covering can discolour and look stained.",
+      "source_url": "https://www.autoexpress.co.uk/mercedes/c-class/36948/used-mercedes-c-class-mk4-2014-2021-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "AdBlue and steering recalls (Mk4)",
+      "description": "The Mk4 has had 20 recalls, including leaking AdBlue filler pipes on diesels, loss of power steering assistance, oil and fuel leaks, stalling and a steering column that could work loose.",
+      "source_url": "https://www.autoexpress.co.uk/mercedes/c-class/36948/used-mercedes-c-class-mk4-2014-2021-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

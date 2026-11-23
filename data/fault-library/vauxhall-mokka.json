@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "Vauxhall",
+    "model": "Mokka",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Water pump failure and overheating (1.2T and Mk1)",
+      "description": "Auto Express says the Mk1 Mokka could suffer water pump failure leading to overheating that can kill the engine, and the 1.2T petrol in the 2021-on Mk2 can still have this fault.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/mokka/364479/used-vauxhall-mokka-mk2-2021-date-buyers-guide-stylish-lags-behind-rivals",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Early wear on dampers and ball joints (Mk2)",
+      "description": "Mk2 dampers and ball joints can fail early. Auto Express suggests an MoT-style check, and notes many Mk2s were hire cars, so look for abuse such as slipping clutches.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/mokka/364479/used-vauxhall-mokka-mk2-2021-date-buyers-guide-stylish-lags-behind-rivals",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Mokka-e locking problems (Mk2)",
+      "description": "The electric Mokka-e's locking can play up because of a tired key fob or 12V battery, a software glitch or a blown fuse.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/mokka/364479/used-vauxhall-mokka-mk2-2021-date-buyers-guide-stylish-lags-behind-rivals",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Weak handbrake and hesitant 1.4T (Mk1)",
+      "description": "Some Mk1 owners found the handbrake didn't hold the car securely on steep slopes, and a software issue can make the 1.4T in the Mokka X hesitate when pulling away.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/mokka/95407/used-vauxhall-mokka-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Mk2 suspension and fuel leak recalls",
+      "description": "The Mk2 has had eight recalls, including loose suspension parts, wipers that might not work, fuel leaks, emissions issues and two Mokka-e software campaigns.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/mokka/364479/used-vauxhall-mokka-mk2-2021-date-buyers-guide-stylish-lags-behind-rivals",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

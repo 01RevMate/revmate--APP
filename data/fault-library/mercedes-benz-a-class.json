@@ -1,0 +1,33 @@
+{
+  "car": {
+    "make": "Mercedes-Benz",
+    "model": "A-Class",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Dashboard rattles (Mk3)",
+      "description": "Owners of the 2013-2018 Mk3 report rattles, creaks and squeaks from the dash, mainly around the centre console.",
+      "source_url": "https://www.autoexpress.co.uk/mercedes/class/96324/used-mercedes-class-mk3-2013-2018-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Rattling seatbelt height adjusters (early Mk3)",
+      "description": "On earlier Mk3 cars, the seatbelt height adjusters in the A-pillars tend to rattle loudly. Later cars got a redesigned part.",
+      "source_url": "https://www.autoexpress.co.uk/mercedes/class/96324/used-mercedes-class-mk3-2013-2018-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Mk3 recalls: oil leaks, driveshafts, fuel",
+      "description": "Mk3 recalls covered airbags, engine oil leaks, loss of drive from faulty driveshafts, possible engine failure from a manufacturing fault and fuel leaks that could lead to fire.",
+      "source_url": "https://www.autoexpress.co.uk/mercedes/class/96324/used-mercedes-class-mk3-2013-2018-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Crankshaft recall and many others (Mk4)",
+      "description": "Mercedes has issued 22 recalls for the 2018-on Mk4. They include faulty crankshafts needing engine replacement, leaking turbochargers, loose rear axle bolts and faulty panoramic sunroofs. Check by VIN.",
+      "source_url": "https://www.autoexpress.co.uk/mercedes/class/356870/used-mercedes-class-mk4-2018-date-review",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

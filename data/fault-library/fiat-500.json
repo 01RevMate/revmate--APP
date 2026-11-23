@@ -1,0 +1,33 @@
+{
+  "car": {
+    "make": "Fiat",
+    "model": "500",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Fragile interior trim and door handles",
+      "description": "Auto Express says interior trim on the 2008-on 500 can break or fall off, and the seat-tipping mechanism and door handles give trouble, with the handles a particular weak spot.",
+      "source_url": "https://www.autoexpress.co.uk/fiat/500/66782/used-fiat-500-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Early clutch failure and diesel flywheels",
+      "description": "Premature clutch failure isn't rare on petrol 500s. Diesel clutches tend to last longer, but their dual-mass flywheels can cause problems.",
+      "source_url": "https://www.autoexpress.co.uk/fiat/500/66782/used-fiat-500-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Parts wearing out early",
+      "description": "Auto Express says owners' forums report shock absorbers, radiators, wheel bearings, exhausts and air-con compressors failing earlier than expected. It recommends an inspection before buying.",
+      "source_url": "https://www.autoexpress.co.uk/fiat/500/66782/used-fiat-500-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Many recalls, including steering",
+      "description": "The 500 has been recalled 20 times, covering fuel leaks, brakes, airbags, lighting, seatbelts and electrical shorts. The most recent, in September 2022, was for a possible failure in the steering mechanism.",
+      "source_url": "https://www.autoexpress.co.uk/fiat/500/66782/used-fiat-500-review",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "car": {
+    "make": "Audi",
+    "model": "A1",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Rattling front doors (Mk1)",
+      "description": "On the 2010-2018 Mk1 A1, rattles from the front doors usually come from the door lock linkage moving about. Auto Express says a cable tie fixes it.",
+      "source_url": "https://www.autoexpress.co.uk/audi/a1/95744/used-audi-a1-mk1-2010-2018-review-and-buyers-guide",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Marked xenon headlamp housings (Mk1)",
+      "description": "On cars with xenon lights, the plastic headlamp housing can get marked from overheating. Auto Express says this could be fixed under warranty.",
+      "source_url": "https://www.autoexpress.co.uk/audi/a1/95744/used-audi-a1-mk1-2010-2018-review-and-buyers-guide",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Airbag and seatbelt tensioner recall (Mk1)",
+      "description": "In February 2017, 2,622 A1s were recalled because a manufacturing error meant the airbag and/or seatbelt tensioner might not trigger in a crash.",
+      "source_url": "https://www.autoexpress.co.uk/audi/a1/95744/used-audi-a1-mk1-2010-2018-review-and-buyers-guide",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

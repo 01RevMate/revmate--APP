@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "MINI",
+    "model": "Cooper",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Crankshaft bearing fault (2014-15 Cooper S)",
+      "description": "Autocar warns that 2014-2015 Cooper S models were recalled for a defective crankshaft bearing, with engines rebuilt or replaced. Check the full engine was replaced, since other parts may have been damaged.",
+      "source_url": "https://www.autocar.co.uk/car-review/mini/hatchback-2014-2024/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "High oil use on hotter models",
+      "description": "Autocar says high oil consumption is common on the hotter versions of the 2014-2024 hatch, so check the oil level and look for yearly servicing.",
+      "source_url": "https://www.autocar.co.uk/car-review/mini/hatchback-2014-2024/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Knocking front suspension bushes",
+      "description": "Worn front control arm bushes cause a knocking noise from the front suspension. Autocar puts a new bush at around £30.",
+      "source_url": "https://www.autocar.co.uk/car-review/mini/hatchback-2014-2024/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Paint rubbed by door seals and cloudy mirrors",
+      "description": "The door seal rubber can wear through the paint on the door shuts. Autocar also flags clouding wing mirror glass, which it says costs about £20 to replace.",
+      "source_url": "https://www.autocar.co.uk/car-review/mini/hatchback-2014-2024/reliability",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Heated seat faults",
+      "description": "Check the heated seats work and the dashboard light stays on when switched on. Autocar says a fault is down to either the heating element or the control module.",
+      "source_url": "https://www.autocar.co.uk/car-review/mini/hatchback-2014-2024/reliability",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

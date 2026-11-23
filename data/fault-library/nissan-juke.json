@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "Nissan",
+    "model": "Juke",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Air-con pipe can shear (Mk1)",
+      "description": "On the 2010-2019 Mk1 Juke, the pipe to the air-con pump can break, leaving no cold air. Auto Express says fixing it can easily cost more than £500.",
+      "source_url": "https://www.autoexpress.co.uk/nissan/juke/20630/used-nissan-juke-mk1-2010-2019-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Bumper rubbing paint (early Mk1)",
+      "description": "Tight panel gaps on early Mk1s could let the bumpers rub against nearby panels and damage the paint.",
+      "source_url": "https://www.autoexpress.co.uk/nissan/juke/20630/used-nissan-juke-mk1-2010-2019-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Split driver's seat side panels (Mk1)",
+      "description": "Check the side bolster of the driver's seat. Splits and failed stitching are common, especially on leather seats.",
+      "source_url": "https://www.autoexpress.co.uk/nissan/juke/20630/used-nissan-juke-mk1-2010-2019-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Rear seat latch recall (Mk2)",
+      "description": "In October 2021, over 13,500 Mk2 Jukes made up to the end of August 2020 were recalled because the rear seat hooks might not engage. New latches were fitted.",
+      "source_url": "https://www.autoexpress.co.uk/nissan/juke/362185/used-nissan-juke-mk2-2019-date-review-funky-and-affordable-crossover",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Hybrid control software recall (Mk2)",
+      "description": "Mk2 hybrids built June to December 2022 were recalled in April 2023 for a fault in the software that controls the hybrid system. A software update fixes it.",
+      "source_url": "https://www.autoexpress.co.uk/nissan/juke/362185/used-nissan-juke-mk2-2019-date-review-funky-and-affordable-crossover",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "BMW",
+    "model": "1 Series",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Blocked bulkhead drains (Mk2)",
+      "description": "On the 2011-2019 Mk2, leaves can block the drains in the bulkhead, letting water reach the electrics and damage them. Check the drains are clear.",
+      "source_url": "https://www.autoexpress.co.uk/bmw/1-series/66204/used-bmw-1-series-mk2-2011-2019-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Misting headlights (Mk2)",
+      "description": "Mk2 headlights are prone to misting up. Auto Express says they're vented, so moisture should clear eventually.",
+      "source_url": "https://www.autoexpress.co.uk/bmw/1-series/66204/used-bmw-1-series-mk2-2011-2019-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Rattling front doors (Mk2)",
+      "description": "The front doors can rattle. Lubricating the seals may help, but a dealer strip-down is usually needed.",
+      "source_url": "https://www.autoexpress.co.uk/bmw/1-series/66204/used-bmw-1-series-mk2-2011-2019-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Knocking rear suspension (Mk2)",
+      "description": "Several Mk2s have had knocking from the rear suspension caused by faulty dampers and/or mounting bushes.",
+      "source_url": "https://www.autoexpress.co.uk/bmw/1-series/66204/used-bmw-1-series-mk2-2011-2019-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Fuel pump and power steering recalls (Mk2)",
+      "description": "Mk2 recalls included a 2015 fuel pump fault that could stop the car starting or make it cut out, and a 2016 campaign for electric power steering failure.",
+      "source_url": "https://www.autoexpress.co.uk/bmw/1-series/66204/used-bmw-1-series-mk2-2011-2019-review",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "Audi",
+    "model": "A3",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Software-related electronic glitches (Mk4)",
+      "description": "Auto Express says electronics are the most common owner complaint on the 2020-on Mk4 A3, usually caused by software rather than a failed part. Test all the screens and systems.",
+      "source_url": "https://www.autoexpress.co.uk/audi/a3/364328/used-audi-a3-mk4-2020-date-buyers-guide-classy-used-hatchback",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Power supply and brake recalls (Mk4)",
+      "description": "Over 100,000 Mk4 A3s built March 2020 to May 2023 were recalled in August 2023 for potentially faulty power supplies. There were also recalls for faulty fuses on plug-in hybrids and a part that could cause loss of braking.",
+      "source_url": "https://www.autoexpress.co.uk/audi/a3/364328/used-audi-a3-mk4-2020-date-buyers-guide-classy-used-hatchback",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "1.4 TFSI wastegate rattle (Mk3)",
+      "description": "Some early Mk3 (2012-2020) 1.4 TFSI engines rattle under acceleration because the wastegate actuator rod vibrates.",
+      "source_url": "https://www.autoexpress.co.uk/audi/a3/36947/used-audi-a3-mk3-2012-2020-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Leaking water pump (Mk3)",
+      "description": "Some Mk3 owners have had water pumps leak, causing the coolant level to drop. Look for puddles under the car.",
+      "source_url": "https://www.autoexpress.co.uk/audi/a3/36947/used-audi-a3-mk3-2012-2020-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Creaking pop-up MMI screen (Mk3)",
+      "description": "The Mk3's retractable infotainment screen can creak as it slides out of the dash. The mechanism may need lubricating or replacing.",
+      "source_url": "https://www.autoexpress.co.uk/audi/a3/36947/used-audi-a3-mk3-2012-2020-review",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

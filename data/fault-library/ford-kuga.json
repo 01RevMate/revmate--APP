@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "Ford",
+    "model": "Kuga",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Knocking tailgate (Mk2)",
+      "description": "On the 2012-2019 Mk2, a knock from the rear may be the tailgate striker plate, which needs greasing.",
+      "source_url": "https://www.autoexpress.co.uk/ford/kuga/100544/used-ford-kuga-mk2-2012-2019-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Creaking front doors (Mk2)",
+      "description": "Creaks from the front doors are common. Auto Express says treating the rubber seals should fix it.",
+      "source_url": "https://www.autoexpress.co.uk/ford/kuga/100544/used-ford-kuga-mk2-2012-2019-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Cracked cylinder head and clutch recalls (Mk2)",
+      "description": "2018 recalls covered cylinder heads that could crack and leak pressurised oil (sometimes causing fires) on some earlier cars, and clutch pressure plates that could fracture on some EcoBoost manuals.",
+      "source_url": "https://www.autoexpress.co.uk/ford/kuga/100544/used-ford-kuga-mk2-2012-2019-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Plug-in hybrid battery recalls (Mk3)",
+      "description": "Three 2020 recalls targeted the 2020-on Mk3 PHEV: a damaged battery control connector, battery packs that could overheat, and short circuits inside the battery.",
+      "source_url": "https://www.autoexpress.co.uk/ford/kuga/358040/used-ford-kuga-mk3-2020-date-review-popular-and-desirable-mid-size-suv",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Oil/fuel leak and glass roof recalls (Mk3)",
+      "description": "Auto Express mentions a campaign to tackle oil and fuel leaks in Mk3 Kugas built up to summer 2022, and a November 2022 recall for glass roofs detaching on some 2021-built cars. Check any Mk3's recall history.",
+      "source_url": "https://www.autoexpress.co.uk/ford/kuga/358040/used-ford-kuga-mk3-2020-date-review-popular-and-desirable-mid-size-suv",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

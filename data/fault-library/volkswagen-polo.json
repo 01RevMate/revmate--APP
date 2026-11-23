@@ -1,0 +1,33 @@
+{
+  "car": {
+    "make": "Volkswagen",
+    "model": "Polo",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Clogged diesel particulate filter (Mk5)",
+      "description": "On the 2009-2017 Mk5 Polo, the exhaust particulate filter on diesels can block up if the car mostly does short, low-mileage trips. Auto Express suggests a petrol if you don't cover many miles.",
+      "source_url": "https://www.autoexpress.co.uk/volkswagen/polo/356660/used-volkswagen-polo-mk5-2009-2017-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Heat-damaged headlight lenses (Mk5)",
+      "description": "Some Mk5 owners have found the headlight lenses damaged by heat from the daytime running lights being left on for long periods. Inspect the lenses closely.",
+      "source_url": "https://www.autoexpress.co.uk/volkswagen/polo/356660/used-volkswagen-polo-mk5-2009-2017-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Fast-wearing or warped brake discs (Mk5)",
+      "description": "Auto Express reports some Mk5 Polos wear through brake discs quickly. Feel for juddering through the pedal or steering when braking, which points to warped or worn discs.",
+      "source_url": "https://www.autoexpress.co.uk/volkswagen/polo/356660/used-volkswagen-polo-mk5-2009-2017-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Fuel filter and seat recalls (Mk5)",
+      "description": "The Mk5 had five recalls, including a December 2014 campaign for a cracked filter that could leak fuel and an August 2015 one for front seats that could fail in a crash. The 1.6 TDI was also part of the VW diesel emissions recall.",
+      "source_url": "https://www.autoexpress.co.uk/volkswagen/polo/356660/used-volkswagen-polo-mk5-2009-2017-problems-recalls",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

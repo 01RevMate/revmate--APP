@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "Volkswagen",
+    "model": "Tiguan",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Power steering failure in cold weather (Mk1)",
+      "description": "On the 2008-2016 Mk1, the power steering can fail, especially below freezing. Auto Express says it's usually the control unit, but sometimes the steering rack.",
+      "source_url": "https://www.autoexpress.co.uk/volkswagen/tiguan/356676/used-volkswagen-tiguan-mk1-2008-2016-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Melting fuse boxes (Mk1)",
+      "description": "Mk1 electrical faults can be caused by fuse boxes melting from the high current going through them.",
+      "source_url": "https://www.autoexpress.co.uk/volkswagen/tiguan/356676/used-volkswagen-tiguan-mk1-2008-2016-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Electronic parking brake won't release (Mk1)",
+      "description": "The electronic parking brake can refuse to release. Sometimes this is just because the driver's seatbelt isn't done up or the clutch isn't fully pressed.",
+      "source_url": "https://www.autoexpress.co.uk/volkswagen/tiguan/356676/used-volkswagen-tiguan-mk1-2008-2016-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Pop-up bonnet and touchy emergency braking (Mk2)",
+      "description": "On the 2016-2024 Mk2, the active bonnet can deploy after a low-speed animal strike; Auto Express says a dealer reset costs about £400. Owners also often complain the emergency braking is over-sensitive.",
+      "source_url": "https://www.autoexpress.co.uk/volkswagen/tiguan/354032/used-volkswagen-tiguan-mk2-2016-2024-buyers-guide-big-selling-suv-second",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Many Mk2 recalls",
+      "description": "VW has recalled the Mk2 16 times, for issues including detaching roof spoilers, collapsing front seat backs, cracking brake discs, overheating starter motors and faulty fuel tanks.",
+      "source_url": "https://www.autoexpress.co.uk/volkswagen/tiguan/354032/used-volkswagen-tiguan-mk2-2016-2024-buyers-guide-big-selling-suv-second",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}
