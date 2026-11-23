@@ -6,18 +6,11 @@ been run live in `applied/` for reference.
 
 | # | File | What it does | Status |
 |---|------|--------------|--------|
-| 30 | `30_business_profiles.sql` | Business photo galleries, review photos, owner replies, opening hours, more sectors | **Run this** |
-| 33 | `33_business_foundation.sql` | Business approvals, tiers, edit review, follows, photo checks (rollback: `drizzle/migrations/0080_business_foundation_down.sql`) | **Run this, after the business-phase-1 pull request is approved** |
-| 34 | `34_business_trust_safety.sql` | Business trust and safety: smoothed ratings, review flags and reports, appeals, spam limits (rollback: `drizzle/migrations/0081_business_trust_safety_down.sql`). Needs 33 first. | **Run after 33, once the business-phase-2 pull request is approved** |
-| 35 | `35_business_discovery.sql` | Business search for every member: ranked search, nationwide option, rating / open-now filters (rollback: `drizzle/migrations/0082_business_discovery_down.sql`). Needs 33 and 34 first. | **Run after 34, once the business-phase-3 pull request is approved** |
-| 36 | `36_search_issue_posts.sql` | Fault search that scales and matches words (rollback: `drizzle/migrations/0083_search_issue_posts_down.sql`) | **Run this** |
-| 37 | `37_fault_library_schema.sql` | Fault library: `editorial` source, `cost_source_url`, `last_checked` (rollback: `drizzle/migrations/0084_fault_library_schema_down.sql`) | **Run this before importing faults** |
-| 38 | `38_fault_quote_deal_slot.sql` | `faults` Deals placement and a switched-off BookMyGarage starter deal (rollback: `drizzle/migrations/0085_fault_quote_deal_slot_down.sql`) | **Run this** |
 | 13 | `13_push_notifications.sql` | Phone push notifications | Optional |
 | 14 | `14_push_setup_after_keys.sql` | Connects the database to the push sender | Only with 13, after the keys are set up |
 
 Already applied (in `applied/`): 1–4 on 27 Sep 2026, 5–12 on 28 Sep 2026,
-15–18 on 1 Oct 2026, 19 on 2 Oct 2026, 20–21 on 5 Oct 2026, 22 by 19 Oct 2026, and 23–29 on 20 Oct 2026.
+15–18 on 1 Oct 2026, 19 on 2 Oct 2026, 20–21 on 5 Oct 2026, 22 by 19 Oct 2026, 23–29 on 20 Oct 2026, 30–32 and 33–35 (business profiles, foundation, trust and safety, discovery) by 16 Nov 2026, and 36–38 (fault search, fault library schema, quote slot) on 22 Nov 2026.
 
 ## Two ways to run them
 

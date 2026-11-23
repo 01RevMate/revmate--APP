@@ -70,6 +70,7 @@ import { Route as StoreIndexRouteImport } from './routes/store/index'
 import { Route as StoreSlugRouteImport } from './routes/store/$slug'
 import { Route as TagsTagRouteImport } from './routes/tags.$tag'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as BusinessesBusinessIdBadgeDotsvgRouteImport } from './routes/businesses/$businessId_.badge[.]svg'
 import { Route as MarketplaceListingIdEditRouteImport } from './routes/marketplace/$listingId_.edit'
 import { Route as CarsMakeModelGenerationRouteImport } from './routes/cars/$make.$model.$generation'
 import { Route as UUsernameCarsCarIdRouteImport } from './routes/u.$username_.cars.$carId'
@@ -380,6 +381,12 @@ const UUsernameRoute = UUsernameRouteImport.update({
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BusinessesBusinessIdBadgeDotsvgRoute =
+  BusinessesBusinessIdBadgeDotsvgRouteImport.update({
+    id: '/businesses/$businessId_/badge.svg',
+    path: '/businesses/$businessId/badge.svg',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const MarketplaceListingIdEditRoute =
   MarketplaceListingIdEditRouteImport.update({
     id: '/marketplace/$listingId_/edit',
@@ -459,6 +466,7 @@ export interface FileRoutesByFullPath {
   '/meets/': typeof MeetsIndexRoute
   '/shops/': typeof ShopsIndexRoute
   '/store/': typeof StoreIndexRoute
+  '/businesses/$businessId/badge.svg': typeof BusinessesBusinessIdBadgeDotsvgRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
@@ -525,6 +533,7 @@ export interface FileRoutesByTo {
   '/meets': typeof MeetsIndexRoute
   '/shops': typeof ShopsIndexRoute
   '/store': typeof StoreIndexRoute
+  '/businesses/$businessId/badge.svg': typeof BusinessesBusinessIdBadgeDotsvgRoute
   '/marketplace/$listingId/edit': typeof MarketplaceListingIdEditRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username/cars/$carId': typeof UUsernameCarsCarIdRoute
@@ -592,6 +601,7 @@ export interface FileRoutesById {
   '/meets/': typeof MeetsIndexRoute
   '/shops/': typeof ShopsIndexRoute
   '/store/': typeof StoreIndexRoute
+  '/businesses/$businessId_/badge.svg': typeof BusinessesBusinessIdBadgeDotsvgRoute
   '/marketplace/$listingId_/edit': typeof MarketplaceListingIdEditRoute
   '/cars/$make/$model/$generation': typeof CarsMakeModelGenerationRoute
   '/u/$username_/cars/$carId': typeof UUsernameCarsCarIdRoute
@@ -660,6 +670,7 @@ export interface FileRouteTypes {
     | '/meets/'
     | '/shops/'
     | '/store/'
+    | '/businesses/$businessId/badge.svg'
     | '/marketplace/$listingId/edit'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
@@ -726,6 +737,7 @@ export interface FileRouteTypes {
     | '/meets'
     | '/shops'
     | '/store'
+    | '/businesses/$businessId/badge.svg'
     | '/marketplace/$listingId/edit'
     | '/cars/$make/$model/$generation'
     | '/u/$username/cars/$carId'
@@ -792,6 +804,7 @@ export interface FileRouteTypes {
     | '/meets/'
     | '/shops/'
     | '/store/'
+    | '/businesses/$businessId_/badge.svg'
     | '/marketplace/$listingId_/edit'
     | '/cars/$make/$model/$generation'
     | '/u/$username_/cars/$carId'
@@ -858,6 +871,7 @@ export interface RootRouteChildren {
   MeetsIndexRoute: typeof MeetsIndexRoute
   ShopsIndexRoute: typeof ShopsIndexRoute
   StoreIndexRoute: typeof StoreIndexRoute
+  BusinessesBusinessIdBadgeDotsvgRoute: typeof BusinessesBusinessIdBadgeDotsvgRoute
   MarketplaceListingIdEditRoute: typeof MarketplaceListingIdEditRoute
   CarsMakeModelGenerationRoute: typeof CarsMakeModelGenerationRoute
   UUsernameCarsCarIdRoute: typeof UUsernameCarsCarIdRoute
@@ -1292,6 +1306,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/businesses/$businessId_/badge.svg': {
+      id: '/businesses/$businessId_/badge.svg'
+      path: '/businesses/$businessId/badge.svg'
+      fullPath: '/businesses/$businessId/badge.svg'
+      preLoaderRoute: typeof BusinessesBusinessIdBadgeDotsvgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/marketplace/$listingId_/edit': {
       id: '/marketplace/$listingId_/edit'
       path: '/marketplace/$listingId/edit'
@@ -1389,6 +1410,7 @@ const rootRouteChildren: RootRouteChildren = {
   MeetsIndexRoute: MeetsIndexRoute,
   ShopsIndexRoute: ShopsIndexRoute,
   StoreIndexRoute: StoreIndexRoute,
+  BusinessesBusinessIdBadgeDotsvgRoute: BusinessesBusinessIdBadgeDotsvgRoute,
   MarketplaceListingIdEditRoute: MarketplaceListingIdEditRoute,
   CarsMakeModelGenerationRoute: CarsMakeModelGenerationRoute,
   UUsernameCarsCarIdRoute: UUsernameCarsCarIdRoute,

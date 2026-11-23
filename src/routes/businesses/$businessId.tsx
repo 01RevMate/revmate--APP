@@ -65,7 +65,8 @@ import {
 import { useProfile } from "@/hooks/useProfile";
 import { uploadImage, validateImageFile } from "@/lib/uploads";
 import { supabase } from "@/integrations/supabase/client";
-import { absoluteUrl, seo } from "@/lib/seo";
+import { absoluteUrl, breadcrumbs, seo } from "@/lib/seo";
+import { fetchBusinessSeo } from "@/lib/seoData";
 import { displayUsername } from "@/lib/usernames";
 import { BusinessProCard } from "@/components/BusinessProCard";
 import { usePaidReturn } from "@/hooks/usePaidReturn";
@@ -73,19 +74,13 @@ import { Button } from "@/components/ui/button";
 import { PageSkeleton } from "@/components/PageSkeletons";
 import { useMinSkeleton } from "@/hooks/useMinSkeleton";
 
-async function fetchBusinessSeo(id: string) {
-  try {
-    const { data } = await supabase
-      .from("businesses")
-      .select(
-        "name, category, description, town, logo_url, rating_avg, reviews_count, website, phone",
-      )
-      .eq("id", id)
-      .maybeSingle();
-    return data;
-  } catch {
-    return null;
-  }
+// Garages, MOT centres and the other servicing and repair kinds are AutoRepair for Google; dealers are
+// AutoDealer; everything else stays the generic AutomotiveBusiness.
+function schemaTypeFor(category: string) {
+  const sector = sectorOf(category)?.id;
+  if (sector === "dealers") return "AutoDealer";
+  if (sector === "repairs") return "AutoRepair";
+  return "AutomotiveBusiness";
 }
 
 export const Route = createFileRoute("/businesses/$businessId")({
@@ -108,9 +103,14 @@ export const Route = createFileRoute("/businesses/$businessId")({
         `${b.name}, ${category.toLowerCase()}${b.town ? ` in ${b.town}` : ""}. Read reviews from RevMate members.`,
       path,
       image: b.logo_url,
-      jsonLd: {
+      jsonLd: [
+        breadcrumbs([
+          { name: "Businesses", path: "/businesses" },
+          { name: b.name, path },
+        ]),
+        {
         "@context": "https://schema.org",
-        "@type": sectorOf(b.category)?.id === "dealers" ? "AutoDealer" : "AutomotiveBusiness",
+        "@type": schemaTypeFor(b.category),
         name: b.name,
         url: absoluteUrl(path),
         ...(b.logo_url ? { image: b.logo_url } : {}),
@@ -129,7 +129,19 @@ export const Route = createFileRoute("/businesses/$businessId")({
               },
             }
           : {}),
-      },
+        ...(b.reviews.length > 0
+          ? {
+              review: b.reviews.map((r) => ({
+                "@type": "Review",
+                reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+                datePublished: r.created_at.slice(0, 10),
+                reviewBody: r.body.slice(0, 500),
+                author: { "@type": "Person", name: r.username ?? "RevMate member" },
+              })),
+            }
+          : {}),
+        },
+      ],
     });
   },
   component: BusinessPage,
