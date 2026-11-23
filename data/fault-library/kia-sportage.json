@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "Kia",
+    "model": "Sportage",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "DPF clogging and glitchy infotainment (Mk5)",
+      "description": "On the 2022-on Mk5, Auto Express says lots of short trips can clog the exhaust filter, the hands-free microphone can play up, and the infotainment can get glitchy without regular software updates.",
+      "source_url": "https://www.autoexpress.co.uk/kia/sportage/368219/used-kia-sportage-mk5-2022-date-buyers-guide-now-less-ps14k-owners-dont-rate-it",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Puncture-prone factory tyres (Mk5)",
+      "description": "Auto Express says the tyres fitted at the factory to the Mk5 are prone to punctures.",
+      "source_url": "https://www.autoexpress.co.uk/kia/sportage/368219/used-kia-sportage-mk5-2022-date-buyers-guide-now-less-ps14k-owners-dont-rate-it",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Digital instrument cluster recall (Mk5)",
+      "description": "In July 2023 almost 7,000 Mk5s built August 2022 to March 2023 were recalled for software bugs in the digital instrument cluster. The fix was a software update.",
+      "source_url": "https://www.autoexpress.co.uk/kia/sportage/368219/used-kia-sportage-mk5-2022-date-buyers-guide-now-less-ps14k-owners-dont-rate-it",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Brake servo recall (Mk5)",
+      "description": "A January 2025 recall covered nearly 3,000 Mk5s made September 2022 to June 2023 over brake servo failure, fixed with a software update.",
+      "source_url": "https://www.autoexpress.co.uk/kia/sportage/368219/used-kia-sportage-mk5-2022-date-buyers-guide-now-less-ps14k-owners-dont-rate-it",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Factory tyres perishing early (Mk4)",
+      "description": "On the 2016-2021 Mk4, Auto Express says there are reports of the original tyres perishing early, which led many owners to switch to other premium brands.",
+      "source_url": "https://www.autoexpress.co.uk/kia/sportage/360729/used-kia-sportage-mk4-2016-2021-review-and-buyers-guide-popular-very-good",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

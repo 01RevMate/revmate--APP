@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "Toyota",
+    "model": "Yaris",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Electrical faults with driver aids (Mk4)",
+      "description": "In Auto Express's 2022 Driver Power survey, 13.5% of 2020-on Mk4 Yaris owners reported a fault. The most common were electrical, especially with the driver-assistance and active safety systems.",
+      "source_url": "https://www.autoexpress.co.uk/toyota/yaris/358672/used-toyota-yaris-mk4-2020-date-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "ESP software recall (Mk4)",
+      "description": "Nearly 20,000 Mk4 cars made between July 2020 and April 2021 were recalled because faulty software could stop the stability control (ESP) working properly. A software update fixes it.",
+      "source_url": "https://www.autoexpress.co.uk/toyota/yaris/358672/used-toyota-yaris-mk4-2020-date-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Corrosion behind rear number plate trim (Mk3)",
+      "description": "On the 2011-2020 Mk3, the trim around the rear number plate can react with the tailgate and cause corrosion. Auto Express says dealers know about it.",
+      "source_url": "https://www.autoexpress.co.uk/used-toyota-yaris-mk3-2011-2020-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Multidrive CVT less reliable than manual (Mk3)",
+      "description": "Auto Express says the Mk3's Multidrive CVT automatic divides owners and is less reliable than the manual gearbox.",
+      "source_url": "https://www.autoexpress.co.uk/used-toyota-yaris-mk3-2011-2020-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Mk3 recalls: brakes, steering, hubs",
+      "description": "The Mk3 had eight recalls, including brake fluid leaks, power steering failure, turbo oil leaks, rear hubs working loose and a suspension failure campaign in 2016. Check recall work on any Mk3.",
+      "source_url": "https://www.autoexpress.co.uk/used-toyota-yaris-mk3-2011-2020-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

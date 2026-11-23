@@ -1,0 +1,27 @@
+{
+  "car": {
+    "make": "Honda",
+    "model": "Jazz",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Driver-assist software recall (Mk4)",
+      "description": "In August 2022, over 15,000 Mk4 Jazz hybrids built January 2020 to January 2021 were recalled because faulty software could stop some driver-assistance systems working properly. New software fixes it.",
+      "source_url": "https://www.autoexpress.co.uk/honda/jazz/363028/used-honda-jazz-mk4-2020-date-review-reliable-supermini-plenty-space",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Takata airbag recalls (Mk1 and Mk2)",
+      "description": "Auto Express says the Mk1 and Mk2 Jazz had 14 recalls between them, many linked to faulty Takata airbags that could injure occupants in a crash. Check the work has been done on older cars.",
+      "source_url": "https://www.autoexpress.co.uk/honda/jazz/363028/used-honda-jazz-mk4-2020-date-review-reliable-supermini-plenty-space",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Minor infotainment and air-con electrical faults (2020-on)",
+      "description": "What Car? says the 2020-on Jazz is very reliable, but some owners in its reliability survey reported minor electrical problems with the infotainment and air-conditioning.",
+      "source_url": "https://www.whatcar.com/honda/jazz/hatchback/used-review/n24519",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

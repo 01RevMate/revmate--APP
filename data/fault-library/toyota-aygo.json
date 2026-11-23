@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "Toyota",
+    "model": "Aygo",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Clunking rear dampers (early Mk2)",
+      "description": "Some early 2014-on Mk2 Aygos had clunking rear shock absorbers. Auto Express says new ones should have been fitted under warranty.",
+      "source_url": "https://www.autoexpress.co.uk/toyota/aygo/60466/used-toyota-aygo-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Tailgate lock misalignment (Mk2)",
+      "description": "The tailgate lock can go out of line so the boot won't open. Adjusting it is all that's needed.",
+      "source_url": "https://www.autoexpress.co.uk/toyota/aygo/60466/used-toyota-aygo-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Steering column recall (Mk2)",
+      "description": "Mk2 cars built in September and October 2014 were recalled in June 2016 over steering column failure that could cause loss of control.",
+      "source_url": "https://www.autoexpress.co.uk/toyota/aygo/60466/used-toyota-aygo-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Water leaks into the boot (Mk1)",
+      "description": "Carbuyer says the main weak spot on the 2005-2014 Mk1 is water getting in around the rear window and lights. Check the boot area for damp.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154740/used-toyota-aygo-buying-guide-2005-2014-mk1",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Coolant leaks, rusty exhaust and clutch wear (Mk1)",
+      "description": "Carbuyer also flags Mk1 water pumps leaking coolant, rear brake cylinders weeping fluid, exhaust back boxes rusting through early, clutch problems and catalytic converter failures.",
+      "source_url": "https://www.carbuyer.co.uk/tips-and-advice/154740/used-toyota-aygo-buying-guide-2005-2014-mk1",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

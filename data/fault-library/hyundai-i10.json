@@ -1,0 +1,33 @@
+{
+  "car": {
+    "make": "Hyundai",
+    "model": "i10",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Crunchy or sticky gearchanges (Mk2)",
+      "description": "Auto Express says many 2014-2019 Mk2 i10s have crunchy gearshifts, usually fixed by adjusting the cable.",
+      "source_url": "https://www.autoexpress.co.uk/hyundai/i10/66480/used-hyundai-i10-mk2-2014-2019-review-problems-recalls",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Sticking rear brake pads and corroded discs (Mk2)",
+      "description": "Autocar reports some Mk2 owners found the brake pads sticking to the discs and not releasing. Make sure the handbrake holds, and check the rear discs for pitting from corrosion.",
+      "source_url": "https://www.autocar.co.uk/car-news/used-cars-nearly-new-buying-guides/nearly-new-buying-guide-hyundai-i10-2014-2019",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Air-con problems (Mk2)",
+      "description": "Autocar says some Mk2 owners have had air-con problems linked to the type of refrigerant the system uses. Check it blows cold.",
+      "source_url": "https://www.autocar.co.uk/car-news/used-cars-nearly-new-buying-guides/nearly-new-buying-guide-hyundai-i10-2014-2019",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Occasional minor electrical glitches (Mk3)",
+      "description": "What Car? says the 2020-on i10 is very dependable. No owners reported a fault in its latest survey, but earlier surveys showed occasional minor electrical glitches that didn't affect driving.",
+      "source_url": "https://www.whatcar.com/hyundai/i10/hatchback/used-review/n22719",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

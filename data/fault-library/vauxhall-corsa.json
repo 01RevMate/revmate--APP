@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "Vauxhall",
+    "model": "Corsa",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Electrical glitches (Mk5)",
+      "description": "On the 2020-on Mk5 Corsa, Auto Express says small electrical faults aren't unusual, mainly with the lights, blind-spot indicators, heated steering wheel and auto wipers. They are not very serious and often sorted under warranty, so check every function works on a test drive.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/corsa/359294/used-vauxhall-corsa-mk5-2020-date-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Keyless entry and false alarms (Mk5)",
+      "description": "Some Mk5 cars with keyless go may not lock or unlock as they should, and the alarm can go off for no reason. Auto Express suggests trying new key fob batteries first, then a software fix.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/corsa/359294/used-vauxhall-corsa-mk5-2020-date-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Indicator software recall (Mk5)",
+      "description": "In February 2022 Vauxhall recalled over 66,000 Mk5 Corsas built up to the end of May 2021. A software fault could make the indicators behave erratically with no warning on the dash. Check the work has been done.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/corsa/359294/used-vauxhall-corsa-mk5-2020-date-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Side airbag earthing recall (Mk5)",
+      "description": "Mk5 cars built between late June and early December 2020 were recalled in December 2020 because an earthing problem in the electrical system could set off the side airbags unexpectedly. The fix was cleaning the earthing studs.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/corsa/359294/used-vauxhall-corsa-mk5-2020-date-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Easytronic gearbox and USB streaming (Mk4)",
+      "description": "On the 2014-2020 Mk4, Auto Express says the Easytronic automated gearbox is unpopular and less reliable than the manual. Some owners also report unreliable music streaming over USB; Bluetooth tends to work better.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/corsa/61015/used-vauxhall-corsa-mk4-2014-2020-review",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

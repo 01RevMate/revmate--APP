@@ -1,0 +1,33 @@
+{
+  "car": {
+    "make": "BMW",
+    "model": "3 Series",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Bluetooth connection problems (F30)",
+      "description": "On the 2012-2018 F30, phones may struggle to connect over Bluetooth. Auto Express says a software update may be needed, which an approved BMW dealer can do.",
+      "source_url": "https://www.autoexpress.co.uk/bmw/3-series/36924/used-bmw-3-series-f30-mk6-2012-2018-review-and-buyers-guide",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Squeaky front seat frames (F30)",
+      "description": "Corrosion can make the hinges and adjustment mechanism in the front seat frames squeak.",
+      "source_url": "https://www.autoexpress.co.uk/bmw/3-series/36924/used-bmw-3-series-f30-mk6-2012-2018-review-and-buyers-guide",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Diesel EGR cooler fire-risk recall (F30)",
+      "description": "Recalls in June 2018 and October 2019 hit diesel F30s with a faulty exhaust gas recirculation (EGR) cooler, which could cause a fire risk from burning soot deposits.",
+      "source_url": "https://www.autoexpress.co.uk/bmw/3-series/36924/used-bmw-3-series-f30-mk6-2012-2018-review-and-buyers-guide",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Power steering electrics and fuel starvation recalls (F30)",
+      "description": "Other F30 recalls covered electrical faults that could affect the electric power steering (October 2016), stalling from fuel starvation (2015) and possible clutch failure on manuals (2013).",
+      "source_url": "https://www.autoexpress.co.uk/bmw/3-series/36924/used-bmw-3-series-f30-mk6-2012-2018-review-and-buyers-guide",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}

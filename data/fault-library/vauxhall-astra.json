@@ -1,0 +1,39 @@
+{
+  "car": {
+    "make": "Vauxhall",
+    "model": "Astra",
+    "generation": "All years"
+  },
+  "faults": [
+    {
+      "title": "Piston ring failure on early petrols (Mk7)",
+      "description": "Some early 2015-on Astra K petrol engines suffered piston ring failure. Auto Express says using Dexos 2 spec oil rather than Dexos 1 is key to avoiding it, so check the service records.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/astra/86774/used-vauxhall-astra-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Fuel gauge under-reading (Mk7)",
+      "description": "The fuel gauge on early Astra Ks could read lower than the actual level. Software updates should have sorted most cars by now.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/astra/86774/used-vauxhall-astra-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "1.4 turbo flat spot (Mk7)",
+      "description": "The 1.4 turbo petrol can hesitate around 3,000rpm, particularly under load.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/astra/86774/used-vauxhall-astra-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Worn clutches and noisy front suspension (Mk7)",
+      "description": "Auto Express says clutches worn out at low mileage and noisy front suspension are worryingly common on the Mk7.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/astra/86774/used-vauxhall-astra-review",
+      "last_checked": "2026-11-22"
+    },
+    {
+      "title": "Braking and airbag recalls (Mk7)",
+      "description": "The Astra K has been recalled four times, including a December 2018 campaign covering over 37,000 cars for braking faults, plus recalls for airbags and poorly welded seat frames.",
+      "source_url": "https://www.autoexpress.co.uk/vauxhall/astra/86774/used-vauxhall-astra-review",
+      "last_checked": "2026-11-22"
+    }
+  ]
+}
